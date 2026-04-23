@@ -1,0 +1,14 @@
+.git
+vendor/
+var/
+.env.local
+.env.*.local
+docker-compose.yml
+docker-compose.override.yml
+compose.yaml
+compose.override.yaml
+.vscode/
+tests/
+phpunit.dist.xml
+Dockerfile
+.dockerignore

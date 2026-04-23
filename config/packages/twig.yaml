@@ -1,0 +1,11 @@
+twig:
+    file_name_pattern: '*.twig'
+    date:
+        timezone: '%env(APP_TIMEZONE)%'
+    globals:
+        google_client_id: '%env(default::GOOGLE_CLIENT_ID)%'
+
+
+when@test:
+    twig:
+        strict_variables: true

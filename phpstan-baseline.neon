@@ -1,0 +1,43 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to function is_array\(\) with non\-empty\-array\<mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Controller/Admin/AdminPokemonController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getUnlockedTms\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/MovesetController.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: src/Controller/MovesetController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getId\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Controller/TierListController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Entity\\TierList\:\:setUser\(\) expects App\\Entity\\User\|null, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/TierListController.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 6
+			path: src/Controller/TrainerCardController.php
+
+		-
+			message: '#^Offset ''normal'' on array\{normal\: 1, fighting\: 2, flying\: 3, poison\: 4, ground\: 5, rock\: 6, bug\: 7, ghost\: 8, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: src/Service/PokeApi/PokeApiDetailsFetcher.php
