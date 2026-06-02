@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}PokeFlaton - Os Melhores Movesets de Pokémon{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%220.9em%22 font-size=%2290%22>⚡</text></svg>">
+        <link rel="icon" href="{{ asset('image/Pokeball.png') }}">
         
         <!-- Google Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,6 +16,7 @@
 
         {% block stylesheets %}
             <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+            <link rel="stylesheet" href="{{ asset('css/base.css') }}">
         {% endblock %}
 
         {% block javascripts %}
@@ -25,11 +26,12 @@
     <body>
         <header class="app-header">
             <div class="container header-container">
-                <a href="#" class="app-logo">
-                    <span class="logo-text">Poke<span class="highlight">Flaton</span></span>
+                <a href="{{ path('app_home') }}" class="app-logo">
+                    <img src="{{ asset('image/PokeFlaton-pokeball.png') }}" alt="PokeFlaton" class="logo-img">
                 </a>
                 <nav class="app-nav">
-                    <a href="#" class="nav-link"><i class="fa-solid fa-house"></i> Início</a>
+                    <a href="{{ path('app_home') }}" class="nav-link"> Início</a>
+                    <a href="#" class="nav-link"> Pokémons</a>
                 </nav>
             </div>
         </header>
@@ -49,9 +51,13 @@
         </main>
 
         <footer class="app-footer">
+            <div class="footer-logo">
+                <img src="{{ asset('image/PokeFlaton-logo.png') }}" alt="PokeFlaton">
+            </div>
             <div class="container footer-container">
                 <p>&copy; {{ 'now'|date('Y') }} PokeFlaton. Desenvolvido para entusiastas de Pokémon.</p>
                 <p class="api-attribution">Dados fornecidos por <a href="https://pokeapi.co/" target="_blank">PokeAPI</a> e Sprites por <a href="https://github.com/PokeAPI/sprites" target="_blank">PokeAPI/sprites</a>.</p>
+            </div>
             </div>
         </footer>
     </body>

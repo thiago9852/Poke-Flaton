@@ -1,0 +1,120 @@
+/* Components: Cards, Buttons e Alerts */
+.card {
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition-smooth);
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 4px 14px var(--color-primary-glow);
+}
+
+.btn-primary:hover {
+    background-color: #7c3aed;
+    box-shadow: 0 6px 20px var(--color-primary-glow);
+}
+
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+}
+
+.btn-icon i {
+    font-size: 0.9rem;
+}
+
+.alert {
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 24px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.alert-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #34d399;
+}
+
+.alert-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+.errors-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Search */
+.search-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.search-box {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    color: var(--text-muted);
+}
+
+.search-input {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    padding: 12px 12px 12px 48px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+    transition: var(--transition-smooth);
+}
+
+.search-input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.25);
+    background-color: rgba(255, 255, 255, 0.08);
+}
