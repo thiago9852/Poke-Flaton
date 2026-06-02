@@ -1,54 +1,95 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}PokeFlaton - Pokémons{% endblock %}
+{% block title %}PokeFlaton - Pokémons
+{% endblock %}
 
 {% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/pokemon.css') }}">
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/pokemon.css') }}">
 {% endblock %}
 
 {% block body %}
-<div class="pokemon-grid-container">
-    <div class="pokemon-grid">
-        {% for pokemon in pokemons %}
-            <a href="#" class="pokemon-card">
-                <div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
-                <span class="pokemon-id">#{{ "%03d"|format(pokemon.id) }}</span>
-                <div class="pokemon-sprite-container">
-                    <img src="{{ pokemon.sprite }}" alt="{{ pokemon.name|capitalize }}" class="pokemon-image" loading="lazy">
-                </div>
-                <h3 class="pokemon-name">{{ pokemon.name|capitalize }}</h3>
-                <div class="pokemon-types">
-                    {% for type in pokemon.types %}
-                        <span class="type-badge type-badge-{{ type }}">{{ type|capitalize }}</span>
-                    {% endfor %}
-                </div>
-            </a>
-        {% endfor %}
-    </div>
 
-    <!-- Paginação -->
-    {% if lastPage > 1 %}
-        <div class="pagination-container">
-            {% if currentPage > 1 %}
-                <a href="{{ path('app_pokemon_index', { page: currentPage - 1 }) }}" class="btn btn-secondary btn-sm">
-                    <i class="fa-solid fa-chevron-left"></i> Anterior
-                </a>
-            {% else %}
-                <span class="btn btn-secondary btn-sm disabled"><i class="fa-solid fa-chevron-left"></i> Anterior</span>
-            {% endif %}
+	<section class="filter-section card">
+		<form action="{{ path('app_pokemon_index') }}" method="GET" class="search-form">
+			<div class="search-box">
+				<i class="fa-solid fa-magnifying-glass search-icon"></i>
+				<input type="text" name="q" value="{{ search }}" placeholder="Buscar por nome ou número..." class="search-input">
+				{% if search or selectedType %}
+					<a href="{{ path('app_pokemon_index') }}" class="clear-search-btn" title="Limpar Filtros">
+						<i class="fa-solid fa-xmark"></i>
+					</a>
+				{% endif %}
+			</div>
+			<button type="submit" class="btn btn-primary">Buscar</button>
+		</form>
 
-            <span class="page-info">Página <strong>{{ currentPage }}</strong> de <strong>{{ lastPage }}</strong></span>
+		<div class="type-filter-container">
+			<span class="filter-label">
+				<i class="fa-solid fa-sliders"></i>
+				Filtrar por tipo:
+			</span>
+			<div class="type-badges-list">
+				{% for type in allTypes %}
+					<a href="{{ path('app_pokemon_index', { search: search, type: selectedType == type.value ? '' : type.value }) }}" class="type-badge-link type-badge-{{ type.value }}{{ selectedType == type.value ? ' active' : '' }}">
+						{{ type.value|capitalize }}
+					</a>
+				{% endfor %}
+			</div>
+		</div>
+	</section>
 
-            {% if currentPage < lastPage %}
-                <a href="{{ path('app_pokemon_index', { page: currentPage + 1 }) }}" class="btn btn-secondary btn-sm">
-                    Próxima <i class="fa-solid fa-chevron-right"></i>
-                </a>
-            {% else %}
-                <span class="btn btn-secondary btn-sm disabled">Próxima <i class="fa-solid fa-chevron-right"></i></span>
-            {% endif %}
-        </div>
-    {% endif %}
-</div>
+	<div class="pokemon-grid-container">
+		<div class="pokemon-grid">
+			{% for pokemon in pokemons %}
+				<a href="#" class="pokemon-card">
+					<div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
+					<span class="pokemon-id">#{{ "%03d"|format(pokemon.id) }}</span>
+					<div class="pokemon-sprite-container">
+						<img src="{{ pokemon.sprite }}" alt="{{ pokemon.name|capitalize }}" class="pokemon-image" loading="lazy">
+					</div>
+					<h3 class="pokemon-name">{{ pokemon.name|capitalize }}</h3>
+					<div class="pokemon-types">
+						{% for type in pokemon.types %}
+							<span class="type-badge type-badge-{{ type }}">{{ type|capitalize }}</span>
+						{% endfor %}
+					</div>
+				</a>
+			{% endfor %}
+		</div>
+
+		<!-- Paginação -->
+		{% if lastPage > 1 %}
+			<div class="pagination-container">
+				{% if currentPage > 1 %}
+					<a href="{{ path('app_pokemon_index', { page: currentPage - 1 }) }}" class="btn btn-secondary btn-sm">
+						<i class="fa-solid fa-chevron-left"></i>
+						Anterior
+					</a>
+				{% else %}
+					<span class="btn btn-secondary btn-sm disabled">
+						<i class="fa-solid fa-chevron-left"></i>
+						Anterior</span>
+				{% endif %}
+
+				<span class="page-info">Página
+					<strong>{{ currentPage }}</strong>
+					de
+					<strong>{{ lastPage }}</strong>
+				</span>
+
+				{% if currentPage < lastPage %}
+					<a href="{{ path('app_pokemon_index', { page: currentPage + 1 }) }}" class="btn btn-secondary btn-sm">
+						Próxima
+						<i class="fa-solid fa-chevron-right"></i>
+					</a>
+				{% else %}
+					<span class="btn btn-secondary btn-sm disabled">Próxima
+						<i class="fa-solid fa-chevron-right"></i>
+					</span>
+				{% endif %}
+			</div>
+		{% endif %}
+	</div>
 {% endblock %}

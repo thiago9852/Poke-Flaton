@@ -82,6 +82,13 @@
 }
 
 /* Search */
+.filter-section {
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
 .search-form {
     display: flex;
     gap: 12px;

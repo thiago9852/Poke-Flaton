@@ -76,3 +76,72 @@
 .type-bg-dragon { background-color: var(--type-dragon); }
 .type-bg-steel { background-color: var(--type-steel); }
 .type-bg-fairy { background-color: var(--type-fairy); }
+
+/* Pokemon Type filter - badge buttons */
+.type-filter-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.filter-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+
+.type-badges-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.type-badge-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+}
+
+.type-badge-link:hover {
+    color: var(--text-primary);
+    background-color: rgba(255, 255, 255, 0.06);
+    transform: translateY(-1px);
+}
+
+.type-badge-link.active {
+    color: #fff;
+}
+
+.type-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+/* Link ativo */
+.type-badge-link.type-badge-normal.active { background-color: var(--type-normal); border-color: var(--type-normal); }
+.type-badge-link.type-badge-fire.active { background-color: var(--type-fire); border-color: var(--type-fire); box-shadow: 0 0 12px rgba(239, 68, 68, 0.4); }
+.type-badge-link.type-badge-water.active { background-color: var(--type-water); border-color: var(--type-water); box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); }
+.type-badge-link.type-badge-grass.active { background-color: var(--type-grass); border-color: var(--type-grass); box-shadow: 0 0 12px rgba(34, 197, 94, 0.4); }
+.type-badge-link.type-badge-electric.active { background-color: var(--type-electric); border-color: var(--type-electric); box-shadow: 0 0 12px rgba(234, 179, 8, 0.4); }
+.type-badge-link.type-badge-ice.active { background-color: var(--type-ice); border-color: var(--type-ice); box-shadow: 0 0 12px rgba(6, 182, 212, 0.4); }
+.type-badge-link.type-badge-fighting.active { background-color: var(--type-fighting); border-color: var(--type-fighting); box-shadow: 0 0 12px rgba(185, 28, 28, 0.4); }
+.type-badge-link.type-badge-poison.active { background-color: var(--type-poison); border-color: var(--type-poison); box-shadow: 0 0 12px rgba(168, 85, 247, 0.4); }
+.type-badge-link.type-badge-ground.active { background-color: var(--type-ground); border-color: var(--type-ground); box-shadow: 0 0 12px rgba(217, 119, 6, 0.4); }
+.type-badge-link.type-badge-flying.active { background-color: var(--type-flying); border-color: var(--type-flying); box-shadow: 0 0 12px rgba(129, 140, 246, 0.4); }
+.type-badge-link.type-badge-psychic.active { background-color: var(--type-psychic); border-color: var(--type-psychic); box-shadow: 0 0 12px rgba(244, 114, 182, 0.4); }
+.type-badge-link.type-badge-bug.active { background-color: var(--type-bug); border-color: var(--type-bug); box-shadow: 0 0 12px rgba(163, 230, 53, 0.4); }
+.type-badge-link.type-badge-rock.active { background-color: var(--type-rock); border-color: var(--type-rock); box-shadow: 0 0 12px rgba(120, 53, 15, 0.4); }
+.type-badge-link.type-badge-ghost.active { background-color: var(--type-ghost); border-color: var(--type-ghost); box-shadow: 0 0 12px rgba(99, 102, 241, 0.4); }
+.type-badge-link.type-badge-dragon.active { background-color: var(--type-dragon); border-color: var(--type-dragon); box-shadow: 0 0 12px rgba(124, 58, 237, 0.4); }
+.type-badge-link.type-badge-steel.active { background-color: var(--type-steel); border-color: var(--type-steel); box-shadow: 0 0 12px rgba(107, 114, 128, 0.4); }
+.type-badge-link.type-badge-fairy.active { background-color: var(--type-fairy); border-color: var(--type-fairy); box-shadow: 0 0 12px rgba(244, 114, 182, 0.4); }
