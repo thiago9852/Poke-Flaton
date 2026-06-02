@@ -53,7 +53,10 @@
 
 body {
     font-family: 'Plus Jakarta Sans', 'Outfit', system-ui, -apple-system, sans-serif;
-    background-color: var(--bg-main);
+    background-image: linear-gradient(rgba(12, 13, 18, 0.82), rgba(12, 13, 18, 0.88)), url('../image/pokemon-wallpaper.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
