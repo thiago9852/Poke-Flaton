@@ -121,4 +121,67 @@ class PokeApiService
         });
     }
 
+    /**
+     * Obter lista contendo apenas nomes e IDs para busca/filtro
+     */
+    public function getPokemonBasicList(int $limit = 151): array
+    {
+        return $this->cache->get('pokemon_basic_list_' . $limit, function (ItemInterface $item) use ($limit) {
+            $item->expiresAfter(86400 * 30); // 30 dias
+            $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon?limit=' . $limit);
+            $data = $response->toArray();
+
+            $list = [];
+            foreach ($data['results'] as $pokemon) {
+                $parts = explode('/', rtrim($pokemon['url'], '/'));
+                $id = (int) end($parts);
+                $list[] = [
+                    'id' => $id,
+                    'name' => $pokemon['name'],
+                    'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $id),
+                    'types' => [] // vazio por padrão
+                ];
+            }
+            return $list;
+        });
+    }
+
+    /**
+     * Buscar os detalhes (principalmente tipos) para um lote específico de pokémons concorrentemente
+     */
+    public function getPokemonDetailsBatch(array $pokemonBasicList): array
+    {
+        if (empty($pokemonBasicList)) {
+            return [];
+        }
+
+        $responses = [];
+        foreach ($pokemonBasicList as $p) {
+            $responses[$p['name']] = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon/' . $p['name']);
+        }
+
+        $list = [];
+        foreach ($pokemonBasicList as $p) {
+            $name = $p['name'];
+            $id = $p['id'];
+            $types = [];
+            try {
+                $details = $responses[$name]->toArray();
+                foreach ($details['types'] as $t) {
+                    $types[] = $t['type']['name'];
+                }
+            } catch (\Exception $e) {
+                // fallback
+            }
+
+            $list[] = [
+                'id' => $id,
+                'name' => $name,
+                'sprite' => $p['sprite'],
+                'types' => $types
+            ];
+        }
+        return $list;
+    }
 }
+

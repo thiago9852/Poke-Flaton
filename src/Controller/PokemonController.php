@@ -28,7 +28,7 @@ class PokemonController extends AbstractController
     public function index(Request $request): Response
     {
 
-        $search = $request->query->get('search');
+        $search = $request->query->get('q');
         $typeFilter = $request->query->get('type');
 
         $page = max(1, $request->query->getInt('page', 1));
@@ -40,6 +40,19 @@ class PokemonController extends AbstractController
             $result = $this->pokeApiService->getPokemonByType($typeFilter, $limit, $offset);
             $pokemons = $result['results'];
             $totalCount = $result['count'];
+        } elseif (!empty($search)) {
+            // Busca por termo: pega lista básica leve, filtra, faz slice e busca detalhes do lote de 24
+            $search = strtolower(trim($search));
+            $allBasicList = $this->pokeApiService->getPokemonBasicList(151); // 1ª Geração
+
+            $filteredBasic = array_filter($allBasicList, function ($p) use ($search) {
+                return str_contains($p['name'], $search) || strval($p['id']) === $search;
+            });
+
+            $totalCount = count($filteredBasic);
+            $pagedBasic = array_slice($filteredBasic, $offset, $limit);
+
+            $pokemons = $this->pokeApiService->getPokemonDetailsBatch($pagedBasic);
         } else {
             $result = $this->pokeApiService->getPokemonList($limit, $offset);
             $pokemons = $result['results'];
