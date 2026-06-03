@@ -77,4 +77,41 @@ class PokemonController extends AbstractController
             'search' => $search,
         ]);
     }
+
+    #[Route('/pokemon/{name}', name: 'app_pokemon_detail')]
+    public function detail(string $name): Response
+    {
+        try {
+            $pokemon = $this->pokeApiService->getPokemonDetails($name);
+        } catch (\Exception $e) {
+            throw $this->createNotFoundException('Pokémon não encontrado.');
+        }
+
+        // Buscar a linha evolutiva completa
+        $evolutionChain = $this->pokeApiService->getPokemonEvolutionChain($pokemon['name']);
+
+        // Buscar Pokémon anterior e próximo
+        $prevPokemon = null;
+        if ($pokemon['id'] > 1) {
+            try {
+                $prevPokemon = $this->pokeApiService->getPokemonDetails(strval($pokemon['id'] - 1));
+            } catch (\Exception $e) {
+                // ignore
+            }
+        }
+
+        $nextPokemon = null;
+        try {
+            $nextPokemon = $this->pokeApiService->getPokemonDetails(strval($pokemon['id'] + 1));
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        return $this->render('pokemon/detail.html.twig', [
+            'pokemon' => $pokemon,
+            'evolutionChain' => $evolutionChain,
+            'prevPokemon' => $prevPokemon,
+            'nextPokemon' => $nextPokemon,
+        ]);
+    }
 }

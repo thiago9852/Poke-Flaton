@@ -1,0 +1,139 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}PokeMoveset - {{ pokemon.name|capitalize }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/pokemon.css') }}">
+{% endblock %}
+
+{% block body %}
+<!-- Pokémon Navigation Bar -->
+<div class="pokemon-navigation-bar">
+    {% if prevPokemon %}
+        <a href="{{ path('app_pokemon_detail', { name: prevPokemon.name }) }}" class="nav-button nav-prev type-hover-{{ prevPokemon.types|first }}">
+            <span class="nav-arrow-circle"><i class="fa-solid fa-chevron-left"></i></span>
+            <span class="nav-number">Nº {{ "%04d"|format(prevPokemon.id) }}</span>
+            <span class="nav-name">{{ prevPokemon.name|capitalize }}</span>
+        </a>
+    {% else %}
+        <div class="nav-button nav-prev disabled"></div>
+    {% endif %}
+
+    {% if nextPokemon %}
+        <a href="{{ path('app_pokemon_detail', { name: nextPokemon.name }) }}" class="nav-button nav-next type-hover-{{ nextPokemon.types|first }}">
+            <span class="nav-name">{{ nextPokemon.name|capitalize }}</span>
+            <span class="nav-number">Nº {{ "%04d"|format(nextPokemon.id) }}</span>
+            <span class="nav-arrow-circle"><i class="fa-solid fa-chevron-right"></i></span>
+        </a>
+    {% else %}
+        <div class="nav-button nav-next disabled"></div>
+    {% endif %}
+</div>
+
+<div class="pokemon-current-header">
+    <h1 class="current-title">
+        {{ pokemon.name|capitalize }}
+        <span class="current-number">Nº {{ "%04d"|format(pokemon.id) }}</span>
+    </h1>
+</div>
+
+<div class="pokemon-detail-layout">
+    <!-- Informações do Pokémon (Coluna Esquerda) -->
+    <div class="pokemon-info-column">
+        <div class="card pokemon-main-card">
+            <div class="detail-glow type-glow-{{ pokemon.types|first }}"></div>
+            <div class="main-card-header">
+                <span class="detail-pokemon-id">#{{ "%03d"|format(pokemon.id) }}</span>
+                <span><i class="fa-solid fa-star shiny-star"></i></span>
+            </div>
+            <div class="detail-artwork-container">
+                <img src="{{ pokemon.sprite_official }}" alt="{{ pokemon.name|capitalize }}" class="detail-artwork">
+            </div>
+            <h1 class="detail-pokemon-name">{{ pokemon.name|capitalize }}</h1>
+            <div class="detail-pokemon-types">
+                {% for type in pokemon.types %}
+                    <span class="type-badge type-badge-{{ type }}">{{ type|capitalize }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Sprites Adicionais -->
+            <div class="detail-sprites-grid">
+                <div class="sprite-box">
+                    <img src="{{ pokemon.sprite_front }}" alt="Frente">
+                    <span>Frente</span>
+                </div>
+                <div class="sprite-box">
+                    <img src="{{ pokemon.sprite_back }}" alt="Costas">
+                    <span>Costas</span>
+                </div>
+                {% if pokemon.sprite_front_shiny %}
+                <div class="sprite-box shiny">
+                    <img src="{{ pokemon.sprite_front_shiny }}" alt="Shiny">
+                    <span>Shiny <i class="fa-solid fa-star shiny-star"></i></span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Status Base -->
+        <div class="card pokemon-stats-card">
+            <h2 class="card-title"><i class="fa-solid fa-chart-bar"></i> Status Base</h2>
+            <div class="stats-list">
+                {% set max_stat = 150 %}
+                {% for statName, statValue in pokemon.stats %}
+                    <div class="stat-row">
+                        <span class="stat-name">
+                            {% if statName == 'hp' %}HP
+                            {% elseif statName == 'attack' %}Ataque
+                            {% elseif statName == 'defense' %}Defesa
+                            {% elseif statName == 'special-attack' %}Ataque Esp.
+                            {% elseif statName == 'special-defense' %}Defesa Esp.
+                            {% elseif statName == 'speed' %}Velocidade
+                            {% else %}{{ statName|capitalize }}
+                            {% endif %}
+                        </span>
+                        <span class="stat-value">{{ statValue }}</span>
+                        <div class="stat-bar-container">
+                            {% set percentage = (statValue / max_stat) * 100 %}
+                            {% if percentage > 100 %}{% set percentage = 100 %}{% endif %}
+                            <div class="stat-bar-fill type-bg-{{ pokemon.types|first }}" style="width: {{ percentage }}%;"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Linha Evolutiva -->
+        <div class="card pokemon-evolution-card">
+            <h2 class="card-title"><i class="fa-solid fa-dna"></i> Linha Evolutiva</h2>
+            {% if evolutionChain is empty %}
+                <p class="no-drops-text">Este Pokémon não possui evolução cadastrada.</p>
+            {% else %}
+                <div class="evolution-chain-container">
+                    {% for evo in evolutionChain %}
+                        <div class="evolution-node-wrapper">
+                            <a href="{{ path('app_pokemon_detail', { name: evo.name }) }}" class="evolution-node {% if evo.name == pokemon.name %}active{% endif %}">
+                                <img src="{{ evo.sprite }}" alt="{{ evo.name|capitalize }}" class="evolution-sprite">
+                                <span class="evolution-name">{{ evo.name|capitalize }}</span>
+                            </a>
+                            {% if not loop.last %}
+                                <div class="evolution-arrow">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Seção de Movesets (Coluna Direita) -->
+    <div class="pokemon-movesets-column">
+        
+                                     
+    </div>
+</div>
+{% endblock %}

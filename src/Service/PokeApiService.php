@@ -66,6 +66,126 @@ class PokeApiService
     }
 
     /**
+     * Obter detalhes completos de um Pokémon
+     */
+    public function getPokemonDetails(string $nameOrId): array
+    {
+        return $this->cache->get('pokemon_details_' . strtolower($nameOrId), function (ItemInterface $item) use ($nameOrId) {
+            $item->expiresAfter(86400 * 7); // Cache por 7 dias
+
+            $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon/' . strtolower($nameOrId));
+            $data = $response->toArray();
+
+            // Status base
+            $stats = [];
+            foreach ($data['stats'] as $s) {
+                $stats[$s['stat']['name']] = $s['base_stat'];
+            }
+
+            // Tipos
+            $types = [];
+            foreach ($data['types'] as $t) {
+                $types[] = $t['type']['name'];
+            }
+
+            // Habilidades possíveis
+            $abilities = [];
+            foreach ($data['abilities'] as $a) {
+                $abilities[] = $a['ability']['name'];
+            }
+
+            // Itens dropados selvagens (held items)
+            $heldItems = [];
+            foreach ($data['held_items'] as $hi) {
+                $itemName = $hi['item']['name'];
+                $maxRarity = 0;
+                foreach ($hi['version_details'] as $vd) {
+                    if ($vd['rarity'] > $maxRarity) {
+                        $maxRarity = $vd['rarity'];
+                    }
+                }
+                $heldItems[] = [
+                    'name' => $itemName,
+                    'chance' => $maxRarity,
+                    'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/%s.png', $itemName)
+                ];
+            }
+
+            // Movimentos que pode aprender
+            $moves = [];
+            foreach ($data['moves'] as $m) {
+                $moves[] = $m['move']['name'];
+            }
+            sort($moves);
+
+            return [
+                'id' => $data['id'],
+                'name' => $data['name'],
+                'sprite_front' => $data['sprites']['front_default'],
+                'sprite_back' => $data['sprites']['back_default'],
+                'sprite_front_shiny' => $data['sprites']['front_shiny'],
+                'sprite_official' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $data['id']),
+                'types' => $types,
+                'stats' => $stats,
+                'drops' => $heldItems,
+                'moves' => $moves,
+                'abilities' => $abilities
+            ];
+        });
+    }
+
+    /**
+     * Obter a linha evolutiva completa do Pokémon
+     */
+    public function getPokemonEvolutionChain(string $pokemonName): array
+    {
+        return $this->cache->get('evolution_chain_for_' . $pokemonName, function (ItemInterface $item) use ($pokemonName) {
+            $item->expiresAfter(86400 * 30); // 30 dias
+            try {
+                // 1. Busca espécie para obter a URL da cadeia evolutiva
+                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon-species/' . strtolower($pokemonName));
+                $speciesData = $response->toArray();
+                
+                $chainUrl = $speciesData['evolution_chain']['url'];
+                
+                // 2. Busca os dados da cadeia evolutiva
+                $chainResponse = $this->httpClient->request('GET', $chainUrl);
+                $chainData = $chainResponse->toArray();
+                
+                return $this->parseEvolutionChain($chainData['chain']);
+            } catch (\Exception $e) {
+                return [];
+            }
+        });
+    }
+
+    /**
+     * Helper para mapear a árvore de evolução
+     */
+    private function parseEvolutionChain(array $chainNode): array
+    {
+        $evolutionList = [];
+        
+        $speciesName = $chainNode['species']['name'];
+        $parts = explode('/', rtrim($chainNode['species']['url'], '/'));
+        $speciesId = (int) end($parts);
+        
+        $evolutionList[] = [
+            'name' => $speciesName,
+            'id' => $speciesId,
+            'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $speciesId)
+        ];
+        
+        if (!empty($chainNode['evolves_to'])) {
+            foreach ($chainNode['evolves_to'] as $nextBranch) {
+                $evolutionList = array_merge($evolutionList, $this->parseEvolutionChain($nextBranch));
+            }
+        }
+        
+        return $evolutionList;
+    }
+
+    /**
      * Obter lista de Pokémons filtrados por tipo com paginação em cache
      */
     public function getPokemonByType(string $type, int $limit = 24, int $offset = 0): array
