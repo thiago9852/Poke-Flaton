@@ -3,11 +3,21 @@
     
     <div class="main-card-header">
         <span class="detail-pokemon-id">#{{ "%03d"|format(pokemon.id) }}</span>
-        <span style="cursor: pointer;" title="Shiny"><i class="fa-solid fa-star shiny-star"></i></span>
+        <span id="shiny-toggle" title="Shiny"
+            style="cursor: pointer; opacity: 0.3; transition: opacity 0.3s;"
+        >
+            <i class="fa-solid fa-star shiny-star"></i>
+        </span>
     </div>
 
     <div class="detail-artwork-container">
-        <img src="{{ pokemon.sprite_official }}" alt="{{ pokemon.name|capitalize }}" class="detail-artwork">
+        <img id="pokemon-artwork" 
+            src="{{ pokemon.sprite_official }}" 
+            data-normal="{{ pokemon.sprite_official }}" 
+            data-shiny="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/{{ pokemon.id }}.png" 
+            alt="{{ pokemon.name|capitalize }}" 
+            class="detail-artwork"
+        >
     </div>
 
     <h1 class="detail-pokemon-name">{{ pokemon.name|capitalize }}</h1>
@@ -16,23 +26,5 @@
         {% for type in pokemon.types %}
             {% include 'partials/type_badge.html.twig' with {'type': type, 'typeDetails': typeDetails} %}
         {% endfor %}
-    </div>
-
-    <!-- Sprites Adicionais -->
-    <div class="detail-sprites-grid">
-        <div class="sprite-box">
-            <img src="{{ pokemon.sprite_front }}" alt="Frente">
-            <span>Frente</span>
-        </div>
-        <div class="sprite-box">
-            <img src="{{ pokemon.sprite_back }}" alt="Costas">
-            <span>Costas</span>
-        </div>
-        {% if pokemon.sprite_front_shiny %}
-            <div class="sprite-box shiny">
-                <img src="{{ pokemon.sprite_front_shiny }}" alt="Shiny">
-                <span>Shiny <i class="fa-solid fa-star shiny-star"></i></span>
-            </div>
-        {% endif %}
     </div>
 </div>

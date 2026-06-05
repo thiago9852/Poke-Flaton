@@ -17,12 +17,22 @@
                     {% endif %}
                 </span>
                 
-                <span class="stat-value">{{ statValue }}</span>
+                <span class="stat-value" data-base-val="{{ statValue }}">{{ statValue }}</span>
                 
-                <div class="stat-bar-container">
+                <div class="stat-bar-container" style="display: flex;">
                     {% set percentage = (statValue / max_stat) * 100 %}
                     {% if percentage > 100 %}{% set percentage = 100 %}{% endif %}
-                    <div class="stat-bar-fill type-bg-{{ pokemon.types|first }}" style="width: {{ percentage }}%;"></div>
+
+                    <!-- Barra base stats -->
+                    <div class="stat-bar-fill type-bg-{{ pokemon.types|first }}"
+                        data-base-percentage="{{ percentage }}"
+                        style="width: {{ percentage }}%; border-radius: 0;"
+                    ></div>
+
+                    <!-- Barra de Buff -->
+                    <div class="stat-bar-buff type-bg-{{ pokemon.types|first }}"
+                        style="width: 0%; height: 100%; filter: brightness(0.6); transition: width 0.3s ease;"
+                    ></div>
                 </div>
             </div>
         {% endfor %}

@@ -173,5 +173,75 @@
                 activeBtn.style.borderBottomColor = 'var(--color-primary)';
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const shinyToggle = document.getElementById('shiny-toggle');
+
+            if (!shinyToggle) return;
+
+            // Elementos da img
+            const mainArtwork = document.getElementById('pokemon-artwork');
+
+            // Elementos de stats
+            const statValues = document.querySelectorAll('.stat-value');
+            const statBars = document.querySelectorAll('.stat-bar-fill');
+
+            // Constante max_stat usada no twig
+            const MAX_STAT = 150;
+
+            shinyToggle.addEventListener('click', function() {
+                // Verifica se ta ativo/não
+                const isShiny = shinyToggle.classList.toggle('active');
+
+                // Controle estilo visual da estrela
+                shinyToggle.style.opacity = isShiny ? '1' : '0.35';
+
+                // troca sprite
+                if (mainArtwork) {
+                    mainArtwork.src = isShiny ? mainArtwork.dataset.shiny : mainArtwork.dataset.normal;
+                }
+
+
+                // Analisar base stats com buff de 50%
+                statValues.forEach((span, index) => {
+                    const baseVal = parseInt(span.dataset.baseVal, 10);
+
+                    // Se for shiny
+                    const newVal = isShiny ? Math.round(baseVal * 1.5) : baseVal;
+                    span.textContent = newVal;
+
+                    // Recupera a barra base e a barra do buff
+                    const bar = statBars[index];
+                    if (bar) {
+                        const container = bar.parentElement;
+                        const buffBar = container.querySelector('.stat-bar-buff');
+
+                        if (isShiny) {
+                            // Mantém a barra base com a largura original
+                            bar.style.width = bar.dataset.basePercentage + '%';
+
+                            // Calcula a largura da barra de buff (os 50% de ganho)
+                            const basePercentage = parseFloat(bar.dataset.basePercentage);
+                            let buffPercentage = ((newVal - baseVal) / MAX_STAT) * 100;
+
+                            // Se a soma ultrapassar 100%, limita o buff para preencher o restante da barra
+                            if (basePercentage + buffPercentage > 100) {
+                                buffPercentage = 100 - basePercentage;
+                            }
+
+                            if (buffBar) {
+                                buffBar.style.width = buffPercentage + '%';
+                            }
+                        } else {
+                            // Restaura a barra base
+                            bar.style.width = bar.dataset.basePercentage + '%';
+                            if (buffBar) {
+                                buffBar.style.width = '0%';
+                            }
+                        }
+                    }
+                });
+            });
+        });
     </script>
 {% endblock %}

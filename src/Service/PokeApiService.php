@@ -232,9 +232,6 @@ class PokeApiService
             return [
                 'id' => $data['id'],
                 'name' => $data['name'],
-                'sprite_front' => $data['sprites']['front_default'],
-                'sprite_back' => $data['sprites']['back_default'],
-                'sprite_front_shiny' => $data['sprites']['front_shiny'],
                 'sprite_official' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $data['id']),
                 'types' => $types,
                 'stats' => $stats,
