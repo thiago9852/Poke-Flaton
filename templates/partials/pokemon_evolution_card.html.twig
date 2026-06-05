@@ -1,0 +1,55 @@
+<div class="card pokemon-evolution-card">
+    <h2 class="card-title"><i class="fa-solid fa-dna"></i> Linha Evolutiva</h2>
+    
+    {% if evolutionChain is empty %}
+        <p class="no-drops-text">Este Pokémon não possui evolução cadastrada.</p>
+    {% else %}
+        <div class="evolution-chain-container" 
+            style="display: flex; flex-direction: column; align-items: center; gap: 15px;"
+        >
+            {% for evo in evolutionChain %}
+                <div class="evolution-node-wrapper" 
+                    style="display: flex; flex-direction: column; align-items: center; width: 100%;"
+                >
+                    
+                    <a href="{{ path('app_pokemon_detail', { name: evo.name }) }}" 
+                        class="evolution-node {% if evo.name == pokemon.name %}active{% endif %}" 
+                        style="width: 100%; justify-content: center;"
+                    >
+
+                        <img src="{{ evo.sprite }}" alt="{{ evo.name|capitalize }}" class="evolution-sprite">
+
+                        <div class="evolution-details" style="text-align: center;">
+
+                            <span class="evolution-id">#{{ "%04d"|format(evo.id) }}</span>
+                            <span class="evolution-name" style="display: block;">{{ evo.name|capitalize }}</span>
+
+                            <div class="evolution-types">
+                                {% if evo.types is defined %}
+                                    {% for type in evo.types %}
+                                        {% include 'partials/type_badge.html.twig' with {'type': type, 'typeDetails': typeDetails} %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </a>
+                    
+                    {% if not loop.last %}
+                        <div class="evolution-arrow" 
+                            style="display: flex; flex-direction: column; align-items: center; margin: 10px 0;"
+                        >
+                            <span class="evolution-method" 
+                                style="font-size: 0.8em; color: #888;"
+                            >
+                                {{ evo.evolution_method|default('Nível/Stone') }}
+                            </span>
+                            <i class="fa-solid fa-chevron-down mt-1"></i>
+                        </div>
+                    {% endif %}
+                    
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

@@ -1,0 +1,12 @@
+<span style="font-weight: bold; color: #fff; cursor: pointer;"
+    data-tooltip-title="{{ title }}"
+    onmouseenter="showTemplateTooltip(event)"
+    onmouseleave="hideGenericTooltip()"
+>
+    {{ label }}
+
+    <template class="js-tooltip-template">
+        {{ content|raw }}
+    </template>
+    
+</span>

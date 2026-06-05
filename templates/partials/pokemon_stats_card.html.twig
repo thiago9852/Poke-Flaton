@@ -1,0 +1,30 @@
+<div class="card pokemon-stats-card">
+    <h2 class="card-title"><i class="fa-solid fa-chart-bar"></i> Status Base</h2>
+    
+    <div class="stats-list">
+        {% set max_stat = 150 %}
+        {% for statName, statValue in pokemon.stats %}
+        
+            <div class="stat-row">
+                <span class="stat-name">
+                    {% if statName == 'hp' %}HP
+                    {% elseif statName == 'attack' %}Ataque
+                    {% elseif statName == 'defense' %}Defesa
+                    {% elseif statName == 'special-attack' %}Ataque Esp.
+                    {% elseif statName == 'special-defense' %}Defesa Esp.
+                    {% elseif statName == 'speed' %}Velocidade
+                    {% else %}{{ statName|capitalize }}
+                    {% endif %}
+                </span>
+                
+                <span class="stat-value">{{ statValue }}</span>
+                
+                <div class="stat-bar-container">
+                    {% set percentage = (statValue / max_stat) * 100 %}
+                    {% if percentage > 100 %}{% set percentage = 100 %}{% endif %}
+                    <div class="stat-bar-fill type-bg-{{ pokemon.types|first }}" style="width: {{ percentage }}%;"></div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

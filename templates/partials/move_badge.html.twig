@@ -1,0 +1,78 @@
+{% set md = moveDetails[moveName] ?? null %}
+{% if md %}
+
+    <span class="type-badge-sm type-badge-pd type-badge-{{ md.type }}"
+        style="display:inline-flex; align-items:center; cursor: pointer;"
+        data-tooltip-title="{{ moveName|replace({'-': ' '})|title }}"
+        onmouseenter="showTemplateTooltip(event)" 
+        onmouseleave="hideGenericTooltip()"
+    >
+        <img src="{{ md.type_icon }}" alt="{{ md.type }}" class="move-type-icon-md" style="margin-right: 5px;">
+        {{ moveName|replace({'-': ' '})|title }}
+
+        <template class="js-tooltip-template">
+            
+            <div class="tooltip-row">
+                <span class="tooltip-label">Tipo</span>
+                <span class="tooltip-value">
+                    <img src="{{ md.type_icon }}" class="move-type-icon" 
+                        style="width:14px; height:14px; vertical-align:middle; margin-right:4px;"
+                    >
+                    {{ md.type|capitalize }}
+                </span>
+            </div>
+
+            <div class="tooltip-row">
+                <span class="tooltip-label">Poder</span>
+                <span class="tooltip-value">{{ md.power|default('---') }}</span>
+            </div>
+
+            <div class="tooltip-row">
+                <span class="tooltip-label">Categoria</span>
+                <span class="tooltip-value">
+
+                    {% if md.category == 'physical' %}
+                        <i class="fa-solid fa-hand-fist" style="font-size:0.75rem"></i> Físico
+                    {% elseif md.category == 'special' %}
+                        <i class="fa-solid fa-bolt" style="font-size:0.75rem"></i> Especial
+                    {% else %}
+                        <i class="fa-solid fa-circle-dot" style="font-size:0.75rem"></i> Status
+                    {% endif %}
+                    
+                </span>
+            </div>
+
+            {% if md.accuracy is defined and md.accuracy %}
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Precisão</span>
+                    <span class="tooltip-value">{{ md.accuracy }}%</span>
+                </div>
+            {% endif %}
+
+            {% set lm = learnMethod ?? md.learn_method ?? null %}
+            {% if lm %}
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Método</span>
+                    <span class="tooltip-value">
+                        {% if lm == 'level-up' or lm == 'base' or lm == 'both' %}
+                            Nível
+                        {% elseif lm == 'machine' or lm == 'TM' %}
+                            TM
+                        {% else %}
+                            {{ lm|capitalize }}
+                        {% endif %}
+                    </span>
+                </div>
+            {% endif %}
+
+            <div class="tooltip-row tooltip-desc-row">
+                <span class="tooltip-label">Descrição</span>
+                <span class="tooltip-value">{{ md.description|default('Nenhuma descrição disponível.') }}</span>
+            </div>
+
+        </template>
+    </span>
+
+{% else %}
+    <span class="badge bg-secondary">{{ moveName|replace({'-': ' '})|title }}</span>
+{% endif %}

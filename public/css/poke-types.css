@@ -1,4 +1,4 @@
-/* Pokemon types: badges e background */
+/* ---- Tipos de Pokémon: badges e background ---- */
 .type-badge {
     display: inline-block;
     padding: 4px 12px;
@@ -13,7 +13,6 @@
 
 .type-badge-sm {
     display: inline-block;
-    padding: 2px 8px;
     border-radius: 10px;
     font-size: 0.65rem;
     font-weight: 800;
@@ -21,7 +20,11 @@
     color: #fff;
 }
 
-/* Badges Gradients */
+.type-badge-pd {
+    padding: 4px 6px;
+}
+
+/* ---- Gradients de Badges ---- */
 .type-badge-normal, .type-badge-sm-normal { background: linear-gradient(135deg, #a8a29e, #78716c); }
 .type-badge-fire, .type-badge-sm-fire { background: linear-gradient(135deg, #f97316, #ef4444); box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
 .type-badge-water, .type-badge-sm-water { background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
@@ -40,7 +43,7 @@
 .type-badge-steel, .type-badge-sm-steel { background: linear-gradient(135deg, #6b7280, #374151); box-shadow: 0 0 10px rgba(107, 114, 128, 0.3); }
 .type-badge-fairy, .type-badge-sm-fairy { background: linear-gradient(135deg, #f472b6, #ec4899); box-shadow: 0 0 10px rgba(244, 114, 182, 0.3); }
 
-/* Glow Background Effects */
+/* ---- Efeitos de fundo com brilho ---- */
 .type-glow-normal { --glow-color: var(--type-normal); }
 .type-glow-fire { --glow-color: var(--type-fire); }
 .type-glow-water { --glow-color: var(--type-water); }
@@ -77,7 +80,7 @@
 .type-bg-steel { background-color: var(--type-steel); }
 .type-bg-fairy { background-color: var(--type-fairy); }
 
-/* Pokemon Type filter - badge buttons */
+/* ---- Filtro de tipos de Pokemon - botões badge ---- */
 .type-filter-container {
     display: flex;
     flex-direction: column;

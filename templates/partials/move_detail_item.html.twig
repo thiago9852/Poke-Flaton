@@ -1,0 +1,56 @@
+<div class="move-detail-item" 
+    style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;"
+>
+    
+    <div class="move-detail-header" 
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;"
+    >
+        <span class="move-name-text" style="font-weight: bold;">
+            {{ moveName|replace({'-': ' '})|title }}
+        </span>
+        
+        <div class="move-header-badges">
+            {% set moveMeta = pokemon.moves[moveName] ?? null %}
+            {% set learnMethod = (moveMeta is iterable and moveMeta.learn_method is defined) ? moveMeta.learn_method : 'base' %}
+            
+            <span class="badge {{ learnMethod == 'TM' ? 'bg-info' : 'bg-secondary' }}">
+                {{ learnMethod == 'TM' ? 'TM' : 'Lvl' }}
+            </span>
+            
+            {% if md %}
+                <span class="type-badge-sm type-badge-{{ md.type }}" 
+                    style="display: inline-flex; align-items: center; padding-right: 6px; font-size: 0.8em; border-radius: 4px;"
+                >
+                    <img src="{{ md.type_icon }}" class="move-type-icon-md" style="margin-right: 4px;"> {{ md.type|capitalize }}
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if md %}
+        <div class="move-detail-stats" 
+            style="font-size: 0.85em; color: #aaa; display: flex; gap: 10px; margin-bottom: 5px;"
+        >
+            <span>
+                {% if md.category == 'physical' %}
+                    <i class="fa-solid fa-hand-fist"></i> Físico
+                {% elseif md.category == 'special' %}
+                    <i class="fa-solid fa-sparkles"></i> Especial
+                {% else %}
+                    <i class="fa-solid fa-shield"></i> Status
+                {% endif %}
+            </span>
+            
+            {% if md.power %}
+                <span><i class="fa-solid fa-fire"></i> {{ md.power }}</span>
+            {% endif %}
+            
+            {% if md.accuracy %}
+                <span><i class="fa-solid fa-bullseye"></i> {{ md.accuracy }}%</span>
+            {% endif %}
+        </div>
+        
+        <p class="move-desc" style="font-size: 0.85em; margin: 0; color: #ddd;">{{ md.description }}</p>
+    {% endif %}
+    
+</div>

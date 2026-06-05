@@ -12,6 +12,7 @@
 {% block body %}
 
 	<section class="filter-section card">
+		
 		<form action="{{ path('app_pokemon_index') }}" method="GET" class="search-form">
 			<div class="search-box">
 				<i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -32,18 +33,22 @@
 			</span>
 			<div class="type-badges-list">
 				{% for type in allTypes %}
-					<a href="{{ path('app_pokemon_index', { search: search, type: selectedType == type.value ? '' : type.value }) }}" class="type-badge-link type-badge-{{ type.value }}{{ selectedType == type.value ? ' active' : '' }}">
+					<a href="{{ path('app_pokemon_index', { search: search, type: selectedType == type.value ? '' : type.value }) }}" 
+						class="type-badge-link type-badge-{{ type.value }}{{ selectedType == type.value ? ' active' : '' }}"
+					>
 						{{ type.value|capitalize }}
 					</a>
 				{% endfor %}
 			</div>
 		</div>
+
 	</section>
 
 	<div class="pokemon-grid-container">
 		<div class="pokemon-grid">
 			{% for pokemon in pokemons %}
-				<a href="#" class="pokemon-card">
+
+				<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="pokemon-card">
 					<div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
 					<span class="pokemon-id">#{{ "%03d"|format(pokemon.id) }}</span>
 					<div class="pokemon-sprite-container">
@@ -51,17 +56,21 @@
 					</div>
 					<h3 class="pokemon-name">{{ pokemon.name|capitalize }}</h3>
 					<div class="pokemon-types">
+
 						{% for type in pokemon.types %}
 							<span class="type-badge type-badge-{{ type }}">{{ type|capitalize }}</span>
 						{% endfor %}
+
 					</div>
 				</a>
+
 			{% endfor %}
 		</div>
 
 		<!-- Paginação -->
 		{% if lastPage > 1 %}
 			<div class="pagination-container">
+
 				{% if currentPage > 1 %}
 					<a href="{{ path('app_pokemon_index', { page: currentPage - 1 }) }}" class="btn btn-secondary btn-sm">
 						<i class="fa-solid fa-chevron-left"></i>
@@ -91,5 +100,6 @@
 				{% endif %}
 			</div>
 		{% endif %}
+		
 	</div>
 {% endblock %}

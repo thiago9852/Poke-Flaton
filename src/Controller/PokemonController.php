@@ -79,7 +79,7 @@ class PokemonController extends AbstractController
     }
 
     #[Route('/pokemon/{name}', name: 'app_pokemon_detail')]
-    public function detail(string $name): Response
+    public function detail(string $name, \App\Repository\MovesetRepository $movesetRepository): Response
     {
         try {
             $pokemon = $this->pokeApiService->getPokemonDetails($name);
@@ -107,11 +107,52 @@ class PokemonController extends AbstractController
             // ignore
         }
 
+        // Buscar movesets cadastrados no banco
+        $movesets = $movesetRepository->findBy(['pokemonName' => $pokemon['name']], ['votes' => 'DESC']);
+
+        // Buscar detalhes de cada golpe, habilidade e nature contidos nos movesets
+        $moveDetails = [];
+        $abilityDetails = [];
+        
+        $allNatures = $this->pokeApiService->getNatures();
+        $naturesMap = [];
+        foreach ($allNatures as $n) {
+            $naturesMap[$n['name']] = $n;
+        }
+        $itemDetails = [];
+
+        foreach ($movesets as $moveset) {
+            foreach ($moveset->getMoves() as $moveName) {
+                if (!empty($moveName) && !isset($moveDetails[$moveName])) {
+                    $moveDetails[$moveName] = $this->pokeApiService->getMoveDetails($moveName);
+                }
+            }
+            $abilityName = $moveset->getAbility();
+            if (!empty($abilityName) && !isset($abilityDetails[$abilityName])) {
+                $abilityDetails[$abilityName] = $this->pokeApiService->getAbilityDetails($abilityName);
+            }
+            $itemName = $moveset->getHeldItem();
+            if (!empty($itemName) && !isset($itemDetails[$itemName])) {
+                $itemDetails[$itemName] = $this->pokeApiService->getItemDetails($itemName);
+            }
+        }
+
+        $typeDetails = [];
+        foreach ($pokemon['types'] as $type) {
+            $typeDetails[$type] = $this->pokeApiService->getTypeDetails($type);
+        }
+
         return $this->render('pokemon/detail.html.twig', [
             'pokemon' => $pokemon,
             'evolutionChain' => $evolutionChain,
             'prevPokemon' => $prevPokemon,
             'nextPokemon' => $nextPokemon,
+            'movesets' => $movesets,
+            'moveDetails' => $moveDetails,
+            'abilityDetails' => $abilityDetails,
+            'itemDetails' => $itemDetails,
+            'naturesMap' => $naturesMap,
+            'typeDetails' => $typeDetails,
         ]);
     }
 }

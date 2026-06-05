@@ -1,0 +1,38 @@
+<div class="card pokemon-main-card">
+    <div class="detail-glow type-glow-{{ pokemon.types|first }}"></div>
+    
+    <div class="main-card-header">
+        <span class="detail-pokemon-id">#{{ "%03d"|format(pokemon.id) }}</span>
+        <span style="cursor: pointer;" title="Shiny"><i class="fa-solid fa-star shiny-star"></i></span>
+    </div>
+
+    <div class="detail-artwork-container">
+        <img src="{{ pokemon.sprite_official }}" alt="{{ pokemon.name|capitalize }}" class="detail-artwork">
+    </div>
+
+    <h1 class="detail-pokemon-name">{{ pokemon.name|capitalize }}</h1>
+
+    <div class="detail-pokemon-types">
+        {% for type in pokemon.types %}
+            {% include 'partials/type_badge.html.twig' with {'type': type, 'typeDetails': typeDetails} %}
+        {% endfor %}
+    </div>
+
+    <!-- Sprites Adicionais -->
+    <div class="detail-sprites-grid">
+        <div class="sprite-box">
+            <img src="{{ pokemon.sprite_front }}" alt="Frente">
+            <span>Frente</span>
+        </div>
+        <div class="sprite-box">
+            <img src="{{ pokemon.sprite_back }}" alt="Costas">
+            <span>Costas</span>
+        </div>
+        {% if pokemon.sprite_front_shiny %}
+            <div class="sprite-box shiny">
+                <img src="{{ pokemon.sprite_front_shiny }}" alt="Shiny">
+                <span>Shiny <i class="fa-solid fa-star shiny-star"></i></span>
+            </div>
+        {% endif %}
+    </div>
+</div>

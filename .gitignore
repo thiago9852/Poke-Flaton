@@ -21,3 +21,5 @@
 
 # Local Composer secrets
 /auth.json
+/scratch/
+

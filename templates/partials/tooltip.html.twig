@@ -1,0 +1,107 @@
+<div id="generic-tooltip" class="global-tooltip" style="display:none;">
+    <div class="tooltip-header">
+        <span class="tooltip-name" id="generic-tooltip-title"></span>
+    </div>
+    <div class="tooltip-body" id="generic-tooltip-body">
+    </div>
+</div>
+
+<style>
+.global-tooltip {
+    position: absolute;
+    z-index: 9999;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 12px;
+    width: 250px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    pointer-events: none;
+    font-size: 0.85rem;
+    color: #cbd5e1;
+}
+.global-tooltip .tooltip-header {
+    border-bottom: 1px solid #334155;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: #fff;
+    font-size: 1rem;
+}
+.global-tooltip .tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+.global-tooltip .tooltip-row.tooltip-desc-row {
+    flex-direction: column;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dotted #334155;
+}
+.global-tooltip .tooltip-label {
+    color: #94a3b8;
+}
+.global-tooltip .tooltip-value {
+    font-weight: 600;
+    color: #fff;
+}
+.global-tooltip .tooltip-desc-row .tooltip-value {
+    font-weight: 400;
+    margin-top: 4px;
+    line-height: 1.4;
+    color: #e2e8f0;
+}
+</style>
+
+<script>
+    const globalTooltipEl = document.getElementById('generic-tooltip');
+    let globalTooltipTimeout = null;
+
+    window.showGenericTooltip = function(event, title, bodyHTML) {
+        clearTimeout(globalTooltipTimeout);
+
+        if (globalTooltipEl.parentNode !== document.body) {
+            document.body.appendChild(globalTooltipEl);
+        }
+
+        document.getElementById('generic-tooltip-title').innerHTML = title;
+        document.getElementById('generic-tooltip-body').innerHTML = bodyHTML;
+        
+        globalTooltipEl.style.display = 'block';
+        positionGenericTooltip(event);
+    };
+
+    window.hideGenericTooltip = function() {
+        globalTooltipTimeout = setTimeout(() => { globalTooltipEl.style.display = 'none'; }, 100);
+    };
+
+    window.showTemplateTooltip = function(event) {
+        clearTimeout(globalTooltipTimeout);
+        const trigger = event.currentTarget;
+        const title = trigger.getAttribute('data-tooltip-title') || '';
+        const template = trigger.querySelector('.js-tooltip-template');
+        if (template) {
+            showGenericTooltip(event, title, template.innerHTML);
+        }
+    };
+
+    function positionGenericTooltip(event) {
+        const target = event.currentTarget;
+        const rect = target.getBoundingClientRect();
+        
+        let left = rect.left + window.scrollX;
+        let top = rect.top + window.scrollY - globalTooltipEl.offsetHeight - 10;
+        
+        if (top < window.scrollY) {
+            top = rect.bottom + window.scrollY + 10;
+        }
+        
+        if (left + globalTooltipEl.offsetWidth > window.innerWidth + window.scrollX) {
+            left = window.innerWidth + window.scrollX - globalTooltipEl.offsetWidth - 10;
+        }
+        
+        globalTooltipEl.style.left = left + 'px';
+        globalTooltipEl.style.top = top + 'px';
+    }
+</script>

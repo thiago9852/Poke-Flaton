@@ -1,0 +1,48 @@
+{% set typeName = type|capitalize %}
+{% set rel = (typeDetails is defined and typeDetails[type] is defined) ? typeDetails[type].damage_relations|default(null) : null %}
+
+<span class="type-badge type-badge-{{ type }}" style="cursor: pointer;"
+      data-tooltip-title="Tipo {{ typeName }}"
+      onmouseenter="showTemplateTooltip(event)"
+      onmouseleave="hideGenericTooltip()">
+    {{ typeName }}
+
+    <template class="js-tooltip-template">
+        {% if rel %}
+            {% if rel.double_damage_to|length > 0 %}
+                <div style="margin-bottom: 5px;">
+                    <strong style="color: #4CAF50;">Forte Contra (2x):</strong><br>
+                    {% for d in rel.double_damage_to %}
+                        <span class="type-badge-sm type-badge-pd type-badge-{{ d.name }}" style="margin-bottom: 5px;">
+                            {{ d.name|capitalize }}
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if rel.half_damage_to|length > 0 %}
+                <div style="margin-bottom: 5px;">
+                    <strong style="color: #ff4d4d;">Fraco Contra (0.5x):</strong><br>
+                    {% for d in rel.half_damage_to %}
+                        <span class="type-badge-sm type-badge-pd type-badge-{{ d.name }}" style="margin-bottom: 5px;">
+                            {{ d.name|capitalize }}
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if rel.no_damage_to|length > 0 %}
+                <div style="margin-bottom: 5px;">
+                    <strong style="color: #ccc;">Sem Efeito (0x):</strong><br>
+                    {% for d in rel.no_damage_to %}
+                        <span class="type-badge-sm type-badge-pd type-badge-{{ d.name }}" style="margin-bottom: 5px;">
+                            {{ d.name|capitalize }}
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% else %}
+            Sem detalhes de tipo disponíveis.
+        {% endif %}
+    </template>
+</span>
