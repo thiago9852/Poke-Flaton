@@ -13,11 +13,15 @@
 
 .type-badge-sm {
     display: inline-block;
-    border-radius: 10px;
+    border-radius: 6px;
     font-size: 0.65rem;
     font-weight: 800;
     text-transform: uppercase;
     color: #fff;
+}
+
+.type-badge-pr {
+    padding-right: 6px;
 }
 
 .type-badge-pd {

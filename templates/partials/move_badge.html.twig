@@ -1,7 +1,7 @@
 {% set md = moveDetails[moveName] ?? null %}
 {% if md %}
 
-    <span class="type-badge-sm type-badge-pd type-badge-{{ md.type }}"
+    <span class="type-badge-sm type-badge-pr type-badge-{{ md.type }}"
         style="display:inline-flex; align-items:center; cursor: pointer;"
         data-tooltip-title="{{ moveName|replace({'-': ' '})|title }}"
         onmouseenter="showTemplateTooltip(event)" 
