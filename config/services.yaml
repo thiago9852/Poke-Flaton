@@ -10,6 +10,11 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $allowedGenerations: '%app.pokemon.allowed_generations%'
+            $allowedExtraIds: '%app.pokemon.allowed_extra_ids%'
+            $excludedIds: '%app.pokemon.excluded_ids%'
+            $megaEvolutions: '%app.pokemon.mega_evolutions%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

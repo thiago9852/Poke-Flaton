@@ -2,7 +2,7 @@
     <div class="detail-glow type-glow-{{ pokemon.types|first }}"></div>
     
     <div class="main-card-header">
-        <span class="detail-pokemon-id">#{{ "%03d"|format(pokemon.id) }}</span>
+        <span class="detail-pokemon-id">#{{ "%03d"|format(pokemon.species_id) }}</span>
         <span id="shiny-toggle" title="Shiny"
             style="cursor: pointer; opacity: 0.3; transition: opacity 0.3s;"
         >
@@ -27,4 +27,19 @@
             {% include 'partials/type_badge.html.twig' with {'type': type, 'typeDetails': typeDetails} %}
         {% endfor %}
     </div>
+
+    {% if pokemon.varieties is not empty %}
+        <div class="variety-selector">
+            <a href="{{ path('app_pokemon_detail', { name: pokemon.species_name }) }}" 
+               class="variety-btn {{ pokemon.name == pokemon.species_name ? 'active type-bg-' ~ pokemon.types|first : '' }}">
+                Padrão
+            </a>
+            {% for variety in pokemon.varieties %}
+                <a href="{{ path('app_pokemon_detail', { name: variety.name }) }}" 
+                   class="variety-btn {{ pokemon.name == variety.name ? 'active type-bg-' ~ pokemon.types|first : '' }}">
+                    {{ variety.display_name|replace({' Mega': ''})|trim }}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
 </div>

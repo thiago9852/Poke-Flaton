@@ -1,0 +1,127 @@
+parameters:
+    # Gerações habilitadas no site. Atualmente apenas a Geração 1 está ativa.
+    # Ex: [1] para apenas Geração 1, ou [1, 2] para Geração 1 e 2.
+    app.pokemon.allowed_generations: [1, 2, 3, 4, 5, 6]
+
+    # IDs individuais permitidos de gerações não totalmente ativadas.
+    # Ex: [722] se quisermos permitir apenas o Decidueye de Gen 7 no site.
+    app.pokemon.allowed_extra_ids: []
+
+    # IDs excluídos de serem exibidos ou acessados (Lendários e Míticos das Gerações 1 a 6 e suas Megas)
+    app.pokemon.excluded_ids: [
+        144, 145, 146, 150, 151, 10043, 10044, # Gen 1
+        243, 244, 245, 249, 250, 251,           # Gen 2
+        377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 10080, 10081, 10085, # Gen 3 & Megas
+        480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493,  # Gen 4
+        494, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649,       # Gen 5
+        716, 717, 718, 719, 720, 721, 10087    # Gen 6 & Mega Diancie
+    ]
+
+    # Mapeamento de Mega Evoluções (Gerações 1 a 6)
+    # Mapeia o ID da espécie base para a lista de suas variedades Mega.
+    app.pokemon.mega_evolutions:
+        # Geração 1
+        3:
+            - { id: 10033, name: 'venusaur-mega', types: ['grass', 'poison'] }
+        6:
+            - { id: 10034, name: 'charizard-mega-x', types: ['fire', 'dragon'] }
+            - { id: 10035, name: 'charizard-mega-y', types: ['fire', 'flying'] }
+        9:
+            - { id: 10036, name: 'blastoise-mega', types: ['water'] }
+        15:
+            - { id: 10090, name: 'beedrill-mega', types: ['bug', 'poison'] }
+        18:
+            - { id: 10073, name: 'pidgeot-mega', types: ['normal', 'flying'] }
+        65:
+            - { id: 10037, name: 'alakazam-mega', types: ['psychic'] }
+        80:
+            - { id: 10071, name: 'slowbro-mega', types: ['water', 'psychic'] }
+        94:
+            - { id: 10038, name: 'gengar-mega', types: ['ghost', 'poison'] }
+        115:
+            - { id: 10039, name: 'kangaskhan-mega', types: ['normal'] }
+        127:
+            - { id: 10040, name: 'pinsir-mega', types: ['bug', 'flying'] }
+        130:
+            - { id: 10041, name: 'gyarados-mega', types: ['water', 'dark'] }
+        142:
+            - { id: 10042, name: 'aerodactyl-mega', types: ['rock', 'flying'] }
+        150:
+            - { id: 10043, name: 'mewtwo-mega-x', types: ['psychic', 'fighting'] }
+            - { id: 10044, name: 'mewtwo-mega-y', types: ['psychic'] }
+
+        # Geração 2
+        181:
+            - { id: 10045, name: 'ampharos-mega', types: ['electric', 'dragon'] }
+        208:
+            - { id: 10072, name: 'steelix-mega', types: ['steel', 'ground'] }
+        212:
+            - { id: 10046, name: 'scizor-mega', types: ['bug', 'steel'] }
+        214:
+            - { id: 10047, name: 'heracross-mega', types: ['bug', 'fighting'] }
+        229:
+            - { id: 10048, name: 'houndoom-mega', types: ['dark', 'fire'] }
+        248:
+            - { id: 10049, name: 'tyranitar-mega', types: ['rock', 'dark'] }
+
+        # Geração 3
+        254:
+            - { id: 10065, name: 'sceptile-mega', types: ['grass', 'dragon'] }
+        257:
+            - { id: 10050, name: 'blaziken-mega', types: ['fire', 'fighting'] }
+        260:
+            - { id: 10064, name: 'swampert-mega', types: ['water', 'ground'] }
+        282:
+            - { id: 10051, name: 'gardevoir-mega', types: ['psychic', 'fairy'] }
+        302:
+            - { id: 10066, name: 'sableye-mega', types: ['dark', 'ghost'] }
+        303:
+            - { id: 10052, name: 'mawile-mega', types: ['steel', 'fairy'] }
+        306:
+            - { id: 10053, name: 'aggron-mega', types: ['steel'] }
+        308:
+            - { id: 10054, name: 'medicham-mega', types: ['fighting', 'psychic'] }
+        310:
+            - { id: 10055, name: 'manectric-mega', types: ['electric'] }
+        319:
+            - { id: 10070, name: 'sharpedo-mega', types: ['water', 'dark'] }
+        323:
+            - { id: 10087, name: 'camerupt-mega', types: ['fire', 'ground'] }
+        334:
+            - { id: 10067, name: 'altaria-mega', types: ['dragon', 'fairy'] }
+        354:
+            - { id: 10056, name: 'banette-mega', types: ['ghost'] }
+        359:
+            - { id: 10057, name: 'absol-mega', types: ['dark'] }
+        362:
+            - { id: 10074, name: 'glalie-mega', types: ['ice'] }
+        373:
+            - { id: 10089, name: 'salamence-mega', types: ['dragon', 'flying'] }
+        376:
+            - { id: 10076, name: 'metagross-mega', types: ['steel', 'psychic'] }
+        380:
+            - { id: 10062, name: 'latias-mega', types: ['dragon', 'psychic'] }
+        381:
+            - { id: 10063, name: 'latios-mega', types: ['dragon', 'psychic'] }
+        384:
+            - { id: 10079, name: 'rayquaza-mega', types: ['dragon', 'flying'] }
+
+        # Geração 4
+        428:
+            - { id: 10088, name: 'lopunny-mega', types: ['normal', 'fighting'] }
+        445:
+            - { id: 10058, name: 'garchomp-mega', types: ['dragon', 'ground'] }
+        448:
+            - { id: 10059, name: 'lucario-mega', types: ['fighting', 'steel'] }
+        460:
+            - { id: 10060, name: 'abomasnow-mega', types: ['grass', 'ice'] }
+        475:
+            - { id: 10068, name: 'gallade-mega', types: ['psychic', 'fighting'] }
+
+        # Geração 5
+        531:
+            - { id: 10069, name: 'audino-mega', types: ['normal', 'fairy'] }
+
+        # Geração 6
+        719:
+            - { id: 10075, name: 'diancie-mega', types: ['rock', 'fairy'] }

@@ -36,15 +36,32 @@ class PokeApiService
     private HttpClientInterface $httpClient;
     private CacheInterface $cache;
     private EvolutionRuleRepository $evolutionRuleRepository;
+    private array $allowedGenerations;
+    private array $allowedExtraIds;
+    private array $excludedIds;
+    private array $megaEvolutions;
 
     public function __construct(
         HttpClientInterface $httpClient, 
         CacheInterface $cache,
-        EvolutionRuleRepository $evolutionRuleRepository
+        EvolutionRuleRepository $evolutionRuleRepository,
+        array $allowedGenerations,
+        array $allowedExtraIds,
+        array $excludedIds,
+        array $megaEvolutions
     ) {
         $this->httpClient = $httpClient;
         $this->cache = $cache;
         $this->evolutionRuleRepository = $evolutionRuleRepository;
+        $this->allowedGenerations = $allowedGenerations;
+        $this->allowedExtraIds = $allowedExtraIds;
+        $this->excludedIds = $excludedIds;
+        $this->megaEvolutions = $megaEvolutions;
+    }
+
+    public function getMegaEvolutions(): array
+    {
+        return $this->megaEvolutions;
     }
 
 
@@ -110,10 +127,35 @@ class PokeApiService
             $data = $response->toArray();
 
             $allPokemonOfType = $data['pokemon'];
-            $totalCount = count($allPokemonOfType);
+            $filteredPokemon = [];
+            foreach ($allPokemonOfType as $p) {
+                $parts = explode('/', rtrim($p['pokemon']['url'], '/'));
+                $id = (int) end($parts);
+                
+                if (!$this->isPokemonAllowed($id)) {
+                    continue;
+                }
+                
+                $baseId = $this->getBaseSpeciesId($id);
+                $filteredPokemon[] = [
+                    'pokemon' => $p['pokemon'],
+                    'id' => $id,
+                    'base_id' => $baseId
+                ];
+            }
+
+            // Ordenar por base_id para que as Megas fiquem juntas de suas formas base
+            usort($filteredPokemon, function ($a, $b) {
+                if ($a['base_id'] === $b['base_id']) {
+                    return $a['id'] <=> $b['id'];
+                }
+                return $a['base_id'] <=> $b['base_id'];
+            });
+
+            $totalCount = count($filteredPokemon);
 
             // 2. Aplica o slice para a página atual
-            $pagedPokemon = array_slice($allPokemonOfType, $offset, $limit);
+            $pagedPokemon = array_slice($filteredPokemon, $offset, $limit);
 
             // 3. Faz requisições paralelas para os detalhes de apenas esses $limit pokemons
             $responses = [];
@@ -125,24 +167,23 @@ class PokeApiService
             $list = [];
             foreach ($pagedPokemon as $p) {
                 $pokemonName = $p['pokemon']['name'];
-                $id = null;
+                $id = $p['id'];
                 $types = [];
                 try {
                     $details = $responses[$pokemonName]->toArray();
-                    $id = $details['id'];
                     foreach ($details['types'] as $t) {
                         $types[] = $t['type']['name'];
                     }
                 } catch (\Exception $e) {
-                    $parts = explode('/', rtrim($p['pokemon']['url'], '/'));
-                    $id = (int) end($parts);
+                    // fallback
                 }
 
                 $list[] = [
                     'id' => $id,
                     'name' => $pokemonName,
                     'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $id),
-                    'types' => $types
+                    'types' => $types,
+                    'dex_id' => $p['base_id']
                 ];
             }
 
@@ -229,9 +270,35 @@ class PokeApiService
             }
             ksort($moves);
 
+            $speciesUrl = $data['species']['url'];
+            $speciesParts = explode('/', rtrim($speciesUrl, '/'));
+            $speciesId = (int) end($speciesParts);
+            $speciesName = $data['species']['name'];
+
+            // Fetch varieties from species
+            $speciesData = $this->cache->get('pokemon_species_' . $speciesId, function (ItemInterface $item) use ($speciesUrl) {
+                $item->expiresAfter(86400 * 7);
+                $resp = $this->httpClient->request('GET', $speciesUrl);
+                return $resp->toArray();
+            });
+
+            $varieties = [];
+            foreach ($speciesData['varieties'] as $v) {
+                $vName = $v['pokemon']['name'];
+                if (str_contains($vName, '-mega')) {
+                    $varieties[] = [
+                        'name' => $vName,
+                        'display_name' => str_replace('-x', ' X', str_replace('-y', ' Y', str_replace('-mega', ' Mega', $vName)))
+                    ];
+                }
+            }
+
             return [
                 'id' => $data['id'],
                 'name' => $data['name'],
+                'species_id' => $speciesId,
+                'species_name' => $speciesName,
+                'varieties' => $varieties,
                 'sprite_official' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $data['id']),
                 'types' => $types,
                 'stats' => $stats,
@@ -555,17 +622,26 @@ class PokeApiService
     /**
      * Obter lista leve contendo apenas nomes e IDs para busca/filtro rápido
      */
-    public function getPokemonBasicList(int $limit = 151): array
+    public function getPokemonBasicList(): array
     {
-        return $this->cache->get('pokemon_basic_list_' . $limit, function (ItemInterface $item) use ($limit) {
+        return $this->cache->get('pokemon_basic_list_configured', function (ItemInterface $item) {
             $item->expiresAfter(86400 * 30); // 30 dias
-            $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon?limit=' . $limit);
+            $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon?limit=1200');
             $data = $response->toArray();
 
             $list = [];
             foreach ($data['results'] as $pokemon) {
                 $parts = explode('/', rtrim($pokemon['url'], '/'));
                 $id = (int) end($parts);
+                
+                // Ignorar variedades (IDs >= 10000) no basic list base
+                if ($id >= 10000) {
+                    continue;
+                }
+                
+                if (!$this->isPokemonAllowed($id)) {
+                    continue;
+                }
                 $list[] = [
                     'id' => $id,
                     'name' => $pokemon['name'],
@@ -632,8 +708,13 @@ class PokeApiService
             $bst = array_sum($stats);
 
             try {
+                $searchName = strtolower($pokemonName);
+                if (str_contains($searchName, '-mega')) {
+                    $searchName = explode('-mega', $searchName)[0];
+                }
+
                 // Busca a espécie para a cadeia evolutiva
-                $speciesResp = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon-species/' . strtolower($pokemonName));
+                $speciesResp = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon-species/' . $searchName);
                 $speciesData = $speciesResp->toArray();
 
                 $chainUrl = $speciesData['evolution_chain']['url'];
@@ -648,7 +729,7 @@ class PokeApiService
                 $hasEvolvesTo = false;
                 $chainDepth   = 0;
 
-                $this->traverseChain($chainData['chain'], strtolower($pokemonName), 0, $stage, $hasEvolvesTo, $chainDepth);
+                $this->traverseChain($chainData['chain'], $searchName, 0, $stage, $hasEvolvesTo, $chainDepth);
 
                 // Estágio único: cadeia de profundidade 0 (nenhuma evolução)
                 if ($chainDepth === 0) {
@@ -700,6 +781,66 @@ class PokeApiService
         foreach ($evolvesTo as $next) {
             $this->traverseChain($next, $target, $depth + 1, $stage, $hasEvolvesTo, $chainDepth);
         }
+    }
+
+    public static function getGenerationById(int $id): int
+    {
+        if ($id >= 1 && $id <= 151) return 1;
+        if ($id >= 152 && $id <= 251) return 2;
+        if ($id >= 252 && $id <= 386) return 3;
+        if ($id >= 387 && $id <= 493) return 4;
+        if ($id >= 494 && $id <= 649) return 5;
+        if ($id >= 650 && $id <= 721) return 6;
+        if ($id >= 722 && $id <= 809) return 7;
+        if ($id >= 810 && $id <= 905) return 8;
+        if ($id >= 906 && $id <= 1025) return 9;
+        return 0; // Fora do intervalo padrão ou forma especial
+    }
+
+    public function getBaseSpeciesId(int $id): int
+    {
+        if ($id < 10000) {
+            return $id;
+        }
+        foreach ($this->megaEvolutions as $baseId => $megas) {
+            foreach ($megas as $mega) {
+                if ($mega['id'] === $id) {
+                    return $baseId;
+                }
+            }
+        }
+        return $id;
+    }
+
+    public function isPokemonAllowed(int $id): bool
+    {
+        if ($id >= 10000) {
+            $baseId = $this->getBaseSpeciesId($id);
+            if ($baseId === $id) {
+                // Se for uma variedade ID >= 10000 mas não mapeada em megaEvolutions, bloqueamos.
+                return false;
+            }
+        } else {
+            $baseId = $id;
+        }
+
+        // Verifica se está explicitamente excluído
+        if (in_array($baseId, $this->excludedIds) || in_array($id, $this->excludedIds)) {
+            return false;
+        }
+
+        // Verifica se a geração é permitida
+        $gen = self::getGenerationById($baseId);
+        if (in_array($gen, $this->allowedGenerations)) {
+            return true;
+        }
+
+        // Verifica se está na lista extra permitida
+        if (in_array($baseId, $this->allowedExtraIds) || in_array($id, $this->allowedExtraIds)) {
+            return true;
+        }
+
+        return false;
     }
 
 }

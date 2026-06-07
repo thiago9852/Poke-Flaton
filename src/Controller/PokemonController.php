@@ -43,26 +43,102 @@ class PokemonController extends AbstractController
         } elseif (!empty($search)) {
             // Busca por termo: pega lista básica leve, filtra, faz slice e busca detalhes do lote de 24
             $search = strtolower(trim($search));
-            $allBasicList = $this->pokeApiService->getPokemonBasicList(151); // 1ª Geração
+            $allBasicList = $this->pokeApiService->getPokemonBasicList();
 
             $filteredBasic = array_filter($allBasicList, function ($p) use ($search) {
                 return str_contains($p['name'], $search) || strval($p['id']) === $search;
             });
 
-            $totalCount = count($filteredBasic);
-            $pagedBasic = array_slice($filteredBasic, $offset, $limit);
+            // Inserir as megas correspondentes no basic list filtrado
+            $finalBasic = [];
+            foreach ($filteredBasic as $p) {
+                $finalBasic[] = $p;
+                $megas = $this->pokeApiService->getMegaEvolutions();
+                if (isset($megas[$p['id']])) {
+                    foreach ($megas[$p['id']] as $mega) {
+                        if ($this->pokeApiService->isPokemonAllowed($mega['id'])) {
+                            $finalBasic[] = [
+                                'id' => $mega['id'],
+                                'name' => $mega['name'],
+                                'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' . $mega['id'] . '.png',
+                                'types' => $mega['types'],
+                                'dex_id' => $p['id']
+                            ];
+                        }
+                    }
+                }
+            }
+
+            // Se o termo pesquisado contiver "mega", adiciona as megas correspondentes (caso não tenham sido adicionadas pelo filtro base)
+            if (str_contains($search, 'mega')) {
+                $finalBasic = [];
+                foreach ($this->pokeApiService->getMegaEvolutions() as $baseId => $megas) {
+                    foreach ($megas as $mega) {
+                        if (!$this->pokeApiService->isPokemonAllowed($mega['id'])) {
+                            continue;
+                        }
+                        if (str_contains($mega['name'], $search) || $search === 'mega') {
+                            $finalBasic[] = [
+                                'id' => $mega['id'],
+                                'name' => $mega['name'],
+                                'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' . $mega['id'] . '.png',
+                                'types' => $mega['types'],
+                                'dex_id' => $baseId
+                            ];
+                        }
+                    }
+                }
+            }
+
+            $totalCount = count($finalBasic);
+            $pagedBasic = array_slice($finalBasic, $offset, $limit);
+
+            $pokemons = [];
+            $basicToFetch = [];
+            foreach ($pagedBasic as $item) {
+                if ($item['id'] > 10000) {
+                    $pokemons[] = $item;
+                } else {
+                    $basicToFetch[] = $item;
+                }
+            }
+
+            if (!empty($basicToFetch)) {
+                $fetchedPokemons = $this->pokeApiService->getPokemonDetailsBatch($basicToFetch);
+                $pokemons = array_merge($pokemons, $fetchedPokemons);
+                usort($pokemons, function ($a, $b) use ($pagedBasic) {
+                    $posA = array_search($a['name'], array_column($pagedBasic, 'name'));
+                    $posB = array_search($b['name'], array_column($pagedBasic, 'name'));
+                    return $posA <=> $posB;
+                });
+            }
+        } else {
+            $allBasicList = $this->pokeApiService->getPokemonBasicList();
+            $totalCount = count($allBasicList);
+            $pagedBasic = array_slice($allBasicList, $offset, $limit);
 
             $pokemons = $this->pokeApiService->getPokemonDetailsBatch($pagedBasic);
-        } else {
-            $result = $this->pokeApiService->getPokemonList($limit, $offset);
-            $pokemons = $result['results'];
-            $totalCount = min(151, $result['count']);
-        }
 
-        // Ajustar o slice se passar de 151
-        if ($offset + $limit > 151) {
-            $sliceLimit = max(0, 151 - $offset);
-            $pokemons = array_slice($pokemons, 0, $sliceLimit);
+            // Inserir as megas correspondentes no list
+            $finalPokemons = [];
+            foreach ($pokemons as $p) {
+                $finalPokemons[] = $p;
+                $megas = $this->pokeApiService->getMegaEvolutions();
+                if (isset($megas[$p['id']])) {
+                    foreach ($megas[$p['id']] as $mega) {
+                        if ($this->pokeApiService->isPokemonAllowed($mega['id'])) {
+                            $finalPokemons[] = [
+                                'id' => $mega['id'],
+                                'name' => $mega['name'],
+                                'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' . $mega['id'] . '.png',
+                                'types' => $mega['types'],
+                                'dex_id' => $p['id']
+                            ];
+                        }
+                    }
+                }
+            }
+            $pokemons = $finalPokemons;
         }
 
         $lastPage = (int) ceil($totalCount / $limit);
@@ -83,28 +159,42 @@ class PokemonController extends AbstractController
     {
         try {
             $pokemon = $this->pokeApiService->getPokemonDetails($name);
+            if (!$this->pokeApiService->isPokemonAllowed($pokemon['id'])) {
+                throw $this->createNotFoundException('Pokémon não encontrado.');
+            }
         } catch (\Exception $e) {
             throw $this->createNotFoundException('Pokémon não encontrado.');
         }
 
         // Buscar a linha evolutiva completa
-        $evolutionChain = $this->pokeApiService->getPokemonEvolutionChain($pokemon['name']);
+        $evolutionChain = $this->pokeApiService->getPokemonEvolutionChain($pokemon['species_name']);
 
-        // Buscar Pokémon anterior e próximo
+        // Buscar Pokémon anterior com base na espécie
         $prevPokemon = null;
-        if ($pokemon['id'] > 1) {
+        for ($prevId = $pokemon['species_id'] - 1; $prevId >= 1; $prevId--) {
+            if (!$this->pokeApiService->isPokemonAllowed($prevId)) {
+                continue;
+            }
             try {
-                $prevPokemon = $this->pokeApiService->getPokemonDetails(strval($pokemon['id'] - 1));
+                $prevPokemon = $this->pokeApiService->getPokemonDetails(strval($prevId));
+                break;
             } catch (\Exception $e) {
                 // ignore
             }
         }
 
+        // Buscar Pokémon próximo com base na espécie
         $nextPokemon = null;
-        try {
-            $nextPokemon = $this->pokeApiService->getPokemonDetails(strval($pokemon['id'] + 1));
-        } catch (\Exception $e) {
-            // ignore
+        for ($nextId = $pokemon['species_id'] + 1; $nextId <= 1025; $nextId++) {
+            if (!$this->pokeApiService->isPokemonAllowed($nextId)) {
+                continue;
+            }
+            try {
+                $nextPokemon = $this->pokeApiService->getPokemonDetails(strval($nextId));
+                break;
+            } catch (\Exception $e) {
+                // ignore
+            }
         }
 
         // Buscar movesets cadastrados no banco

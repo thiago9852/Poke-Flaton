@@ -50,7 +50,7 @@
 
 				<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="pokemon-card">
 					<div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
-					<span class="pokemon-id">#{{ "%03d"|format(pokemon.id) }}</span>
+					<span class="pokemon-id">#{{ "%03d"|format(pokemon.dex_id|default(pokemon.id)) }}</span>
 					<div class="pokemon-sprite-container">
 						<img src="{{ pokemon.sprite }}" alt="{{ pokemon.name|capitalize }}" class="pokemon-image" loading="lazy">
 					</div>
@@ -72,7 +72,7 @@
 			<div class="pagination-container">
 
 				{% if currentPage > 1 %}
-					<a href="{{ path('app_pokemon_index', { page: currentPage - 1 }) }}" class="btn btn-secondary btn-sm">
+					<a href="{{ path('app_pokemon_index', { page: currentPage - 1, q: search, type: selectedType }) }}" class="btn btn-secondary btn-sm">
 						<i class="fa-solid fa-chevron-left"></i>
 						Anterior
 					</a>
@@ -89,7 +89,7 @@
 				</span>
 
 				{% if currentPage < lastPage %}
-					<a href="{{ path('app_pokemon_index', { page: currentPage + 1 }) }}" class="btn btn-secondary btn-sm">
+					<a href="{{ path('app_pokemon_index', { page: currentPage + 1, q: search, type: selectedType }) }}" class="btn btn-secondary btn-sm">
 						Próxima
 						<i class="fa-solid fa-chevron-right"></i>
 					</a>

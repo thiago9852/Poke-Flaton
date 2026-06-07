@@ -18,7 +18,7 @@
                 class="nav-button nav-prev type-hover-{{ prevPokemon.types|first }}"
             >
                 <span class="nav-arrow-circle"><i class="fa-solid fa-chevron-left"></i></span>
-                <span class="nav-number">Nº {{ "%04d"|format(prevPokemon.id) }}</span>
+                <span class="nav-number">Nº {{ "%04d"|format(prevPokemon.species_id) }}</span>
                 <span class="nav-name">{{ prevPokemon.name|capitalize }}</span>
             </a>
         {% else %}
@@ -30,7 +30,7 @@
                 class="nav-button nav-next type-hover-{{ nextPokemon.types|first }}"
             >
                 <span class="nav-name">{{ nextPokemon.name|capitalize }}</span>
-                <span class="nav-number">Nº {{ "%04d"|format(nextPokemon.id) }}</span>
+                <span class="nav-number">Nº {{ "%04d"|format(nextPokemon.species_id) }}</span>
                 <span class="nav-arrow-circle"><i class="fa-solid fa-chevron-right"></i></span>
             </a>
         {% else %}
@@ -42,7 +42,7 @@
     <div class="pokemon-current-header">
         <h1 class="current-title">
             {{ pokemon.name|capitalize }}
-            <span class="current-number">Nº {{ "%04d"|format(pokemon.id) }}</span>
+            <span class="current-number">Nº {{ "%04d"|format(pokemon.species_id) }}</span>
         </h1>
     </div>
 

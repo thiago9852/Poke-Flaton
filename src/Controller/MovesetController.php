@@ -28,6 +28,9 @@ class MovesetController extends AbstractController
     {
         try {
             $pokemon = $this->pokeApiService->getPokemonDetails($name);
+            if (!$this->pokeApiService->isPokemonAllowed($pokemon['id'])) {
+                throw $this->createNotFoundException('Pokémon não encontrado.');
+            }
         } catch (\Exception $e) {
             throw $this->createNotFoundException('Pokémon não encontrado.');
         }
