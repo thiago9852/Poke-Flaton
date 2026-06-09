@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cadastrar-se | PokeFlaton{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/trainer-card.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="auth-container">
+    <div class="auth-card card register-card">
+        <div class="detail-glow register-glow"></div>
+        <div class="auth-header">
+            <img src="{{ asset('image/PokeFlaton-pokeball.png') }}" alt="PokeFlaton" class="auth-logo">
+            <h1 class="auth-title">Crie sua Conta</h1>
+            <p class="auth-subtitle">Registre-se para desbloquear seu Trainer Card e começar a jornada!</p>
+        </div>
+
+        {% if errors is not empty %}
+            <div class="alert alert-error">
+                <ul class="errors-list">
+                    {% for error in errors %}
+                        <li><i class="fa-solid fa-circle-exclamation"></i> {{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_register') }}" class="auth-form" id="register-form">
+            <div class="form-row">
+                <div class="form-group half-width">
+                    <label for="username" class="form-label">Nome de Usuário <span class="form-required">*</span></label>
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-user input-icon"></i>
+                        <input type="text" value="{{ username }}" name="username" id="username" class="form-input" required autocomplete="off" placeholder="Entre 3 e 30 caracteres...">
+                    </div>
+                </div>
+
+                <div class="form-group half-width">
+                    <label for="apelido" class="form-label">Apelido <span class="form-hint">(opcional)</span></label>
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-user input-icon"></i>
+                        <input type="text" value="{{ apelido }}" name="apelido" id="apelido" class="form-input" autocomplete="off" placeholder="Como quer ser chamado...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group half-width">
+                    <label for="password" class="form-label">Senha <span class="form-required">*</span></label>
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" name="password" id="password" class="form-input" required placeholder="Mínimo 6 caracteres...">
+                    </div>
+                </div>
+
+                <div class="form-group half-width">
+                    <label for="confirm_password" class="form-label">Confirmar Senha <span class="form-required">*</span></label>
+                    <div class="input-icon-wrapper">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" name="confirm_password" id="confirm_password" class="form-input" required placeholder="Digite a senha novamente...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="regional" class="form-label">Sua Região <span class="form-required">*</span></label>
+                <div class="input-icon-wrapper">
+                    <select name="regional" id="regional" class="form-input form-select" required>
+                        <option value="Kanto"  {% if regional == 'Kanto'  %}selected{% endif %}>Kanto — Gen I</option>
+                        <option value="Johto"  {% if regional == 'Johto'  %}selected{% endif %}>Johto — Gen II</option>
+                        <option value="Hoenn"  {% if regional == 'Hoenn'  %}selected{% endif %}>Hoenn — Gen III</option>
+                        <option value="Sinnoh" {% if regional == 'Sinnoh' %}selected{% endif %}>Sinnoh — Gen IV</option>
+                        <option value="Unova"  {% if regional == 'Unova'  %}selected{% endif %}>Unova — Gen V</option>
+                        <option value="Kalos"  {% if regional == 'Kalos'  %}selected{% endif %}>Kalos — Gen VI</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-user-plus"></i> Registrar-se
+            </button>
+        </form>
+
+
+        <div class="auth-footer">
+            <p>Já possui uma conta? <a href="{{ path('app_login') }}" class="auth-link">Faça login aqui</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

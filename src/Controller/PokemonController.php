@@ -3,11 +3,12 @@
 namespace App\Controller;
 
 use App\Service\PokeApiService;
+use App\Repository\MovesetRepository;
+use App\Enum\TypeEnum;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Enum\TypeEnum;
 
 class PokemonController extends AbstractController
 {
@@ -155,8 +156,11 @@ class PokemonController extends AbstractController
     }
 
     #[Route('/pokemon/{name}', name: 'app_pokemon_detail')]
-    public function detail(string $name, \App\Repository\MovesetRepository $movesetRepository): Response
-    {
+    public function detail(
+        string $name,
+        MovesetRepository $movesetRepository
+    ): Response {
+
         try {
             $pokemon = $this->pokeApiService->getPokemonDetails($name);
             if (!$this->pokeApiService->isPokemonAllowed($pokemon['id'])) {
@@ -232,6 +236,25 @@ class PokemonController extends AbstractController
             $typeDetails[$type] = $this->pokeApiService->getTypeDetails($type);
         }
 
+        // Calcular a nature mais recomendada por tipo de moveset (padrão, pvp, dg)
+        // Baseado na quantidade de movesets criados com cada nature
+        $recommendedNatures = ['padrao' => null, 'pvp' => null, 'dg' => null];
+        foreach (['padrao', 'pvp', 'dg'] as $tabType) {
+            $natureCounts = [];
+            foreach ($movesets as $m) {
+                if ($m->getType() === $tabType) {
+                    $n = $m->getNature();
+                    if (!empty($n)) {
+                        $natureCounts[$n] = ($natureCounts[$n] ?? 0) + 1;
+                    }
+                }
+            }
+            if (!empty($natureCounts)) {
+                arsort($natureCounts); // Ordena mantendo a chave (nature), do maior para o menor
+                $recommendedNatures[$tabType] = array_key_first($natureCounts);
+            }
+        }
+
         return $this->render('pokemon/detail.html.twig', [
             'pokemon' => $pokemon,
             'evolutionChain' => $evolutionChain,
@@ -243,6 +266,7 @@ class PokemonController extends AbstractController
             'itemDetails' => $itemDetails,
             'naturesMap' => $naturesMap,
             'typeDetails' => $typeDetails,
+            'recommendedNatures' => $recommendedNatures,
         ]);
     }
 }

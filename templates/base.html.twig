@@ -22,23 +22,58 @@
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
+
     </head>
     <body>
 
         <header class="app-header">
             <div class="container header-container">
+
                 <a href="{{ path('app_home') }}" class="app-logo">
                     <img src="{{ asset('image/PokeFlaton-pokeball.png') }}" alt="PokeFlaton" class="logo-img">
                 </a>
+                
                 <nav class="app-nav">
-                    <a href="{{ path('app_home') }}" class="nav-link"> Início</a>
-                    <a href="{{ path('app_pokemon_index') }}" class="nav-link"> Pokémons</a>
+                    <a href="{{ path('app_home') }}" class="nav-link"><i class="fa-solid fa-house"></i> Início</a>
+                    <a href="{{ path('app_pokemon_index') }}" class="nav-link"><i class="fa-solid fa-gamepad"></i> Pokémons</a>
+                    
+                    {% if app.user %}
+                        <div class="nav-user-dropdown" id="userDropdown">
+                            
+                            <button class="nav-link nav-user-btn" id="userDropdownBtn" aria-expanded="false" aria-haspopup="true">
+                                <img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ app.user.avatar }}" 
+                                    alt="Avatar" 
+                                    class="nav-user-avatar">
+                                <span>{{ app.user.username }}</span>
+                                <i class="fa-solid fa-chevron-down nav-dropdown-caret"></i>
+                            </button>
+
+                            <ul class="nav-dropdown-menu" role="menu">
+                                <li role="menuitem"><a href="{{ path('app_trainer_card') }}" class="nav-dropdown-item"> Trainer Card</a></li>
+                                <li class="nav-dropdown-divider" role="separator"></li>
+
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <li role="menuitem"><a href="{{ path('app_admin') }}" class="nav-dropdown-item"> Admin</a></li>
+                                    <li class="nav-dropdown-divider" role="separator"></li>
+                                {% endif %}
+
+                                <li role="menuitem"><a href="#" class="nav-dropdown-item"> Comunidade</a></li>
+                                <li class="nav-dropdown-divider" role="separator"></li>
+                                <li role="menuitem"><a href="{{ path('app_logout') }}" class="nav-dropdown-item nav-dropdown-item--danger"><i class="fa-solid fa-right-from-bracket"></i> Sair</a></li>
+                            </ul>
+
+                        </div>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> Entrar</a>
+                    {% endif %}
+
                 </nav>
             </div>
         </header>
 
         <main class="app-main">
             <div class="container">
+
                 {% for label, messages in app.flashes %}
                     {% for message in messages %}
                         <div class="alert alert-{{ label }}">
@@ -48,6 +83,7 @@
                 {% endfor %}
 
                 {% block body %}{% endblock %}
+
             </div>
         </main>
 
@@ -60,6 +96,30 @@
                 <p class="api-attribution">Dados fornecidos por <a href="https://pokeapi.co/" target="_blank">PokeAPI</a> e Sprites por <a href="https://github.com/PokeAPI/sprites" target="_blank">PokeAPI/sprites</a>.</p>
             </div>
         </footer>
-        
+
+        <script src="{{ asset('js/tabs.js') }}"></script>
+        <script>
+            (function() {
+                var dropdown = document.getElementById('userDropdown');
+                var btn = document.getElementById('userDropdownBtn');
+                if (!dropdown || !btn) return;
+
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    var isOpen = dropdown.classList.toggle('open');
+                    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
+
+                document.addEventListener('click', function() {
+                    dropdown.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                });
+
+                dropdown.querySelector('.nav-dropdown-menu').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            })();
+        </script>
+
     </body>
 </html>

@@ -1,65 +1,86 @@
 <div class="card moveset-list-item">
-    
-    <div class="d-flex justify-content-between align-items-start mb-2">
-        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-            
-            <div style="font-size: 0.9em; color: #aaa; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%;">
-                
-                <span style="display: flex; align-items: center; gap: 5px; color: #fff; font-weight: bold;">
-                    {% if m2.author %}
-                        <i class="fa-solid fa-circle-user" style="font-size: 20px; color: var(--color-primary);"></i>
-                    {% else %}
-                        <img src="{{ asset('image/Pokeball.png') }}" style="width: 20px; height: 20px; object-fit: contain;" alt="Anônimo">
-                    {% endif %}
-                    {{ m2.author|default('Anônimo') }}
-                </span>
-                
-                <span class="badge bg-primary" style="display: inline-flex; align-items: center; gap: 4px;">
-                    {% if m2.type == 'padrao' %}
-                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/poke-ball.png" style="width: 14px;"> PADRÃO
-                    {% elseif m2.type == 'pvp' %}
-                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png" style="width: 14px;"> PvP
-                    {% elseif m2.type == 'dg' %}
-                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/escape-rope.png" style="width: 14px;"> DG
-                    {% else %}
-                        {{ m2.type|capitalize }}
-                    {% endif %}
-                </span>
-                
-                <span>&bull; {{ m2.createdAt|date('d/m/Y') }}</span>
-                
-                <button class="upvote-btn btn btn-sm btn-outline-primary mt-1" data-id="{{ m2.id }}" title="Curtir" style="margin-left: auto;">
-                    Gostei <i class="fa-regular fa-thumbs-up"></i> <span class="vote-count">{{ m2.votes }}</span>
-                </button>
-                
-            </div>
-            
-            {% if m2.heldItem %}
-                <div class="item-moveset-list outhers-moves-list">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/{{ m2.heldItem }}.png" style="width: 24px; height: 24px;" alt="{{ m2.heldItem }}">
-                    
-                    {% include 'partials/tooltip_trigger.html.twig' with {
-                        'title': 'Item: ' ~ m2.heldItem|replace({'-': ' '})|title,
-                        'content': itemDetails[m2.heldItem].description|default('Item recomendado.'),
-                        'label': m2.heldItem|replace({'-': ' '})|title
-                    } %}
-                </div>
-            {% endif %}
-            
-        </div>
-    </div>
 
-    <!-- Mini Moves Badge List -->
-    <div class="moves-mini-list mt-2" style="display: flex; flex-wrap: wrap; gap: 5px;">
-        {% for mv in m2.moves %}
-            {% if mv %}
-                {% include 'partials/move_badge.html.twig' with {
+	<div class="d-flex justify-content-between align-items-start mb-2">
+		<div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+
+			<div style="font-size: 0.9em; color: #aaa; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%;">
+
+				<span style="display: flex; align-items: center; gap: 5px; color: #fff; font-weight: bold;">
+					{% if m2.author and m2.author != 'Anônimo' %}
+						<a href="{{ path('app_trainer_profile', { username: m2.author }) }}" style="display: flex; align-items: center; gap: 5px; color: var(--color-secondary);">
+							<i class="fa-solid fa-circle-user" style="font-size: 20px; color: var(--color-primary);"></i>
+							{{ m2.author }}
+						</a>
+					{% else %}
+						<img src="{{ asset('image/Pokeball.png') }}" style="width: 20px; height: 20px; object-fit: contain;" alt="Anônimo">
+						{{ m2.author|default('Anônimo') }}
+					{% endif %}
+				</span>
+
+				<span class="badge bg-primary" style="display: inline-flex; align-items: center; gap: 4px;">
+					{% if m2.type == 'padrao' %}
+						<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/poke-ball.png" style="width: 14px;">
+						PADRÃO
+					{% elseif m2.type == 'pvp' %}
+						<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png" style="width: 14px;">
+						PvP
+					{% elseif m2.type == 'dg' %}
+						<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/escape-rope.png" style="width: 14px;">
+						DG
+					{% else %}
+						{{ m2.type|capitalize }}
+					{% endif %}
+				</span>
+
+				<span>&bull;
+					{{ m2.createdAt|date('d/m/Y') }}</span>
+
+				<button class="upvote-btn btn btn-sm btn-outline-primary mt-1" data-id="{{ m2.id }}" title="Curtir" style="margin-left: auto;">
+					Gostei
+					<i class="fa-regular fa-thumbs-up"></i>
+					<span class="vote-count">{{ m2.votes }}</span>
+				</button>
+
+			</div>
+
+			<div style="display: flex; align-items: center; gap: 10px; margin-left: auto; margin-bottom: 20px;">
+				{% if m2.nature and naturesMap is defined and naturesMap[m2.nature] is defined %}
+					<div style="display: inline-flex; align-items: center; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.9em; height: 28px;">
+						{% include 'partials/tooltip_trigger.html.twig' with {
+                            'title': 'Nature: ' ~ naturesMap[m2.nature].name|capitalize,
+                            'content': '+' ~ naturesMap[m2.nature].increased|capitalize ~ ' / -' ~ naturesMap[m2.nature].decreased|capitalize,
+                            'label': naturesMap[m2.nature].name|capitalize
+                        } %}
+					</div>
+				{% endif %}
+
+				{% if m2.heldItem %}
+					<div class="item-moveset-list outhers-moves-list" style="margin-left: 0; margin-bottom: 0; height: 28px;">
+						<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/{{ m2.heldItem }}.png" style="width: 24px; height: 24px;" alt="{{ m2.heldItem }}">
+
+						{% include 'partials/tooltip_trigger.html.twig' with {
+                            'title': 'Item: ' ~ m2.heldItem|replace({'-': ' '})|title,
+                            'content': itemDetails[m2.heldItem].description|default('Item recomendado.'),
+                            'label': m2.heldItem|replace({'-': ' '})|title
+                        } %}
+					</div>
+				{% endif %}
+			</div>
+
+		</div>
+	</div>
+
+	<!-- Mini Moves Badge List -->
+	<div class="moves-mini-list mt-2" style="display: flex; flex-wrap: wrap; gap: 5px;">
+		{% for mv in m2.moves %}
+			{% if mv %}
+				{% include 'partials/move_badge.html.twig' with {
                     'moveName': mv,
                     'moveDetails': moveDetails,
                     'learnMethod': (pokemon.moves[mv] is defined and pokemon.moves[mv] is iterable and pokemon.moves[mv].learn_method is defined) ? pokemon.moves[mv].learn_method : null
                 } %}
-            {% endif %}
-        {% endfor %}
-    </div>
-    
+			{% endif %}
+		{% endfor %}
+	</div>
+
 </div>

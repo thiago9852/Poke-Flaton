@@ -5,12 +5,14 @@ namespace App\Controller;
 use App\Entity\Moveset;
 use App\Repository\MovesetRepository;
 use App\Service\PokeApiService;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class MovesetController extends AbstractController
 {
@@ -85,7 +87,13 @@ class MovesetController extends AbstractController
                 $moveset->setAbility($ability);
                 $moveset->setHeldItem($heldItem);
                 $moveset->setNature($nature);
-                $moveset->setAuthor('Anônimo'); // Se não tiver sessão, ficará como anônimo
+                
+                if ($this->getUser()) {
+                    $moveset->setAuthor($this->getUser()->getUserIdentifier());
+                } else {
+                    $moveset->setAuthor('Anônimo'); // Se não tiver sessão, ficará como anônimo
+                }
+                
                 $this->entityManager->persist($moveset);
 
                 // Add sugestão
@@ -101,12 +109,18 @@ class MovesetController extends AbstractController
             }
         }
 
+        $unlockedTms = [];
+        if ($this->getUser()) {
+            $unlockedTms = $this->getUser()->getUnlockedTms();
+        }
+
         return $this->render('moveset/new.html.twig', [
             'pokemon' => $pokemon,
             'natures' => $natures,
             'items' => $items,
             'maxMoves' => $maxMoves,
             'errors' => $errors,
+            'unlockedTms' => $unlockedTms,
         ]);
     }
 
@@ -148,4 +162,37 @@ class MovesetController extends AbstractController
             'votes' => $moveset->getVotes()
         ]);
     }
+
+    #[Route('/moveset/{id}/delete', name: 'app_moveset_delete', methods: ['POST'])]
+    public function delete(
+        int $id, Security $security,
+        MovesetRepository $movesetRepository
+    ): JsonResponse {
+
+        $moveset = $movesetRepository->find($id);
+
+        if (!$moveset) {
+            return new JsonResponse(['error' => 'Moveset não encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+
+        /** @var User $user */
+        $user = $security->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'Acesso negado.'], Response::HTTP_FORBIDDEN);
+        }
+
+        // Permitir exclusão apenas se for o autor ou admin
+        if ($moveset->getAuthor() !== $user->getUsername() && !$this->isGranted('ROLE_ADMIN')) {
+            return new JsonResponse(['error' => 'Você não tem permissão para excluir este moveset.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $this->entityManager->remove($moveset);
+        $this->entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Moveset excluído com sucesso!'
+        ]);
+    }
 }
+

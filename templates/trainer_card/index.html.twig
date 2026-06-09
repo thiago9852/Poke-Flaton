@@ -1,0 +1,930 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Trainer Card |
+	{{ user.username }}
+{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/trainer-card.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+{% endblock %}
+
+{% block body %}
+	<div
+		class="trainer-card-page-wrapper">
+
+		<!-- Guias -->
+		<div class="profile-tabs">
+			<button class="tab-btn active" onclick="switchTab(event, 'trainer-card-tab')">
+				<i class="fa-solid fa-address-card"></i>
+				Trainer Card
+			</button>
+			<button class="tab-btn" onclick="switchTab(event, 'pokedex-tab')">
+				<i class="fa-solid fa-square-poll-horizontal"></i>
+				Minha Pokedéx (<span id="pokedex-count-badge">{{ caughtCount }}</span>)
+			</button>
+			<button class="tab-btn" onclick="switchTab(event, 'medals-tab')">
+				<i class="fa-solid fa-medal"></i>
+				Medalhas
+			</button>
+			<button class="tab-btn" onclick="switchTab(event, 'comunidade-tab')">
+				<i class="fa-solid fa-user-group"></i>
+				Comunidade (<span id="following-count-badge">{{ followingCount }}</span>)
+			</button>
+		</div>
+
+		<!-- Trainer Card, TMs, Movesets -->
+		<div id="trainer-card-tab" class="tab-content active">
+			<h2 class="trainer-card-title">Trainer Card</h2>
+
+			<div class="trainer-profile-banner">
+				<div class="banner-glow"></div>
+				<div class="banner-accent-line"></div>
+
+				<div class="banner-content">
+					<div
+						class="banner-row-top">
+
+						<!-- Avatar -->
+						<div class="banner-avatar-section">
+							<div class="banner-avatar-frame" onclick="openAvatarModal()">
+								<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ user.avatar }}" alt="Avatar" id="trainer-avatar-img" class="trainer-avatar-sprite">
+								<div class="banner-avatar-edit-overlay">
+									<i class="fa-solid fa-pen"></i>
+								</div>
+							</div>
+						</div>
+
+						<!-- Section de Informações -->
+						<div class="banner-info-section">
+							<div class="banner-user-identity">
+								<div class="banner-avatar-badge">
+									<span class="banner-id-tag">#{{ "%05d"|format(user.id) }}</span>
+								</div>
+								<h2 class="banner-username">{{ user.username }}</h2>
+								<span class="banner-join-date">
+									<i class="fa-solid fa-calendar-days"></i>
+									Membro desde
+									{{ user.createdAt|date('d/m/Y') }}</span>
+							</div>
+
+							<!-- Título -->
+							<div class="banner-achievement-title" onclick="openTitleModal()" style="cursor: pointer;" title="Clique para escolher seu título">
+								{% if selectedRibbon %}
+									<img src="{{ selectedRibbon }}" alt="Ribbon" id="trainer-ribbon-img" class="banner-ribbon-sprite" style="width: 24px; height: 24px; object-fit: contain; image-rendering: pixelated; margin-right: 4px;">
+								{% else %}
+									<i class="fa-solid fa-crown" id="trainer-title-icon"></i>
+								{% endif %}
+								<span class="achievement-label" id="trainer-title-label">{{ selectedTitle|default('Treinador Novato') }}</span>
+								<div class="banner-title-edit-overlay" style="display:inline-block; margin-left: 6px; font-size: 0.75rem; color: var(--color-primary); opacity: 0.7;">
+									<i class="fa-solid fa-pen"></i>
+								</div>
+							</div>
+						</div>
+
+						<!-- 4 Medalhas em Destaque -->
+						<div class="banner-medal-showcase">
+							<span class="showcase-title">
+								<i class="fa-solid fa-medal"></i>
+								Medalhas em Destaque</span>
+							<div class="showcase-slots">
+								{% for i in 0..3 %}
+									{% set showcaseMedal = user.showcaseMedals[i] | default(null) %}
+									<div class="showcase-slot {% if showcaseMedal %}filled{% else %}empty{% endif %}" data-slot="{{ i }}" onclick="openMedalPickerModal({{ i }})" title="{% if showcaseMedal %}{{ showcaseMedal }}{% else %}Clique para escolher uma medalha{% endif %}">
+										{% if showcaseMedal %}
+											{% set foundMedal = null %}
+											{% for m in activityMedals|merge(catchMedals)|merge(regionalMedals)|merge(typeMedals) %}
+												{% if m.name == showcaseMedal and m.tier != 'locked' and m.enabled %}
+													{% set foundMedal = m %}
+												{% endif %}
+											{% endfor %}
+											{% if foundMedal and foundMedal.badgeImg %}
+												<img src="{{ foundMedal.badgeImg }}" alt="{{ foundMedal.title }}" class="showcase-medal-img">
+												<span class="showcase-medal-name">{{ foundMedal.title }}</span>
+											{% elseif foundMedal %}
+												<div class="showcase-medal-icon">
+													<i class="fa-solid {{ foundMedal.icon }}"></i>
+												</div>
+												<span class="showcase-medal-name">{{ foundMedal.title }}</span>
+											{% else %}
+												<div class="showcase-slot-empty">
+													<i class="fa-solid fa-plus"></i>
+												</div>
+											{% endif %}
+										{% else %}
+											<div class="showcase-slot-empty">
+												<i class="fa-solid fa-plus"></i>
+											</div>
+										{% endif %}
+									</div>
+								{% endfor %}
+							</div>
+						</div>
+					</div>
+
+					<div
+						class="banner-row-bottom">
+						<!-- Estatísticas -->
+						<div class="banner-stats-section">
+							<div class="banner-stat-item">
+								<span class="banner-stat-value" id="card-votes-count">{{ totalVotes }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-heart"></i>
+									Curtidas</span>
+							</div>
+							<div class="banner-stat-divider"></div>
+							<div class="banner-stat-item">
+								<span class="banner-stat-value">{{ createdCount }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-flask"></i>
+									Movesets</span>
+							</div>
+							<div class="banner-stat-divider"></div>
+							<div class="banner-stat-item">
+								<span class="banner-stat-value">{{ followingCount }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-user-plus"></i>
+									Seguindo</span>
+							</div>
+							<div class="banner-stat-divider"></div>
+							<div class="banner-stat-item">
+								<span class="banner-stat-value">{{ followersCount }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-users"></i>
+									Seguidores</span>
+							</div>
+						</div>
+
+						<!-- Compartilhar perfil -->
+						<div class="banner-actions-section">
+							<button class="banner-share-btn" title="Compartilhar Trainer Card (em breve)" disabled>
+								<i class="fa-solid fa-share-nodes"></i>
+								<span>Compartilhar</span>
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Rodapé -->
+				<div class="banner-footer-strip">
+					<div class="footer-ball-icon"></div>
+					<span class="region-text">REGIÃO DE
+						{{ user.regional|upper }}</span>
+				</div>
+			</div>
+
+			<!-- Mochila de TMs -->
+			<div class="technical-machine-section">
+				<h2 class="trainer-card-title">Mochila de TMs</h2>
+
+				<div class="tms-container card">
+					<div class="tms-header">
+						<p>Selecione os golpes que você já desbloqueou. Eles estarão disponíveis para criar seus movesets.</p>
+					</div>
+
+					<div class="search-box" style="margin-bottom: 20px;">
+						<input type="text" id="tm-search-input" class="search-input" placeholder="Buscar por número (ex: TM01) ou golpe..." oninput="filterTms()">
+						<i class="fa-solid fa-magnifying-glass search-icon"></i>
+					</div>
+
+					<div class="tms-grid" id="tms-grid-list">
+						{% for tm in tms %}
+							{% set hasTm = tm.move in user.unlockedTms %}
+							{% set tmNumber = tm.item|upper %}
+							{% set moveDisplayName = tm.move|replace({'-': ' '})|title %}
+							<div class="tm-disc-card {% if hasTm %}active{% endif %}" data-move="{{ tm.move }}" data-item="{{ tm.item }}" onclick="toggleTmOwnership(this, '{{ tm.move }}')">
+								<div class="disc-graphic">
+									<div class="disc-inner"></div>
+								</div>
+								<div class="tm-info">
+									<span class="tm-number">{{ tmNumber }}</span>
+									<span class="tm-move-name" title="{{ moveDisplayName }}">{{ moveDisplayName }}</span>
+								</div>
+								<div class="tm-checkbox">
+									<i class="fa-solid fa-check"></i>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+
+			<!-- Movesets Criados -->
+			<div class="moveset-list-section">
+				<h2 class="trainer-card-title">Lista de Movesets</h2>
+				<div class="movesets-list card">
+					<p class="section-subtitle">Gerencie as estratégias que você publicou para a comunidade.</p>
+
+					{% if userMovesets is empty %}
+						<div class="empty-movesets-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+							<i class="fa-solid fa-flask" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+							<h3>Você ainda não criou nenhum moveset!</h3>
+							<p>Navegue pela lista de Pokémons e crie uma nova estratégia.</p>
+						</div>
+					{% else %}
+						<div class="movesets-grid" id="user-movesets-list-grid">
+							{% for m in userMovesets %}
+								<div class="user-moveset-card" id="user-moveset-card-{{ m.id }}">
+									<div class="moveset-card-header">
+										<div class="moveset-pokemon-info">
+											<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{{ m.pokemonId }}.png" alt="{{ m.pokemonName }}" class="moveset-pokemon-sprite">
+											<div>
+												<a href="{{ path('app_pokemon_detail', { name: m.pokemonName }) }}" class="moveset-pokemon-name">{{ m.pokemonName|capitalize }}</a>
+											</div>
+										</div>
+										<button class="moveset-delete-btn" onclick="deleteMoveset({{ m.id }})" title="Excluir moveset">
+											<i class="fa-solid fa-trash-can"></i>
+										</button>
+									</div>
+
+									<div class="moveset-details-grid">
+										<div class="moveset-detail-item">
+											<span class="moveset-detail-label">Tipo</span>
+											<span class="moveset-detail-value" title="{{ m.type }}">{{ m.type|capitalize }}</span>
+										</div>
+										<div class="moveset-detail-item">
+											<span class="moveset-detail-label">Habilidade</span>
+											<span class="moveset-detail-value" title="{{ m.ability|capitalize }}">{{ m.ability|capitalize }}</span>
+										</div>
+										<div class="moveset-detail-item">
+											<span class="moveset-detail-label">Item</span>
+											<span class="moveset-detail-value" title="{{ m.heldItem|capitalize }}">{{ m.heldItem|capitalize }}</span>
+										</div>
+									</div>
+
+									<div class="moveset-moves-list">
+										<span class="moveset-moves-title">Golpes recomendados</span>
+										<div class="moveset-moves-tags">
+											{% for move in m.moves %}
+												<span class="moveset-move-tag">{{ move|replace({'-': ' '})|title }}</span>
+											{% endfor %}
+										</div>
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+
+		<!-- Tab 2: Minha Pokedéx -->
+		<div id="pokedex-tab" class="tab-content">
+			<div class="pokedex-list-container card">
+				<div class="tms-header">
+					<p>Veja todos os Pokémons que você já capturou na sua jornada!</p>
+				</div>
+
+				{% if caughtDetails is empty %}
+					<div class="empty-pokedex-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+						<i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+						<h3>Nenhum Pokémon capturado ainda!</h3>
+						<p>Navegue pela lista de Pokémons e clique em "Capturar" nos seus favoritos!</p>
+					</div>
+				{% else %}
+					<div class="pokedex-caught-grid">
+						{% for poke in caughtDetails %}
+							<div class="pokedex-caught-card" id="caught-card-{{ poke.name }}">
+								<div class="caught-card-inner">
+									<button class="release-btn" onclick="releasePokemon('{{ poke.name }}')" title="Soltar Pokémon">
+										<i class="fa-solid fa-trash-can"></i>
+									</button>
+									<a href="{{ path('app_pokemon_detail', { name: poke.name }) }}" class="poke-sprite-link">
+										<img src="{{ poke.sprite }}" alt="{{ poke.name|capitalize }}" class="poke-sprite-img">
+									</a>
+									<span class="poke-id">Nº
+										{{ "%04d"|format(poke.id) }}</span>
+									<a href="{{ path('app_pokemon_detail', { name: poke.name }) }}" class="poke-name-link">
+										<span class="poke-name-text">{{ poke.name|capitalize }}</span>
+									</a>
+									<div class="poke-badges-container">
+										{% for type in poke.types %}
+											<span class="type-badge-sm type-badge-pd type-badge-{{ type }}">{{ type|capitalize }}</span>
+										{% endfor %}
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				{% endif %}
+			</div>
+		</div>
+
+		<!-- Tab 3: Medals -->
+		<div id="medals-tab" class="tab-content">
+			<div
+				class="medals-layout-container">
+
+				<!-- Categoria 1: Conquistas de Atividade e Comunidade -->
+				<div class="medals-section-category">
+					<h3 class="medals-category-title">
+						<i class="fa-solid fa-trophy"></i>
+						Conquistas de Atividade e Comunidade</h3>
+					<p class="text-muted">Desafios relacionados à criação de estratégias e interações sociais.</p>
+
+					<div class="medals-grid">
+						{% for medal in activityMedals %}
+							<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}">
+								<div class="medal-badge-wrapper">
+									{% if not medal.enabled %}
+										<div class="medal-badge medal-badge-admin-locked">
+											<i class="fa-solid fa-lock"></i>
+										</div>
+									{% else %}
+										{% if medal.badgeImg %}
+											<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
+										{% else %}
+											<div class="medal-badge">
+												<i class="fa-solid {{ medal.icon }}"></i>
+											</div>
+										{% endif %}
+									{% endif %}
+								</div>
+
+								<div class="medal-info">
+									<h4 class="medal-title">{{ medal.title }}</h4>
+									<p class="medal-desc">
+										{% if not medal.enabled %}
+											Esta medalha está atualmente bloqueada/desativada pela administração.
+										{% else %}
+											{{ medal.description }}
+										{% endif %}
+									</p>
+
+									{% if medal.enabled %}
+										<div class="medal-progress-section">
+											<div class="medal-progress-bar-container">
+												<div class="medal-progress-fill" style="width: {{ medal.percent }}%;"></div>
+											</div>
+											<div class="medal-progress-text">
+												<span class="progress-current" id="medal-progress-{{ medal.name }}">{{ medal.current }}</span>
+												{% if medal.nextTarget %}
+													<span class="progress-separator">/</span>
+													<span class="progress-target" id="medal-target-{{ medal.name }}">{{ medal.nextTarget }}</span>
+												{% else %}
+													<span class="progress-max">(Máximo)</span>
+												{% endif %}
+											</div>
+										</div>
+
+										<div class="medal-milestones">
+											<div class="milestone {% if medal.current >= medal.milestones.bronze %}reached{% endif %}">
+												<span class="tier-dot bronze"></span>
+												B:
+												{{ medal.milestones.bronze }}
+											</div>
+											<div class="milestone {% if medal.current >= medal.milestones.silver %}reached{% endif %}">
+												<span class="tier-dot silver"></span>
+												P:
+												{{ medal.milestones.silver }}
+											</div>
+											<div class="milestone {% if medal.current >= medal.milestones.gold %}reached{% endif %}">
+												<span class="tier-dot gold"></span>
+												O:
+												{{ medal.milestones.gold }}
+											</div>
+										</div>
+
+									{% else %}
+										<div class="medal-status-admin-locked">
+											<span class="badge-status-locked">
+												<i class="fa-solid fa-lock"></i>
+												Em Breve</span>
+										</div>
+									{% endif %}
+
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+
+				<!-- Categoria 2: Enciclopédia -->
+				<div class="medals-section-category mt-5">
+					<h3 class="medals-category-title">
+						<i class="fa-solid fa-book-open"></i>
+						Enciclopédia Pokémon</h3>
+
+					<div class="medals-section-category">
+						<div class="medals-title-header">
+							<h4>
+								Explorador</h4>
+							<p class="text-muted">Conquistas gerais por metas de exploração.</p>
+						</div>
+
+						<div class="medals-grid">
+							{% for medal in catchMedals %}
+								<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}">
+									<div class="medal-badge-wrapper">
+										{% if not medal.enabled %}
+											<div class="medal-badge medal-badge-admin-locked">
+												<i class="fa-solid fa-lock"></i>
+											</div>
+										{% else %}
+											{% if medal.badgeImg %}
+												<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
+											{% else %}
+												<div class="medal-badge">
+													<i class="fa-solid {{ medal.icon }}"></i>
+												</div>
+											{% endif %}
+										{% endif %}
+									</div>
+
+									<div class="medal-info">
+										<h4 class="medal-title">{{ medal.title }}</h4>
+										<p class="medal-desc">
+											{% if not medal.enabled %}
+												Esta medalha está atualmente bloqueada/desativada pela administração.
+											{% else %}
+												{{ medal.description }}
+											{% endif %}
+										</p>
+
+										{% if medal.enabled %}
+											<div class="medal-progress-section">
+												<div class="medal-progress-bar-container">
+													<div class="medal-progress-fill" style="width: {{ medal.percent }}%;"></div>
+												</div>
+												<div class="medal-progress-text">
+													<span class="progress-current" id="medal-progress-{{ medal.name }}">{{ medal.current }}</span>
+													{% if medal.nextTarget %}
+														<span class="progress-separator">/</span>
+														<span class="progress-target" id="medal-target-{{ medal.name }}">{{ medal.nextTarget }}</span>
+													{% else %}
+														<span class="progress-max">(Máximo)</span>
+													{% endif %}
+												</div>
+											</div>
+
+											<div class="medal-milestones">
+												<div class="milestone {% if medal.current >= medal.milestones.bronze %}reached{% endif %}">
+													<span class="tier-dot bronze"></span>
+													B:
+													{{ medal.milestones.bronze }}
+												</div>
+												<div class="milestone {% if medal.current >= medal.milestones.silver %}reached{% endif %}">
+													<span class="tier-dot silver"></span>
+													P:
+													{{ medal.milestones.silver }}
+												</div>
+												<div class="milestone {% if medal.current >= medal.milestones.gold %}reached{% endif %}">
+													<span class="tier-dot gold"></span>
+													O:
+													{{ medal.milestones.gold }}
+												</div>
+											</div>
+										{% else %}
+											<div class="medal-status-admin-locked">
+												<span class="badge-status-locked">
+													<i class="fa-solid fa-lock"></i>
+													Em Breve</span>
+											</div>
+										{% endif %}
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+
+					<!-- Medalhas de Tipos -->
+					<div class="medals-section-category" style="margin-top: 30px;">
+						<div class="medals-title-header">
+							<h4>
+								Capturas de Tipos</h4>
+							<p class="text-muted">Suba de nível capturando diferentes espécies de cada tipo.</p>
+						</div>
+
+						<div class="medals-grid types-medals-grid">
+							{% for medal in typeMedals %}
+								{% set typeKey = medal.name|replace({'type_': ''}) %}
+
+								<div class="medal-card card medal-tier-{{ medal.tier }} medal-type-card border-type-{{ typeKey }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}">
+									<div class="medal-badge-wrapper">
+										{% if not medal.enabled %}
+											<div class="medal-badge medal-badge-admin-locked">
+												<i class="fa-solid fa-lock"></i>
+											</div>
+										{% else %}
+											{% if medal.badgeImg %}
+												<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
+											{% else %}
+												<div class="medal-badge type-color-badge-{{ typeKey }}">
+													<i class="fa-solid {{ medal.icon }}"></i>
+												</div>
+											{% endif %}
+										{% endif %}
+									</div>
+
+									<div class="medal-info">
+										<h4 class="medal-title">{{ medal.title }}</h4>
+										<span class="type-badge-sm type-badge-pd type-badge-{{ typeKey }}" style="display: inline-block; margin-bottom: 8px;">{{ typeKey|capitalize }}</span>
+										<p class="medal-desc">
+											{% if not medal.enabled %}
+												Esta medalha está atualmente bloqueada pela administração.
+											{% else %}
+												{{ medal.description }}
+											{% endif %}
+										</p>
+
+										{% if medal.enabled %}
+											<div class="medal-progress-section">
+												<div class="medal-progress-bar-container">
+													<div class="medal-progress-fill" style="width: {{ medal.percent }}%;"></div>
+												</div>
+												<div class="medal-progress-text">
+													<span class="progress-current">{{ medal.current }}</span>
+													{% if medal.nextTarget %}
+														<span class="progress-separator">/</span>
+														<span class="progress-target">{{ medal.nextTarget }}</span>
+													{% else %}
+														<span class="progress-max">(Máximo)</span>
+													{% endif %}
+												</div>
+											</div>
+
+											<div class="medal-milestones">
+												<div class="milestone {% if medal.current >= medal.milestones.bronze %}reached{% endif %}">
+													<span class="tier-dot bronze"></span>
+													B:
+													{{ medal.milestones.bronze }}
+												</div>
+												<div class="milestone {% if medal.current >= medal.milestones.silver %}reached{% endif %}">
+													<span class="tier-dot silver"></span>
+													P:
+													{{ medal.milestones.silver }}
+												</div>
+												<div class="milestone {% if medal.current >= medal.milestones.gold %}reached{% endif %}">
+													<span class="tier-dot gold"></span>
+													O:
+													{{ medal.milestones.gold }}
+												</div>
+											</div>
+
+										{% else %}
+											<div class="medal-status-admin-locked">
+												<span class="badge-status-locked">
+													<i class="fa-solid fa-lock"></i>
+													Em Breve</span>
+											</div>
+										{% endif %}
+
+									</div>
+								</div>
+							{% endfor %}
+
+						</div>
+					</div>
+				</div>
+
+				<!-- Category 3: Pokedex Regional -->
+				<div class="medals-section-category mt-5">
+					<h3 class="medals-category-title">
+						<i class="fa-solid fa-map-location-dot"></i>
+						Medalhas de Pokédex Regional</h3>
+					<p class="text-muted">Suba de nível capturando Pokémons de cada região específica.</p>
+
+					<div class="medals-grid">
+						{% for medal in regionalMedals %}
+
+							<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}">
+								<div class="medal-badge-wrapper">
+
+									{% if not medal.enabled %}
+										<div class="medal-badge medal-badge-admin-locked">
+											<i class="fa-solid fa-lock"></i>
+										</div>
+									{% else %}
+										{% if medal.badgeImg %}
+											<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
+										{% else %}
+											<div class="medal-badge">
+												<i class="fa-solid {{ medal.icon }}"></i>
+											</div>
+										{% endif %}
+									{% endif %}
+								</div>
+
+								<div class="medal-info">
+									<h4 class="medal-title">{{ medal.title }}</h4>
+									<p class="medal-desc">
+
+										{% if not medal.enabled %}
+											Esta medalha está atualmente bloqueada.
+										{% else %}
+											{{ medal.description }}
+										{% endif %}
+									</p>
+
+									{% if medal.enabled %}
+										<div class="medal-progress-section">
+											<div class="medal-progress-bar-container">
+												<div class="medal-progress-fill" style="width: {{ medal.percent }}%;"></div>
+											</div>
+
+											<div class="medal-progress-text">
+												<span class="progress-current" id="medal-progress-{{ medal.name }}">{{ medal.current }}</span>
+												{% if medal.nextTarget %}
+													<span class="progress-separator">/</span>
+													<span class="progress-target" id="medal-target-{{ medal.name }}">{{ medal.nextTarget }}</span>
+												{% else %}
+													<span class="progress-max">(Máximo)</span>
+												{% endif %}
+											</div>
+										</div>
+
+										<div class="milestones-simple medal-milestones">
+											<div class="milestone {% if medal.current >= medal.milestones.bronze %}reached{% endif %}">
+												<span class="tier-dot bronze"></span>
+												B:
+												{{ medal.milestones.bronze }}
+											</div>
+											<div class="milestone {% if medal.current >= medal.milestones.silver %}reached{% endif %}">
+												<span class="tier-dot silver"></span>
+												P:
+												{{ medal.milestones.silver }}
+											</div>
+											<div class="milestone {% if medal.current >= medal.milestones.gold %}reached{% endif %}">
+												<span class="tier-dot gold"></span>
+												O:
+												{{ medal.milestones.gold }}
+											</div>
+										</div>
+
+									{% else %}
+										<div class="medal-status-admin-locked">
+											<span class="badge-status-locked">
+												<i class="fa-solid fa-lock"></i>
+												Em Breve</span>
+										</div>
+									{% endif %}
+
+								</div>
+							</div>
+						{% endfor %}
+
+					</div>
+				</div>
+
+				<!-- Categoria 5: Vivillon's Patterns -->
+				<div class="medals-section-category mt-5">
+					<h3 class="medals-category-title">
+						<i class="fa-solid fa-leaf"></i>
+						Vivillon's Patterns</h3>
+					<p class="text-muted">Cada padrão de Vivillon é exclusivo de uma região real do mundo. Colecione todos os 20!</p>
+
+					<div class="vivillon-patterns-grid">
+						{% for pattern in vivillonMedals %}
+
+							<div class="vivillon-pattern-card {% if not pattern.enabled %}vivillon-admin-locked{% elseif pattern.unlocked %}vivillon-unlocked{% else %}vivillon-locked{% endif %}" id="viv-card-{{ pattern.key }}">
+								<div class="vivillon-sprite-wrapper">
+									<img src="{{ pattern.sprite }}" alt="Vivillon {{ pattern.label }}" class="vivillon-sprite" loading="lazy">
+
+									{% if not pattern.enabled %}
+										<div class="vivillon-overlay">
+											<i class="fa-solid fa-lock"></i>
+										</div>
+									{% elseif not pattern.unlocked %}
+										<div class="vivillon-overlay vivillon-missing-overlay">
+											<i class="fa-solid fa-question"></i>
+										</div>
+									{% endif %}
+
+								</div>
+
+								<div class="vivillon-pattern-info">
+									<span class="vivillon-pattern-name">{{ pattern.label }}</span>
+
+									{% if not pattern.enabled %}
+										<span class="vivillon-status vivillon-status-admin">
+											<i class="fa-solid fa-lock"></i>
+											Em Breve</span>
+									{% elseif pattern.unlocked %}
+										<span class="vivillon-status vivillon-status-unlocked">
+											<i class="fa-solid fa-check"></i>
+											Coletado</span>
+									{% else %}
+										<span class="vivillon-status vivillon-status-locked">Por coletar</span>
+									{% endif %}
+
+								</div>
+							</div>
+						{% endfor %}
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Tab 4: Comunidade -->
+		<div id="comunidade-tab" class="tab-content">
+			<div
+				class="comunidade-tab-layout">
+
+				<!-- Seguindo -->
+				<div class="following-list-container card">
+					<div class="tms-header">
+						<h2>Seguindo</h2>
+					</div>
+
+					{% if user.following is empty %}
+						<div class="empty-pokedex-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+							<i class="fa-solid fa-user-plus" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+							<h3>Você não está seguindo ninguém ainda!</h3>
+							<p>Clique no nome dos autores dos movesets para visitar seus perfis públicos e segui-los!</p>
+						</div>
+
+					{% else %}
+						<div class="following-trainers-grid">
+							{% for followingUsername in user.following %}
+								<div class="following-trainer-item" id="following-item-{{ followingUsername }}">
+									<a href="{{ path('app_trainer_profile', { username: followingUsername }) }}" class="trainer-avatar-link">
+										<div class="trainer-avatar-container">
+											<i class="fa-solid fa-circle-user generic-avatar-icon" style="font-size: 1.5rem; color: var(--text-muted);"></i>
+										</div>
+									</a>
+									<div class="trainer-info-block">
+										<a href="{{ path('app_trainer_profile', { username: followingUsername }) }}" class="trainer-profile-link">
+											<span class="trainer-username-text">{{ followingUsername }}</span>
+										</a>
+										<span class="trainer-badge-subtitle">Treinador Seguido</span>
+									</div>
+									<button class="btn btn-secondary btn-sm" onclick="unfollowTrainer('{{ followingUsername }}')">
+										<i class="fa-solid fa-user-minus"></i>
+										Deixar de Seguir
+									</button>
+								</div>
+							{% endfor %}
+						</div>
+
+					{% endif %}
+
+				</div>
+
+				<!-- Seguidores -->
+				<div class="followers-list-container card">
+					<div class="tms-header">
+						<h2>Seguidores</h2>
+					</div>
+
+					{% if followersList is empty %}
+						<div class="empty-pokedex-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+							<i class="fa-solid fa-users" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+							<h3>Nenhum seguidor ainda!</h3>
+							<p>Publique movesets interessantes para atrair seguidores à sua comunidade.</p>
+						</div>
+
+					{% else %}
+						<div class="followers-trainers-grid">
+							{% for follower in followersList %}
+
+								<div class="follower-trainer-item">
+									<a href="{{ path('app_trainer_profile', { username: follower.username }) }}" class="trainer-avatar-link">
+										<div class="trainer-avatar-container">
+
+											{% if follower.avatar %}
+												<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ follower.avatar }}" alt="{{ follower.username }}" class="trainer-avatar-mini">
+											{% else %}
+												<i class="fa-solid fa-circle-user generic-avatar-icon" style="font-size: 1.5rem; color: var(--text-muted);"></i>
+											{% endif %}
+
+										</div>
+									</a>
+									<div class="trainer-info-block">
+										<a href="{{ path('app_trainer_profile', { username: follower.username }) }}" class="trainer-profile-link">
+											<span class="trainer-username-text">{{ follower.username }}</span>
+										</a>
+										<span class="trainer-badge-subtitle">Seguidor</span>
+									</div>
+								</div>
+
+							{% endfor %}
+						</div>
+					{% endif %}
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal para Seleção de Título -->
+	<div class="avatar-modal-overlay" id="title-modal">
+		<div class="avatar-modal-card card" style="max-width: 500px;">
+			<div class="avatar-modal-header">
+				<h3>Escolha seu Título de Treinador</h3>
+				<button class="close-modal-btn" onclick="closeTitleModal()">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+			</div>
+			<div class="avatar-modal-grid" style="grid-template-columns: 1fr; gap: 10px; max-height: 400px; overflow-y: auto;">
+				{% for ts in titleStatuses %}
+					<div class="title-option-card {% if ts.isLocked %}locked{% endif %} {% if ts.isSelected %}selected{% endif %}" data-title="{{ ts.name }}" {% if not ts.isLocked %} onclick="updateTitleSelection('{{ ts.name }}')" {% endif %} style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(255,255,255,0.02); transition: var(--transition-smooth); cursor: {% if ts.isLocked %}not-allowed{% else %}pointer{% endif %}; opacity: {% if ts.isLocked %}0.5{% else %}1{% endif %};">
+						<div style="display: flex; align-items: center; gap: 12px;">
+							{% if ts.ribbonUrl %}
+								<img src="{{ ts.ribbonUrl }}" alt="Ribbon" style="width: 32px; height: 32px; object-fit: contain; image-rendering: pixelated;">
+							{% else %}
+								<div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+									<i class="fa-solid fa-crown" style="color: var(--text-muted); font-size: 1.2rem;"></i>
+								</div>
+							{% endif %}
+							<div style="text-align: left;">
+								<strong style="display: block; font-size: 0.95rem; color: {% if ts.isSelected %}var(--color-secondary){% else %}var(--text-primary){% endif %};">{{ ts.name }}</strong>
+								<span style="font-size: 0.75rem; color: var(--text-muted);">{{ ts.requirement }}</span>
+							</div>
+						</div>
+						{% if ts.isSelected %}
+							<div style="color: var(--color-secondary); font-size: 1.1rem;">
+								<i class="fa-solid fa-circle-check"></i>
+							</div>
+						{% elseif ts.isLocked %}
+							<div style="color: var(--text-muted); font-size: 1rem;">
+								<i class="fa-solid fa-lock"></i>
+							</div>
+						{% endif %}
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal para Seleção de Avatar -->
+	<div class="avatar-modal-overlay" id="avatar-modal">
+		<div class="avatar-modal-card card">
+			<div class="avatar-modal-header">
+				<h3>Escolha seu Avatar de Treinador</h3>
+				<button class="close-modal-btn" onclick="closeAvatarModal()">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+			</div>
+			<div class="avatar-modal-grid">
+				{% for avatar in avatarStatuses %}
+					{% set trainerName = avatar.name|title %}
+					{% set avatarUrl = 'https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/' ~ avatar.filename %}
+					<div class="modal-avatar-option {% if user.avatar == avatar.filename %}selected{% endif %} {% if avatar.isLocked %}avatar-locked{% endif %}" data-filename="{{ avatar.filename }}" {% if not avatar.isLocked %} onclick="updateAvatarSelection('{{ avatar.filename }}')" {% endif %} title="{% if avatar.isLocked %}Bloqueado: Requer {{ avatar.requirement }}{% else %}{{ trainerName }}{% endif %}">
+						<div class="avatar-img-wrapper">
+							<img src="{{ avatarUrl }}" alt="{{ trainerName }}">
+							{% if avatar.isLocked %}
+								<div class="avatar-lock-overlay">
+									<i class="fa-solid fa-lock"></i>
+								</div>
+							{% endif %}
+						</div>
+						<span class="avatar-label">{{ trainerName }}</span>
+						{% if avatar.isLocked %}
+							<span class="avatar-locked-desc" title="{{ avatar.requirement }}">Requer Ouro</span>
+						{% endif %}
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal para Seleção de Medalha de Destaque -->
+	<div class="medal-picker-overlay" id="medal-picker-modal">
+		<div class="medal-picker-card card">
+			<div class="medal-picker-header">
+				<h3>
+					<i class="fa-solid fa-medal"></i>
+					Escolha uma Medalha</h3>
+				<button class="close-modal-btn" onclick="closeMedalPickerModal()">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+			</div>
+			<p class="medal-picker-subtitle">Selecione uma medalha conquistada para exibir no seu Trainer Card.</p>
+			<div class="medal-picker-actions-top">
+				<button class="btn btn-secondary btn-sm" onclick="removeMedalFromSlot()" id="remove-medal-btn">
+					<i class="fa-solid fa-trash-can"></i>
+					Remover Medalha
+				</button>
+			</div>
+			<div class="medal-picker-grid" id="medal-picker-grid">
+				{% for m in activityMedals|merge(catchMedals)|merge(regionalMedals)|merge(typeMedals) %}
+					{% if m.tier != 'locked' and m.enabled %}
+						<div class="medal-picker-option" data-medal-name="{{ m.name }}" onclick="selectShowcaseMedal('{{ m.name }}')">
+							<div class="picker-medal-badge">
+								{% if m.badgeImg %}
+									<img src="{{ m.badgeImg }}" alt="{{ m.title }}" class="picker-badge-img">
+								{% else %}
+									<div class="picker-badge-icon">
+										<i class="fa-solid {{ m.icon }}"></i>
+									</div>
+								{% endif %}
+							</div>
+							<div class="picker-medal-info">
+								<span class="picker-medal-title">{{ m.title }}</span>
+								<span class="picker-medal-tier tier-{{ m.tier }}">{{ m.tier|capitalize }}</span>
+							</div>
+						</div>
+					{% endif %}
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
+	<!-- Container Oculto com as URLs para o Javascript usar via AJAX -->
+	<div id="trainer-card-data" style="display: none;" data-url-tm-toggle="{{ path('app_trainer_card_tm_toggle') }}" data-url-pokemon-toggle-catch="{{ path('app_trainer_card_pokemon_toggle_catch') }}" data-url-follow-toggle="{{ path('app_trainer_card_follow_toggle') }}" data-url-title-update="{{ path('app_trainer_card_title_update') }}" data-url-avatar-update="{{ path('app_trainer_card_avatar_update') }}" data-url-showcase-update="{{ path('app_trainer_card_showcase_update') }}"></div>
+
+	<script src="{{ asset('js/trainer-card.js') }}"></script>
+{% endblock %}

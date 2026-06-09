@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Entrar | PokeFlaton{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/trainer-card.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="auth-container">
+    <div class="auth-card card">
+        <div class="detail-glow login-glow"></div>
+        <div class="auth-header">
+            <img src="{{ asset('image/PokeFlaton-pokeball.png') }}" alt="PokeFlaton" class="auth-logo">
+            <h1 class="auth-title">Acesse sua Conta</h1>
+            <p class="auth-subtitle">Entre para gerenciar seu Trainer Card, TMs e conquistas!</p>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i> {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}" class="auth-form">
+            <div class="form-group">
+                <label for="username" class="form-label">Nome de Usuário</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-user input-icon"></i>
+                    <input type="text" value="{{ last_username }}" name="_username" id="username" class="form-input" autocomplete="username" required autofocus placeholder="Digite seu usuário...">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Senha</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" name="_password" id="password" class="form-input" autocomplete="current-password" required placeholder="Digite sua senha...">
+                </div>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-right-to-bracket"></i> Entrar
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Ainda não tem uma conta? <a href="{{ path('app_register') }}" class="auth-link">Cadastre-se aqui</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

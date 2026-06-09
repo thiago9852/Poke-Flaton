@@ -1,247 +1,322 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}PokeFlaton - {{ pokemon.name|capitalize }}{% endblock %}
+{% block title %}PokeFlaton -
+	{{ pokemon.name|capitalize }}
+{% endblock %}
 
 {% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/pokemon.css') }}">
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/pokemon.css') }}">
 {% endblock %}
 
 {% block body %}
-    {% include 'partials/tooltip.html.twig' %}
+	{% include 'partials/tooltip.html.twig' %}
 
-    <!-- Pokémon Navigation Bar -->
-    <div class="pokemon-navigation-bar">
-        {% if prevPokemon %}
-            <a href="{{ path('app_pokemon_detail', { name: prevPokemon.name }) }}" 
-                class="nav-button nav-prev type-hover-{{ prevPokemon.types|first }}"
-            >
-                <span class="nav-arrow-circle"><i class="fa-solid fa-chevron-left"></i></span>
-                <span class="nav-number">Nº {{ "%04d"|format(prevPokemon.species_id) }}</span>
-                <span class="nav-name">{{ prevPokemon.name|capitalize }}</span>
-            </a>
-        {% else %}
-            <div class="nav-button nav-prev disabled"></div>
-        {% endif %}
+	<!-- Pokémon Navigation Bar -->
+	<div class="pokemon-navigation-bar">
+		{% if prevPokemon %}
+			<a href="{{ path('app_pokemon_detail', { name: prevPokemon.name }) }}" class="nav-button nav-prev type-hover-{{ prevPokemon.types|first }}">
+				<span class="nav-arrow-circle">
+					<i class="fa-solid fa-chevron-left"></i>
+				</span>
+				<span class="nav-number">Nº
+					{{ "%04d"|format(prevPokemon.species_id) }}</span>
+				<span class="nav-name">{{ prevPokemon.name|capitalize }}</span>
+			</a>
+		{% else %}
+			<div class="nav-button nav-prev disabled"></div>
+		{% endif %}
 
-        {% if nextPokemon %}
-            <a href="{{ path('app_pokemon_detail', { name: nextPokemon.name }) }}" 
-                class="nav-button nav-next type-hover-{{ nextPokemon.types|first }}"
-            >
-                <span class="nav-name">{{ nextPokemon.name|capitalize }}</span>
-                <span class="nav-number">Nº {{ "%04d"|format(nextPokemon.species_id) }}</span>
-                <span class="nav-arrow-circle"><i class="fa-solid fa-chevron-right"></i></span>
-            </a>
-        {% else %}
-            <div class="nav-button nav-next disabled"></div>
-        {% endif %}
-    </div>
+		{% if nextPokemon %}
+			<a href="{{ path('app_pokemon_detail', { name: nextPokemon.name }) }}" class="nav-button nav-next type-hover-{{ nextPokemon.types|first }}">
+				<span class="nav-name">{{ nextPokemon.name|capitalize }}</span>
+				<span class="nav-number">Nº
+					{{ "%04d"|format(nextPokemon.species_id) }}</span>
+				<span class="nav-arrow-circle">
+					<i class="fa-solid fa-chevron-right"></i>
+				</span>
+			</a>
+		{% else %}
+			<div class="nav-button nav-next disabled"></div>
+		{% endif %}
+	</div>
 
-    <!-- Pokémon Header -->
-    <div class="pokemon-current-header">
-        <h1 class="current-title">
-            {{ pokemon.name|capitalize }}
-            <span class="current-number">Nº {{ "%04d"|format(pokemon.species_id) }}</span>
-        </h1>
-    </div>
+	<!-- Pokémon Header -->
+	<div class="pokemon-current-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+		<h1 class="current-title" style="margin: 0;">
+			{{ pokemon.name|capitalize }}
+			<span class="current-number">Nº
+				{{ "%04d"|format(pokemon.species_id) }}</span>
+		</h1>
 
-    <div class="pokemon-detail-layout">
-        
-        <!-- Coluna esquerda: Informações do Pokémon -->
-        <div class="pokemon-info-column">
-            {% include 'partials/pokemon_main_card.html.twig' with {'pokemon': pokemon, 'typeDetails': typeDetails} %}
-            {% include 'partials/pokemon_stats_card.html.twig' with {'pokemon': pokemon} %}
-            {% include 'partials/pokemon_evolution_card.html.twig' with {'pokemon': pokemon, 'evolutionChain': evolutionChain, 'typeDetails': typeDetails} %}
-        </div>
+		{% if app.user %}
+			{% set isCaught = pokemon.name in app.user.caughtPokemon %}
+			<button id="catch-btn" class="catch-pokemon-btn {% if isCaught %}caught{% endif %}" data-pokemon-name="{{ pokemon.name }}" onclick="toggleCatchState(this)" title="{% if isCaught %}Na sua Pokedex (Soltar?){% else %}Capturar Pokémon!{% endif %}" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 0.95rem; color: {% if isCaught %}#10b981{% else %}var(--text-secondary){% endif %}; transition: var(--transition-smooth); padding: 8px 16px; border-radius: var(--radius-sm); background-color: rgba(255, 255, 255, 0.03); border: 1px solid {% if isCaught %}rgba(16, 185, 129, 0.3){% else %}var(--border-color){% endif %};">
+				<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/poke-ball.png" id="catch-pokeball-icon" class="pokeball-sprite-icon" style="width: 24px; height: 24px; image-rendering: pixelated; transition: var(--transition-smooth); {% if not isCaught %}filter: grayscale(1) opacity(0.6);{% endif %}">
+				<span id="catch-btn-text">
+					{% if isCaught %}Capturado!{% else %}Capturar
+					{% endif %}
+				</span>
+			</button>
+		{% endif %}
+	</div>
 
-        <!-- Coluna direita: Seção de Movesets -->
-        <div class="pokemon-movesets-column">
-            
-            <div class="movesets-header-container" 
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"
-            >
-                <h2 class="section-column-title" style="margin: 0;">
-                    <i class="fa-solid fa-shield-halved"></i> Melhores Movesets
-                </h2>
-                <a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-primary btn-icon">
-                    <i class="fa-solid fa-plus"></i> Criar Moveset
-                </a>
-            </div>
+	<div
+		class="pokemon-detail-layout">
 
-            <!-- Abas de Navegação -->
-            <div class="tabs-container" style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-color);">
-                <button class="tab-btn active" data-tab="padrao" onclick="switchTab('padrao')" style="background: none; border: none; padding: 10px 20px; cursor: pointer; border-bottom: 2px solid var(--color-primary); color: var(--color-primary); font-weight: bold; display: flex; align-items: center; gap: 8px;">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/poke-ball.png" style="width: 20px;"> PADRÃO
-                </button>
-                <button class="tab-btn" data-tab="pvp" onclick="switchTab('pvp')" style="background: none; border: none; padding: 10px 20px; cursor: pointer; color: var(--text-secondary); font-weight: bold; display: flex; align-items: center; gap: 8px;">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png" style="width: 20px;"> PvP
-                </button>
-                <button class="tab-btn" data-tab="dg" onclick="switchTab('dg')" style="background: none; border: none; padding: 10px 20px; cursor: pointer; color: var(--text-secondary); font-weight: bold; display: flex; align-items: center; gap: 8px;">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/escape-rope.png" style="width: 20px;"> DG
-                </button>
-            </div>
+		<!-- Coluna esquerda: Informações do Pokémon -->
+		<div class="pokemon-info-column">
+			{% include 'partials/pokemon_main_card.html.twig' with {'pokemon': pokemon, 'typeDetails': typeDetails} %}
+			{% include 'partials/pokemon_stats_card.html.twig' with {'pokemon': pokemon} %}
+			{% include 'partials/pokemon_evolution_card.html.twig' with {'pokemon': pokemon, 'evolutionChain': evolutionChain, 'typeDetails': typeDetails} %}
+		</div>
 
-            <!-- Conteúdo das Abas -->
-            <div class="tabs-content-container">
-                {% for tabType in ['padrao', 'pvp', 'dg'] %}
-                    <div id="tab-{{ tabType }}" class="tab-content {{ tabType == 'padrao' ? 'active' : '' }}" 
-                        style="display: {{ tabType == 'padrao' ? 'block' : 'none' }};"
-                    >
-                        
-                        {% set typeMovesets = [] %}
-                        {% for m in movesets %}
-                            {% if m.type == tabType %}
-                                {% set typeMovesets = typeMovesets|merge([m]) %}
-                            {% endif %}
-                        {% endfor %}
+		<!-- Coluna direita: Seção de Movesets -->
+		<div class="pokemon-movesets-column">
 
-                        {% if typeMovesets is empty %}
-                            <div class="empty-moveset card" style="text-align: center; padding: 40px;">
-                                <i class="fa-solid fa-folder-open empty-moveset-icon" 
-                                    style="font-size: 3em; color: #555; margin-bottom: 10px;"
-                                ></i>
+			<div class="movesets-header-container" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+				<h2 class="section-column-title" style="margin: 0;">
+					<i class="fa-solid fa-shield-halved"></i>
+					Melhores Movesets
+				</h2>
+				<a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-primary btn-icon">
+					<i class="fa-solid fa-plus"></i>
+					Criar Moveset
+				</a>
+			</div>
 
-                                <h4>Nenhum moveset criado para esta categoria</h4>
-                                <a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-secondary mt-3">
-                                    Criar Agora
-                                </a>
-                            </div>
-                        {% else %}
-                            {% set m = typeMovesets|first %}
-                            {% include 'partials/moveset_highlight_card.html.twig' with {
+			<!-- Abas de Navegação -->
+			<div class="tabs-container" style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-color);">
+				<button class="tab-btn active" data-tab="padrao" onclick="switchTab('padrao')" style="background: none; border: none; padding: 10px 20px; cursor: pointer; border-bottom: 2px solid var(--color-primary); color: var(--color-primary); font-weight: bold; display: flex; align-items: center; gap: 8px;">
+					<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/poke-ball.png" style="width: 20px;">
+					PADRÃO
+				</button>
+				<button class="tab-btn" data-tab="pvp" onclick="switchTab('pvp')" style="background: none; border: none; padding: 10px 20px; cursor: pointer; color: var(--text-secondary); font-weight: bold; display: flex; align-items: center; gap: 8px;">
+					<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png" style="width: 20px;">
+					PvP
+				</button>
+				<button class="tab-btn" data-tab="dg" onclick="switchTab('dg')" style="background: none; border: none; padding: 10px 20px; cursor: pointer; color: var(--text-secondary); font-weight: bold; display: flex; align-items: center; gap: 8px;">
+					<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/escape-rope.png" style="width: 20px;">
+					DG
+				</button>
+			</div>
+
+			<!-- Conteúdo das Abas -->
+			<div class="tabs-content-container">
+				{% for tabType in ['padrao', 'pvp', 'dg'] %}
+					<div id="tab-{{ tabType }}" class="tab-content {{ tabType == 'padrao' ? 'active' : '' }}" style="display: {{ tabType == 'padrao' ? 'block' : 'none' }};">
+
+						{% set typeMovesets = [] %}
+						{% for m in movesets %}
+							{% if m.type == tabType %}
+								{% set typeMovesets = typeMovesets|merge([m]) %}
+							{% endif %}
+						{% endfor %}
+
+						{% if typeMovesets is empty %}
+							<div class="empty-moveset card" style="text-align: center; padding: 40px;">
+								<i class="fa-solid fa-folder-open empty-moveset-icon" style="font-size: 3em; color: #555; margin-bottom: 10px;"></i>
+
+								<h4>Nenhum moveset criado para esta categoria</h4>
+								<a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-secondary mt-3">
+									Criar Agora
+								</a>
+							</div>
+						{% else %}
+							{% set m = typeMovesets|first %}
+							{% include 'partials/moveset_highlight_card.html.twig' with {
                                 'm': m,
                                 'moveDetails': moveDetails,
                                 'pokemon': pokemon,
                                 'itemDetails': itemDetails,
                                 'naturesMap': naturesMap,
-                                'abilityDetails': abilityDetails
+                                'abilityDetails': abilityDetails,
+                                'recommendedNature': recommendedNatures[tabType]
                             } %}
-                        {% endif %}
+						{% endif %}
 
-                    </div>
-                {% endfor %}
-            </div>
+					</div>
+				{% endfor %}
+			</div>
 
-            <!-- Outros Movesets Sugeridos -->
-            <div class="all-movesets-container mt-5 mb-4">
-                <h4 class="mb-3">Outros Movesets Sugeridos ({{ movesets|length }})</h4>
-                
-                {% if movesets is empty %}
-                    <p class="text-muted">Nenhum moveset sugerido ainda.</p>
-                {% else %}
-                    <div class="moveset-list-column" style="display: flex; flex-direction: column; gap: 15px;">
-                        {% for m2 in movesets %}
-                            {% include 'partials/moveset_list_item.html.twig' with {
+			<!-- Outros Movesets Sugeridos -->
+			<div class="all-movesets-container mt-5 mb-4">
+				<h4 class="mb-3">Outros Movesets Sugeridos ({{ movesets|length }})</h4>
+
+				{% if movesets is empty %}
+					<p class="text-muted">Nenhum moveset sugerido ainda.</p>
+				{% else %}
+					<div class="moveset-list-column" style="display: flex; flex-direction: column; gap: 15px;">
+						{% for m2 in movesets %}
+							{% include 'partials/moveset_list_item.html.twig' with {
                                 'm2': m2,
                                 'pokemon': pokemon,
                                 'moveDetails': moveDetails,
-                                'itemDetails': itemDetails
+                                'itemDetails': itemDetails,
+                                'naturesMap': naturesMap
                             } %}
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-            
-        </div>
-        
-    </div>
+						{% endfor %}
+					</div>
+				{% endif %}
+			</div>
+
+		</div>
+
+	</div>
 {% endblock %}
 
 {% block javascripts %}
-    {{ parent() }}
-    <script>
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = 'none';
-            });
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-                btn.style.color = 'var(--text-secondary)';
-                btn.style.borderBottomColor = 'transparent';
-            });
-            
-            const targetContent = document.getElementById('tab-' + tabName);
-            if (targetContent) {
-                targetContent.style.display = 'block';
-            }
-            
-            const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-                activeBtn.style.color = 'var(--color-primary)';
-                activeBtn.style.borderBottomColor = 'var(--color-primary)';
-            }
-        }
+	{{ parent() }}
+	<script>
+		function switchTab(tabName) {
+document.querySelectorAll('.tab-content').forEach(content => {
+content.style.display = 'none';
+});
+document.querySelectorAll('.tab-btn').forEach(btn => {
+btn.classList.remove('active');
+btn.style.color = 'var(--text-secondary)';
+btn.style.borderBottomColor = 'transparent';
+});
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const shinyToggle = document.getElementById('shiny-toggle');
+const targetContent = document.getElementById('tab-' + tabName);
+if (targetContent) {
+targetContent.style.display = 'block';
+}
 
-            if (!shinyToggle) return;
+const activeBtn = document.querySelector (`[data-tab="${tabName}"]`);
+if (activeBtn) {
+activeBtn.classList.add('active');
+activeBtn.style.color = 'var(--color-primary)';
+activeBtn.style.borderBottomColor = 'var(--color-primary)';
+}
+}
 
-            // Elementos da img
-            const mainArtwork = document.getElementById('pokemon-artwork');
+document.addEventListener('DOMContentLoaded', function () {
+const shinyToggle = document.getElementById('shiny-toggle');
 
-            // Elementos de stats
-            const statValues = document.querySelectorAll('.stat-value');
-            const statBars = document.querySelectorAll('.stat-bar-fill');
-
-            // Constante max_stat usada no twig
-            const MAX_STAT = 150;
-
-            shinyToggle.addEventListener('click', function() {
-                // Verifica se ta ativo/não
-                const isShiny = shinyToggle.classList.toggle('active');
-
-                // Controle estilo visual da estrela
-                shinyToggle.style.opacity = isShiny ? '1' : '0.35';
-
-                // troca sprite
-                if (mainArtwork) {
-                    mainArtwork.src = isShiny ? mainArtwork.dataset.shiny : mainArtwork.dataset.normal;
-                }
+if (! shinyToggle) 
+return;
 
 
-                // Analisar base stats com buff de 50%
-                statValues.forEach((span, index) => {
-                    const baseVal = parseInt(span.dataset.baseVal, 10);
 
-                    // Se for shiny
-                    const newVal = isShiny ? Math.round(baseVal * 1.5) : baseVal;
-                    span.textContent = newVal;
+// Elementos da img
+const mainArtwork = document.getElementById('pokemon-artwork');
 
-                    // Recupera a barra base e a barra do buff
-                    const bar = statBars[index];
-                    if (bar) {
-                        const container = bar.parentElement;
-                        const buffBar = container.querySelector('.stat-bar-buff');
+// Elementos de stats
+const statValues = document.querySelectorAll('.stat-value');
+const statBars = document.querySelectorAll('.stat-bar-fill');
 
-                        if (isShiny) {
-                            // Mantém a barra base com a largura original
-                            bar.style.width = bar.dataset.basePercentage + '%';
+// Constante max_stat usada no twig
+const MAX_STAT = 150;
 
-                            // Calcula a largura da barra de buff (os 50% de ganho)
-                            const basePercentage = parseFloat(bar.dataset.basePercentage);
-                            let buffPercentage = ((newVal - baseVal) / MAX_STAT) * 100;
+shinyToggle.addEventListener('click', function () { // Verifica se ta ativo/não
+const isShiny = shinyToggle.classList.toggle('active');
 
-                            // Se a soma ultrapassar 100%, limita o buff para preencher o restante da barra
-                            if (basePercentage + buffPercentage > 100) {
-                                buffPercentage = 100 - basePercentage;
-                            }
+// Controle estilo visual da estrela
+shinyToggle.style.opacity = isShiny ? '1' : '0.35';
 
-                            if (buffBar) {
-                                buffBar.style.width = buffPercentage + '%';
-                            }
-                        } else {
-                            // Restaura a barra base
-                            bar.style.width = bar.dataset.basePercentage + '%';
-                            if (buffBar) {
-                                buffBar.style.width = '0%';
-                            }
-                        }
-                    }
-                });
-            });
-        });
-    </script>
+// troca sprite
+if (mainArtwork) {
+mainArtwork.src = isShiny ? mainArtwork.dataset.shiny : mainArtwork.dataset.normal;
+}
+
+
+// Analisar base stats com buff de 50%
+statValues.forEach((span, index) => {
+const baseVal = parseInt(span.dataset.baseVal, 10);
+
+// Se for shiny
+const newVal = isShiny ? Math.round(baseVal * 1.5) : baseVal;
+span.textContent = newVal;
+
+// Recupera a barra base e a barra do buff
+const bar = statBars[index];
+if (bar) {
+const container = bar.parentElement;
+const buffBar = container.querySelector('.stat-bar-buff');
+
+if (isShiny) { // Mantém a barra base com a largura original
+bar.style.width = bar.dataset.basePercentage + '%';
+
+// Calcula a largura da barra de buff (os 50% de ganho)
+const basePercentage = parseFloat(bar.dataset.basePercentage);
+let buffPercentage = ((newVal - baseVal) / MAX_STAT) * 100;
+
+// Se a soma ultrapassar 100%, limita o buff para preencher o restante da barra
+if (basePercentage + buffPercentage > 100) {
+buffPercentage = 100 - basePercentage;
+}
+
+if (buffBar) {
+buffBar.style.width = buffPercentage + '%';
+}
+} else { // Restaura a barra base
+bar.style.width = bar.dataset.basePercentage + '%';
+if (buffBar) {
+buffBar.style.width = '0%';
+}
+}
+}
+});
+});
+});
+
+// AJAX catch/release Pokémon
+async function toggleCatchState(btn) {
+const pokemonName = btn.dataset.pokemonName;
+const icon = document.getElementById('catch-pokeball-icon');
+const text = document.getElementById('catch-btn-text');
+
+// Add shaking class for nice animation
+icon.style.animation = 'pokeballShake 0.6s ease';
+
+const formData = new FormData();
+formData.append('name', pokemonName);
+
+try {
+const response = await fetch('{{ path("app_trainer_card_pokemon_toggle_catch") }}', {
+method: 'POST',
+body: formData
+});
+
+const data = await response.json();
+
+// Pause animation
+setTimeout(() => {
+icon.style.animation = '';
+}, 600);
+
+if (data.success) {
+if (data.caught) {
+btn.classList.add('caught');
+btn.style.color = '#10b981';
+btn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+icon.style.filter = 'none';
+text.textContent = 'Capturado!';
+btn.title = 'Na sua Pokedex (Soltar?)';
+
+if (data.pattern) {
+alert (`Você capturou o Vivillon! Padrão desbloqueado: ${
+data.pattern.toUpperCase()
+}!`);
+}
+} else {
+btn.classList.remove('caught');
+btn.style.color = 'var(--text-secondary)';
+btn.style.borderColor = 'var(--border-color)';
+icon.style.filter = 'grayscale(1) opacity(0.6)';
+text.textContent = 'Capturar';
+btn.title = 'Capturar Pokémon!';
+}
+} else {
+alert(data.error || 'Erro ao capturar Pokémon.');
+}
+} catch (e) {
+console.error(e);
+alert('Erro de conexão ao capturar Pokémon.');
+icon.style.animation = '';
+}
+}
+	</script>
 {% endblock %}

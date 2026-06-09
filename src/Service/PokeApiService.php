@@ -691,6 +691,98 @@ class PokeApiService
         return $list;
     }
 
+    
+    /**
+     * Buscar os detalhes completos de um lote de nomes de Pokémons de forma concorrente e com cache
+     */
+    public function getPokemonDetailsBatchByNames(array $names): array
+    {
+        $detailsList = [];
+        $missedNames = [];
+
+        foreach ($names as $name) {
+            $nameLower = strtolower($name);
+            $cacheKey = 'pokemon_details_' . $nameLower;
+            $item = $this->cache->getItem($cacheKey);
+            if ($item->isHit()) {
+                $detailsList[$nameLower] = $item->get();
+            } else {
+                $missedNames[] = $nameLower;
+            }
+        }
+
+        if (!empty($missedNames)) {
+            $responses = [];
+            foreach ($missedNames as $name) {
+                $responses[$name] = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon/' . $name);
+            }
+
+            foreach ($responses as $name => $response) {
+                try {
+                    $data = $response->toArray();
+                    $stats = [];
+                    foreach ($data['stats'] as $s) {
+                        $stats[$s['stat']['name']] = $s['base_stat'];
+                    }
+                    $types = [];
+                    foreach ($data['types'] as $t) {
+                        $types[] = $t['type']['name'];
+                    }
+                    $abilities = [];
+                    foreach ($data['abilities'] as $a) {
+                        $abilities[] = $a['ability']['name'];
+                    }
+                    $heldItems = [];
+                    foreach ($data['held_items'] as $hi) {
+                        $itemName = $hi['item']['name'];
+                        $maxRarity = 0;
+                        foreach ($hi['version_details'] as $vd) {
+                            if ($vd['rarity'] > $maxRarity) {
+                                $maxRarity = $vd['rarity'];
+                            }
+                        }
+                        $heldItems[] = [
+                            'name' => $itemName,
+                            'chance' => $maxRarity,
+                            'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/%s.png', $itemName)
+                        ];
+                    }
+
+                    $speciesUrl = $data['species']['url'];
+                    $speciesParts = explode('/', rtrim($speciesUrl, '/'));
+                    $speciesId = (int) end($speciesParts);
+                    $speciesName = $data['species']['name'];
+
+                    $parsed = [
+                        'id' => $data['id'],
+                        'name' => $data['name'],
+                        'species_id' => $speciesId,
+                        'species_name' => $speciesName,
+                        'varieties' => [],
+                        'sprite_official' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $data['id']),
+                        'types' => $types,
+                        'stats' => $stats,
+                        'drops' => $heldItems,
+                        'moves' => [],
+                        'abilities' => $abilities
+                    ];
+
+                    $cacheKey = 'pokemon_details_' . $name;
+                    $item = $this->cache->getItem($cacheKey);
+                    $item->set($parsed);
+                    $item->expiresAfter(86400 * 7);
+                    $this->cache->save($item);
+
+                    $detailsList[$name] = $parsed;
+                } catch (\Exception $e) {
+                    // ignore
+                }
+            }
+        }
+
+        return $detailsList;
+    }
+
     /**
      * Calcular o limite máximo de moves com base no estágio evolutivo e BST
      *

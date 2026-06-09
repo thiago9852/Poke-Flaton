@@ -1,57 +1,60 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}PokeFlaton - Movesets de Pokémons{% endblock %}
+{% block title %}PokeFlaton | Movesets de Pokémons
+{% endblock %}
 
 {% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/home.css') }}">
 {% endblock %}
 
 {% block body %}
-<section class="landing-hero">
-    <div class="landing-hero-glow"></div>
-    <h1 class="hero-title">Encontre os Melhores <span class="highlight">Movesets</span></h1>
-    <p class="hero-subtitle">Crie, compartilhe e explore as melhores combinações de golpes, natures, habilidades e localizações manuais de captura para a 1ª Geração de Pokémon.</p>
-    
-    <div class="landing-search-container">
-        <form action="#" method="GET" class="search-form">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" name="q" placeholder="Buscar Pokémon por nome ou número..." class="search-input" required autocomplete="off">
-            </div>
-            <button type="submit" class="btn btn-primary">Buscar</button>
-        </form>
-    </div>
-</section>
+	<section class="landing-hero">
+		<div class="landing-hero-glow"></div>
+		<h1 class="hero-title">Encontre os Melhores
+			<span class="highlight">Movesets</span>
+		</h1>
+		<p class="hero-subtitle">Crie, compartilhe e explore as melhores combinações de golpes, natures, habilidades e localizações manuais de captura para a 1ª Geração de Pokémon.</p>
 
-<!-- Cards -->
-<section class="landing-features-grid">
-    <div class="feature-card">
-        <div class="feature-card-glow"></div>
-        <div class="feature-icon-wrapper">
-            <i class="fa-solid fa-shield-halved"></i>
-        </div>
-        <h3 class="feature-title">Movesets</h3>
-        <p class="feature-desc">Crie e explore as melhores combinações de golpes paras os Pokémons.</p>
-    </div>
+		<div class="landing-search-container">
+			<form action="#" method="GET" class="search-form">
+				<div class="search-box">
+					<input type="text" name="q" placeholder="Buscar Pokémon por nome ou número..." class="search-input" required autocomplete="off">
+					<i class="fa-solid fa-magnifying-glass search-icon"></i>
+				</div>
+				<button type="submit" class="btn btn-primary">Buscar</button>
+			</form>
+		</div>
+	</section>
 
-    <div class="feature-card">
-        <div class="feature-card-glow"></div>
-        <div class="feature-icon-wrapper">
-            <i class="fa-solid fa-bag-shopping"></i>
-        </div>
-        <h3 class="feature-title">Builds Completas</h3>
-        <p class="feature-desc">Sugira a combinação ideal de Held Item, Nature recomendada e Habilidade para potencializar seu Pokémon.</p>
-    </div>
+	<!-- Cards -->
+	<section class="landing-features-grid">
+		<div class="feature-card">
+			<div class="feature-card-glow"></div>
+			<div class="feature-icon-wrapper">
+				<i class="fa-solid fa-shield-halved"></i>
+			</div>
+			<h3 class="feature-title">Movesets</h3>
+			<p class="feature-desc">Crie e explore as melhores combinações de golpes paras os Pokémons.</p>
+		</div>
 
-    <div class="feature-card">
-        <div class="feature-card-glow"></div>
-        <div class="feature-icon-wrapper">
-            <i class="fa-solid fa-location-dot"></i>
-        </div>
-        <h3 class="feature-title">Localizações</h3>
-        <p class="feature-desc">Cadastre e encontre onde achar seus Pokémon favoritos.</p>
-    </div>
-</section>
+		<div class="feature-card">
+			<div class="feature-card-glow"></div>
+			<div class="feature-icon-wrapper">
+				<i class="fa-solid fa-bag-shopping"></i>
+			</div>
+			<h3 class="feature-title">Builds Completas</h3>
+			<p class="feature-desc">Sugira a combinação ideal de Held Item, Nature recomendada e Habilidade para potencializar seu Pokémon.</p>
+		</div>
+
+		<div class="feature-card">
+			<div class="feature-card-glow"></div>
+			<div class="feature-icon-wrapper">
+				<i class="fa-solid fa-location-dot"></i>
+			</div>
+			<h3 class="feature-title">Localizações</h3>
+			<p class="feature-desc">Cadastre e encontre onde achar seus Pokémon favoritos.</p>
+		</div>
+	</section>
 
 {% endblock %}
