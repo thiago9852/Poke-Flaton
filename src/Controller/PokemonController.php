@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class PokemonController extends AbstractController
 {
@@ -28,37 +29,46 @@ class PokemonController extends AbstractController
     #[Route('/pokemons', name: 'app_pokemon_index')]
     public function index(Request $request): Response
     {
-
         $search = $request->query->get('q');
         $typeFilter = $request->query->get('type');
+        $sort = $request->query->get('sort', '');
 
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 24;
         $offset = ($page - 1) * $limit;
 
+        // Pega a lista base inicial baseada no filtro de tipo
         if (!empty($typeFilter)) {
-            // Filtragem por tipo: o serviço faz o slice e busca detalhes de apenas 24
-            $result = $this->pokeApiService->getPokemonByType($typeFilter, $limit, $offset);
-            $pokemons = $result['results'];
-            $totalCount = $result['count'];
-        } elseif (!empty($search)) {
-            // Busca por termo: pega lista básica leve, filtra, faz slice e busca detalhes do lote de 24
-            $search = strtolower(trim($search));
-            $allBasicList = $this->pokeApiService->getPokemonBasicList();
+            $basicList = $this->pokeApiService->getPokemonBasicListByType($typeFilter);
+        } else {
+            $basicList = $this->pokeApiService->getPokemonBasicList();
+        }
 
-            $filteredBasic = array_filter($allBasicList, function ($p) use ($search) {
-                return str_contains($p['name'], $search) || strval($p['id']) === $search;
+        // 2. Filtra pelo termo de busca
+        if (!empty($search)) {
+            $searchLower = strtolower(trim($search));
+            $basicList = array_filter($basicList, function ($p) use ($searchLower) {
+                return str_contains($p['name'], $searchLower) || strval($p['id']) === $searchLower;
             });
+        }
 
-            // Inserir as megas correspondentes no basic list filtrado
-            $finalBasic = [];
-            foreach ($filteredBasic as $p) {
-                $finalBasic[] = $p;
-                $megas = $this->pokeApiService->getMegaEvolutions();
+        // Adiciona megas se não estiver filtrando por tipo
+        if (empty($typeFilter)) {
+            $finalList = [];
+            $megas = $this->pokeApiService->getMegaEvolutions();
+            foreach ($basicList as $p) {
+                $finalList[] = $p;
                 if (isset($megas[$p['id']])) {
                     foreach ($megas[$p['id']] as $mega) {
                         if ($this->pokeApiService->isPokemonAllowed($mega['id'])) {
-                            $finalBasic[] = [
+                            // Se houver um termo de busca, verifica se o mega corresponde
+                            if (!empty($search)) {
+                                $searchLower = strtolower(trim($search));
+                                if (!str_contains($mega['name'], $searchLower) && $searchLower !== 'mega') {
+                                    continue;
+                                }
+                            }
+                            $finalList[] = [
                                 'id' => $mega['id'],
                                 'name' => $mega['name'],
                                 'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' . $mega['id'] . '.png',
@@ -70,80 +80,76 @@ class PokemonController extends AbstractController
                 }
             }
 
-            // Se o termo pesquisado contiver "mega", adiciona as megas correspondentes (caso não tenham sido adicionadas pelo filtro base)
-            if (str_contains($search, 'mega')) {
-                $finalBasic = [];
-                foreach ($this->pokeApiService->getMegaEvolutions() as $baseId => $megas) {
-                    foreach ($megas as $mega) {
+            // Se a busca contém 'mega', devemos garantir que também incluímos quaisquer megas permitidos correspondentes à consulta
+            // mesmo que sua forma base não tenha correspondido à consulta
+            if (!empty($search) && str_contains(strtolower($search), 'mega')) {
+                $searchLower = strtolower(trim($search));
+                foreach ($this->pokeApiService->getMegaEvolutions() as $baseId => $megasArr) {
+                    foreach ($megasArr as $mega) {
                         if (!$this->pokeApiService->isPokemonAllowed($mega['id'])) {
                             continue;
                         }
-                        if (str_contains($mega['name'], $search) || $search === 'mega') {
-                            $finalBasic[] = [
-                                'id' => $mega['id'],
-                                'name' => $mega['name'],
-                                'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' . $mega['id'] . '.png',
-                                'types' => $mega['types'],
-                                'dex_id' => $baseId
-                            ];
+                        if (str_contains($mega['name'], $searchLower) || $searchLower === 'mega') {
+                            // Verifica se este mega já está na lista
+                            $exists = false;
+                            foreach ($finalList as $existing) {
+                                if ($existing['id'] === $mega['id']) {
+                                    $exists = true;
+                                    break;
+                                }
+                            }
+                            if (!$exists) {
+                                $finalList[] = [
+                                    'id' => $mega['id'],
+                                    'name' => $mega['name'],
+                                    'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' . $mega['id'] . '.png',
+                                    'types' => $mega['types'],
+                                    'dex_id' => $baseId
+                                ];
+                            }
                         }
                     }
                 }
             }
 
-            $totalCount = count($finalBasic);
-            $pagedBasic = array_slice($finalBasic, $offset, $limit);
-
-            $pokemons = [];
-            $basicToFetch = [];
-            foreach ($pagedBasic as $item) {
-                if ($item['id'] > 10000) {
-                    $pokemons[] = $item;
-                } else {
-                    $basicToFetch[] = $item;
-                }
-            }
-
-            if (!empty($basicToFetch)) {
-                $fetchedPokemons = $this->pokeApiService->getPokemonDetailsBatch($basicToFetch);
-                $pokemons = array_merge($pokemons, $fetchedPokemons);
-                usort($pokemons, function ($a, $b) use ($pagedBasic) {
-                    $posA = array_search($a['name'], array_column($pagedBasic, 'name'));
-                    $posB = array_search($b['name'], array_column($pagedBasic, 'name'));
-                    return $posA <=> $posB;
-                });
-            }
-        } else {
-            $allBasicList = $this->pokeApiService->getPokemonBasicList();
-            $totalCount = count($allBasicList);
-            $pagedBasic = array_slice($allBasicList, $offset, $limit);
-
-            $pokemons = $this->pokeApiService->getPokemonDetailsBatch($pagedBasic);
-
-            // Inserir as megas correspondentes no list
-            $finalPokemons = [];
-            foreach ($pokemons as $p) {
-                $finalPokemons[] = $p;
-                $megas = $this->pokeApiService->getMegaEvolutions();
-                if (isset($megas[$p['id']])) {
-                    foreach ($megas[$p['id']] as $mega) {
-                        if ($this->pokeApiService->isPokemonAllowed($mega['id'])) {
-                            $finalPokemons[] = [
-                                'id' => $mega['id'],
-                                'name' => $mega['name'],
-                                'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' . $mega['id'] . '.png',
-                                'types' => $mega['types'],
-                                'dex_id' => $p['id']
-                            ];
-                        }
-                    }
-                }
-            }
-            $pokemons = $finalPokemons;
+            $basicList = $finalList;
         }
 
-        $lastPage = (int) ceil($totalCount / $limit);
+        // Ordena a lista base
+        usort($basicList, function ($a, $b) use ($sort) {
+            $dexIdA = $a['dex_id'] ?? $a['id'];
+            $dexIdB = $b['dex_id'] ?? $b['id'];
 
+            switch ($sort) {
+                case 'number_desc':
+                    if ($dexIdA === $dexIdB) {
+                        return $b['id'] <=> $a['id'];
+                    }
+                    return $dexIdB <=> $dexIdA;
+
+                case 'name_asc':
+                    return strcasecmp($a['name'], $b['name']);
+
+                case 'name_desc':
+                    return strcasecmp($b['name'], $a['name']);
+
+                case 'number_asc':
+                default:
+                    if ($dexIdA === $dexIdB) {
+                        return $a['id'] <=> $b['id'];
+                    }
+                    return $dexIdA <=> $dexIdB;
+            }
+        });
+
+        // Pagina a lista base
+        $totalCount = count($basicList);
+        $pagedBasic = array_slice($basicList, $offset, $limit);
+
+        // Busca os detalhes dos pokémons na lista paginada
+        $pokemons = $this->pokeApiService->getPokemonDetailsBatch($pagedBasic);
+
+        $lastPage = (int) ceil($totalCount / $limit);
 
         return $this->render('pokemon/index.html.twig', [
             'pokemons' => $pokemons,
@@ -152,6 +158,7 @@ class PokemonController extends AbstractController
             'allTypes' => TypeEnum::getCasesForModule('type'),
             'selectedType' => $typeFilter,
             'search' => $search,
+            'sort' => $sort,
         ]);
     }
 
@@ -268,5 +275,54 @@ class PokemonController extends AbstractController
             'typeDetails' => $typeDetails,
             'recommendedNatures' => $recommendedNatures,
         ]);
+    }
+
+    #[Route('/api/pokemon/search', name: 'api_pokemon_search', methods: ['GET'])]
+    public function searchAjax(Request $request): JsonResponse
+    {
+        $query = strtolower(trim($request->query->get('q', '')));
+        if (strlen($query) < 2) {
+            return new JsonResponse([]);
+        }
+
+        $allBasicList = $this->pokeApiService->getPokemonBasicList();
+        
+        // Filtra instantaneamente a lista que já está em cache
+        $filtered = array_filter($allBasicList, function ($p) use ($query) {
+            return str_contains($p['name'], $query) || strval($p['id']) === $query;
+        });
+
+        // Adicionar megas se buscar por "mega"
+        if (str_contains($query, 'mega')) {
+            foreach ($this->pokeApiService->getMegaEvolutions() as $baseId => $megas) {
+                foreach ($megas as $mega) {
+                    if (!$this->pokeApiService->isPokemonAllowed($mega['id'])) {
+                        continue;
+                    }
+                    if (str_contains($mega['name'], $query) || $query === 'mega') {
+                        $filtered[] = [
+                            'id' => $mega['id'],
+                            'name' => $mega['name'],
+                            'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' . $mega['id'] . '.png',
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Limitar a 8 resultados para não estourar a tela do usuário
+        $filtered = array_slice($filtered, 0, 8); 
+        
+        $results = [];
+        foreach ($filtered as $item) {
+            $results[] = [
+                'id' => $item['id'],
+                'name' => ucfirst(str_replace('-', ' ', $item['name'])),
+                'sprite' => $item['sprite'],
+                'url' => $this->generateUrl('app_pokemon_detail', ['name' => $item['name']])
+            ];
+        }
+
+        return new JsonResponse($results);
     }
 }

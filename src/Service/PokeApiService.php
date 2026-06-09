@@ -654,6 +654,41 @@ class PokeApiService
     }
 
     /**
+     * Obter lista básica de Pokémons filtrados por tipo para busca/ordenação rápida
+     */
+    public function getPokemonBasicListByType(string $type): array
+    {
+        return $this->cache->get('pokemon_basic_list_type_' . strtolower($type), function (ItemInterface $item) use ($type) {
+            $item->expiresAfter(86400 * 7); // Cache por 7 dias
+
+            $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/type/' . strtolower($type));
+            $data = $response->toArray();
+
+            $allPokemonOfType = $data['pokemon'];
+            $list = [];
+            foreach ($allPokemonOfType as $p) {
+                $parts = explode('/', rtrim($p['pokemon']['url'], '/'));
+                $id = (int) end($parts);
+                
+                if (!$this->isPokemonAllowed($id)) {
+                    continue;
+                }
+                
+                $baseId = $this->getBaseSpeciesId($id);
+                $list[] = [
+                    'id' => $id,
+                    'name' => $p['pokemon']['name'],
+                    'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $id),
+                    'dex_id' => $baseId,
+                    'types' => [] // vazio por padrão para velocidade
+                ];
+            }
+
+            return $list;
+        });
+    }
+
+    /**
      * Buscar os detalhes (principalmente tipos) para um lote específico de pokémons concorrentemente
      */
     public function getPokemonDetailsBatch(array $pokemonBasicList): array
@@ -685,7 +720,8 @@ class PokeApiService
                 'id' => $id,
                 'name' => $name,
                 'sprite' => $p['sprite'],
-                'types' => $types
+                'types' => $types,
+                'dex_id' => $p['dex_id'] ?? $id
             ];
         }
         return $list;

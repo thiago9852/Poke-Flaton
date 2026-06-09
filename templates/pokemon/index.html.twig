@@ -12,18 +12,27 @@
 {% block body %}
 
 	<section class="filter-section card">
-		
+
 		<form action="{{ path('app_pokemon_index') }}" method="GET" class="search-form">
 			<div class="search-box">
+				<input type="text" name="q" value="{{ search }}" placeholder="Buscar por nome ou número..." class="search-input" autocomplete="off">
 				<i class="fa-solid fa-magnifying-glass search-icon"></i>
-				<input type="text" name="q" value="{{ search }}" placeholder="Buscar por nome ou número..." class="search-input">
-				{% if search or selectedType %}
-					<a href="{{ path('app_pokemon_index') }}" class="clear-search-btn" title="Limpar Filtros">
-						<i class="fa-solid fa-xmark"></i>
-					</a>
-				{% endif %}
 			</div>
-			<button type="submit" class="btn btn-primary">Buscar</button>
+
+			<div class="sort-box">
+				<select name="sort" class="sort-select" aria-label="Ordenar pokémons">
+					<option value="" {% if not sort %}selected{% endif %}>Ordenar por:</option>
+					<option value="number_asc" {% if sort == 'number_asc' %}selected{% endif %}>Nº (001 → 999)</option>
+					<option value="number_desc" {% if sort == 'number_desc' %}selected{% endif %}>Nº (999 → 001)</option>
+					<option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Nome (A → Z)</option>
+					<option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Nome (Z → A)</option>
+				</select>
+
+			</div>
+
+			<a href="{{ path('app_pokemon_index') }}" class="btn btn-secondary btn-clear-filters" title="Limpar todos os filtros">
+				<i class="fa-solid fa-filter-circle-xmark"></i>
+			</a>
 		</form>
 
 		<div class="type-filter-container">
@@ -33,9 +42,7 @@
 			</span>
 			<div class="type-badges-list">
 				{% for type in allTypes %}
-					<a href="{{ path('app_pokemon_index', { search: search, type: selectedType == type.value ? '' : type.value }) }}" 
-						class="type-badge-link type-badge-{{ type.value }}{{ selectedType == type.value ? ' active' : '' }}"
-					>
+					<a href="{{ path('app_pokemon_index', { search: search, type: selectedType == type.value ? '' : type.value, sort: sort }) }}" class="type-badge-link type-badge-{{ type.value }}{{ selectedType == type.value ? ' active' : '' }}">
 						{{ type.value|capitalize }}
 					</a>
 				{% endfor %}
@@ -45,34 +52,42 @@
 	</section>
 
 	<div class="pokemon-grid-container">
-		<div class="pokemon-grid">
-			{% for pokemon in pokemons %}
+		{% if pokemons is empty %}
+			<div class="empty-state card" style="text-align: center; padding: 60px 20px; background-color: rgba(255, 255, 255, 0.02);">
+				<i class="fa-solid fa-magnifying-glass" style="font-size: 3.5rem; color: var(--text-muted); margin-bottom: 20px; display: block;"></i>
+				<h3 style="color: var(--text-secondary); margin-bottom: 8px;">Nenhum Pokémon encontrado.</h3>
+				<p style="color: var(--text-muted);">Tente buscar com outro termo ou limpar os filtros atuais.</p>
+			</div>
+		{% else %}
+			<div class="pokemon-grid">
+				{% for pokemon in pokemons %}
 
-				<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="pokemon-card">
-					<div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
-					<span class="pokemon-id">#{{ "%03d"|format(pokemon.dex_id|default(pokemon.id)) }}</span>
-					<div class="pokemon-sprite-container">
-						<img src="{{ pokemon.sprite }}" alt="{{ pokemon.name|capitalize }}" class="pokemon-image" loading="lazy">
-					</div>
-					<h3 class="pokemon-name">{{ pokemon.name|capitalize }}</h3>
-					<div class="pokemon-types">
+					<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="pokemon-card">
+						<div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
+						<span class="pokemon-id">#{{ "%03d"|format(pokemon.dex_id|default(pokemon.id)) }}</span>
+						<div class="pokemon-sprite-container">
+							<img src="{{ pokemon.sprite }}" alt="{{ pokemon.name|capitalize }}" class="pokemon-image" loading="lazy">
+						</div>
+						<h3 class="pokemon-name">{{ pokemon.name|capitalize }}</h3>
+						<div class="pokemon-types">
 
-						{% for type in pokemon.types %}
-							<span class="type-badge type-badge-{{ type }}">{{ type|capitalize }}</span>
-						{% endfor %}
+							{% for type in pokemon.types %}
+								<span class="type-badge type-badge-{{ type }}">{{ type|capitalize }}</span>
+							{% endfor %}
 
-					</div>
-				</a>
+						</div>
+					</a>
 
-			{% endfor %}
-		</div>
+				{% endfor %}
+			</div>
+		{% endif %}
 
 		<!-- Paginação -->
 		{% if lastPage > 1 %}
 			<div class="pagination-container">
 
 				{% if currentPage > 1 %}
-					<a href="{{ path('app_pokemon_index', { page: currentPage - 1, q: search, type: selectedType }) }}" class="btn btn-secondary btn-sm">
+					<a href="{{ path('app_pokemon_index', { page: currentPage - 1, q: search, type: selectedType, sort: sort }) }}" class="btn btn-secondary btn-sm">
 						<i class="fa-solid fa-chevron-left"></i>
 						Anterior
 					</a>
@@ -89,7 +104,7 @@
 				</span>
 
 				{% if currentPage < lastPage %}
-					<a href="{{ path('app_pokemon_index', { page: currentPage + 1, q: search, type: selectedType }) }}" class="btn btn-secondary btn-sm">
+					<a href="{{ path('app_pokemon_index', { page: currentPage + 1, q: search, type: selectedType, sort: sort }) }}" class="btn btn-secondary btn-sm">
 						Próxima
 						<i class="fa-solid fa-chevron-right"></i>
 					</a>
@@ -100,6 +115,11 @@
 				{% endif %}
 			</div>
 		{% endif %}
-		
+
 	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="{{ asset('js/pokemon-search.js') }}"></script>
 {% endblock %}

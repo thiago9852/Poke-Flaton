@@ -141,3 +141,113 @@
 .search-input:focus~.search-icon {
     color: var(--color-primary);
 }
+
+/* Sort Select */
+.sort-box {
+    display: flex;
+    align-items: center;
+}
+
+.sort-select {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    padding: 14px 40px 14px 16px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+    transition: var(--transition-smooth);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba%28255,%20255,%20255,%200.5%29' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
+}
+
+.sort-select:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.sort-select:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.sort-select option {
+    background-color: #1a1a24;
+    color: var(--text-primary);
+}
+
+/* ---- Autocomplete Dropdown ---- */
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 320px;
+    overflow-y: auto;
+    background-color: #1a1a24;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-top: 8px;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+}
+
+.autocomplete-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    text-decoration: none;
+    color: var(--text-primary);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: var(--transition-smooth);
+    cursor: pointer;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover, .autocomplete-item.active {
+    background-color: rgba(255,255,255,0.08);
+}
+
+.autocomplete-item img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+}
+
+.autocomplete-item-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.autocomplete-item-info .poke-id {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.autocomplete-item-info .poke-name {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .search-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .sort-box, .sort-select, .btn-clear-filters {
+        width: 100%;
+    }
+}
