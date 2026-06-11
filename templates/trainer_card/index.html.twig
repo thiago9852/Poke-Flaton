@@ -406,11 +406,7 @@
 								<div class="medal-info">
 									<h4 class="medal-title">{{ medal.title }}</h4>
 									<p class="medal-desc">
-										{% if not medal.enabled %}
-											Esta medalha está atualmente bloqueada.
-										{% else %}
-											{{ medal.description }}
-										{% endif %}
+										{{ medal.description }}
 									</p>
 
 									{% if medal.enabled %}
@@ -512,11 +508,7 @@
 									<div class="medal-info">
 										<h4 class="medal-title">{{ medal.title }}</h4>
 										<p class="medal-desc">
-											{% if not medal.enabled %}
-												Esta medalha está atualmente bloqueada.
-											{% else %}
-												{{ medal.description }}
-											{% endif %}
+											{{ medal.description }}
 										</p>
 
 										{% if medal.enabled %}
@@ -620,11 +612,7 @@
 										</span>
 
 										<p class="medal-desc">
-											{% if not medal.enabled %}
-												Esta medalha está atualmente bloqueada.
-											{% else %}
-												{{ medal.description }}
-											{% endif %}
+											{{ medal.description }}
 										</p>
 
 										{% if medal.enabled %}
@@ -723,12 +711,7 @@
 								<div class="medal-info">
 									<h4 class="medal-title">{{ medal.title }}</h4>
 									<p class="medal-desc">
-
-										{% if not medal.enabled %}
-											Esta medalha está atualmente bloqueada.
-										{% else %}
-											{{ medal.description }}
-										{% endif %}
+										{{ medal.description }}
 									</p>
 
 									{% if medal.enabled %}

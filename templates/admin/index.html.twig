@@ -565,6 +565,11 @@
 {% endblock %}
 
 {% block javascripts %}
+	{% set totalMedals = 0 %}
+	{% for cat, medals in medalDefs %}
+		{% set totalMedals = totalMedals + medals|length %}
+	{% endfor %}
+	{% set totalMedals = totalMedals + allVivillonPatterns|length %}
 	<script>
 		let enabledCount = parseInt('{{ (enabledMedals|length + enabledVivillonPats|length) }}');
 		const totalCount = parseInt('{{ totalMedals }}');

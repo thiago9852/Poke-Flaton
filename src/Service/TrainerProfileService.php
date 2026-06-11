@@ -609,8 +609,8 @@ class TrainerProfileService
             }
         }
 
-        // Se a lista de medalhas ativas não está vazia e esta medalha não está nela, ou se está bloqueada regionalmente → force locked
-        $adminLocked = (!empty($enabledMedals) && !in_array($name, $enabledMedals)) || $regionalLocked;
+        // Se a lista de medalhas ativas não está vazia e esta medalha não está nela (para medalhas não-regionais), ou se está bloqueada regionalmente → force locked
+        $adminLocked = $regionalLocked || (!$isRegionalMedal && !empty($enabledMedals) && !in_array($name, $enabledMedals));
 
         if ($adminLocked) {
             $tier        = 'locked';

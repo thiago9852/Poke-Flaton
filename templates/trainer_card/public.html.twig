@@ -282,11 +282,7 @@
 								<div class="medal-info">
 									<h4 class="medal-title">{{ medal.title }}</h4>
 									<p class="medal-desc">
-										{% if not medal.enabled %}
-											Esta medalha está atualmente bloqueada.
-										{% else %}
-											{{ medal.description }}
-										{% endif %}
+										{{ medal.description }}
 									</p>
 
 									{% if medal.enabled %}
@@ -341,12 +337,13 @@
 				<!-- Categoria 2: Medalhas de Captura Geral -->
 				<div class="medals-section-category mt-5">
 					<h3 class="medals-category-title">
-						<i class="fa-solid fa-gamepad"></i>
+						<i class="fa-solid fa-book-open"></i>
 						Enciclopédia Pokémon</h3>
 						
 					<div class="medals-section-category">
 						<div class="medals-title-header">
 							<h4>Explorador</h4>
+							<p class="text-muted">Conquistas gerais por metas de exploração.</p>
 						</div>
 
 						<div class="medals-grid">
@@ -376,11 +373,7 @@
 									<div class="medal-info">
 										<h4 class="medal-title">{{ medal.title }}</h4>
 										<p class="medal-desc">
-											{% if not medal.enabled %}
-												Esta medalha está atualmente bloqueada.
-											{% else %}
-												{{ medal.description }}
-											{% endif %}
+											{{ medal.description }}
 										</p>
 
 										{% if medal.enabled %}
@@ -423,21 +416,21 @@
 													EM BREVE</span>
 											</div>
 										{% endif %}
+									</div>
 
 									{% include 'partials/medal_tooltip.html.twig' %}
 								</div>
 							{% endfor %}
 						</div>
+					</div>
 
 						<div class="medals-section-category" style="margin-top: 30px;">
 							<div class="medals-title-header">
 								<h4>Capturas de Tipos</h4>
+								<p class="text-muted">Suba de nível capturando diferentes espécies de cada tipo.</p>
 							</div>
 
-							<!-- Medalhas de Tipos -->
-							<div class="medals-section-category mt-5">
-
-								<div class="medals-grid types-medals-grid">
+							<div class="medals-grid types-medals-grid">
 									{% for medal in typeMedals %}
 
 										{% set typeKey = medal.name|replace({'type_': ''}) %}
@@ -466,11 +459,7 @@
 												<h4 class="medal-title">{{ medal.title }}</h4>
 												<span class="type-badge-sm type-badge-pd type-badge-{{ typeKey }}" style="display: inline-block; margin-bottom: 8px;">{{ typeKey|capitalize }}</span>
 												<p class="medal-desc">
-													{% if not medal.enabled %}
-														Esta medalha está atualmente bloqueada.
-													{% else %}
-														{{ medal.description }}
-													{% endif %}
+													{{ medal.description }}
 												</p>
 
 												{% if medal.enabled %}
@@ -515,16 +504,12 @@
 												{% endif %}
 											</div>
 											
-												<!-- Tooltip -->
-												{% include 'partials/medal_tooltip.html.twig' %}
+											<!-- Tooltip -->
+											{% include 'partials/medal_tooltip.html.twig' %}
 										</div>
 									{% endfor %}
 								</div>
 							</div>
-						</div>
-
-					</div>
-				</div>
 
 				<!-- Categoria 3: Pokedex Regional -->
 				<div class="medals-section-category mt-5">
@@ -559,11 +544,7 @@
 								<div class="medal-info">
 									<h4 class="medal-title">{{ medal.title }}</h4>
 									<p class="medal-desc">
-										{% if not medal.enabled %}
-											Esta medalha está atualmente bloqueada.
-										{% else %}
-											{{ medal.description }}
-										{% endif %}
+										{{ medal.description }}
 									</p>
 
 									{% if medal.enabled %}
