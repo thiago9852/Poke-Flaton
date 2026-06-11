@@ -503,6 +503,7 @@
     text-align: center;
     margin-top: -16px;
     margin-bottom: 24px;
+    justify-content: space-between;
     position: relative;
     z-index: 5;
 }
@@ -515,6 +516,10 @@
     display: inline-flex;
     align-items: center;
     gap: 16px;
+    text-align: center;
+    position: absolute;
+    transform: translateX(-50%);
+    left: 50%;
 }
 
 .current-number {

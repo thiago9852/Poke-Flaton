@@ -5,6 +5,9 @@ namespace App\Controller;
 use App\Service\PokeApiService;
 use App\Repository\MovesetRepository;
 use App\Enum\TypeEnum;
+use App\Entity\PokemonAccess;
+use App\Repository\PokemonAccessRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,9 +24,34 @@ class PokemonController extends AbstractController
     }
 
     #[Route('/', name: 'app_home')]
-    public function home(): Response
+    public function home(PokemonAccessRepository $pokemonAccessRepository): Response
     {
-        return $this->render('index/index.html.twig', []);
+        $trending = $pokemonAccessRepository->findTrending(6);
+        $trendingPokemons = [];
+
+        if (!empty($trending)) {
+            $names = array_map(fn($t) => $t->getPokemonName(), $trending);
+            $details = $this->pokeApiService->getPokemonDetailsBatchByNames($names);
+
+            foreach ($trending as $access) {
+                $nameLower = strtolower($access->getPokemonName());
+                if (isset($details[$nameLower])) {
+                    $p = $details[$nameLower];
+                    $trendingPokemons[] = [
+                        'id' => $p['id'],
+                        'name' => $p['name'],
+                        'dex_id' => $p['species_id'],
+                        'sprite' => $p['sprite_official'],
+                        'types' => $p['types'],
+                        'views' => $access->getViews(),
+                    ];
+                }
+            }
+        }
+
+        return $this->render('index/index.html.twig', [
+            'trendingPokemons' => $trendingPokemons,
+        ]);
     }
 
     #[Route('/pokemons', name: 'app_pokemon_index')]
@@ -44,7 +72,7 @@ class PokemonController extends AbstractController
             $basicList = $this->pokeApiService->getPokemonBasicList();
         }
 
-        // 2. Filtra pelo termo de busca
+        // Filtra pelo termo de busca
         if (!empty($search)) {
             $searchLower = strtolower(trim($search));
             $basicList = array_filter($basicList, function ($p) use ($searchLower) {
@@ -165,7 +193,9 @@ class PokemonController extends AbstractController
     #[Route('/pokemon/{name}', name: 'app_pokemon_detail')]
     public function detail(
         string $name,
-        MovesetRepository $movesetRepository
+        MovesetRepository $movesetRepository,
+        PokemonAccessRepository $pokemonAccessRepository,
+        EntityManagerInterface $entityManager
     ): Response {
 
         try {
@@ -175,6 +205,23 @@ class PokemonController extends AbstractController
             }
         } catch (\Exception $e) {
             throw $this->createNotFoundException('Pokémon não encontrado.');
+        }
+
+        // Incrementa ou cria o registro de acesso para este Pokémon
+        try {
+            $pokemonAccess = $pokemonAccessRepository->findOneBy(['pokemonName' => $pokemon['name']]);
+            if (!$pokemonAccess) {
+                $pokemonAccess = new PokemonAccess();
+                $pokemonAccess->setPokemonName($pokemon['name']);
+                $pokemonAccess->setPokemonId($pokemon['id']);
+                $pokemonAccess->setViews(0);
+            }
+            $pokemonAccess->incrementViews();
+            $pokemonAccess->setLastAccessedAt(new \DateTime());
+            $entityManager->persist($pokemonAccess);
+            $entityManager->flush();
+        } catch (\Exception $e) {
+            // Ignore
         }
 
         // Buscar a linha evolutiva completa

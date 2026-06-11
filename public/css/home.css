@@ -140,3 +140,19 @@
     color: var(--text-secondary);
     line-height: 1.5;
 }
+
+/* Pokémons em alta */
+.trending-section {
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
+.trending-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}

@@ -1,427 +1,404 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Admin Master — PokéMoveset{% endblock %}
+{% block title %}Trainer Master | PokéMoveset
+{% endblock %}
 
 {% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('css/trainer-card.css') }}">
-    <style>
-        .admin-wrapper {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/trainer-card.css') }}">
+	<style>
+		.admin-wrapper {
+			max-width: 1200px;
+			margin: 0 auto;
+			padding: 30px 20px;
+		}
 
-        .admin-hero {
-            background: linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(139,92,246,0.1) 100%);
-            border: 1px solid rgba(239,68,68,0.25);
-            border-radius: 16px;
-            padding: 30px 40px;
-            margin-bottom: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
+		.admin-stats-row {
+			display: flex;
+			gap: 15px;
+			margin-bottom: 30px;
+			flex-wrap: wrap;
+		}
 
-        .admin-hero-text h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            margin-bottom: 6px;
-        }
+		.admin-stat-card {
+			flex: 1;
+			min-width: 140px;
+			background: var(--bg-card);
+			border: 1px solid var(--border-color);
+			border-radius: 12px;
+			padding: 20px;
+			text-align: center;
+		}
 
-        .admin-hero-text p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
+		.admin-stat-num {
+			font-family: 'Outfit', sans-serif;
+			font-size: 2rem;
+			font-weight: 800;
+			color: var(--text-primary);
+		}
 
-        .admin-hero-badge {
-            background: rgba(239,68,68,0.15);
-            border: 1px solid rgba(239,68,68,0.35);
-            color: #fca5a5;
-            padding: 8px 18px;
-            border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+		.admin-stat-num.enabled {
+			color: #10b981;
+		}
+		.admin-stat-num.disabled {
+			color: #6b7280;
+		}
+		.admin-stat-num.users {
+			color: var(--color-primary);
+		}
 
-        .admin-stats-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
+		.admin-stat-label {
+			font-size: 0.8rem;
+			color: var(--text-secondary);
+			margin-top: 4px;
+		}
 
-        .admin-stat-card {
-            flex: 1;
-            min-width: 140px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-        }
+		.bulk-actions {
+			display: flex;
+			gap: 12px;
+			margin-bottom: 30px;
+			flex-wrap: wrap;
+		}
 
-        .admin-stat-num {
-            font-family: 'Outfit', sans-serif;
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--text-primary);
-        }
+		.btn-bulk-enable {
+			background: linear-gradient(135deg, #059669, #047857);
+			color: #fff;
+			border: none;
+			padding: 10px 22px;
+			border-radius: 8px;
+			font-weight: 700;
+			cursor: pointer;
+			transition: all 0.2s;
+			font-family: inherit;
+			font-size: 0.9rem;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
 
-        .admin-stat-num.enabled { color: #10b981; }
-        .admin-stat-num.disabled { color: #6b7280; }
-        .admin-stat-num.users { color: var(--color-primary); }
+		.btn-bulk-enable:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+		}
 
-        .admin-stat-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
+		.btn-bulk-disable {
+			background: linear-gradient(135deg, #dc2626, #b91c1c);
+			color: #fff;
+			border: none;
+			padding: 10px 22px;
+			border-radius: 8px;
+			font-weight: 700;
+			cursor: pointer;
+			transition: all 0.2s;
+			font-family: inherit;
+			font-size: 0.9rem;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
 
-        .bulk-actions {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
+		.btn-bulk-disable:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
+		}
 
-        .btn-bulk-enable {
-            background: linear-gradient(135deg, #059669, #047857);
-            color: #fff;
-            border: none;
-            padding: 10px 22px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+		.admin-category {
+			margin-bottom: 35px;
+		}
 
-        .btn-bulk-enable:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(5,150,105,0.3); }
+		.admin-category-header {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 18px;
+			padding-bottom: 12px;
+			border-bottom: 1px solid var(--border-color);
+		}
 
-        .btn-bulk-disable {
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
-            color: #fff;
-            border: none;
-            padding: 10px 22px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+		.admin-category-header h2 {
+			font-family: 'Outfit', sans-serif;
+			font-size: 1.2rem;
+			font-weight: 800;
+			color: var(--text-primary);
+			flex: 1;
+		}
 
-        .btn-bulk-disable:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(220,38,38,0.3); }
+		.admin-medals-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+			gap: 15px;
+		}
 
-        .admin-category {
-            margin-bottom: 35px;
-        }
+		.admin-medal-card {
+			background: var(--bg-card);
+			border: 1px solid var(--border-color);
+			border-radius: 12px;
+			padding: 18px;
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			transition: all 0.25s;
+			position: relative;
+			overflow: hidden;
+		}
 
-        .admin-category-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 18px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
+		.admin-medal-card.is-enabled {
+			border-color: rgba(16, 185, 129, 0.4);
+			background: rgba(16, 185, 129, 0.05);
+		}
 
-        .admin-category-header h2 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            flex: 1;
-        }
+		.admin-medal-card.is-disabled {
+			opacity: 0.7;
+		}
 
-        .admin-medals-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-        }
+		.admin-medal-img {
+			width: 52px;
+			height: 52px;
+			object-fit: contain;
+			filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
+			flex-shrink: 0;
+			transition: filter 0.25s;
+		}
 
-        .admin-medal-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 18px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            transition: all 0.25s;
-            position: relative;
-            overflow: hidden;
-        }
+		.admin-medal-card.is-disabled .admin-medal-img {
+			filter: grayscale(1) brightness(0.4);
+		}
 
-        .admin-medal-card.is-enabled {
-            border-color: rgba(16,185,129,0.4);
-            background: rgba(16,185,129,0.05);
-        }
+		.admin-medal-info {
+			flex: 1;
+			min-width: 0;
+		}
 
-        .admin-medal-card.is-disabled {
-            opacity: 0.7;
-        }
+		.admin-medal-name {
+			font-weight: 700;
+			font-size: 0.9rem;
+			color: var(--text-primary);
+			margin-bottom: 3px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
 
-        .admin-medal-img {
-            width: 52px;
-            height: 52px;
-            object-fit: contain;
-            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
-            flex-shrink: 0;
-            transition: filter 0.25s;
-        }
+		.admin-medal-key {
+			font-size: 0.7rem;
+			color: var(--text-muted);
+			font-family: monospace;
+		}
 
-        .admin-medal-card.is-disabled .admin-medal-img {
-            filter: grayscale(1) brightness(0.4);
-        }
+		/* Toggle Switch */
+		.toggle-switch {
+			position: relative;
+			width: 44px;
+			height: 24px;
+			flex-shrink: 0;
+		}
 
-        .admin-medal-info {
-            flex: 1;
-            min-width: 0;
-        }
+		.toggle-switch input {
+			opacity: 0;
+			width: 0;
+			height: 0;
+			position: absolute;
+		}
 
-        .admin-medal-name {
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: var(--text-primary);
-            margin-bottom: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+		.toggle-slider {
+			position: absolute;
+			cursor: pointer;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: #374151;
+			border-radius: 24px;
+			transition: 0.3s;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
 
-        .admin-medal-key {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            font-family: monospace;
-        }
+		.toggle-slider::before {
+			content: '';
+			position: absolute;
+			height: 18px;
+			width: 18px;
+			left: 2px;
+			bottom: 2px;
+			background: #6b7280;
+			border-radius: 50%;
+			transition: 0.3s;
+		}
 
-        /* Toggle Switch */
-        .toggle-switch {
-            position: relative;
-            width: 44px;
-            height: 24px;
-            flex-shrink: 0;
-        }
+		.toggle-switch input:checked + .toggle-slider {
+			background: rgba(16, 185, 129, 0.3);
+			border-color: #10b981;
+		}
 
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-            position: absolute;
-        }
+		.toggle-switch input:checked + .toggle-slider::before {
+			transform: translateX(20px);
+			background: #10b981;
+		}
 
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #374151;
-            border-radius: 24px;
-            transition: 0.3s;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+		/* Notificação Toast */
+		.admin-toast {
+			position: fixed;
+			bottom: 30px;
+			right: 30px;
+			background: var(--bg-card);
+			border: 1px solid rgba(16, 185, 129, 0.4);
+			border-radius: 10px;
+			padding: 14px 20px;
+			font-size: 0.9rem;
+			font-weight: 600;
+			color: #a7f3d0;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			z-index: 9999;
+			transform: translateY(20px);
+			opacity: 0;
+			transition: all 0.3s;
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+		}
 
-        .toggle-slider::before {
-            content: '';
-            position: absolute;
-            height: 18px;
-            width: 18px;
-            left: 2px;
-            bottom: 2px;
-            background: #6b7280;
-            border-radius: 50%;
-            transition: 0.3s;
-        }
+		.admin-toast.show {
+			transform: translateY(0);
+			opacity: 1;
+		}
 
-        .toggle-switch input:checked + .toggle-slider {
-            background: rgba(16,185,129,0.3);
-            border-color: #10b981;
-        }
+		/* Seção do Vivillon */
+		.vivillon-admin-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+			gap: 12px;
+		}
 
-        .toggle-switch input:checked + .toggle-slider::before {
-            transform: translateX(20px);
-            background: #10b981;
-        }
+		.vivillon-admin-card {
+			background: var(--bg-card);
+			border: 1px solid var(--border-color);
+			border-radius: 10px;
+			padding: 12px;
+			text-align: center;
+			transition: all 0.25s;
+			cursor: pointer;
+		}
 
-        /* Toast notification */
-        .admin-toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--bg-card);
-            border: 1px solid rgba(16,185,129,0.4);
-            border-radius: 10px;
-            padding: 14px 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #a7f3d0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 9999;
-            transform: translateY(20px);
-            opacity: 0;
-            transition: all 0.3s;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        }
+		.vivillon-admin-card.is-enabled {
+			border-color: rgba(16, 185, 129, 0.4);
+			background: rgba(16, 185, 129, 0.05);
+		}
 
-        .admin-toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
+		.vivillon-admin-card.is-disabled {
+			opacity: 0.6;
+		}
 
-        /* Vivillon section */
-        .vivillon-admin-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 12px;
-        }
+		.vivillon-admin-sprite {
+			width: 60px;
+			height: 60px;
+			object-fit: contain;
+			image-rendering: pixelated;
+			margin-bottom: 6px;
+			transition: filter 0.25s;
+		}
 
-        .vivillon-admin-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-            transition: all 0.25s;
-            cursor: pointer;
-        }
+		.vivillon-admin-card.is-disabled .vivillon-admin-sprite {
+			filter: grayscale(1) brightness(0.4);
+		}
 
-        .vivillon-admin-card.is-enabled {
-            border-color: rgba(16,185,129,0.4);
-            background: rgba(16,185,129,0.05);
-        }
-
-        .vivillon-admin-card.is-disabled {
-            opacity: 0.6;
-        }
-
-        .vivillon-admin-sprite {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-            image-rendering: pixelated;
-            margin-bottom: 6px;
-            transition: filter 0.25s;
-        }
-
-        .vivillon-admin-card.is-disabled .vivillon-admin-sprite {
-            filter: grayscale(1) brightness(0.4);
-        }
-
-        .vivillon-admin-label {
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-    </style>
+		.vivillon-admin-label {
+			font-size: 0.72rem;
+			font-weight: 700;
+			color: var(--text-secondary);
+			margin-bottom: 8px;
+		}
+	</style>
 {% endblock %}
 
 {% block body %}
-<div class="admin-wrapper">
-    <!-- Hero -->
-    <div class="admin-hero">
-        <div class="admin-hero-text">
-            <h1><i class="fa-solid fa-shield-halved"></i> Admin Master</h1>
-            <p>Gerencie quais medalhas e padrões estão disponíveis para a comunidade.</p>
-        </div>
-        <div class="admin-hero-badge">
-            <i class="fa-solid fa-lock"></i> Restrito
-        </div>
-    </div>
+	<div
+		class="admin-wrapper">
+		<!-- Flashes -->
+		{% for label, messages in app.flashes %}
+			{% for message in messages %}
+				<div class="alert alert-{{ label == 'error' ? 'error' : 'success' }}" style="margin-bottom: 20px; padding: 12px 20px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: 1px solid {{ label == 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)' }}; background: {{ label == 'error' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(16, 185, 129, 0.05)' }}; color: {{ label == 'error' ? '#fca5a5' : '#a7f3d0' }};">
+					<i class="fa-solid {{ label == 'error' ? 'fa-circle-exclamation' : 'fa-circle-check' }}"></i>
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endfor %}
 
-    <!-- Stats -->
-    {% set totalEnabled = enabledMedals|length %}
-    {% set totalMedals = 0 %}
-    {% for cat, medals in medalDefs %}{% set totalMedals = totalMedals + medals|length %}{% endfor %}
-    {% set totalMedals = totalMedals + allVivillonPatterns|length %}
+		<!-- Stats -->
+		{% set totalEnabled = enabledMedals|length %}
+		{% set totalMedals = 0 %}
+		{% for cat, medals in medalDefs %}
+			{% set totalMedals = totalMedals + medals|length %}
+		{% endfor %}
+		{% set totalMedals = totalMedals + allVivillonPatterns|length %}
 
-    <div class="admin-stats-row">
-        <div class="admin-stat-card">
-            <div class="admin-stat-num users">{{ totalUsers }}</div>
-            <div class="admin-stat-label">Treinadores</div>
-        </div>
-        <div class="admin-stat-card">
-            <div class="admin-stat-num enabled" id="stat-enabled">{{ totalEnabled + enabledVivillonPats|length }}</div>
-            <div class="admin-stat-label">Medalhas Ativas</div>
-        </div>
-        <div class="admin-stat-card">
-            <div class="admin-stat-num disabled" id="stat-disabled">{{ totalMedals - (totalEnabled + enabledVivillonPats|length) }}</div>
-            <div class="admin-stat-label">Medalhas Bloqueadas</div>
-        </div>
-        <div class="admin-stat-card">
-            <div class="admin-stat-num" style="color: var(--color-secondary);">{{ totalMedals }}</div>
-            <div class="admin-stat-label">Total de Medalhas</div>
-        </div>
-    </div>
+		<div class="admin-stats-row">
+			<div class="admin-stat-card">
+				<div class="admin-stat-num users">{{ totalUsers }}</div>
+				<div class="admin-stat-label">Treinadores</div>
+			</div>
+			<div class="admin-stat-card">
+				<div class="admin-stat-num enabled" id="stat-enabled">{{ totalEnabled + enabledVivillonPats|length }}</div>
+				<div class="admin-stat-label">Medalhas Ativas</div>
+			</div>
+			<div class="admin-stat-card">
+				<div class="admin-stat-num disabled" id="stat-disabled">{{ totalMedals - (totalEnabled + enabledVivillonPats|length) }}</div>
+				<div class="admin-stat-label">Medalhas Bloqueadas</div>
+			</div>
+			<div class="admin-stat-card">
+				<div class="admin-stat-num" style="color: var(--color-secondary);">{{ totalMedals }}</div>
+				<div class="admin-stat-label">Total de Medalhas</div>
+			</div>
+		</div>
 
-    <!-- Bulk Actions -->
-    <div class="bulk-actions">
-        <button class="btn-bulk-enable" onclick="bulkAction('enable_all')">
-            <i class="fa-solid fa-check-double"></i> Ativar Todas
-        </button>
-        <button class="btn-bulk-disable" onclick="bulkAction('disable_all')">
-            <i class="fa-solid fa-ban"></i> Bloquear Todas
-        </button>
-        <a href="{{ path('app_trainer_card') }}" class="btn btn-secondary" style="display:flex;align-items:center;gap:8px;">
-            <i class="fa-solid fa-arrow-left"></i> Voltar ao Trainer Card
-        </a>
-    </div>
+		<!-- Ações -->
+		<div class="bulk-actions">
+			<button class="btn-bulk-enable" onclick="bulkAction('enable_all')">
+				<i class="fa-solid fa-check-double"></i>
+				Ativar Todas
+			</button>
+			<button class="btn-bulk-disable" onclick="bulkAction('disable_all')">
+				<i class="fa-solid fa-ban"></i>
+				Bloquear Todas
+			</button>
+		</div>
 
-    <!-- Medal Categories -->
-    {% for category, medals in medalDefs %}
-    <div class="admin-category">
-        <div class="admin-category-header">
-            <h2>{{ category }}</h2>
-            <span class="admin-hero-badge" style="font-size:0.7rem;">{{ medals|length }} medalhas</span>
-        </div>
-        <div class="admin-medals-grid">
-            {% for medal in medals %}
-            {% set isOn = medal.key in enabledMedals %}
-            <div class="admin-medal-card {{ isOn ? 'is-enabled' : 'is-disabled' }}" id="admin-card-{{ medal.key }}">
-                <img src="{{ badgeBaseUrl }}{{ medal.badge }}" alt="{{ medal.title }}" class="admin-medal-img" loading="lazy">
-                <div class="admin-medal-info">
-                    <div class="admin-medal-name">{{ medal.title }}</div>
-                    <div class="admin-medal-key">{{ medal.key }}</div>
-                </div>
-                <label class="toggle-switch" title="{{ medal.title }}">
-                    <input type="checkbox"
-                           {{ isOn ? 'checked' : '' }}
-                           onchange="toggleMedal('{{ medal.key }}', this.checked, 'medal')"
-                           id="toggle-{{ medal.key }}">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endfor %}
+		<!-- Medal Categorias -->
+		{% for category, medals in medalDefs %}
+			<div class="admin-category">
+				<div class="admin-category-header">
+					<h2>{{ category }}</h2>
+					<span class="admin-hero-badge" style="font-size:0.7rem;">{{ medals|length }}
+						medalhas</span>
+				</div>
+				<div class="admin-medals-grid">
+					{% for medal in medals %}
+						{% set isOn = medal.key in enabledMedals %}
+						<div class="admin-medal-card {{ isOn ? 'is-enabled' : 'is-disabled' }}" id="admin-card-{{ medal.key }}">
+							<img src="{{ badgeBaseUrl }}{{ medal.badge }}" alt="{{ medal.title }}" class="admin-medal-img" loading="lazy">
+							<div class="admin-medal-info">
+								<div class="admin-medal-name">{{ medal.title }}</div>
+								<div class="admin-medal-key">{{ medal.key }}</div>
+							</div>
+							<label class="toggle-switch" title="{{ medal.title }}">
+								<input type="checkbox" {{ isOn ? 'checked' : '' }} onchange="toggleMedal('{{ medal.key }}', this.checked, 'medal')" id="toggle-{{ medal.key }}">
+								<span class="toggle-slider"></span>
+							</label>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		{% endfor %}
 
-    <!-- Vivillon Patterns -->
-    <div class="admin-category">
-        <div class="admin-category-header">
-            <h2><i class="fa-solid fa-leaf" style="color: #34d399;"></i> Vivillon's Patterns</h2>
-            <span class="admin-hero-badge" style="font-size:0.7rem; background:rgba(52,211,153,0.15); border-color:rgba(52,211,153,0.3); color:#6ee7b7;">20 padrões</span>
-        </div>
-        <div class="vivillon-admin-grid">
-            {% set vivillonSprites = {
+		<!-- Vivillon Patterns -->
+		<div class="admin-category">
+			<div class="admin-category-header">
+				<h2>
+					<i class="fa-solid fa-leaf" style="color: #34d399;"></i>
+					Vivillon's Patterns</h2>
+				<span class="admin-hero-badge" style="font-size:0.7rem; background:rgba(52,211,153,0.15); border-color:rgba(52,211,153,0.3); color:#6ee7b7;">20 padrões</span>
+			</div>
+			<div class="vivillon-admin-grid">
+				{% set vivillonSprites = {
                 'meadow':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/meadow.png',
                 'archipelago': 'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/archipelago.png',
                 'continental': 'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/continental.png',
@@ -443,97 +420,229 @@
                 'fancy':       'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/fancy.png',
                 'poke-ball':   'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/pokeball.png'
             } %}
-            {% for pattern in allVivillonPatterns %}
-            {% set isOn = pattern in enabledVivillonPats %}
-            <div class="vivillon-admin-card {{ isOn ? 'is-enabled' : 'is-disabled' }}" id="admin-vivillon-{{ pattern }}"
-                 onclick="toggleMedal('{{ pattern }}', document.getElementById('vtoggle-{{ pattern }}').checked ? false : true, 'vivillon')">
-                <img src="{{ vivillonSprites[pattern] }}" alt="{{ pattern }}" class="vivillon-admin-sprite" loading="lazy">
-                <div class="vivillon-admin-label">{{ pattern|replace({'-': ' '})|title }}</div>
-                <label class="toggle-switch" onclick="event.stopPropagation()">
-                    <input type="checkbox"
-                           id="vtoggle-{{ pattern }}"
-                           {{ isOn ? 'checked' : '' }}
-                           onchange="toggleMedal('{{ pattern }}', this.checked, 'vivillon')">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
+				{% for pattern in allVivillonPatterns %}
+					{% set isOn = pattern in enabledVivillonPats %}
+					<div class="vivillon-admin-card {{ isOn ? 'is-enabled' : 'is-disabled' }}" id="admin-vivillon-{{ pattern }}" onclick="toggleMedal('{{ pattern }}', document.getElementById('vtoggle-{{ pattern }}').checked ? false : true, 'vivillon')">
+						<img src="{{ vivillonSprites[pattern] }}" alt="{{ pattern }}" class="vivillon-admin-sprite" loading="lazy">
+						<div class="vivillon-admin-label">{{ pattern|replace({'-': ' '})|title }}</div>
+						<label class="toggle-switch" onclick="event.stopPropagation()">
+							<input type="checkbox" id="vtoggle-{{ pattern }}" {{ isOn ? 'checked' : '' }} onchange="toggleMedal('{{ pattern }}', this.checked, 'vivillon')">
+							<span class="toggle-slider"></span>
+						</label>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
 
-<!-- Toast -->
-<div class="admin-toast" id="admin-toast">
-    <i class="fa-solid fa-check-circle" style="color:#10b981;"></i>
-    <span id="toast-msg">Salvo!</span>
-</div>
+		<!-- Gerenciamento de Títulos de Treinador -->
+		<div class="admin-category" style="margin-top: 40px;">
+			<div class="admin-category-header">
+				<h2>
+					<i class="fa-solid fa-crown" style="color: var(--color-secondary);"></i>
+					Gerenciamento de Títulos de Treinador
+				</h2>
+				<span class="admin-hero-badge" style="font-size:0.7rem; background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.3); color:#f59e0b;">{{ titles|length }}
+					títulos</span>
+			</div>
 
-<script>
-    let enabledCount = parseInt('{{ (enabledMedals|length + enabledVivillonPats|length) }}');
-    const totalCount = parseInt('{{ totalMedals }}');
+			<!-- Criar novo título Form -->
+			<div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; margin-bottom: 30px;">
+				<h3 style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 15px;">Criar Novo Título</h3>
 
-    function showToast(msg, isError = false) {
-        const toast = document.getElementById('admin-toast');
-        const msgEl = document.getElementById('toast-msg');
-        msgEl.textContent = msg;
-        toast.style.borderColor = isError ? 'rgba(239,68,68,0.4)' : 'rgba(16,185,129,0.4)';
-        toast.style.color = isError ? '#fca5a5' : '#a7f3d0';
-        toast.classList.add('show');
-        clearTimeout(toast._hideTimeout);
-        toast._hideTimeout = setTimeout(() => toast.classList.remove('show'), 2800);
-    }
+				{{ form_start(titleForm) }}
+				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
+					<div>
+						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Nome do Título</label>
+						{{ form_widget(titleForm.name, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;'}}) }}
+					</div>
+					<div>
+						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Ribbon (Faixa)</label>
+						{{ form_widget(titleForm.ribbon, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;'}}) }}
+					</div>
+					<div>
+						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Descrição do Requisito</label>
+						{{ form_widget(titleForm.requirement, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;', 'placeholder': 'Ex: Medalha Cientista no nível Bronze'}}) }}
+					</div>
+					<div>
+						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Medalha Requerida</label>
+						{{ form_widget(titleForm.reqMedal, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;'}}) }}
+					</div>
+					<div>
+						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Nível da Medalha</label>
+						{{ form_widget(titleForm.reqTier, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;'}}) }}
+					</div>
+					<div>
+						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Qtd Medalhas Ouro</label>
+						{{ form_widget(titleForm.reqGoldCount, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;', 'placeholder': 'Vazio se não aplicar'}}) }}
+					</div>
+				</div>
+				<div style="margin-top: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+					<label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer;">
+						{{ form_widget(titleForm.isDefault) }}
+						Disponível por padrão (Sem requisitos)?
+					</label>
+					<button type="submit" class="btn btn-primary">
+						<i class="fa-solid fa-plus"></i>
+						Salvar Título
+					</button>
+				</div>
+				{{ form_end(titleForm) }}
+			</div>
 
-    function updateStats(delta) {
-        enabledCount = Math.max(0, Math.min(totalCount, enabledCount + delta));
-        document.getElementById('stat-enabled').textContent = enabledCount;
-        document.getElementById('stat-disabled').textContent = totalCount - enabledCount;
-    }
+			<!-- Listagem de títulos -->
+			<div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 30px;">
+				<table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+					<thead>
+						<tr style="border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.15); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+							<th style="padding: 12px 18px;">Ribbon</th>
+							<th style="padding: 12px 18px;">Título</th>
+							<th style="padding: 12px 18px;">Requisito</th>
+							<th style="padding: 12px 18px; text-align: center;">Padrão?</th>
+							<th style="padding: 12px 18px; text-align: right;">Ações</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for title in titles %}
+							{% set ribbonUrl = 'https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/gen8/' ~ title.ribbon %}
+							<tr style="border-bottom: 1px solid var(--border-color); transition: background-color 0.2s;">
+								<td style="padding: 12px 18px; vertical-align: middle;">
+									<img src="{{ ribbonUrl }}" alt="Ribbon" style="width: 32px; height: 32px; object-fit: contain; image-rendering: pixelated;">
+								</td>
+								<td style="padding: 12px 18px; font-weight: 700; color: var(--text-primary);">
+									{{ title.name }}
+								</td>
+								<td style="padding: 12px 18px; color: var(--text-secondary); font-size: 0.85rem;">
+									{{ title.requirement }}
+									{% if title.reqMedal %}
+										<span style="display:inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); font-family: monospace; font-size: 0.7rem; color: var(--color-primary);">
+											{{ title.reqMedal }}
+											({{ title.reqTier }})
+										</span>
+									{% endif %}
+									{% if title.reqGoldCount %}
+										<span style="display:inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); font-family: monospace; font-size: 0.7rem; color: #f59e0b;">
+											{{ title.reqGoldCount }}
+											Ouro
+										</span>
+									{% endif %}
+								</td>
+								<td style="padding: 12px 18px; text-align: center; vertical-align: middle;">
+									{% if title.isDefault %}
+										<span style="color: #10b981; font-size: 1.1rem;">
+											<i class="fa-solid fa-circle-check"></i>
+										</span>
+									{% else %}
+										<span style="color: var(--text-muted); font-size: 1.1rem;">
+											<i class="fa-solid fa-circle-xmark" style="opacity:0.3;"></i>
+										</span>
+									{% endif %}
+								</td>
+								<td style="padding: 12px 18px; text-align: right; vertical-align: middle;">
+									{% if not title.isDefault %}
+										<form method="post" action="{{ path('app_admin_title_delete', {'id': title.id}) }}" style="display: inline-block;" onsubmit="return confirm('Deseja realmente excluir este título?')">
+											<button type="submit" class="btn btn-secondary btn-sm" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; background: rgba(239, 68, 68, 0.05);">
+												<i class="fa-solid fa-trash-can"></i>
+												Excluir
+											</button>
+										</form>
+									{% else %}
+										<span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic;">Imutável</span>
+									{% endif %}
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 
-    function toggleMedal(medalKey, enabled, type) {
-        const cardId = type === 'vivillon' ? `admin-vivillon-${medalKey}` : `admin-card-${medalKey}`;
-        const toggleId = type === 'vivillon' ? `vtoggle-${medalKey}` : `toggle-${medalKey}`;
-        const card = document.getElementById(cardId);
-        const toggle = document.getElementById(toggleId);
+	<!-- Toast -->
+	<div class="admin-toast" id="admin-toast">
+		<i class="fa-solid fa-check-circle" style="color:#10b981;"></i>
+		<span id="toast-msg">Salvo!</span>
+	</div>
+{% endblock %}
 
-        if (card) {
-            card.classList.toggle('is-enabled', enabled);
-            card.classList.toggle('is-disabled', !enabled);
-        }
-        if (toggle) toggle.checked = enabled;
+{% block javascripts %}
+	<script>
+		let enabledCount = parseInt('{{ (enabledMedals|length + enabledVivillonPats|length) }}');
+		const totalCount = parseInt('{{ totalMedals }}');
 
-        updateStats(enabled ? 1 : -1);
+		function showToast(msg, isError = false) {
+		const toast = document.getElementById('admin-toast');
+		const msgEl = document.getElementById('toast-msg');
+		msgEl.textContent = msg;
+		toast.style.borderColor = isError ? 'rgba(239,68,68,0.4)' : 'rgba(16,185,129,0.4)';
+		toast.style.color = isError ? '#fca5a5' : '#a7f3d0';
+		toast.classList.add('show');
+		clearTimeout(toast._hideTimeout);
+		toast._hideTimeout = setTimeout(() => toast.classList.remove('show'), 2800);
+		}
 
-        const formData = new FormData();
-        formData.append('medal', medalKey);
-        formData.append('enabled', enabled ? 'true' : 'false');
-        formData.append('type', type);
+		function updateStats(delta) {
+		enabledCount = Math.max(0, Math.min(totalCount, enabledCount + delta));
+		document.getElementById('stat-enabled').textContent = enabledCount;
+		document.getElementById('stat-disabled').textContent = totalCount - enabledCount;
+		}
 
-        fetch('/admin/medal/toggle', { method: 'POST', body: formData })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    showToast(`"${medalKey}" ${enabled ? 'ativada ✓' : 'bloqueada ✗'}`);
-                } else {
-                    showToast('Erro ao salvar!', true);
-                }
-            })
-            .catch(() => showToast('Erro de conexão!', true));
-    }
+		function toggleMedal(medalKey, enabled, type) {
+		const cardId = type === 'vivillon' ? `admin-vivillon-${medalKey}` : `admin-card-${medalKey}`;
+		const toggleId = type === 'vivillon' ? `vtoggle-${medalKey}` : `toggle-${medalKey}`;
+		const card = document.getElementById(cardId);
+		const toggle = document.getElementById(toggleId);
 
-    function bulkAction(action) {
-        if (!confirm(action === 'enable_all' ? 'Ativar TODAS as medalhas?' : 'Bloquear TODAS as medalhas?')) return;
+		if (card) {
+			card.classList.toggle('is-enabled', enabled);
+			card.classList.toggle('is-disabled', !enabled);
+		}
 
-        const formData = new FormData();
-        formData.append('action', action);
+		if (toggle) {
+			toggle.checked = enabled;
+		}
 
-        fetch('/admin/medals/bulk', { method: 'POST', body: formData })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    showToast(action === 'enable_all' ? 'Todas as medalhas ativadas!' : 'Todas as medalhas bloqueadas!');
-                    setTimeout(() => window.location.reload(), 1200);
-                }
-            });
-    }
-</script>
+		updateStats(enabled ? 1 : -1);
+
+		const formData = new FormData();
+		formData.append('medal', medalKey);
+		formData.append('enabled', enabled ? 'true' : 'false');
+		formData.append('type', type);
+
+		fetch('/admin/medal/toggle', {
+			method: 'POST',
+			body: formData
+		})
+			.then(r => r.json())
+			.then(data => {
+			if (data.success) {
+				showToast(`"${medalKey}" ${enabled ? 'ativada ✓' : 'bloqueada ✗'}`);
+			} else {
+				showToast('Erro ao salvar!', true);
+			}
+			})
+			.catch(() => showToast('Erro de conexão!', true));
+		}
+
+		function bulkAction(action) {
+		if (!confirm(action === 'enable_all' ? 'Ativar TODAS as medalhas?' : 'Bloquear TODAS as medalhas?')) {
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append('action', action);
+
+		fetch('/admin/medals/bulk', {
+			method: 'POST',
+			body: formData
+		})
+			.then(r => r.json())
+			.then(data => {
+			if (data.success) {
+				showToast(action === 'enable_all' ? 'Todas as medalhas ativadas!' : 'Todas as medalhas bloqueadas!');
+				setTimeout(() => window.location.reload(), 1200);
+			}
+			});
+		}
+	</script>
+
 {% endblock %}

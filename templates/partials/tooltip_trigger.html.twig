@@ -1,12 +1,20 @@
-<span style="font-weight: bold; color: #fff; cursor: pointer;"
+{% set tag = tag|default('span') %}
+{% set style = style is defined ? style : 'font-weight: bold; color: #fff; cursor: pointer;' %}
+{% set class = class|default('') %}
+{% set onclick = onclick|default('') %}
+
+<{{ tag }}
+    {% if class %}class="{{ class }}"{% endif %}
+    {% if style %}style="{{ style }}"{% endif %}
+    {% if onclick %}onclick="{{ onclick }}"{% endif %}
     data-tooltip-title="{{ title }}"
     onmouseenter="showTemplateTooltip(event)"
     onmouseleave="hideGenericTooltip()"
 >
-    {{ label }}
+    {{ label|raw }}
 
     <template class="js-tooltip-template">
         {{ content|raw }}
     </template>
-    
-</span>
+</{{ tag }}>
+

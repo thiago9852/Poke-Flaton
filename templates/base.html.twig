@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}PokeFlaton - Os Melhores Movesets de Pokémon{% endblock %}</title>
+        <title>{% block title %}PokeFlaton | Os Melhores Movesets de Pokémon{% endblock %}</title>
         <link rel="icon" href="{{ asset('image/Pokeball.png') }}">
         
         <!-- Google Fonts -->
@@ -34,8 +34,9 @@
                 </a>
                 
                 <nav class="app-nav">
-                    <a href="{{ path('app_home') }}" class="nav-link"><i class="fa-solid fa-house"></i> Início</a>
-                    <a href="{{ path('app_pokemon_index') }}" class="nav-link"><i class="fa-solid fa-gamepad"></i> Pokémons</a>
+                    <a href="{{ path('app_home') }}" class="nav-link"> Início</a>
+                    <a href="{{ path('app_pokemon_index') }}" class="nav-link"> Moveset</a>
+                    <a href="{{ path('app_trainer_ranking') }}" class="nav-link"> Trainers</a>
                     
                     {% if app.user %}
                         <div class="nav-user-dropdown" id="userDropdown">
@@ -57,8 +58,6 @@
                                     <li class="nav-dropdown-divider" role="separator"></li>
                                 {% endif %}
 
-                                <li role="menuitem"><a href="#" class="nav-dropdown-item"> Comunidade</a></li>
-                                <li class="nav-dropdown-divider" role="separator"></li>
                                 <li role="menuitem"><a href="{{ path('app_logout') }}" class="nav-dropdown-item nav-dropdown-item--danger"><i class="fa-solid fa-right-from-bracket"></i> Sair</a></li>
                             </ul>
 
@@ -119,7 +118,62 @@
                     e.stopPropagation();
                 });
             })();
+
+            // Global loading
+            window.Loader = {
+                show: function() {
+                    var loader = document.getElementById('global-loader');
+                    if (loader) {
+                        loader.classList.add('active');
+                    }
+                },
+                hide: function() {
+                    var loader = document.getElementById('global-loader');
+                    if (loader) {
+                        loader.classList.remove('active');
+                    }
+                }
+            };
+
+            // auto-trigger loader em paginas
+            document.addEventListener('click', function(e) {
+                var target = e.target.closest('a');
+                if (!target) return;
+                
+                var href = target.getAttribute('href');
+                var targetAttr = target.getAttribute('target');
+                if (targetAttr && targetAttr !== '_self') return;
+                if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+                
+                try {
+                    var url = new URL(target.href, window.location.href);
+                    if (url.origin !== window.location.origin) return;
+                } catch(err) {
+                    return;
+                }
+                
+                if (target.hasAttribute('download') || target.classList.contains('no-loader')) return;
+                
+                window.Loader.show();
+            });
+
+            // Auto-trigger loader em form que não for AJAX
+            document.addEventListener('submit', function(e) {
+                var form = e.target;
+                if (form.getAttribute('data-ajax') === 'true' || form.classList.contains('ajax-form')) {
+                    return;
+                }
+                window.Loader.show();
+            });
         </script>
+
+        <!-- Global Loading Overlay -->
+        <div id="global-loader" class="global-loader-overlay">
+            <div class="global-loader-content">
+                <img src="{{ asset('image/Pokeball.png') }}" alt="Carregando..." class="global-loader-pokeball">
+                <div class="global-loader-text">Carregando...</div>
+            </div>
+        </div>
 
     </body>
 </html>

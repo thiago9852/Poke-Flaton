@@ -42,7 +42,7 @@ class SecurityController extends AbstractController
     #[Route('/logout', name: 'app_logout')]
     public function logout(): void
     {
-        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+        throw new \LogicException('Interceptado pela chave de loggout do firewall');
     }
 
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
@@ -63,11 +63,11 @@ class SecurityController extends AbstractController
         }
 
         // Filtrar apenas avatares iniciais (não bloqueados por conquistas)
-        $starterTrainers = array_values(array_filter($trainers, function($trainer) {
-            return !isset(\App\Controller\TrainerCardController::AVATAR_REWARDS[$trainer]);
+        $starterTrainers = array_values(array_filter($trainers, function ($trainer) {
+            return !isset(\App\Service\TrainerProfileService::AVATAR_REWARDS[$trainer]);
         }));
 
-        $validRegions = ['Kanto', 'Johto', 'Hoenn', 'Sinnoh', 'Unova', 'Kalos'];
+        $validRegions = ['Kanto', 'Johto', 'Hoenn', 'Sinnoh', 'Unova', 'Kalos', 'Alola', 'Galar', 'Paldea'];
 
         $errors = [];
         $username = '';
@@ -116,6 +116,9 @@ class SecurityController extends AbstractController
                     'Sinnoh' => 'hilbert.png',
                     'Unova'  => 'hilbert.png',
                     'Kalos'  => 'hilbert.png',
+                    'Alola'  => 'hilbert.png',
+                    'Galar'  => 'hilbert.png',
+                    'Paldea' => 'hilbert.png',
                 ];
                 $avatar = !empty($starterTrainers) ? $starterTrainers[0] : ($defaultAvatars[$regional] ?? 'hilbert.png');
 
@@ -124,6 +127,7 @@ class SecurityController extends AbstractController
                 $user->setApelido($apelido !== '' ? $apelido : null);
                 $user->setRegional($regional);
                 $user->setAvatar($avatar);
+                $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
                 $user->setPassword(
                     $userPasswordHasher->hashPassword(
                         $user,

@@ -1,0 +1,254 @@
+{% set first_title = (sort == 'likes') ? '👑 Lenda da Popularidade' : '👑 Campeão Supremo' %}
+{% set second_title = (sort == 'likes') ? '🥈 Ícone da Comunidade' : '🥈 Mestre de Elite' %}
+{% set third_title = (sort == 'likes') ? '🥉 Querido do Público' : '🥉 Especialista Lendário' %}
+
+{% if rankedUsers is empty %}
+	<div class="empty-ranking card">
+		<i class="fa-solid fa-user-slash"></i>
+		<h3>Nenhum treinador encontrado.</h3>
+		<p class="text-muted">Tente realizar a busca utilizando outro termo ou limpe os filtros.</p>
+		<a href="{{ path('app_trainer_ranking') }}" class="btn btn-secondary mt-3">Limpar Busca</a>
+	</div>
+{% else %}
+	<!-- Top 3 de Treinadores (Exibido apenas se nenhuma busca estiver ativa) -->
+	{% if search is empty and rankedUsers|length >= 3 %}
+		<div class="top3-showcase">
+
+			<!-- 2º Lugar -->
+			{% set second = rankedUsers[1] %}
+			<div class="top3-card rank-2">
+				<div class="top3-card-header">
+					<div class="top3-user-row">
+						<div class="top3-avatar-container">
+							<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ second.user.avatar }}" alt="Avatar" class="top3-avatar-sprite">
+						</div>
+						<div class="top3-user-meta">
+							<a href="{{ path('app_trainer_profile', { username: second.user.username }) }}" class="top3-username" title="{{ second.user.username }}">{{ second.user.username }}</a>
+							<span class="top3-user-handle">@{{ second.user.username|lower }}</span>
+						</div>
+					</div>
+					<div class="top3-rank-icon">
+						<i class="fa-solid fa-medal"></i>
+					</div>
+				</div>
+
+				<div class="top3-stats-grid">
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-medal"></i>
+						<div>
+							<span class="stat-value">{{ second.totalMedals }}</span>
+							<span class="stat-label">Medalhas</span>
+						</div>
+					</div>
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-flask"></i>
+						<div>
+							<span class="stat-value">{{ second.created }}</span>
+							<span class="stat-label">Movesets</span>
+						</div>
+					</div>
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-users"></i>
+						<div>
+							<span class="stat-value">{{ second.followers }}</span>
+							<span class="stat-label">Seguidores</span>
+						</div>
+					</div>
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-heart"></i>
+						<div>
+							<span class="stat-value">{{ second.votes }}</span>
+							<span class="stat-label">Curtidas</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="top3-card-footer">
+					<div class="top3-title-pill">{{ second_title }}</div>
+				</div>
+			</div>
+
+			<!-- 1º Lugar -->
+			{% set first = rankedUsers[0] %}
+			<div class="top3-card rank-1">
+				<div class="top3-card-header">
+					<div class="top3-user-row">
+						<div class="top3-avatar-container">
+							<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ first.user.avatar }}" alt="Avatar" class="top3-avatar-sprite">
+						</div>
+						<div class="top3-user-meta">
+							<a href="{{ path('app_trainer_profile', { username: first.user.username }) }}" class="top3-username" title="{{ first.user.username }}">{{ first.user.username }}</a>
+							<span class="top3-user-handle">@{{ first.user.username|lower }}</span>
+						</div>
+					</div>
+					<div class="top3-rank-icon">
+						<i class="fa-solid fa-trophy"></i>
+					</div>
+				</div>
+
+				<div class="top3-stats-grid">
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-medal"></i>
+						<div>
+							<span class="stat-value">{{ first.totalMedals }}</span>
+							<span class="stat-label">Medalhas</span>
+						</div>
+					</div>
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-flask"></i>
+						<div>
+							<span class="stat-value">{{ first.created }}</span>
+							<span class="stat-label">Movesets</span>
+						</div>
+					</div>
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-users"></i>
+						<div>
+							<span class="stat-value">{{ first.followers }}</span>
+							<span class="stat-label">Seguidores</span>
+						</div>
+					</div>
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-heart"></i>
+						<div>
+							<span class="stat-value">{{ first.votes }}</span>
+							<span class="stat-label">Curtidas</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="top3-card-footer">
+					<div class="top3-title-pill">{{ first_title }}</div>
+				</div>
+			</div>
+
+			<!-- 3º Lugar -->
+			{% set third = rankedUsers[2] %}
+			<div class="top3-card rank-3">
+				<div class="top3-card-header">
+					<div class="top3-user-row">
+						<div class="top3-avatar-container">
+							<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ third.user.avatar }}" alt="Avatar" class="top3-avatar-sprite">
+						</div>
+						<div class="top3-user-meta">
+							<a href="{{ path('app_trainer_profile', { username: third.user.username }) }}" class="top3-username" title="{{ third.user.username }}">{{ third.user.username }}</a>
+							<span class="top3-user-handle">@{{ third.user.username|lower }}</span>
+						</div>
+					</div>
+					<div class="top3-rank-icon">
+						<i class="fa-solid fa-award"></i>
+					</div>
+				</div>
+
+				<div class="top3-stats-grid">
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-medal"></i>
+						<div>
+							<span class="stat-value">{{ third.totalMedals }}</span>
+							<span class="stat-label">Medalhas</span>
+						</div>
+					</div>
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-flask"></i>
+						<div>
+							<span class="stat-value">{{ third.created }}</span>
+							<span class="stat-label">Movesets</span>
+						</div>
+					</div>
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-users"></i>
+						<div>
+							<span class="stat-value">{{ third.followers }}</span>
+							<span class="stat-label">Seguidores</span>
+						</div>
+					</div>
+					<div class="top3-stat-item">
+						<i class="fa-solid fa-heart"></i>
+						<div>
+							<span class="stat-value">{{ third.votes }}</span>
+							<span class="stat-label">Curtidas</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="top3-card-footer">
+					<div class="top3-title-pill">{{ third_title }}</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
+	<!-- Tabela de Treinadores -->
+	<div class="leaderboard-card">
+		<table class="leaderboard-table">
+			<thead>
+				<tr style="border-bottom: 1px solid var(--border-color); text-align: left; font-size: 0.85rem; color: var(--text-muted);">
+					<th class="leaderboard-cell" style="text-align: center; width: 60px;">Posição</th>
+					<th class="leaderboard-cell">Treinador</th>
+					{% if sort == 'likes' %}
+						<th class="leaderboard-cell" style="text-align: center;">Curtidas</th>
+					{% else %}
+						<th class="leaderboard-cell" style="text-align: center;">Medalhas</th>
+					{% endif %}
+					<th class="leaderboard-cell" style="text-align: center;">Movesets</th>
+					<th class="leaderboard-cell" style="text-align: center;">Seguidores</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{% for index, row in rankedUsers %}
+
+					<tr class="leaderboard-row">
+						<td class="leaderboard-cell cell-position">
+							{{ index + 1 }}º
+						</td>
+						<td class="leaderboard-cell">
+							<div class="cell-user">
+								<div class="leaderboard-avatar-frame">
+									<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ row.user.avatar }}" alt="Avatar" class="leaderboard-avatar-img">
+								</div>
+								<div class="leaderboard-user-details">
+									<a href="{{ path('app_trainer_profile', { username: row.user.username }) }}" class="leaderboard-name-link">{{ row.user.username }}</a>
+									<span class="leaderboard-title-label">
+										{% if index == 0 %}
+											{{ first_title }}
+										{% elseif index == 1 %}
+											{{ second_title }}
+										{% elseif index == 2 %}
+											{{ third_title }}
+										{% else %}
+											{{ row.title }}
+										{% endif %}
+									</span>
+								</div>
+							</div>
+						</td>
+						{% if sort == 'likes' %}
+							<td class="leaderboard-cell cell-stats">
+								<span class="stat-pill likes-pill">
+									<i class="fa-solid fa-heart"></i> {{ row.votes }}
+								</span>
+							</td>
+						{% else %}
+							<td class="leaderboard-cell cell-stats">
+								<div class="medals-breakdown">
+									<span class="medal-dot-count" title="Ouro"><span class="dot gold"></span> {{ row.gold }}</span>
+									<span class="medal-dot-count" title="Prata"><span class="dot silver"></span> {{ row.silver }}</span>
+									<span class="medal-dot-count" title="Bronze"><span class="dot bronze"></span> {{ row.bronze }}</span>
+								</div>
+							</td>
+						{% endif %}
+						<td class="leaderboard-cell cell-stats" style="font-weight: 700; color: var(--text-secondary);">
+							{{ row.created }}
+						</td>
+						<td class="leaderboard-cell cell-stats" style="font-weight: 700; color: var(--text-secondary);">
+							{{ row.followers }}
+						</td>
+					</tr>
+					
+				{% endfor %}
+			</tbody>
+
+		</table>
+	</div>
+{% endif %}

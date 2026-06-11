@@ -5,6 +5,8 @@
 
 {% block stylesheets %}
 	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/pokemon.css') }}">
 	<link rel="stylesheet" href="{{ asset('css/home.css') }}">
 {% endblock %}
 
@@ -55,6 +57,37 @@
 			<h3 class="feature-title">Localizações</h3>
 			<p class="feature-desc">Cadastre e encontre onde achar seus Pokémon favoritos.</p>
 		</div>
+	</section>
+
+	<!-- Pokémons em Alta -->
+	<section class="trending-section">
+		<h2 class="trending-title">
+			<i class="fa-solid fa-fire text-danger" style="color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.4);"></i> Popular Pokémon
+		</h2>
+
+		{% if trendingPokemons is empty %}
+			<div class="empty-state card" style="text-align: center; padding: 40px; background-color: rgba(255, 255, 255, 0.02);">
+				<p style="color: var(--text-muted); margin: 0;">Nenhum Pokémon visitado ainda. Comece a explorar clicando na barra de busca acima!</p>
+			</div>
+		{% else %}
+			<div class="pokemon-grid">
+				{% for pokemon in trendingPokemons %}
+					<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="pokemon-card">
+						<div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
+						<span class="pokemon-id">#{{ "%03d"|format(pokemon.dex_id|default(pokemon.id)) }}</span>
+						<div class="pokemon-sprite-container">
+							<img src="{{ pokemon.sprite }}" alt="{{ pokemon.name|capitalize }}" class="pokemon-image" loading="lazy">
+						</div>
+						<h3 class="pokemon-name">{{ pokemon.name|capitalize }}</h3>
+						<div class="pokemon-types">
+							{% for type in pokemon.types %}
+								<span class="type-badge type-badge-{{ type }}">{{ type|capitalize }}</span>
+							{% endfor %}
+						</div>
+					</a>
+				{% endfor %}
+			</div>
+		{% endif %}
 	</section>
 
 {% endblock %}

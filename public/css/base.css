@@ -248,3 +248,70 @@ a {
     background: var(--border-color);
     margin: 4px 0;
 }
+
+/* Universal Loading Overlay */
+.global-loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(12, 13, 18, 0.7);
+    backdrop-filter: blur(12px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.global-loader-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.global-loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.global-loader-pokeball {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    animation: rotatePokeball 1.2s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+    filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.4));
+}
+
+@keyframes rotatePokeball {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+    50% {
+        transform: rotate(180deg) scale(1.1);
+        filter: drop-shadow(0 0 25px rgba(239, 68, 68, 0.7));
+    }
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+.global-loader-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    animation: pulseLoaderText 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseLoaderText {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}

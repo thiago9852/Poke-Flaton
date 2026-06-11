@@ -8,6 +8,11 @@
 	{{ parent() }}
 	<link rel="stylesheet" href="{{ asset('css/trainer-card.css') }}">
 	<link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+	<style>
+		.medal-card {
+			position: relative;
+		}
+	</style>
 {% endblock %}
 
 {% block body %}
@@ -56,7 +61,7 @@
 							</div>
 						</div>
 
-						<!-- Section de Informações -->
+						<!-- Seção Informações -->
 						<div class="banner-info-section">
 							<div class="banner-user-identity">
 								<div class="banner-avatar-badge">
@@ -70,7 +75,7 @@
 							</div>
 
 							<!-- Título -->
-							<div class="banner-achievement-title" onclick="openTitleModal()" style="cursor: pointer;" title="Clique para escolher seu título">
+							{% set titleLabel %}
 								{% if selectedRibbon %}
 									<img src="{{ selectedRibbon }}" alt="Ribbon" id="trainer-ribbon-img" class="banner-ribbon-sprite" style="width: 24px; height: 24px; object-fit: contain; image-rendering: pixelated; margin-right: 4px;">
 								{% else %}
@@ -80,25 +85,50 @@
 								<div class="banner-title-edit-overlay" style="display:inline-block; margin-left: 6px; font-size: 0.75rem; color: var(--color-primary); opacity: 0.7;">
 									<i class="fa-solid fa-pen"></i>
 								</div>
-							</div>
+							{% endset %}
+							{% set titleContent %}
+								<div class="tooltip-row tooltip-desc-row">
+									<span class="tooltip-label">Como conseguir:</span>
+									<span class="tooltip-value">{{ selectedTitleRequirement }}</span>
+								</div>
+							{% endset %}
+							{% include 'partials/tooltip_trigger.html.twig' with {
+								'tag': 'div',
+								'class': 'banner-achievement-title',
+								'style': 'cursor: pointer;',
+								'onclick': 'openTitleModal()',
+								'title': selectedTitle|default('Treinador Novato'),
+								'label': titleLabel,
+								'content': titleContent
+							} %}
 						</div>
 
-						<!-- 4 Medalhas em Destaque -->
+						<!-- Medalhas em Destaque -->
 						<div class="banner-medal-showcase">
 							<span class="showcase-title">
 								<i class="fa-solid fa-medal"></i>
 								Medalhas em Destaque</span>
+
 							<div class="showcase-slots">
 								{% for i in 0..3 %}
+
 									{% set showcaseMedal = user.showcaseMedals[i] | default(null) %}
-									<div class="showcase-slot {% if showcaseMedal %}filled{% else %}empty{% endif %}" data-slot="{{ i }}" onclick="openMedalPickerModal({{ i }})" title="{% if showcaseMedal %}{{ showcaseMedal }}{% else %}Clique para escolher uma medalha{% endif %}">
+									<div class="showcase-slot {% if showcaseMedal %}filled
+										{% else %}empty{% endif %}" 
+										data-slot="{{ i }}" onclick="openMedalPickerModal({{ i }})" 
+										title="{% if showcaseMedal %}{{ showcaseMedal }}{% else %}
+										Clique para escolher uma medalha{% endif %}"
+									>
+
 										{% if showcaseMedal %}
 											{% set foundMedal = null %}
+
 											{% for m in activityMedals|merge(catchMedals)|merge(regionalMedals)|merge(typeMedals) %}
 												{% if m.name == showcaseMedal and m.tier != 'locked' and m.enabled %}
 													{% set foundMedal = m %}
 												{% endif %}
 											{% endfor %}
+
 											{% if foundMedal and foundMedal.badgeImg %}
 												<img src="{{ foundMedal.badgeImg }}" alt="{{ foundMedal.title }}" class="showcase-medal-img">
 												<span class="showcase-medal-name">{{ foundMedal.title }}</span>
@@ -112,20 +142,23 @@
 													<i class="fa-solid fa-plus"></i>
 												</div>
 											{% endif %}
+
 										{% else %}
 											<div class="showcase-slot-empty">
 												<i class="fa-solid fa-plus"></i>
 											</div>
 										{% endif %}
+
 									</div>
 								{% endfor %}
 							</div>
+
 						</div>
 					</div>
 
-					<div
-						class="banner-row-bottom">
+					<div class="banner-row-bottom">
 						<!-- Estatísticas -->
+
 						<div class="banner-stats-section">
 							<div class="banner-stat-item">
 								<span class="banner-stat-value" id="card-votes-count">{{ totalVotes }}</span>
@@ -134,6 +167,7 @@
 									Curtidas</span>
 							</div>
 							<div class="banner-stat-divider"></div>
+
 							<div class="banner-stat-item">
 								<span class="banner-stat-value">{{ createdCount }}</span>
 								<span class="banner-stat-label">
@@ -141,6 +175,7 @@
 									Movesets</span>
 							</div>
 							<div class="banner-stat-divider"></div>
+
 							<div class="banner-stat-item">
 								<span class="banner-stat-value">{{ followingCount }}</span>
 								<span class="banner-stat-label">
@@ -148,6 +183,7 @@
 									Seguindo</span>
 							</div>
 							<div class="banner-stat-divider"></div>
+
 							<div class="banner-stat-item">
 								<span class="banner-stat-value">{{ followersCount }}</span>
 								<span class="banner-stat-label">
@@ -163,6 +199,7 @@
 								<span>Compartilhar</span>
 							</button>
 						</div>
+
 					</div>
 				</div>
 
@@ -190,13 +227,20 @@
 
 					<div class="tms-grid" id="tms-grid-list">
 						{% for tm in tms %}
+
 							{% set hasTm = tm.move in user.unlockedTms %}
 							{% set tmNumber = tm.item|upper %}
 							{% set moveDisplayName = tm.move|replace({'-': ' '})|title %}
-							<div class="tm-disc-card {% if hasTm %}active{% endif %}" data-move="{{ tm.move }}" data-item="{{ tm.item }}" onclick="toggleTmOwnership(this, '{{ tm.move }}')">
+
+							<div class="tm-disc-card 
+								{% if hasTm %}active{% endif %}" 
+								data-move="{{ tm.move }}" data-item="{{ tm.item }}" 
+								onclick="toggleTmOwnership(this, '{{ tm.move }}')"
+							>
 								<div class="disc-graphic">
 									<div class="disc-inner"></div>
 								</div>
+
 								<div class="tm-info">
 									<span class="tm-number">{{ tmNumber }}</span>
 									<span class="tm-move-name" title="{{ moveDisplayName }}">{{ moveDisplayName }}</span>
@@ -205,6 +249,7 @@
 									<i class="fa-solid fa-check"></i>
 								</div>
 							</div>
+
 						{% endfor %}
 					</div>
 				</div>
@@ -225,6 +270,7 @@
 					{% else %}
 						<div class="movesets-grid" id="user-movesets-list-grid">
 							{% for m in userMovesets %}
+
 								<div class="user-moveset-card" id="user-moveset-card-{{ m.id }}">
 									<div class="moveset-card-header">
 										<div class="moveset-pokemon-info">
@@ -262,14 +308,17 @@
 										</div>
 									</div>
 								</div>
+
 							{% endfor %}
 						</div>
+
 					{% endif %}
 				</div>
+
 			</div>
 		</div>
 
-		<!-- Tab 2: Minha Pokedéx -->
+		<!-- Minha Pokedéx -->
 		<div id="pokedex-tab" class="tab-content">
 			<div class="pokedex-list-container card">
 				<div class="tms-header">
@@ -285,8 +334,10 @@
 				{% else %}
 					<div class="pokedex-caught-grid">
 						{% for poke in caughtDetails %}
+
 							<div class="pokedex-caught-card" id="caught-card-{{ poke.name }}">
 								<div class="caught-card-inner">
+
 									<button class="release-btn" onclick="releasePokemon('{{ poke.name }}')" title="Soltar Pokémon">
 										<i class="fa-solid fa-trash-can"></i>
 									</button>
@@ -303,18 +354,20 @@
 											<span class="type-badge-sm type-badge-pd type-badge-{{ type }}">{{ type|capitalize }}</span>
 										{% endfor %}
 									</div>
+
 								</div>
 							</div>
+
 						{% endfor %}
 					</div>
+
 				{% endif %}
 			</div>
 		</div>
 
-		<!-- Tab 3: Medals -->
+		<!-- Medals -->
 		<div id="medals-tab" class="tab-content">
-			<div
-				class="medals-layout-container">
+			<div class="medals-layout-container">
 
 				<!-- Categoria 1: Conquistas de Atividade e Comunidade -->
 				<div class="medals-section-category">
@@ -325,13 +378,20 @@
 
 					<div class="medals-grid">
 						{% for medal in activityMedals %}
-							<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}">
+
+							<div class="medal-card card medal-tier-{{ medal.tier }} 
+								{% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}"
+								data-tooltip-title="{{ medal.title }}"
+								onmouseenter="showTemplateTooltip(event)"
+								onmouseleave="hideGenericTooltip()"
+							>
 								<div class="medal-badge-wrapper">
 									{% if not medal.enabled %}
 										<div class="medal-badge medal-badge-admin-locked">
 											<i class="fa-solid fa-lock"></i>
 										</div>
 									{% else %}
+
 										{% if medal.badgeImg %}
 											<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
 										{% else %}
@@ -339,6 +399,7 @@
 												<i class="fa-solid {{ medal.icon }}"></i>
 											</div>
 										{% endif %}
+
 									{% endif %}
 								</div>
 
@@ -346,7 +407,7 @@
 									<h4 class="medal-title">{{ medal.title }}</h4>
 									<p class="medal-desc">
 										{% if not medal.enabled %}
-											Esta medalha está atualmente bloqueada/desativada pela administração.
+											Esta medalha está atualmente bloqueada.
 										{% else %}
 											{{ medal.description }}
 										{% endif %}
@@ -395,6 +456,9 @@
 									{% endif %}
 
 								</div>
+
+								<!-- Tooltip -->
+								{% include 'partials/medal_tooltip.html.twig' %}
 							</div>
 						{% endfor %}
 					</div>
@@ -415,20 +479,33 @@
 
 						<div class="medals-grid">
 							{% for medal in catchMedals %}
-								<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}">
+
+								<div class="medal-card card medal-tier-{{ medal.tier }} 
+									{% if not medal.enabled %}medal-admin-locked{% endif %}" 
+									id="medal-card-{{ medal.name }}"
+									data-tooltip-title="{{ medal.title }}"
+									onmouseenter="showTemplateTooltip(event)"
+									onmouseleave="hideGenericTooltip()"
+								>
 									<div class="medal-badge-wrapper">
 										{% if not medal.enabled %}
 											<div class="medal-badge medal-badge-admin-locked">
 												<i class="fa-solid fa-lock"></i>
 											</div>
 										{% else %}
+
 											{% if medal.badgeImg %}
-												<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
+												<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" 
+													class="medal-badge-img 
+													{% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" 
+													loading="lazy"
+												>
 											{% else %}
 												<div class="medal-badge">
 													<i class="fa-solid {{ medal.icon }}"></i>
 												</div>
 											{% endif %}
+
 										{% endif %}
 									</div>
 
@@ -436,7 +513,7 @@
 										<h4 class="medal-title">{{ medal.title }}</h4>
 										<p class="medal-desc">
 											{% if not medal.enabled %}
-												Esta medalha está atualmente bloqueada/desativada pela administração.
+												Esta medalha está atualmente bloqueada.
 											{% else %}
 												{{ medal.description }}
 											{% endif %}
@@ -449,6 +526,7 @@
 												</div>
 												<div class="medal-progress-text">
 													<span class="progress-current" id="medal-progress-{{ medal.name }}">{{ medal.current }}</span>
+
 													{% if medal.nextTarget %}
 														<span class="progress-separator">/</span>
 														<span class="progress-target" id="medal-target-{{ medal.name }}">{{ medal.nextTarget }}</span>
@@ -483,6 +561,9 @@
 											</div>
 										{% endif %}
 									</div>
+
+									<!-- Tooltip -->
+									{% include 'partials/medal_tooltip.html.twig' %}
 								</div>
 							{% endfor %}
 						</div>
@@ -500,29 +581,47 @@
 							{% for medal in typeMedals %}
 								{% set typeKey = medal.name|replace({'type_': ''}) %}
 
-								<div class="medal-card card medal-tier-{{ medal.tier }} medal-type-card border-type-{{ typeKey }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}">
+								<div class="medal-card card medal-tier-{{ medal.tier }} 
+									medal-type-card border-type-{{ typeKey }} 
+									{% if not medal.enabled %}medal-admin-locked{% endif %}" 
+									id="medal-card-{{ medal.name }}"
+									data-tooltip-title="{{ medal.title }}"
+									onmouseenter="showTemplateTooltip(event)"
+									onmouseleave="hideGenericTooltip()"
+								>
 									<div class="medal-badge-wrapper">
 										{% if not medal.enabled %}
 											<div class="medal-badge medal-badge-admin-locked">
 												<i class="fa-solid fa-lock"></i>
 											</div>
 										{% else %}
+
 											{% if medal.badgeImg %}
-												<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
+												<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" 
+													class="medal-badge-img 
+													{% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" 
+													loading="lazy"
+												>
 											{% else %}
 												<div class="medal-badge type-color-badge-{{ typeKey }}">
 													<i class="fa-solid {{ medal.icon }}"></i>
 												</div>
 											{% endif %}
+
 										{% endif %}
 									</div>
 
 									<div class="medal-info">
 										<h4 class="medal-title">{{ medal.title }}</h4>
-										<span class="type-badge-sm type-badge-pd type-badge-{{ typeKey }}" style="display: inline-block; margin-bottom: 8px;">{{ typeKey|capitalize }}</span>
+										<span class="type-badge-sm type-badge-pd type-badge-{{ typeKey }}" 
+											style="display: inline-block; margin-bottom: 8px;"
+										>
+											{{ typeKey|capitalize }}
+										</span>
+
 										<p class="medal-desc">
 											{% if not medal.enabled %}
-												Esta medalha está atualmente bloqueada pela administração.
+												Esta medalha está atualmente bloqueada.
 											{% else %}
 												{{ medal.description }}
 											{% endif %}
@@ -571,6 +670,9 @@
 										{% endif %}
 
 									</div>
+
+									<!-- Tooltip -->
+									{% include 'partials/medal_tooltip.html.twig' %}
 								</div>
 							{% endfor %}
 
@@ -578,7 +680,7 @@
 					</div>
 				</div>
 
-				<!-- Category 3: Pokedex Regional -->
+				<!-- Categoria: Pokedex Regional -->
 				<div class="medals-section-category mt-5">
 					<h3 class="medals-category-title">
 						<i class="fa-solid fa-map-location-dot"></i>
@@ -588,7 +690,13 @@
 					<div class="medals-grid">
 						{% for medal in regionalMedals %}
 
-							<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}">
+							<div class="medal-card card medal-tier-{{ medal.tier }} 
+								{% if not medal.enabled %}medal-admin-locked{% endif %}" 
+								id="medal-card-{{ medal.name }}"
+								data-tooltip-title="{{ medal.title }}"
+								onmouseenter="showTemplateTooltip(event)"
+								onmouseleave="hideGenericTooltip()"
+							>
 								<div class="medal-badge-wrapper">
 
 									{% if not medal.enabled %}
@@ -596,13 +704,19 @@
 											<i class="fa-solid fa-lock"></i>
 										</div>
 									{% else %}
+
 										{% if medal.badgeImg %}
-											<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
+											<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" 
+												class="medal-badge-img 
+												{% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" 
+												loading="lazy"
+											>
 										{% else %}
 											<div class="medal-badge">
 												<i class="fa-solid {{ medal.icon }}"></i>
 											</div>
 										{% endif %}
+
 									{% endif %}
 								</div>
 
@@ -661,6 +775,9 @@
 									{% endif %}
 
 								</div>
+
+								<!-- Tooltip -->
+								{% include 'partials/medal_tooltip.html.twig' %}
 							</div>
 						{% endfor %}
 
@@ -677,9 +794,16 @@
 					<div class="vivillon-patterns-grid">
 						{% for pattern in vivillonMedals %}
 
-							<div class="vivillon-pattern-card {% if not pattern.enabled %}vivillon-admin-locked{% elseif pattern.unlocked %}vivillon-unlocked{% else %}vivillon-locked{% endif %}" id="viv-card-{{ pattern.key }}">
+							<div class="vivillon-pattern-card 
+								{% if not pattern.enabled %}vivillon-admin-locked
+								{% elseif pattern.unlocked %}vivillon-unlocked
+								{% else %}vivillon-locked
+								{% endif %}" id="viv-card-{{ pattern.key }}"
+							>
 								<div class="vivillon-sprite-wrapper">
-									<img src="{{ pattern.sprite }}" alt="Vivillon {{ pattern.label }}" class="vivillon-sprite" loading="lazy">
+									<img src="{{ pattern.sprite }}" alt="Vivillon {{ pattern.label }}" 
+										class="vivillon-sprite" loading="lazy"
+									>
 
 									{% if not pattern.enabled %}
 										<div class="vivillon-overlay">
@@ -926,5 +1050,6 @@
 	<!-- Container Oculto com as URLs para o Javascript usar via AJAX -->
 	<div id="trainer-card-data" style="display: none;" data-url-tm-toggle="{{ path('app_trainer_card_tm_toggle') }}" data-url-pokemon-toggle-catch="{{ path('app_trainer_card_pokemon_toggle_catch') }}" data-url-follow-toggle="{{ path('app_trainer_card_follow_toggle') }}" data-url-title-update="{{ path('app_trainer_card_title_update') }}" data-url-avatar-update="{{ path('app_trainer_card_avatar_update') }}" data-url-showcase-update="{{ path('app_trainer_card_showcase_update') }}"></div>
 
+	{% include 'partials/tooltip.html.twig' %}
 	<script src="{{ asset('js/trainer-card.js') }}"></script>
 {% endblock %}
