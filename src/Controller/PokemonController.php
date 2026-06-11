@@ -190,7 +190,7 @@ class PokemonController extends AbstractController
         ]);
     }
 
-    #[Route('/pokemon/{name}', name: 'app_pokemon_detail')]
+    #[Route('/pokemon/{name}', name: 'app_pokemon_detail', methods: ['GET'])]
     public function detail(
         string $name,
         MovesetRepository $movesetRepository,
