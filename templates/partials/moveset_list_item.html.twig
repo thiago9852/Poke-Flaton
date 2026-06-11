@@ -35,11 +35,17 @@
 				<span>&bull;
 					{{ m2.createdAt|date('d/m/Y') }}</span>
 
-				<button class="upvote-btn btn btn-sm btn-outline-primary mt-1" data-id="{{ m2.id }}" title="Curtir" style="margin-left: auto;">
-					Gostei
-					<i class="fa-regular fa-thumbs-up"></i>
-					<span class="vote-count">{{ m2.votes }}</span>
-				</button>
+				<div style="margin-left: auto; display: inline-flex; gap: 8px; align-items: center;">
+					<button class="btn btn-sm btn-outline-secondary share-btn mt-1" onclick="openShareModal('{{ m2.id }}')" title="Compartilhar Moveset" style="padding: 6px 10px; border-radius: 20px; font-size: 0.85rem; height: 32px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+						<i class="fa-solid fa-share-nodes"></i>
+					</button>
+
+					<button class="upvote-btn btn btn-sm btn-outline-primary mt-1" data-id="{{ m2.id }}" title="Curtir" style="margin: 0; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; height: 32px; display: inline-flex; align-items: center; gap: 6px;">
+						Gostei
+						<i class="fa-regular fa-thumbs-up"></i>
+						<span class="vote-count">{{ m2.votes }}</span>
+					</button>
+				</div>
 
 			</div>
 
@@ -70,7 +76,7 @@
 		</div>
 	</div>
 
-	<!-- Mini Moves Badge List -->
+	<!-- Mini Moves Badge -->
 	<div class="moves-mini-list mt-2" style="display: flex; flex-wrap: wrap; gap: 5px;">
 		{% for mv in m2.moves %}
 			{% if mv %}

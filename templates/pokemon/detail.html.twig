@@ -116,8 +116,6 @@
 
 						{% if typeMovesets is empty %}
 							<div class="empty-moveset card" style="text-align: center; padding: 40px;">
-								<i class="fa-solid fa-folder-open empty-moveset-icon" style="font-size: 3em; color: #555; margin-bottom: 10px;"></i>
-
 								<h4>Nenhum moveset criado para esta categoria</h4>
 								<a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-secondary mt-3">
 									Criar Agora
@@ -164,10 +162,62 @@
 		</div>
 
 	</div>
+
+	<!-- Cards de compartilhamento oculto -->
+	<div style="position: absolute; left: -9999px; top: -9999px; overflow: hidden; width: 0; height: 0;">
+		{% for m in movesets %}
+			{% include 'partials/moveset_share_card.html.twig' with {
+				'm': m,
+				'pokemon': pokemon,
+				'moveDetails': moveDetails,
+				'itemDetails': itemDetails,
+				'naturesMap': naturesMap,
+				'abilityDetails': abilityDetails
+			} %}
+		{% endfor %}
+	</div>
+
+	<!-- Modal de prévia de compartilhamento -->
+	<div id="share-modal" class="share-modal-overlay">
+		<div class="share-modal-card">
+			<div class="share-modal-header">
+				<h3 class="share-modal-title">
+					<i class="fa-solid fa-share-nodes"></i> Compartilhar Moveset
+				</h3>
+				<button class="share-modal-close-btn" onclick="closeShareModal()">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+			</div>
+			
+			<div class="share-modal-body">
+				<!-- Loader Spinner -->
+				<div id="share-modal-loader" class="share-modal-loader">
+					<div class="share-modal-spinner"></div>
+					<div class="share-modal-loader-text">Gerando imagem em alta resolução...</div>
+				</div>
+				
+				<!-- Imagem Preview -->
+				<div id="share-modal-preview" class="share-modal-preview-container">
+					<img id="share-modal-image" class="share-modal-preview-image" src="" alt="Preview">
+				</div>
+			</div>
+			
+			<div class="share-modal-footer">
+				<button class="btn btn-secondary" onclick="closeShareModal()">Fechar</button>
+				<button id="share-modal-download-btn" class="btn btn-primary">
+					<i class="fa-solid fa-download"></i> Baixar PNG
+				</button>
+			</div>
+		</div>
+	</div>
 {% endblock %}
 
 {% block javascripts %}
 	{{ parent() }}
+	<!-- CDNs para html2canvas e qrcode-generator -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+
 	<!-- Container Oculto com a URL via Twig para o JS -->
 	<div id="pokemon-detail-data" style="display: none;" data-url-toggle-catch="{{ path('app_trainer_card_pokemon_toggle_catch') }}"></div>
 

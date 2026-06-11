@@ -1610,3 +1610,508 @@
 .progress-bar { background: #333; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 4px; }
 .progress-fill { background: #d4af37; height: 100%; transition: width 0.3s; }
 .moveset-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+
+
+/* --- Cartão de Compartilhar (CANVAS) + modal --- */
+
+.share-card-canvas-container {
+    width: 800px;
+    height: 480px;
+    background: linear-gradient(135deg, #0d0d12 0%, #13131c 50%, #1a1530 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    position: relative;
+    padding: 24px;
+    box-sizing: border-box;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    z-index: 1;
+}
+
+.share-card-glow {
+    position: absolute;
+    top: -100px;
+    left: -100px;
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.share-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 12px;
+}
+
+.share-logo-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.share-logo-img {
+    height: 24px;
+    width: 24px;
+    object-fit: contain;
+}
+
+.share-logo-text {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: 0.5px;
+}
+
+.share-category-badge {
+    font-size: 0.75rem;
+    color: #fff;
+    background: var(--color-primary, #8b5cf6);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.25);
+}
+
+.share-card-body {
+    display: grid;
+    grid-template-columns: 240px 1fr 160px;
+    gap: 20px;
+    flex-grow: 1;
+    margin: 12px 0;
+    z-index: 1;
+    align-items: center;
+}
+
+.share-column {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+}
+
+.share-column-pokemon {
+    align-items: center;
+    text-align: center;
+}
+
+.share-pokemon-sprite-container {
+    width: 130px;
+    height: 130px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.share-pokemon-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+}
+
+.share-pokemon-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.share-pokemon-id {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #9ca3af);
+    font-weight: 700;
+    margin: 2px 0 8px;
+}
+
+.share-pokemon-types {
+    display: flex;
+    gap: 6px;
+}
+
+.share-pokemon-types .type-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.share-column-build {
+    justify-content: space-between;
+}
+
+.share-build-summary-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.share-build-box {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+}
+
+.share-item-box {
+    flex: 1.1;
+}
+
+.share-nature-box {
+    flex: 0.9;
+}
+
+.share-ability-box {
+    margin-bottom: 16px;
+}
+
+.share-item-sprite {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.share-box-content {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.share-box-label {
+    font-size: 0.65rem;
+    color: #8b8b9a;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+}
+
+.share-box-value {
+    font-size: 0.85rem;
+    color: #ffffff;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.share-nature-details {
+    font-size: 0.65rem;
+    color: #aaa;
+    font-weight: normal;
+}
+
+.share-moves-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.share-section-title {
+    font-size: 0.75rem;
+    color: #8b8b9a;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    border-left: 2px solid var(--color-primary, #8b5cf6);
+    padding-left: 6px;
+    margin-bottom: 4px;
+}
+
+.share-moves-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.share-move-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 4px 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    height: 36px;
+}
+
+.share-move-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.share-move-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px;
+}
+
+.share-move-stats {
+    display: flex;
+    gap: 8px;
+    font-size: 0.65rem;
+    color: #8b8b9a;
+}
+
+.share-move-stat {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.share-column-qr {
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    padding-left: 24px;
+    height: 80%;
+    justify-content: center;
+    align-items: center;
+}
+
+.share-qr-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.share-qr-code-placeholder {
+    background: #ffffff;
+    padding: 8px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 100px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    margin-bottom: 12px;
+}
+
+.share-qr-code-placeholder img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain;
+}
+
+.share-qr-caption {
+    font-size: 0.65rem;
+    color: #8b8b9a;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.share-qr-domain {
+    font-size: 0.75rem;
+    color: var(--color-primary, #8b5cf6);
+    font-weight: 800;
+    margin-top: 2px;
+}
+
+.share-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 12px;
+}
+
+.share-footer-left {
+    font-size: 0.75rem;
+    color: #8b8b9a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.share-footer-left i {
+    color: var(--color-primary, #8b5cf6);
+    font-size: 0.85rem;
+}
+
+.share-footer-right {
+    font-size: 0.7rem;
+    color: #555562;
+    font-style: italic;
+}
+
+/* --- Modal de compartilhamento --- */
+
+.share-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.share-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.share-modal-card {
+    background: #121216;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 840px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.share-modal-overlay.active .share-modal-card {
+    transform: translateY(0);
+}
+
+.share-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.share-modal-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.share-modal-title i {
+    color: var(--color-primary, #8b5cf6);
+}
+
+.share-modal-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary, #9ca3af);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.share-modal-close-btn:hover {
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+.share-modal-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 250px;
+    position: relative;
+}
+
+.share-modal-preview-container {
+    width: 100%;
+    max-width: 800px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.share-modal-preview-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.share-modal-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.share-modal-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(139, 92, 246, 0.1);
+    border-top-color: var(--color-primary, #8b5cf6);
+    border-radius: 50%;
+    animation: share-spin 1s infinite linear;
+}
+
+.share-modal-loader-text {
+    font-size: 0.95rem;
+    color: var(--text-secondary, #9ca3af);
+    font-weight: 600;
+}
+
+.share-modal-footer {
+    padding: 18px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+@keyframes share-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Modal responsividade */
+@media (max-width: 576px) {
+    .share-modal-body {
+        padding: 16px;
+    }
+    .share-modal-footer {
+        flex-direction: column-reverse;
+        padding: 16px;
+    }
+    .share-modal-footer button {
+        width: 100%;
+    }
+}
+

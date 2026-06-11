@@ -93,3 +93,109 @@ window.toggleCatchState = async function (btn) {
         icon.style.animation = '';
     }
 };
+
+// Modal de Compartilhamento e Download de PNG do Moveset
+window.openShareModal = async function (movesetId) {
+    const modal = document.getElementById('share-modal');
+    const loader = document.getElementById('share-modal-loader');
+    const previewContainer = document.getElementById('share-modal-preview');
+    const previewImg = document.getElementById('share-modal-image');
+    
+    if (!modal) return;
+    
+    // Mostra o modal e exibe o loader, ocultando previews anteriores
+    modal.classList.add('active');
+    loader.style.display = 'flex';
+    previewContainer.style.display = 'none';
+    previewImg.src = '';
+    
+    try {
+        const shareCard = document.getElementById('share-card-' + movesetId);
+        if (!shareCard) {
+            alert('Erro: Card de compartilhamento não encontrado.');
+            closeShareModal();
+            return;
+        }
+        
+        // Sincroniza a imagem do Pokémon no share card (copia se for Shiny)
+        const currentArtwork = document.getElementById('pokemon-artwork');
+        const shareArtwork = document.getElementById('share-pokemon-artwork-' + movesetId);
+        if (currentArtwork && shareArtwork) {
+            shareArtwork.src = currentArtwork.src;
+        }
+        
+        // Gera o QR Code dinamicamente apontando para a URL da página atual
+        const qrContainer = document.getElementById('share-qr-' + movesetId);
+        if (qrContainer) {
+            qrContainer.innerHTML = '';
+            // qrcode(typeNumber, errorCorrectionLevel) - 0 autodetecta tipo
+            const qr = qrcode(0, 'M');
+            qr.addData(window.location.href);
+            qr.make();
+            // Gera tag img do QR code com tamanho e margem ajustados para caber em 100px
+            qrContainer.innerHTML = qr.createImgTag(3, 4);
+        }
+        
+        // Aguarda todas as imagens do card (Pokémon, item e QR Code) estarem 100% carregadas
+        const images = Array.from(shareCard.querySelectorAll('img'));
+        await Promise.all(images.map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(resolve => {
+                img.onload = resolve;
+                img.onerror = resolve; // resolve mesmo em erro para não travar a aplicação
+            });
+        }));
+        
+        // Pequena pausa para garantir renderização de fontes e layout antes do print
+        await new Promise(resolve => setTimeout(resolve, 250));
+        
+        // Executa html2canvas no card oculto com alta definição (scale: 2)
+        const canvas = await html2canvas(shareCard, {
+            useCORS: true,
+            scale: 2,
+            backgroundColor: '#121216',
+            logging: false
+        });
+        
+        // Converte o canvas para imagem e insere no modal de pré-visualização
+        const pngUrl = canvas.toDataURL('image/png');
+        previewImg.src = pngUrl;
+        
+        loader.style.display = 'none';
+        previewContainer.style.display = 'flex';
+        
+        // Define o callback do botão de download de forma dinâmica para este moveset
+        const downloadBtn = document.getElementById('share-modal-download-btn');
+        downloadBtn.onclick = function () {
+            const pokemonName = document.querySelector('.current-title')?.textContent?.trim()?.split(/\s+/)[0]?.toLowerCase() || 'pokemon';
+            const link = document.createElement('a');
+            link.download = `moveset-${pokemonName}-${movesetId}.png`;
+            link.href = pngUrl;
+            link.click();
+        };
+        
+    } catch (err) {
+        console.error('Erro ao gerar imagem:', err);
+        alert('Erro ao processar a imagem do moveset. Tente novamente.');
+        closeShareModal();
+    }
+};
+
+window.closeShareModal = function () {
+    const modal = document.getElementById('share-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+};
+
+// Evento para fechar modal clicando fora do card no overlay
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('share-modal');
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                closeShareModal();
+            }
+        });
+    }
+});

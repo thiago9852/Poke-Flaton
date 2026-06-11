@@ -1,4 +1,27 @@
 <div class="moveset-card card moveset-highlight" style="padding: 20px;">
+    <!-- Ações (topo) -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 0.9em; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                {% if m.author and m.author != 'Anônimo' %}
+                    <a href="{{ path('app_trainer_profile', { username: m.author }) }}" style="display: flex; align-items: center; gap: 5px; color: var(--color-secondary); font-weight: bold;">
+                        <i class="fa-solid fa-circle-user" style="font-size: 16px; color: var(--color-primary);"></i>
+                        {{ m.author }}
+                    </a>
+                {% else %}
+                    <span style="display: flex; align-items: center; gap: 5px; color: #fff; font-weight: bold;">
+                        <img src="{{ asset('image/Pokeball.png') }}" style="width: 16px; height: 16px; object-fit: contain;" alt="Anônimo">
+                        {{ m.author|default('Anônimo') }}
+                    </span>
+                {% endif %}
+                <span style="color: var(--text-muted); font-weight: normal;">&bull; {{ m.createdAt|date('d/m/Y') }}</span>
+            </span>
+        </div>
+        <button class="btn btn-sm btn-outline-secondary share-btn" onclick="openShareModal('{{ m.id }}')" title="Compartilhar Moveset" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer;">
+            <i class="fa-solid fa-share-nodes"></i> Compartilhar
+        </button>
+    </div>
+
     <div class="moveset-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
         
         <!-- Moves Recomendados -->
