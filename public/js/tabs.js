@@ -4,3 +4,12 @@ window.switchTab = function (evt, tabId) {
     document.getElementById(tabId).classList.add('active');
     evt.currentTarget.classList.add('active');
 };
+
+window.toggleCategorySection = function (contentId, chevronId) {
+    const content = document.getElementById(contentId);
+    const chevron = document.getElementById(chevronId);
+    if (content && chevron) {
+        content.classList.toggle('expanded');
+        chevron.classList.toggle('rotated');
+    }
+};

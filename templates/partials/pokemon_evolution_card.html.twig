@@ -2,27 +2,21 @@
     <h2 class="card-title"><i class="fa-solid fa-dna"></i> Linha Evolutiva</h2>
     
     {% if evolutionChain is empty %}
-        <p class="no-drops-text">Este Pokémon não possui evolução cadastrada.</p>
+        <p class="no-drops-text" style="color: var(--text-secondary); font-style: italic; font-size: 0.95rem; margin: 10px 0;">Este Pokémon não possui evolução cadastrada.</p>
     {% else %}
-        <div class="evolution-chain-container" 
-            style="display: flex; flex-direction: column; align-items: center; gap: 15px;"
-        >
+        <div class="evolution-chain-container">
             {% for evo in evolutionChain %}
-                <div class="evolution-node-wrapper" 
-                    style="display: flex; flex-direction: column; align-items: center; width: 100%;"
-                >
+
+                <div class="evolution-node-wrapper">
                     
                     <a href="{{ path('app_pokemon_detail', { name: evo.name }) }}" 
                         class="evolution-node {% if evo.name == pokemon.name %}active{% endif %}" 
-                        style="width: 100%; justify-content: center;"
                     >
-
                         <img src="{{ evo.sprite }}" alt="{{ evo.name|capitalize }}" class="evolution-sprite">
 
-                        <div class="evolution-details" style="text-align: center;">
-
+                        <div class="evolution-details">
                             <span class="evolution-id">#{{ "%04d"|format(evo.id) }}</span>
-                            <span class="evolution-name" style="display: block;">{{ evo.name|capitalize }}</span>
+                            <span class="evolution-name" style="display: block; font-family: 'Outfit', sans-serif;">{{ evo.name|capitalize }}</span>
 
                             <div class="evolution-types">
                                 {% if evo.types is defined %}
@@ -36,20 +30,18 @@
                     </a>
                     
                     {% if not loop.last %}
-                        <div class="evolution-arrow" 
-                            style="display: flex; flex-direction: column; align-items: center; margin: 10px 0;"
-                        >
-                            <span class="evolution-method" 
-                                style="font-size: 0.8em; color: #888;"
-                            >
+                        <div class="evolution-arrow">
+                            <span class="evolution-method">
                                 {{ evo.evolution_method|default('Nível/Stone') }}
                             </span>
-                            <i class="fa-solid fa-chevron-down mt-1"></i>
+                            <i class="fa-solid fa-chevron-right"></i>
                         </div>
                     {% endif %}
                     
                 </div>
             {% endfor %}
+
         </div>
     {% endif %}
+    
 </div>

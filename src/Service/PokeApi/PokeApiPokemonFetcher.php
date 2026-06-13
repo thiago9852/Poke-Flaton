@@ -599,6 +599,48 @@ class PokeApiPokemonFetcher
     }
 
     /**
+     * Obter encontros oficiais de um Pokémon na PokeAPI
+     */
+    public function getPokemonEncounters(string $pokemonName): array
+    {
+        return $this->cache->get('pokemon_encounters_' . strtolower($pokemonName), function (ItemInterface $item) use ($pokemonName) {
+            $item->expiresAfter(86400 * 7); // Cache por 7 dias
+            try {
+                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon/' . strtolower($pokemonName) . '/encounters');
+                $data = $response->toArray();
+
+                $encounters = [];
+                foreach ($data as $itemEnc) {
+                    $areaName = $itemEnc['location_area']['name'];
+                    // Formatar nome da area: canalave-city-area -> Canalave City Area
+                    $formattedArea = str_replace('-', ' ', $areaName);
+                    $formattedArea = ucwords($formattedArea);
+
+                    // Coletar games/versões
+                    $versions = [];
+                    foreach ($itemEnc['version_details'] as $vd) {
+                        $versions[] = ucwords(str_replace('-', ' ', $vd['version']['name']));
+                    }
+
+                    $encounters[] = [
+                        'area' => $formattedArea,
+                        'versions' => implode(', ', $versions),
+                    ];
+                }
+                
+                // Sortear por nome da area
+                usort($encounters, function($a, $b) {
+                    return strcmp($a['area'], $b['area']);
+                });
+
+                return $encounters;
+            } catch (\Exception $e) {
+                return [];
+            }
+        });
+    }
+
+    /**
      * Percorre recursivamente a cadeia evolutiva para obter informações do pokemon alvo.
      */
     private function traverseChain(array $node, string $target, int $depth, int &$stage, bool &$hasEvolvesTo, int &$chainDepth): void

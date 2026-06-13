@@ -116,4 +116,9 @@ class PokeApiService
     {
         return $this->detailsFetcher->getItems();
     }
+
+    public function getPokemonEncounters(string $pokemonName): array
+    {
+        return $this->pokemonFetcher->getPokemonEncounters($pokemonName);
+    }
 }

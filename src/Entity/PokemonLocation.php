@@ -19,6 +19,9 @@ class PokemonLocation
     #[ORM\Column(length: 150)]
     private ?string $locationName = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isApproved = false;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -62,6 +65,17 @@ class PokemonLocation
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->isApproved;
+    }
+
+    public function setIsApproved(bool $isApproved): static
+    {
+        $this->isApproved = $isApproved;
         return $this;
     }
 }

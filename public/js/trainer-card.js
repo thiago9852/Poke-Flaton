@@ -249,3 +249,33 @@ window.removeMedalFromSlot = async function () {
         if (data.success) { closeMedalPickerModal(); location.reload(); } else alert(data.error || 'Erro ao remover medalha.');
     } catch (e) { console.error(e); alert('Erro de conexão ao remover medalha.'); }
 };
+
+window.openTemplateModal = () => document.getElementById('template-modal').classList.add('active');
+window.closeTemplateModal = () => document.getElementById('template-modal').classList.remove('active');
+
+window.updateTemplateSelection = async function (templateImage) {
+    const formData = new FormData();
+    formData.append('template', templateImage);
+    try {
+        const response = await fetch(getTcUrl('urlTemplateUpdate'), { method: 'POST', body: formData });
+        const data = await response.json();
+        if (data.success) {
+            closeTemplateModal();
+            location.reload();
+        } else {
+            alert(data.error || 'Erro ao atualizar plano de fundo.');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Erro de conexão ao atualizar plano de fundo.');
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const templateModal = document.getElementById('template-modal');
+    if (templateModal) {
+        templateModal.addEventListener('click', function (e) {
+            if (e.target === this) closeTemplateModal();
+        });
+    }
+});

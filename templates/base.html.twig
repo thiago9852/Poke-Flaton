@@ -1,179 +1,137 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}PokeFlaton | Os Melhores Movesets de Pokémon{% endblock %}</title>
-        <link rel="icon" href="{{ asset('image/Pokeball.png') }}">
-        
-        <!-- Google Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
-        
-        <!-- FontAwesome for Icons -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>
+			{% block title %}PokeFlaton | Os Melhores Movesets de Pokémon
+			{% endblock %}
+		</title>
+		<link
+		rel="icon" href="{{ asset('image/Pokeball.png') }}">
 
-        {% block stylesheets %}
-            <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-            <link rel="stylesheet" href="{{ asset('css/base.css') }}">
-        {% endblock %}
+		<!-- Google Fonts -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link
+		href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
+		<!-- FontAwesome for Icons -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    </head>
-    <body>
+		{% block stylesheets %}
+			<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+			<link rel="stylesheet" href="{{ asset('css/base.css') }}">
+		{% endblock %}
 
-        <header class="app-header">
-            <div class="container header-container">
+		{% block javascripts %}
+			{% block importmap %}
+				{{ importmap('app') }}
+			{% endblock %}
+		{% endblock %}
 
-                <a href="{{ path('app_home') }}" class="app-logo">
-                    <img src="{{ asset('image/PokeFlaton-pokeball.png') }}" alt="PokeFlaton" class="logo-img">
-                </a>
-                
-                <nav class="app-nav">
-                    <a href="{{ path('app_home') }}" class="nav-link"> Início</a>
-                    <a href="{{ path('app_pokemon_index') }}" class="nav-link"> Moveset</a>
-                    <a href="{{ path('app_trainer_ranking') }}" class="nav-link"> Trainers</a>
-                    
-                    {% if app.user %}
-                        <div class="nav-user-dropdown" id="userDropdown">
-                            
-                            <button class="nav-link nav-user-btn" id="userDropdownBtn" aria-expanded="false" aria-haspopup="true">
-                                <img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ app.user.avatar }}" 
-                                    alt="Avatar" 
-                                    class="nav-user-avatar">
-                                <span>{{ app.user.username }}</span>
-                                <i class="fa-solid fa-chevron-down nav-dropdown-caret"></i>
-                            </button>
+	</head>
+	<body>
 
-                            <ul class="nav-dropdown-menu" role="menu">
-                                <li role="menuitem"><a href="{{ path('app_trainer_card') }}" class="nav-dropdown-item"> Trainer Card</a></li>
-                                <li class="nav-dropdown-divider" role="separator"></li>
+		<header class="app-header">
+			<div class="container header-container">
 
-                                {% if is_granted('ROLE_ADMIN') %}
-                                    <li role="menuitem"><a href="{{ path('app_admin') }}" class="nav-dropdown-item"> Admin</a></li>
-                                    <li class="nav-dropdown-divider" role="separator"></li>
-                                {% endif %}
+				<a href="{{ path('app_home') }}" class="app-logo">
+					<img src="{{ asset('image/PokeFlaton-pokeball.png') }}" alt="PokeFlaton" class="logo-img">
+				</a>
 
-                                <li role="menuitem"><a href="{{ path('app_logout') }}" class="nav-dropdown-item nav-dropdown-item--danger"><i class="fa-solid fa-right-from-bracket"></i> Sair</a></li>
-                            </ul>
+				<nav class="app-nav">
+					<a href="{{ path('app_home') }}" class="nav-link">
+						Início</a>
+					<a href="{{ path('app_pokemon_index') }}" class="nav-link">
+						Moveset</a>
+					<a href="{{ path('app_trainer_ranking') }}" class="nav-link">
+						Trainers</a>
 
-                        </div>
-                    {% else %}
-                        <a href="{{ path('app_login') }}" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> Entrar</a>
-                    {% endif %}
+					{% if app.user %}
+						<div class="nav-user-dropdown" id="userDropdown">
 
-                </nav>
-            </div>
-        </header>
+							<button class="nav-link nav-user-btn" id="userDropdownBtn" aria-expanded="false" aria-haspopup="true">
+								<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ app.user.avatar }}" alt="Avatar" class="nav-user-avatar">
+								<span>{{ app.user.username }}</span>
+								<i class="fa-solid fa-chevron-down nav-dropdown-caret"></i>
+							</button>
 
-        <main class="app-main">
-            <div class="container">
+							<ul class="nav-dropdown-menu" role="menu">
+								<li role="menuitem">
+									<a href="{{ path('app_trainer_card') }}" class="nav-dropdown-item">
+										Trainer Card</a>
+								</li>
+								<li class="nav-dropdown-divider" role="separator"></li>
 
-                {% for label, messages in app.flashes %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ label }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endfor %}
+								{% if is_granted('ROLE_ADMIN') %}
+									<li role="menuitem">
+										<a href="{{ path('app_admin') }}" class="nav-dropdown-item">
+											Admin</a>
+									</li>
+									<li class="nav-dropdown-divider" role="separator"></li>
+								{% endif %}
 
-                {% block body %}{% endblock %}
+								<li role="menuitem">
+									<a href="{{ path('app_logout') }}" class="nav-dropdown-item nav-dropdown-item--danger">
+										<i class="fa-solid fa-right-from-bracket"></i>
+										Sair</a>
+								</li>
+							</ul>
 
-            </div>
-        </main>
+						</div>
+					{% else %}
+						<a href="{{ path('app_login') }}" class="nav-link">
+							<i class="fa-solid fa-right-to-bracket"></i>
+							Entrar</a>
+					{% endif %}
 
-        <footer class="app-footer">
-            <div class="footer-logo">
-                <img src="{{ asset('image/PokeFlaton-logo.png') }}" alt="PokeFlaton">
-            </div>
-            <div class="container footer-container">
-                <p>&copy; {{ 'now'|date('Y') }} PokeFlaton. Desenvolvido para entusiastas de Pokémon.</p>
-                <p class="api-attribution">Dados fornecidos por <a href="https://pokeapi.co/" target="_blank">PokeAPI</a> e Sprites por <a href="https://github.com/PokeAPI/sprites" target="_blank">PokeAPI/sprites</a>.</p>
-            </div>
-        </footer>
+					<span class="color: #fff;"><i class="fa-solid fa-bell"></i></span>
+				</nav>
+			</div>
+		</header>
 
-        <script src="{{ asset('js/tabs.js') }}"></script>
-        <script>
-            (function() {
-                var dropdown = document.getElementById('userDropdown');
-                var btn = document.getElementById('userDropdownBtn');
-                if (!dropdown || !btn) return;
+		<main class="app-main">
+			<div class="container">
 
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    var isOpen = dropdown.classList.toggle('open');
-                    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-                });
+				{% for label, messages in app.flashes %}
+					{% for message in messages %}
+						<div class="alert alert-{{ label }}">
+							{{ message }}
+						</div>
+					{% endfor %}
+				{% endfor %}
 
-                document.addEventListener('click', function() {
-                    dropdown.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                });
+				{% block body %}{% endblock %}
 
-                dropdown.querySelector('.nav-dropdown-menu').addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
-            })();
+			</div>
+		</main>
 
-            // Global loading
-            window.Loader = {
-                show: function() {
-                    var loader = document.getElementById('global-loader');
-                    if (loader) {
-                        loader.classList.add('active');
-                    }
-                },
-                hide: function() {
-                    var loader = document.getElementById('global-loader');
-                    if (loader) {
-                        loader.classList.remove('active');
-                    }
-                }
-            };
+		<footer class="app-footer">
+			<div class="footer-logo">
+				<img src="{{ asset('image/PokeFlaton-logo.png') }}" alt="PokeFlaton">
+			</div>
+			<div class="container footer-container">
+				<p>&copy;
+					{{ 'now'|date('Y') }}
+					PokeFlaton. Desenvolvido para entusiastas de Pokémon.</p>
+				<p class="api-attribution">Dados fornecidos por
+					<a href="https://pokeapi.co/" target="_blank">PokeAPI</a>
+					e Sprites por
+					<a href="https://github.com/PokeAPI/sprites" target="_blank">PokeAPI/sprites</a>.</p>
+			</div>
+		</footer>
 
-            // auto-trigger loader em paginas
-            document.addEventListener('click', function(e) {
-                var target = e.target.closest('a');
-                if (!target) return;
-                
-                var href = target.getAttribute('href');
-                var targetAttr = target.getAttribute('target');
-                if (targetAttr && targetAttr !== '_self') return;
-                if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
-                
-                try {
-                    var url = new URL(target.href, window.location.href);
-                    if (url.origin !== window.location.origin) return;
-                } catch(err) {
-                    return;
-                }
-                
-                if (target.hasAttribute('download') || target.classList.contains('no-loader')) return;
-                
-                window.Loader.show();
-            });
+		<script src="{{ asset('js/tabs.js') }}"></script>
+		<script src="{{ asset('js/global-loading.js') }}"></script>
 
-            // Auto-trigger loader em form que não for AJAX
-            document.addEventListener('submit', function(e) {
-                var form = e.target;
-                if (form.getAttribute('data-ajax') === 'true' || form.classList.contains('ajax-form')) {
-                    return;
-                }
-                window.Loader.show();
-            });
-        </script>
+		<!-- Global Loading Overlay -->
+		<div id="global-loader" class="global-loader-overlay">
+			<div class="global-loader-content">
+				<img src="{{ asset('image/Pokeball.png') }}" alt="Carregando..." class="global-loader-pokeball">
+				<div class="global-loader-text">Carregando...</div>
+			</div>
+		</div>
 
-        <!-- Global Loading Overlay -->
-        <div id="global-loader" class="global-loader-overlay">
-            <div class="global-loader-content">
-                <img src="{{ asset('image/Pokeball.png') }}" alt="Carregando..." class="global-loader-pokeball">
-                <div class="global-loader-text">Carregando...</div>
-            </div>
-        </div>
-
-    </body>
+	</body>
 </html>

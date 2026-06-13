@@ -88,13 +88,30 @@ class TrainerCardController extends AbstractController
             }
         }
 
+        $templateStatuses = $this->trainerProfileService->getTemplatesUnlockStatus($user, [
+            $data['activityMedals'],
+            $data['catchMedals'],
+            $data['regionalMedals'],
+            $data['typeMedals']
+        ]);
+
+        $selectedTemplateUrl = null;
+        foreach ($templateStatuses as $ts) {
+            if ($ts['isSelected']) {
+                $selectedTemplateUrl = $ts['imageUrl'];
+                break;
+            }
+        }
+
         return $this->render('trainer_card/index.html.twig', [
             'user' => $user,
             'avatarStatuses' => $avatarStatuses,
             'titleStatuses' => $titleStatuses,
+            'templateStatuses' => $templateStatuses,
             'selectedTitle' => $selectedTitle,
             'selectedTitleRequirement' => $selectedTitleRequirement,
             'selectedRibbon' => $selectedRibbon,
+            'selectedTemplateUrl' => $selectedTemplateUrl,
             'tms' => $tms,
             'activityMedals' => $data['activityMedals'],
             'catchMedals' => $data['catchMedals'],
@@ -482,6 +499,13 @@ class TrainerCardController extends AbstractController
         // Obter dados unificados de perfil e conquistas
         $data = $this->trainerProfileService->getTrainerProfileData($targetUser);
 
+        // Obter lista de TMs mapeadas
+        $tmsJsonPath = $this->projectDir . '/scratch/tms.json';
+        $tms = [];
+        if (file_exists($tmsJsonPath)) {
+            $tms = json_decode(file_get_contents($tmsJsonPath), true) ?? [];
+        }
+
         $titleStatuses = $this->trainerProfileService->getTitlesUnlockStatus($targetUser, [
             $data['activityMedals'],
             $data['catchMedals'],
@@ -501,11 +525,28 @@ class TrainerCardController extends AbstractController
             }
         }
 
+        $templateStatuses = $this->trainerProfileService->getTemplatesUnlockStatus($targetUser, [
+            $data['activityMedals'],
+            $data['catchMedals'],
+            $data['regionalMedals'],
+            $data['typeMedals']
+        ]);
+
+        $selectedTemplateUrl = null;
+        foreach ($templateStatuses as $ts) {
+            if ($ts['isSelected']) {
+                $selectedTemplateUrl = $ts['imageUrl'];
+                break;
+            }
+        }
+
         return $this->render('trainer_card/public.html.twig', [
             'targetUser' => $targetUser,
             'selectedTitle' => $selectedTitle,
             'selectedTitleRequirement' => $selectedTitleRequirement,
             'selectedRibbon' => $selectedRibbon,
+            'selectedTemplateUrl' => $selectedTemplateUrl,
+            'tms' => $tms,
             'activityMedals' => $data['activityMedals'],
             'catchMedals' => $data['catchMedals'],
             'regionalMedals' => $data['regionalMedals'],
@@ -572,6 +613,60 @@ class TrainerCardController extends AbstractController
             'success' => true,
             'title' => $title,
             'ribbonUrl' => $ribbonUrl
+        ]);
+    }
+
+    #[Route('/template/update', name: 'app_trainer_card_template_update', methods: ['POST'])]
+    public function updateTemplate(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'Acesso negado.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $templateImage = $request->request->get('template');
+        if (empty($templateImage)) {
+            $user->setCardTemplate(null);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+            return new JsonResponse(['success' => true, 'imageUrl' => null]);
+        }
+
+        $data = $this->trainerProfileService->getTrainerProfileData($user);
+        $templateStatuses = $this->trainerProfileService->getTemplatesUnlockStatus($user, [
+            $data['activityMedals'],
+            $data['catchMedals'],
+            $data['regionalMedals'],
+            $data['typeMedals']
+        ]);
+
+        $validTemplate = false;
+        $imageUrl = null;
+        foreach ($templateStatuses as $status) {
+            if ($status['image'] === $templateImage) {
+                if ($status['isLocked']) {
+                    return new JsonResponse([
+                        'error' => 'Este plano de fundo está bloqueado! Requisito: ' . $status['requirement']
+                    ], Response::HTTP_BAD_REQUEST);
+                }
+                $validTemplate = true;
+                $imageUrl = $status['imageUrl'];
+                break;
+            }
+        }
+
+        if (!$validTemplate) {
+            return new JsonResponse(['error' => 'Plano de fundo inválido.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user->setCardTemplate($templateImage);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'imageUrl' => $imageUrl
         ]);
     }
 }

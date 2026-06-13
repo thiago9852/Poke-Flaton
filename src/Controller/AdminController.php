@@ -3,9 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Title;
+use App\Entity\CardTemplate;
+use App\Form\CardTemplateType;
 use App\Repository\UserRepository;
 use App\Repository\TitleRepository;
+use App\Repository\CardTemplateRepository;
 use App\Service\TrainerProfileService;
+use App\Service\PokeApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -13,27 +17,34 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class AdminController extends AbstractController
 {
     private string $projectDir;
     private UserRepository $userRepository;
     private TitleRepository $titleRepository;
+    private CardTemplateRepository $cardTemplateRepository;
     private EntityManagerInterface $entityManager;
     private TrainerProfileService $trainerProfileService;
+    private PokeApiService $pokeApiService;
 
     public function __construct(
         #[Autowire('%kernel.project_dir%')] string $projectDir,
         UserRepository $userRepository,
         TitleRepository $titleRepository,
+        CardTemplateRepository $cardTemplateRepository,
         EntityManagerInterface $entityManager,
-        TrainerProfileService $trainerProfileService
+        TrainerProfileService $trainerProfileService,
+        PokeApiService $pokeApiService
     ) {
         $this->projectDir     = $projectDir;
         $this->userRepository = $userRepository;
         $this->titleRepository = $titleRepository;
+        $this->cardTemplateRepository = $cardTemplateRepository;
         $this->entityManager = $entityManager;
         $this->trainerProfileService = $trainerProfileService;
+        $this->pokeApiService = $pokeApiService;
     }
 
 
@@ -54,13 +65,14 @@ class AdminController extends AbstractController
     }
 
     #[Route('/admin', name: 'app_admin', methods: ['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        // Garante a tabela de títulos
+        // Garante a tabela de títulos e templates
         $this->trainerProfileService->initializeDatabaseAndTitles();
-
+        $this->trainerProfileService->initializeDatabaseAndCardTemplates();
+ 
         $config                = $this->loadConfig();
         $enabledMedals         = $config['enabled_medals'] ?? [];
         $enabledVivillonPats   = $config['enabled_vivillon_patterns'] ?? [];
@@ -69,12 +81,42 @@ class AdminController extends AbstractController
         $baseUrl               = 'https://raw.githubusercontent.com/KovuTheHusky/pokemon-medals/main/';
         $totalUsers            = count($this->userRepository->findAll());
         $titles                = $this->titleRepository->findAll();
-
+        $templates             = $this->cardTemplateRepository->findAll();
+ 
         $newTitle = new Title();
         $form = $this->createForm(\App\Form\TitleType::class, $newTitle, [
             'action' => $this->generateUrl('app_admin_title_add')
         ]);
 
+        $newTemplate = new CardTemplate();
+        $templateForm = $this->createForm(\App\Form\CardTemplateType::class, $newTemplate, [
+            'action' => $this->generateUrl('app_admin_card_template_add')
+        ]);
+ 
+        $pendingLocations = $this->entityManager->getRepository(\App\Entity\PokemonLocation::class)->findBy(
+            ['isApproved' => false],
+            ['createdAt' => 'DESC']
+        );
+ 
+        $activeTab = $request->query->get('tab', 'users');
+        $pokemonSearch = trim($request->query->get('pokemon', ''));
+        $gameEncounters = [];
+ 
+        if ($activeTab === 'games' && !empty($pokemonSearch)) {
+            try {
+                $gameEncounters = $this->pokeApiService->getPokemonEncounters($pokemonSearch);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erro ao buscar encontros oficiais para "' . $pokemonSearch . '".');
+            }
+        }
+ 
+        $pokemonList = [];
+        try {
+            $pokemonList = $this->pokeApiService->getPokemonBasicList();
+        } catch (\Exception $e) {
+            // ignore
+        }
+ 
         return $this->render('admin/index.html.twig', [
             'medalDefs'           => $medalDefs,
             'enabledMedals'       => $enabledMedals,
@@ -84,6 +126,13 @@ class AdminController extends AbstractController
             'totalUsers'          => $totalUsers,
             'titles'              => $titles,
             'titleForm'           => $form->createView(),
+            'templates'           => $templates,
+            'templateForm'        => $templateForm->createView(),
+            'pendingLocations'    => $pendingLocations,
+            'activeTab'           => $activeTab,
+            'pokemonSearch'       => $pokemonSearch,
+            'gameEncounters'      => $gameEncounters,
+            'pokemonList'         => $pokemonList,
         ]);
     }
 
@@ -94,7 +143,7 @@ class AdminController extends AbstractController
 
         $medal   = $request->request->get('medal', '');
         $enabled = $request->request->get('enabled', 'false') === 'true';
-        $type    = $request->request->get('type', 'medal'); // 'medal' ou 'vivillon'
+        $type    = $request->request->get('type', 'medal'); // 'medalha' ou 'vivillon'
 
         if (empty($medal)) {
             return new JsonResponse(['error' => 'Invalid medal'], 400);
@@ -194,6 +243,91 @@ class AdminController extends AbstractController
         $this->entityManager->flush();
 
         $this->addFlash('success', 'Título excluído com sucesso!');
+        return $this->redirectToRoute('app_admin');
+    }
+
+    #[Route('/admin/card-template/new', name: 'app_admin_card_template_add', methods: ['POST'])]
+    public function addCardTemplate(Request $request, SluggerInterface $slugger): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $template = new CardTemplate();
+        $form = $this->createForm(CardTemplateType::class, $template);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('imageFile')->getData();
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+
+                $uploadDir = $this->projectDir . '/public/uploads/templates';
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                try {
+                    $imageFile->move($uploadDir, $newFilename);
+                    $template->setImage($newFilename);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Erro ao salvar o arquivo de imagem.');
+                    return $this->redirectToRoute('app_admin');
+                }
+            } else {
+                $this->addFlash('error', 'É necessário enviar um arquivo PNG para o plano de fundo.');
+                return $this->redirectToRoute('app_admin');
+            }
+
+            if ($template->isDefault()) {
+                $defaults = $this->cardTemplateRepository->findBy(['isDefault' => true]);
+                foreach ($defaults as $d) {
+                    $d->setIsDefault(false);
+                    $this->entityManager->persist($d);
+                }
+            }
+
+            $this->entityManager->persist($template);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Plano de fundo criado com sucesso!');
+        } else {
+            foreach ($form->getErrors(true) as $error) {
+                $this->addFlash('error', $error->getMessage());
+            }
+            if ($form->getErrors(true)->count() === 0) {
+                $this->addFlash('error', 'Erro ao criar plano de fundo. Verifique os dados inseridos.');
+            }
+        }
+
+        return $this->redirectToRoute('app_admin');
+    }
+
+    #[Route('/admin/card-template/{id}/delete', name: 'app_admin_card_template_delete', methods: ['POST'])]
+    public function deleteCardTemplate(int $id): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $template = $this->cardTemplateRepository->find($id);
+        if (!$template) {
+            $this->addFlash('error', 'Plano de fundo não encontrado.');
+            return $this->redirectToRoute('app_admin');
+        }
+
+        if ($template->isDefault()) {
+            $this->addFlash('error', 'Você não pode excluir o plano de fundo padrão.');
+            return $this->redirectToRoute('app_admin');
+        }
+
+        $filePath = $this->projectDir . '/public/uploads/templates/' . $template->getImage();
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+
+        $this->entityManager->remove($template);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Plano de fundo excluído com sucesso!');
         return $this->redirectToRoute('app_admin');
     }
 }

@@ -64,7 +64,7 @@
 .auth-logo {
     height: 50px;
     margin-bottom: 15px;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
 .auth-title {
@@ -177,17 +177,6 @@ select.form-input option {
     cursor: pointer;
     transition: var(--transition-smooth);
     border: none;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, var(--color-primary), #6d28d9);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
 }
 
 .btn-secondary {
@@ -344,9 +333,7 @@ select.form-input option {
     font-weight: 700;
 }
 
-/* ==========================================================================
-   TRAINER CARD PAGE
-   ========================================================================== */
+/* Página do Cartão do Treinador */
 
 .trainer-card-page-wrapper {
     display: flex;
@@ -410,13 +397,18 @@ select.form-input option {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* ==========================================================================
-   FULL-WIDTH TRAINER PROFILE BANNER
-   ========================================================================== */
+/* Banner do perfil do treinador em largura total */
 
 .trainer-card-title {
     font-family: 'Outfit', sans-serif;
@@ -433,10 +425,9 @@ select.form-input option {
     width: 100%;
     background: linear-gradient(135deg, #1c1d27 0%, #13141c 50%, #1a1530 100%);
     border: 1px solid var(--border-color);
-    border-bottom-left-radius: var(--radius-md);
-    border-bottom-right-radius: var(--radius-md);
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.03);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .banner-glow {
@@ -446,19 +437,9 @@ select.form-input option {
     width: 140%;
     height: 200%;
     background: radial-gradient(ellipse at 20% 30%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 60%, rgba(6, 182, 212, 0.06) 0%, transparent 50%);
+        radial-gradient(ellipse at 80% 60%, rgba(6, 182, 212, 0.06) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
-}
-
-.banner-accent-line {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, #ef4444 0%, #f59e0b 25%, var(--color-primary) 50%, var(--color-secondary) 75%, #10b981 100%);
-    z-index: 2;
 }
 
 .banner-content {
@@ -564,15 +545,16 @@ select.form-input option {
     font-family: monospace;
     font-size: 0.7rem;
     font-weight: 700;
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+    background: rgba(12, 13, 18, 0.75);
     padding: 3px 10px;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-color);
     letter-spacing: 1px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
 }
 
-/* Banner Info Section */
+/* Informações do Banner */
 .banner-info-section {
     display: flex;
     flex-direction: column;
@@ -595,14 +577,16 @@ select.form-input option {
     margin: 0;
     line-height: 1.2;
     letter-spacing: -0.5px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .banner-join-date {
     font-size: 0.8rem;
-    color: var(--text-muted);
+    color: #ffffff;
     display: flex;
     align-items: center;
     gap: 6px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 2px 5px rgba(0, 0, 0, 0.9);
 }
 
 .banner-join-date i {
@@ -610,17 +594,18 @@ select.form-input option {
     font-size: 0.7rem;
 }
 
-/* Achievement Title */
+/* Título da conquista */
 .banner-achievement-title {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.03));
-    border: 1px solid rgba(245, 158, 11, 0.15);
+    background: rgba(12, 13, 18, 0.75);
+    border: 1px solid rgba(245, 158, 11, 0.35);
     border-radius: 20px;
     padding: 5px 14px;
     width: fit-content;
     position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .banner-achievement-title i {
@@ -633,6 +618,7 @@ select.form-input option {
     font-weight: 700;
     color: #fbbf24;
     letter-spacing: 0.3px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .achievement-coming-soon {
@@ -648,7 +634,8 @@ select.form-input option {
     display: flex;
     align-items: center;
     gap: 0;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(12, 13, 18, 0.65);
+    backdrop-filter: blur(8px);
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-color);
     padding: 12px 8px;
@@ -670,17 +657,19 @@ select.form-input option {
     font-weight: 800;
     color: var(--text-primary);
     line-height: 1;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .banner-stat-label {
     font-size: 0.65rem;
     font-weight: 700;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.85);
     letter-spacing: 0.3px;
     display: flex;
     align-items: center;
     gap: 4px;
     white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
 }
 
 .banner-stat-label i {
@@ -695,7 +684,7 @@ select.form-input option {
     flex-shrink: 0;
 }
 
-/* Banner Actions */
+/* Botões de ação do banner */
 .banner-actions-section {
     display: flex;
     flex-direction: column;
@@ -737,7 +726,7 @@ select.form-input option {
     font-size: 0.9rem;
 }
 
-/* Medal Showcase */
+/* Exibição de Medalhas */
 .banner-medal-showcase {
     display: flex;
     flex-direction: column;
@@ -749,12 +738,13 @@ select.form-input option {
 .showcase-title {
     font-size: 0.7rem;
     font-weight: 700;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.95);
     letter-spacing: 0.5px;
     text-transform: uppercase;
     display: flex;
     align-items: center;
     gap: 6px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .showcase-title i {
@@ -847,9 +837,9 @@ select.form-input option {
 }
 
 .showcase-medal-name {
-    font-size: 0.5rem;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: #ffffff;
     text-align: center;
     line-height: 1.1;
     max-width: 60px;
@@ -857,11 +847,10 @@ select.form-input option {
     text-overflow: ellipsis;
     white-space: nowrap;
     margin-top: 2px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
 }
 
-/* ==========================================================================
-   MEDAL PICKER MODAL
-   ========================================================================== */
+/* Modal de seleção de medalha */
 
 .medal-picker-overlay {
     position: fixed;
@@ -1133,9 +1122,7 @@ select.form-input option {
     }
 }
 
-/* ==========================================================================
-   PUBLIC PROFILE TRAINER CARD (old card style kept for public.html.twig)
-   ========================================================================== */
+/* Cartão do perfil público */
 
 .trainer-card-layout-public {
     display: flex;
@@ -1154,7 +1141,7 @@ select.form-input option {
     border: 3px solid #000;
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
     overflow: hidden;
 }
 
@@ -1274,14 +1261,14 @@ select.form-input option {
     position: relative;
     width: 130px;
     height: 160px;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0, 0, 0, 0.4);
     border: 2px solid var(--border-color);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .trainer-avatar-sprite {
@@ -1291,7 +1278,7 @@ select.form-input option {
     object-fit: contain;
 }
 
-/* Shared Footer Elements */
+/* Elementos do Footer */
 .footer-ball-icon {
     width: 12px;
     height: 12px;
@@ -1305,9 +1292,10 @@ select.form-input option {
     font-weight: 800;
     color: var(--color-secondary);
     letter-spacing: 2px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
-/* Public Profile Card Footer (reused from old card) */
+/* Footer do cartão público (reutilizado do cartão antigo) */
 .card-footer-strip {
     border-top: 2px solid var(--color-secondary);
     padding-top: 8px;
@@ -1316,9 +1304,7 @@ select.form-input option {
     gap: 10px;
 }
 
-/* ==========================================================================
-   MOCHILA DE TMS (CHECKLIST/GRID DE CASSETTES)
-   ========================================================================== */
+/* Mochila de TMs (Checklist/Grid de Cassetes) */
 
 .tms-container {
     padding: 25px;
@@ -1468,9 +1454,7 @@ select.form-input option {
     color: #fff;
 }
 
-/* ==========================================================================
-   CONQUISTAS E MEDALHAS (ESTILO POKÉMON GO)
-   ========================================================================== */
+/* Conquistas e Medalhas */
 
 .medals-layout-container {
     display: flex;
@@ -1478,16 +1462,18 @@ select.form-input option {
     gap: 25px;
 }
 
-.medals-category-title {margin-bottom: 15px;}
+.medals-category-title {
+    margin-bottom: 15px;
+}
 
 .medals-category-title i {
     font-size: 1em;
     background-color: gold;
     color: white;
-    border-radius: 25%;        
-    padding: 6px;     
+    border-radius: 25%;
+    padding: 6px;
     margin-right: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .medals-section-category p {
@@ -1532,7 +1518,7 @@ select.form-input option {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-/* Medal Badges */
+/* Wrapper da imagem da medalha */
 .medal-badge-wrapper {
     position: relative;
     width: 90px;
@@ -1565,7 +1551,7 @@ select.form-input option {
     border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* Real badge images from KovuTheHusky/pokemon-medals */
+/* Imagens reais das medalhas de KovuTheHusky/pokemon-medals */
 .medal-badge-img {
     width: 90px;
     height: 90px;
@@ -1578,17 +1564,17 @@ select.form-input option {
     transform: scale(1.08) rotate(-3deg);
 }
 
-/* Locked badge: grayscale + dimmed */
+/* Medalha bloqueada: grayscale + dimmed */
 .medal-badge-img.medal-badge-locked {
-    filter: grayscale(1) brightness(0.4) drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    filter: grayscale(1) brightness(0.4) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
 }
 
 .medal-card:hover .medal-badge-img.medal-badge-locked {
     transform: scale(1.02);
-    filter: grayscale(0.9) brightness(0.5) drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    filter: grayscale(0.9) brightness(0.5) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
 }
 
-/* Medal Info */
+/* Info da medalha */
 .medal-info {
     width: 100%;
 }
@@ -1656,7 +1642,7 @@ select.form-input option {
     color: var(--color-secondary);
 }
 
-/* Milestones Tiers */
+/* Marcos do Tier */
 .medal-milestones {
     display: flex;
     justify-content: space-between;
@@ -1689,49 +1675,55 @@ select.form-input option {
 
 /* CORES DOS TIERS DE MEDALHAS */
 
-/* Locked Medal (Cinza e Desativada) */
+/* Medalha bloqueada (Cinza e Desativada) */
 .medal-tier-locked .medal-badge {
     background: linear-gradient(135deg, #374151, #1f2937);
     border-color: #4b5563;
     color: #4b5563;
 }
+
 .medal-tier-locked .medal-progress-fill {
     background: #4b5563;
 }
+
 .medal-tier-locked .medal-title {
     color: var(--text-secondary);
     opacity: 0.8;
 }
 
-/* Bronze Medal */
+/* Medalha de Bronze */
 .medal-tier-bronze .medal-badge {
     background: linear-gradient(135deg, #b45309, #78350f);
     border-color: #d97706;
     color: #f59e0b;
     box-shadow: 0 8px 20px rgba(180, 83, 9, 0.3);
 }
+
 .medal-tier-bronze .medal-progress-fill {
     background: linear-gradient(90deg, #b45309, #d97706);
 }
+
 .medal-tier-bronze {
     border-color: rgba(180, 83, 9, 0.2);
 }
 
-/* Silver Medal */
+/* Medalha de Prata */
 .medal-tier-silver .medal-badge {
     background: linear-gradient(135deg, #6b7280, #374151);
     border-color: #9ca3af;
     color: #e5e7eb;
     box-shadow: 0 8px 20px rgba(107, 114, 128, 0.3);
 }
+
 .medal-tier-silver .medal-progress-fill {
     background: linear-gradient(90deg, #6b7280, #9ca3af);
 }
+
 .medal-tier-silver {
     border-color: rgba(156, 163, 175, 0.2);
 }
 
-/* Gold Medal */
+/* Medalha de Ouro */
 .medal-tier-gold .medal-badge {
     background: linear-gradient(135deg, #d97706, #7c2d12);
     border-color: #fbbf24;
@@ -1739,31 +1731,44 @@ select.form-input option {
     box-shadow: 0 8px 24px rgba(217, 119, 6, 0.4);
     animation: goldPulse 3s infinite alternate;
 }
+
 .medal-tier-gold .medal-progress-fill {
     background: linear-gradient(90deg, #d97706, #fbbf24);
 }
+
 .medal-tier-gold {
     border-color: rgba(251, 191, 36, 0.25);
     background: linear-gradient(to bottom, rgba(20, 21, 30, 0.7), rgba(251, 191, 36, 0.02));
 }
+
 .medal-tier-gold .medal-title {
     color: #fbbf24;
 }
 
 @keyframes goldPulse {
-    0% { box-shadow: 0 8px 24px rgba(217, 119, 6, 0.3); }
-    100% { box-shadow: 0 8px 32px rgba(251, 191, 36, 0.5); }
+    0% {
+        box-shadow: 0 8px 24px rgba(217, 119, 6, 0.3);
+    }
+
+    100% {
+        box-shadow: 0 8px 32px rgba(251, 191, 36, 0.5);
+    }
 }
 
-.tier-dot.bronze { background: #d97706; }
-.tier-dot.silver { background: #9ca3af; }
-.tier-dot.gold { background: #fbbf24; }
+.tier-dot.bronze {
+    background: #d97706;
+}
+
+.tier-dot.silver {
+    background: #9ca3af;
+}
+
+.tier-dot.gold {
+    background: #fbbf24;
+}
 
 
-/* ==========================================================================
-   MODAL DE SELEÇÃO DE AVATAR (NO PROFILE)
-   ========================================================================= */
-
+/* Modal de Seleção de Avatar (no Perfil) */
 .avatar-modal-overlay {
     position: fixed;
     top: 0;
@@ -1891,7 +1896,7 @@ select.form-input option {
     font-weight: 700;
 }
 
-/* Locked moves in move creator */
+/* Moves bloqueados na criação de moves */
 .available-move-card.move-locked {
     opacity: 0.5;
     cursor: not-allowed;
@@ -1969,14 +1974,14 @@ select.form-input option {
     position: relative;
     width: 130px;
     height: 160px;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0, 0, 0, 0.4);
     border: 2px solid var(--border-color);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .public-profile-stats-card {
@@ -2042,14 +2047,15 @@ select.form-input option {
 /* Medalhas de Tipo Específicas */
 .medal-type-card .medal-badge {
     background: var(--type-bg-gradient, linear-gradient(135deg, #374151, #1f2937)) !important;
-    border-color: #4b5563; /* Default border */
+    border-color: #4b5563;
+    /* Borda padrão */
 }
 
-/* Override borders/shadows based on tier for type cards, but preserve background! */
 .medal-type-card.medal-tier-locked .medal-badge {
     border-color: #4b5563 !important;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4) !important;
-    filter: grayscale(1); /* Grayscale when locked */
+    filter: grayscale(1);
+    /* Grayscale bloqueado */
 }
 
 .medal-type-card.medal-tier-bronze .medal-badge {
@@ -2072,27 +2078,83 @@ select.form-input option {
 }
 
 /* Mapeamento de gradientes de tipos para os fundos de medalha */
-.type-color-badge-normal { --type-bg-gradient: linear-gradient(135deg, #a8a29e, #78716c); }
-.type-color-badge-fire { --type-bg-gradient: linear-gradient(135deg, #f97316, #ef4444); }
-.type-color-badge-water { --type-bg-gradient: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-.type-color-badge-grass { --type-bg-gradient: linear-gradient(135deg, #22c55e, #15803d); }
-.type-color-badge-electric { --type-bg-gradient: linear-gradient(135deg, #eab308, #b45309); }
-.type-color-badge-ice { --type-bg-gradient: linear-gradient(135deg, #06b6d4, #0891b2); }
-.type-color-badge-fighting { --type-bg-gradient: linear-gradient(135deg, #b91c1c, #7f1d1d); }
-.type-color-badge-poison { --type-bg-gradient: linear-gradient(135deg, #a855f7, #6b21a8); }
-.type-color-badge-ground { --type-bg-gradient: linear-gradient(135deg, #d97706, #78350f); }
-.type-color-badge-flying { --type-bg-gradient: linear-gradient(135deg, #818cf8, #4f46e5); }
-.type-color-badge-psychic { --type-bg-gradient: linear-gradient(135deg, #f472b6, #db2777); }
-.type-color-badge-bug { --type-bg-gradient: linear-gradient(135deg, #a3e635, #4d7c0f); }
-.type-color-badge-rock { --type-bg-gradient: linear-gradient(135deg, #78350f, #451a03); }
-.type-color-badge-ghost { --type-bg-gradient: linear-gradient(135deg, #6366f1, #312e81); }
-.type-color-badge-dragon { --type-bg-gradient: linear-gradient(135deg, #7c3aed, #4338ca); }
-.type-color-badge-steel { --type-bg-gradient: linear-gradient(135deg, #6b7280, #374151); }
-.type-color-badge-dark { --type-bg-gradient: linear-gradient(135deg, #374151, #111827); }
-.type-color-badge-fairy { --type-bg-gradient: linear-gradient(135deg, #f472b6, #ec4899); }
-.type-color-badge-stellar { --type-bg-gradient: linear-gradient(135deg, #a21caf, #4a044e); }
+.type-color-badge-normal {
+    --type-bg-gradient: linear-gradient(135deg, #a8a29e, #78716c);
+}
 
-/* Vivillon Patterns Grid & Cards */
+.type-color-badge-fire {
+    --type-bg-gradient: linear-gradient(135deg, #f97316, #ef4444);
+}
+
+.type-color-badge-water {
+    --type-bg-gradient: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.type-color-badge-grass {
+    --type-bg-gradient: linear-gradient(135deg, #22c55e, #15803d);
+}
+
+.type-color-badge-electric {
+    --type-bg-gradient: linear-gradient(135deg, #eab308, #b45309);
+}
+
+.type-color-badge-ice {
+    --type-bg-gradient: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+.type-color-badge-fighting {
+    --type-bg-gradient: linear-gradient(135deg, #b91c1c, #7f1d1d);
+}
+
+.type-color-badge-poison {
+    --type-bg-gradient: linear-gradient(135deg, #a855f7, #6b21a8);
+}
+
+.type-color-badge-ground {
+    --type-bg-gradient: linear-gradient(135deg, #d97706, #78350f);
+}
+
+.type-color-badge-flying {
+    --type-bg-gradient: linear-gradient(135deg, #818cf8, #4f46e5);
+}
+
+.type-color-badge-psychic {
+    --type-bg-gradient: linear-gradient(135deg, #f472b6, #db2777);
+}
+
+.type-color-badge-bug {
+    --type-bg-gradient: linear-gradient(135deg, #a3e635, #4d7c0f);
+}
+
+.type-color-badge-rock {
+    --type-bg-gradient: linear-gradient(135deg, #78350f, #451a03);
+}
+
+.type-color-badge-ghost {
+    --type-bg-gradient: linear-gradient(135deg, #6366f1, #312e81);
+}
+
+.type-color-badge-dragon {
+    --type-bg-gradient: linear-gradient(135deg, #7c3aed, #4338ca);
+}
+
+.type-color-badge-steel {
+    --type-bg-gradient: linear-gradient(135deg, #6b7280, #374151);
+}
+
+.type-color-badge-dark {
+    --type-bg-gradient: linear-gradient(135deg, #374151, #111827);
+}
+
+.type-color-badge-fairy {
+    --type-bg-gradient: linear-gradient(135deg, #f472b6, #ec4899);
+}
+
+.type-color-badge-stellar {
+    --type-bg-gradient: linear-gradient(135deg, #a21caf, #4a044e);
+}
+
+/* Padrões de Vivillon */
 .vivillon-patterns-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -2120,7 +2182,7 @@ select.form-input option {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
-/* Unlocked Vivillon styling: green glow/border */
+/* ---- Padrão Vivillon desbloqueado ---- */
 .vivillon-pattern-card.vivillon-unlocked {
     border-color: rgba(16, 185, 129, 0.45);
     background: linear-gradient(to bottom, rgba(16, 185, 129, 0.04), rgba(16, 185, 129, 0.01));
@@ -2132,12 +2194,11 @@ select.form-input option {
     box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
 }
 
-/* Locked Vivillon styling: slightly dimmed */
+/* ---- Padrão Vivillon bloqueado ---- */
 .vivillon-pattern-card.vivillon-locked {
     opacity: 0.85;
 }
 
-/* Admin locked Vivillon styling: more dimmed, grayscale, lock icon overlay */
 .vivillon-pattern-card.vivillon-admin-locked {
     opacity: 0.55;
     background: rgba(0, 0, 0, 0.2);
@@ -2150,7 +2211,7 @@ select.form-input option {
     box-shadow: none;
 }
 
-/* Sprite Wrapper & Overlay */
+/* Wrapper e overlay do sprite */
 .vivillon-sprite-wrapper {
     position: relative;
     width: 64px;
@@ -2174,7 +2235,7 @@ select.form-input option {
 }
 
 .vivillon-admin-locked .vivillon-sprite {
-    filter: grayscale(1) brightness(0.4) drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    filter: grayscale(1) brightness(0.4) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
 }
 
 .vivillon-overlay {
@@ -2199,7 +2260,7 @@ select.form-input option {
 }
 
 .vivillon-overlay i {
-    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 .vivillon-admin-locked .vivillon-overlay {
@@ -2207,7 +2268,7 @@ select.form-input option {
     font-size: 1.2rem;
 }
 
-/* Info & Status Text */
+/* Informações e Status */
 .vivillon-pattern-info {
     display: flex;
     flex-direction: column;
@@ -2246,9 +2307,7 @@ select.form-input option {
     color: #ef4444;
 }
 
-/* ==========================================================================
-   POKEDÉX CAUGHT GRID & CARDS
-   ========================================================================== */
+/* ---- PokéDex catch grid & cards ---- */
 
 .pokedex-caught-grid {
     display: grid;
@@ -2355,9 +2414,7 @@ select.form-input option {
 }
 
 
-/* ==========================================================================
-   ADMIN LOCKED MEDALS
-   ========================================================================== */
+/* ---- Medalhas bloqueadas pelo administrador ---- */
 
 .medal-card.medal-admin-locked {
     opacity: 0.55;
@@ -2392,9 +2449,7 @@ select.form-input option {
     letter-spacing: 1px;
 }
 
-/* ==========================================================================
-   MEUS MOVESETS CRIADOS
-   ========================================================================== */
+/* ---- Meus Movesets Criados ---- */
 
 .movesets-list {
     padding: 30px;
@@ -2568,9 +2623,7 @@ select.form-input option {
     border: 1px solid var(--border-color);
 }
 
-/* ==========================================================================
-   COMUNIDADE TAB (SEGUIDOR / SEGUINDO)
-   ========================================================================== */
+/* Comunidade tab (seguidores / seguindo) */
 
 .comunidade-tab-layout {
     display: grid;
@@ -2663,6 +2716,7 @@ select.form-input option {
 .banner-achievement-title {
     transition: var(--transition-smooth);
 }
+
 .banner-achievement-title:hover {
     border-color: var(--color-primary) !important;
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(139, 92, 246, 0.08)) !important;
@@ -2672,17 +2726,55 @@ select.form-input option {
 .title-option-card {
     transition: var(--transition-smooth);
 }
+
 .title-option-card:not(.locked):hover {
     background: rgba(255, 255, 255, 0.06) !important;
     border-color: rgba(255, 255, 255, 0.2) !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
 }
+
 .title-option-card.selected {
     background: rgba(139, 92, 246, 0.12) !important;
     border-color: var(--color-primary) !important;
     box-shadow: 0 4px 15px rgba(139, 92, 246, 0.25);
 }
 
+/* Collaps cards */
+.trainer-section-collapsible {
+    margin-bottom: 25px;
+}
 
+.trainer-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
 
+.trainer-section-header .trainer-card-title,
+.trainer-section-header .medals-category-title {
+    margin: 0;
+}
+
+.trainer-section-chevron {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+}
+
+.trainer-section-chevron.rotated {
+    transform: rotate(180deg);
+}
+
+.trainer-section-content {
+    display: none;
+}
+
+.trainer-section-content.expanded {
+    display: block;
+}

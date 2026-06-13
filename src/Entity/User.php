@@ -66,6 +66,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $title = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $cardTemplate = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -265,6 +268,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setTitle(?string $title): static
     {
         $this->title = $title;
+        return $this;
+    }
+
+    public function getCardTemplate(): ?string
+    {
+        return $this->cardTemplate;
+    }
+
+    public function setCardTemplate(?string $cardTemplate): static
+    {
+        $this->cardTemplate = $cardTemplate;
         return $this;
     }
 

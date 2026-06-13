@@ -6,6 +6,8 @@ use App\Entity\User;
 use App\Repository\MovesetRepository;
 use App\Repository\UserRepository;
 use App\Repository\TitleRepository;
+use App\Repository\CardTemplateRepository;
+use App\Entity\CardTemplate;
 use App\Enum\Medal;
 use App\Enum\VivillonPattern;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,6 +20,7 @@ class TrainerProfileService
     private MovesetRepository $movesetRepository;
     private UserRepository $userRepository;
     private TitleRepository $titleRepository;
+    private CardTemplateRepository $cardTemplateRepository;
     private string $projectDir;
 
     // Avatares de recompensa bloqueados por medalhas de ouro
@@ -51,6 +54,7 @@ class TrainerProfileService
         MovesetRepository $movesetRepository,
         UserRepository $userRepository,
         TitleRepository $titleRepository,
+        CardTemplateRepository $cardTemplateRepository,
         #[Autowire('%kernel.project_dir%')] string $projectDir
     ) {
         $this->entityManager = $entityManager;
@@ -58,6 +62,7 @@ class TrainerProfileService
         $this->movesetRepository = $movesetRepository;
         $this->userRepository = $userRepository;
         $this->titleRepository = $titleRepository;
+        $this->cardTemplateRepository = $cardTemplateRepository;
         $this->projectDir = $projectDir;
     }
 
@@ -663,5 +668,91 @@ class TrainerProfileService
                 'gold'   => $gold
             ]
         ];
+    }
+
+    public function getTemplatesUnlockStatus(User $user, array $computedMedalGroups): array
+    {
+        $this->initializeDatabaseAndCardTemplates();
+
+        $medalsByName = [];
+        $goldCount = 0;
+        foreach ($computedMedalGroups as $group) {
+            foreach ($group as $medal) {
+                $medalsByName[$medal['name']] = $medal['tier'];
+                if ($medal['tier'] === 'gold') {
+                    $goldCount++;
+                }
+            }
+        }
+
+        $templates = $this->cardTemplateRepository->findAll();
+        $templateStatuses = [];
+        $selectedTemplate = $user->getCardTemplate();
+
+        foreach ($templates as $template) {
+            $isLocked = false;
+
+            if (!$template->isDefault()) {
+                if ($template->getReqGoldCount() !== null) {
+                    if ($goldCount < $template->getReqGoldCount()) {
+                        $isLocked = true;
+                    }
+                } elseif ($template->getReqMedal() !== null) {
+                    $reqMedal = $template->getReqMedal();
+                    $reqTier = $template->getReqTier() ?? 'bronze';
+                    $userTier = $medalsByName[$reqMedal] ?? 'locked';
+
+                    $tierWeights = ['locked' => 0, 'bronze' => 1, 'silver' => 2, 'gold' => 3];
+                    $userWeight = $tierWeights[$userTier] ?? 0;
+                    $reqWeight = $tierWeights[$reqTier] ?? 1;
+
+                    if ($userWeight < $reqWeight) {
+                        $isLocked = true;
+                    }
+                }
+            }
+
+            $imageUrl = null;
+            if ($template->getImage()) {
+                $imageUrl = '/uploads/templates/' . $template->getImage();
+            }
+
+            $templateStatuses[] = [
+                'id' => $template->getId(),
+                'name' => $template->getName(),
+                'image' => $template->getImage(),
+                'imageUrl' => $imageUrl,
+                'isLocked' => $isLocked,
+                'requirement' => $template->getRequirement(),
+                'isSelected' => ($selectedTemplate === $template->getImage()) || ($selectedTemplate === null && $template->isDefault()),
+            ];
+        }
+
+        return $templateStatuses;
+    }
+
+    public function initializeDatabaseAndCardTemplates(): void
+    {
+        $connection = $this->entityManager->getConnection();
+        $schemaManager = $connection->createSchemaManager();
+
+        if (!$schemaManager->tablesExist(['card_template'])) {
+            $sql = "CREATE TABLE card_template (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+                name VARCHAR(255) NOT NULL, 
+                image VARCHAR(255) NOT NULL, 
+                requirement VARCHAR(255) NOT NULL, 
+                req_medal VARCHAR(255) DEFAULT NULL, 
+                req_tier VARCHAR(255) DEFAULT NULL, 
+                req_gold_count INTEGER DEFAULT NULL, 
+                is_default BOOLEAN DEFAULT 0 NOT NULL
+            )";
+            $connection->executeStatement($sql);
+        }
+
+        $userColumns = $schemaManager->listTableColumns('user');
+        if (!isset($userColumns['card_template'])) {
+            $connection->executeStatement("ALTER TABLE user ADD COLUMN card_template VARCHAR(255) DEFAULT NULL");
+        }
     }
 }

@@ -309,6 +309,11 @@ class PokemonController extends AbstractController
             }
         }
 
+        $locations = $entityManager->getRepository(\App\Entity\PokemonLocation::class)->findBy(
+            ['pokemonName' => $pokemon['name']],
+            ['createdAt' => 'ASC']
+        );
+
         return $this->render('pokemon/detail.html.twig', [
             'pokemon' => $pokemon,
             'evolutionChain' => $evolutionChain,
@@ -321,6 +326,7 @@ class PokemonController extends AbstractController
             'naturesMap' => $naturesMap,
             'typeDetails' => $typeDetails,
             'recommendedNatures' => $recommendedNatures,
+            'locations' => $locations,
         ]);
     }
 

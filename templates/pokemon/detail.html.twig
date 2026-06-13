@@ -69,7 +69,7 @@
 		<div class="pokemon-info-column">
 			{% include 'partials/pokemon_main_card.html.twig' with {'pokemon': pokemon, 'typeDetails': typeDetails} %}
 			{% include 'partials/pokemon_stats_card.html.twig' with {'pokemon': pokemon} %}
-			{% include 'partials/pokemon_evolution_card.html.twig' with {'pokemon': pokemon, 'evolutionChain': evolutionChain, 'typeDetails': typeDetails} %}
+			{% include 'partials/pokemon_locations_card.html.twig' with {'pokemon': pokemon, 'locations': locations} %}
 		</div>
 
 		<!-- Coluna direita: Seção de Movesets -->
@@ -157,6 +157,11 @@
 						{% endfor %}
 					</div>
 				{% endif %}
+			</div>
+
+			<!-- Linha Evolutiva -->
+			<div class="evolution-container mt-5">
+				{% include 'partials/pokemon_evolution_card.html.twig' with {'pokemon': pokemon, 'evolutionChain': evolutionChain, 'typeDetails': typeDetails} %}
 			</div>
 
 		</div>

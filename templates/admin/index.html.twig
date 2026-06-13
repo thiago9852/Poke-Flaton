@@ -1,313 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Trainer Master | PokéMoveset
+{% block title %}Trainer Master | PokeFlaton
 {% endblock %}
 
 {% block stylesheets %}
 	{{ parent() }}
 	<link rel="stylesheet" href="{{ asset('css/trainer-card.css') }}">
-	<style>
-		.admin-wrapper {
-			max-width: 1200px;
-			margin: 0 auto;
-			padding: 30px 20px;
-		}
-
-		.admin-stats-row {
-			display: flex;
-			gap: 15px;
-			margin-bottom: 30px;
-			flex-wrap: wrap;
-		}
-
-		.admin-stat-card {
-			flex: 1;
-			min-width: 140px;
-			background: var(--bg-card);
-			border: 1px solid var(--border-color);
-			border-radius: 12px;
-			padding: 20px;
-			text-align: center;
-		}
-
-		.admin-stat-num {
-			font-family: 'Outfit', sans-serif;
-			font-size: 2rem;
-			font-weight: 800;
-			color: var(--text-primary);
-		}
-
-		.admin-stat-num.enabled {
-			color: #10b981;
-		}
-		.admin-stat-num.disabled {
-			color: #6b7280;
-		}
-		.admin-stat-num.users {
-			color: var(--color-primary);
-		}
-
-		.admin-stat-label {
-			font-size: 0.8rem;
-			color: var(--text-secondary);
-			margin-top: 4px;
-		}
-
-		.bulk-actions {
-			display: flex;
-			gap: 12px;
-			margin-bottom: 30px;
-			flex-wrap: wrap;
-		}
-
-		.btn-bulk-enable {
-			background: linear-gradient(135deg, #059669, #047857);
-			color: #fff;
-			border: none;
-			padding: 10px 22px;
-			border-radius: 8px;
-			font-weight: 700;
-			cursor: pointer;
-			transition: all 0.2s;
-			font-family: inherit;
-			font-size: 0.9rem;
-			display: flex;
-			align-items: center;
-			gap: 8px;
-		}
-
-		.btn-bulk-enable:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
-		}
-
-		.btn-bulk-disable {
-			background: linear-gradient(135deg, #dc2626, #b91c1c);
-			color: #fff;
-			border: none;
-			padding: 10px 22px;
-			border-radius: 8px;
-			font-weight: 700;
-			cursor: pointer;
-			transition: all 0.2s;
-			font-family: inherit;
-			font-size: 0.9rem;
-			display: flex;
-			align-items: center;
-			gap: 8px;
-		}
-
-		.btn-bulk-disable:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
-		}
-
-		.admin-category {
-			margin-bottom: 35px;
-		}
-
-		.admin-category-header {
-			display: flex;
-			align-items: center;
-			gap: 12px;
-			margin-bottom: 18px;
-			padding-bottom: 12px;
-			border-bottom: 1px solid var(--border-color);
-		}
-
-		.admin-category-header h2 {
-			font-family: 'Outfit', sans-serif;
-			font-size: 1.2rem;
-			font-weight: 800;
-			color: var(--text-primary);
-			flex: 1;
-		}
-
-		.admin-medals-grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-			gap: 15px;
-		}
-
-		.admin-medal-card {
-			background: var(--bg-card);
-			border: 1px solid var(--border-color);
-			border-radius: 12px;
-			padding: 18px;
-			display: flex;
-			align-items: center;
-			gap: 14px;
-			transition: all 0.25s;
-			position: relative;
-			overflow: hidden;
-		}
-
-		.admin-medal-card.is-enabled {
-			border-color: rgba(16, 185, 129, 0.4);
-			background: rgba(16, 185, 129, 0.05);
-		}
-
-		.admin-medal-card.is-disabled {
-			opacity: 0.7;
-		}
-
-		.admin-medal-img {
-			width: 52px;
-			height: 52px;
-			object-fit: contain;
-			filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
-			flex-shrink: 0;
-			transition: filter 0.25s;
-		}
-
-		.admin-medal-card.is-disabled .admin-medal-img {
-			filter: grayscale(1) brightness(0.4);
-		}
-
-		.admin-medal-info {
-			flex: 1;
-			min-width: 0;
-		}
-
-		.admin-medal-name {
-			font-weight: 700;
-			font-size: 0.9rem;
-			color: var(--text-primary);
-			margin-bottom: 3px;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-		}
-
-		.admin-medal-key {
-			font-size: 0.7rem;
-			color: var(--text-muted);
-			font-family: monospace;
-		}
-
-		/* Toggle Switch */
-		.toggle-switch {
-			position: relative;
-			width: 44px;
-			height: 24px;
-			flex-shrink: 0;
-		}
-
-		.toggle-switch input {
-			opacity: 0;
-			width: 0;
-			height: 0;
-			position: absolute;
-		}
-
-		.toggle-slider {
-			position: absolute;
-			cursor: pointer;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			background: #374151;
-			border-radius: 24px;
-			transition: 0.3s;
-			border: 1px solid rgba(255, 255, 255, 0.1);
-		}
-
-		.toggle-slider::before {
-			content: '';
-			position: absolute;
-			height: 18px;
-			width: 18px;
-			left: 2px;
-			bottom: 2px;
-			background: #6b7280;
-			border-radius: 50%;
-			transition: 0.3s;
-		}
-
-		.toggle-switch input:checked + .toggle-slider {
-			background: rgba(16, 185, 129, 0.3);
-			border-color: #10b981;
-		}
-
-		.toggle-switch input:checked + .toggle-slider::before {
-			transform: translateX(20px);
-			background: #10b981;
-		}
-
-		/* Notificação Toast */
-		.admin-toast {
-			position: fixed;
-			bottom: 30px;
-			right: 30px;
-			background: var(--bg-card);
-			border: 1px solid rgba(16, 185, 129, 0.4);
-			border-radius: 10px;
-			padding: 14px 20px;
-			font-size: 0.9rem;
-			font-weight: 600;
-			color: #a7f3d0;
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			z-index: 9999;
-			transform: translateY(20px);
-			opacity: 0;
-			transition: all 0.3s;
-			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-		}
-
-		.admin-toast.show {
-			transform: translateY(0);
-			opacity: 1;
-		}
-
-		/* Seção do Vivillon */
-		.vivillon-admin-grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-			gap: 12px;
-		}
-
-		.vivillon-admin-card {
-			background: var(--bg-card);
-			border: 1px solid var(--border-color);
-			border-radius: 10px;
-			padding: 12px;
-			text-align: center;
-			transition: all 0.25s;
-			cursor: pointer;
-		}
-
-		.vivillon-admin-card.is-enabled {
-			border-color: rgba(16, 185, 129, 0.4);
-			background: rgba(16, 185, 129, 0.05);
-		}
-
-		.vivillon-admin-card.is-disabled {
-			opacity: 0.6;
-		}
-
-		.vivillon-admin-sprite {
-			width: 60px;
-			height: 60px;
-			object-fit: contain;
-			image-rendering: pixelated;
-			margin-bottom: 6px;
-			transition: filter 0.25s;
-		}
-
-		.vivillon-admin-card.is-disabled .vivillon-admin-sprite {
-			filter: grayscale(1) brightness(0.4);
-		}
-
-		.vivillon-admin-label {
-			font-size: 0.72rem;
-			font-weight: 700;
-			color: var(--text-secondary);
-			margin-bottom: 8px;
-		}
-	</style>
+	<link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 {% endblock %}
 
 {% block body %}
@@ -316,7 +15,7 @@
 		<!-- Flashes -->
 		{% for label, messages in app.flashes %}
 			{% for message in messages %}
-				<div class="alert alert-{{ label == 'error' ? 'error' : 'success' }}" style="margin-bottom: 20px; padding: 12px 20px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: 1px solid {{ label == 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)' }}; background: {{ label == 'error' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(16, 185, 129, 0.05)' }}; color: {{ label == 'error' ? '#fca5a5' : '#a7f3d0' }};">
+				<div class="alert alert-{{ label == 'error' ? 'error' : 'success' }}">
 					<i class="fa-solid {{ label == 'error' ? 'fa-circle-exclamation' : 'fa-circle-check' }}"></i>
 					{{ message }}
 				</div>
@@ -345,7 +44,7 @@
 				<div class="admin-stat-label">Medalhas Bloqueadas</div>
 			</div>
 			<div class="admin-stat-card">
-				<div class="admin-stat-num" style="color: var(--color-secondary);">{{ totalMedals }}</div>
+				<div class="admin-stat-num total">{{ totalMedals }}</div>
 				<div class="admin-stat-label">Total de Medalhas</div>
 			</div>
 		</div>
@@ -362,292 +61,641 @@
 			</button>
 		</div>
 
-		<!-- Medal Categorias -->
+		<!-- Medalhas Categorias -->
 		{% for category, medals in medalDefs %}
+			{% set catId = 'medal-cat-' ~ loop.index %}
 			<div class="admin-category">
-				<div class="admin-category-header">
+				<div class="admin-category-header" onclick="toggleCategorySection('{{ catId }}-content', '{{ catId }}-chevron')">
 					<h2>{{ category }}</h2>
-					<span class="admin-hero-badge" style="font-size:0.7rem;">{{ medals|length }}
+					<span class="admin-hero-badge">{{ medals|length }}
 						medalhas</span>
+					<i class="fa-solid fa-chevron-down admin-category-chevron" id="{{ catId }}-chevron"></i>
 				</div>
-				<div class="admin-medals-grid">
-					{% for medal in medals %}
-						{% set isOn = medal.key in enabledMedals %}
-						<div class="admin-medal-card {{ isOn ? 'is-enabled' : 'is-disabled' }}" id="admin-card-{{ medal.key }}">
-							<img src="{{ badgeBaseUrl }}{{ medal.badge }}" alt="{{ medal.title }}" class="admin-medal-img" loading="lazy">
-							<div class="admin-medal-info">
-								<div class="admin-medal-name">{{ medal.title }}</div>
-								<div class="admin-medal-key">{{ medal.key }}</div>
+				<div id="{{ catId }}-content" class="admin-category-content">
+					<div class="admin-medals-grid">
+						{% for medal in medals %}
+							{% set isOn = medal.key in enabledMedals %}
+							<div class="admin-medal-card {{ isOn ? 'is-enabled' : 'is-disabled' }}" id="admin-card-{{ medal.key }}">
+								<img src="{{ badgeBaseUrl }}{{ medal.badge }}" alt="{{ medal.title }}" class="admin-medal-img" loading="lazy">
+								<div class="admin-medal-info">
+									<div class="admin-medal-name">{{ medal.title }}</div>
+									<div class="admin-medal-key">{{ medal.key }}</div>
+								</div>
+								<label class="toggle-switch" title="{{ medal.title }}">
+									<input type="checkbox" {{ isOn ? 'checked' : '' }} onchange="toggleMedal('{{ medal.key }}', this.checked, 'medal')" id="toggle-{{ medal.key }}">
+									<span class="toggle-slider"></span>
+								</label>
 							</div>
-							<label class="toggle-switch" title="{{ medal.title }}">
-								<input type="checkbox" {{ isOn ? 'checked' : '' }} onchange="toggleMedal('{{ medal.key }}', this.checked, 'medal')" id="toggle-{{ medal.key }}">
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+
+		<!-- Padrões de Vivillon -->
+		<div class="admin-category">
+			<div class="admin-category-header" onclick="toggleCategorySection('vivillon-content', 'vivillon-chevron')">
+				<h2>Vivillon's Patterns</h2>
+				<span class="admin-hero-badge">20 padrões</span>
+				<i class="fa-solid fa-chevron-down admin-category-chevron" id="vivillon-chevron"></i>
+			</div>
+			<div id="vivillon-content" class="admin-category-content">
+				<div class="vivillon-admin-grid">
+					{% set vivillonSprites = {
+					'meadow':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/meadow.png',
+					'archipelago': 'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/archipelago.png',
+					'continental': 'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/continental.png',
+					'elegant':     'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/elegant.png',
+					'garden':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/garden.png',
+					'high-plains': 'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/high_plains.png',
+					'icy-snow':    'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/icy_snow.png',
+					'jungle':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/jungle.png',
+					'marine':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/marine.png',
+					'modern':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/modern.png',
+					'monsoon':     'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/monsoon.png',
+					'ocean':       'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/ocean.png',
+					'polar':       'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/polar.png',
+					'river':       'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/river.png',
+					'sandstorm':   'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/sandstorm.png',
+					'savanna':     'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/savanna.png',
+					'sun':         'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/sun.png',
+					'tundra':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/tundra.png',
+					'fancy':       'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/fancy.png',
+					'poke-ball':   'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/pokeball.png'
+				} %}
+					{% for pattern in allVivillonPatterns %}
+						{% set isOn = pattern in enabledVivillonPats %}
+						<div class="vivillon-admin-card {{ isOn ? 'is-enabled' : 'is-disabled' }}" id="admin-vivillon-{{ pattern }}" onclick="toggleMedal('{{ pattern }}', document.getElementById('vtoggle-{{ pattern }}').checked ? false : true, 'vivillon')">
+							<img src="{{ vivillonSprites[pattern] }}" alt="{{ pattern }}" class="vivillon-admin-sprite" loading="lazy">
+							<div class="vivillon-admin-label">{{ pattern|replace({'-': ' '})|title }}</div>
+							<label class="toggle-switch" onclick="event.stopPropagation()">
+								<input type="checkbox" id="vtoggle-{{ pattern }}" {{ isOn ? 'checked' : '' }} onchange="toggleMedal('{{ pattern }}', this.checked, 'vivillon')">
 								<span class="toggle-slider"></span>
 							</label>
 						</div>
 					{% endfor %}
 				</div>
 			</div>
-		{% endfor %}
+		</div>
 
-		<!-- Vivillon Patterns -->
-		<div class="admin-category">
-			<div class="admin-category-header">
-				<h2>
-					<i class="fa-solid fa-leaf" style="color: #34d399;"></i>
-					Vivillon's Patterns</h2>
-				<span class="admin-hero-badge" style="font-size:0.7rem; background:rgba(52,211,153,0.15); border-color:rgba(52,211,153,0.3); color:#6ee7b7;">20 padrões</span>
+		<!-- Moderação de Localizações -->
+		{% set moderationExpanded = (activeTab == 'games' or pendingLocations|length > 0 or pokemonSearch is not empty) %}
+		<div class="admin-category spaced" id="moderation-section">
+			<div class="admin-category-header" onclick="toggleCategorySection('moderation-content', 'moderation-chevron')">
+				<h2>Localizações</h2>
+				<i class="fa-solid fa-chevron-down admin-category-chevron {{ moderationExpanded ? 'rotated' : '' }}" id="moderation-chevron"></i>
 			</div>
-			<div class="vivillon-admin-grid">
-				{% set vivillonSprites = {
-                'meadow':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/meadow.png',
-                'archipelago': 'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/archipelago.png',
-                'continental': 'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/continental.png',
-                'elegant':     'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/elegant.png',
-                'garden':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/garden.png',
-                'high-plains': 'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/high_plains.png',
-                'icy-snow':    'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/icy_snow.png',
-                'jungle':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/jungle.png',
-                'marine':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/marine.png',
-                'modern':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/modern.png',
-                'monsoon':     'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/monsoon.png',
-                'ocean':       'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/ocean.png',
-                'polar':       'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/polar.png',
-                'river':       'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/river.png',
-                'sandstorm':   'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/sandstorm.png',
-                'savanna':     'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/savanna.png',
-                'sun':         'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/sun.png',
-                'tundra':      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/tundra.png',
-                'fancy':       'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/fancy.png',
-                'poke-ball':   'https://raw.githubusercontent.com/PokeMiners/pogo_assets/master/Images/Badges/Vivillon/pokeball.png'
-            } %}
-				{% for pattern in allVivillonPatterns %}
-					{% set isOn = pattern in enabledVivillonPats %}
-					<div class="vivillon-admin-card {{ isOn ? 'is-enabled' : 'is-disabled' }}" id="admin-vivillon-{{ pattern }}" onclick="toggleMedal('{{ pattern }}', document.getElementById('vtoggle-{{ pattern }}').checked ? false : true, 'vivillon')">
-						<img src="{{ vivillonSprites[pattern] }}" alt="{{ pattern }}" class="vivillon-admin-sprite" loading="lazy">
-						<div class="vivillon-admin-label">{{ pattern|replace({'-': ' '})|title }}</div>
-						<label class="toggle-switch" onclick="event.stopPropagation()">
-							<input type="checkbox" id="vtoggle-{{ pattern }}" {{ isOn ? 'checked' : '' }} onchange="toggleMedal('{{ pattern }}', this.checked, 'vivillon')">
-							<span class="toggle-slider"></span>
-						</label>
+
+			<div id="moderation-content" class="admin-category-content {{ moderationExpanded ? 'expanded' : '' }}">
+				
+				<!-- Menu de Abas -->
+				<div class="admin-tabs">
+					<a href="{{ path('app_admin', {'tab': 'users'}) }}#moderation-section" class="admin-tab-btn {{ activeTab == 'users' ? 'active' : '' }}">
+						<i class="fa-solid fa-user-pen"></i>
+						Sugestões dos Usuários ({{ pendingLocations|length }})
+					</a>
+					<a href="{{ path('app_admin', {'tab': 'games'}) }}#moderation-section" class="admin-tab-btn {{ activeTab == 'games' ? 'active' : '' }}">
+						<i class="fa-solid fa-gamepad"></i>
+						Jogos Oficiais
+					</a>
+				</div>
+
+				<!-- Conteúdo das Abas -->
+				{% if activeTab == 'users' %}
+
+					<!-- ABA 1: Sugestões dos Usuários -->
+					{% if pendingLocations is empty %}
+						<div class="admin-empty-placeholder">
+							<i class="fa-solid fa-circle-check success-icon"></i>
+							Nenhuma sugestão de localização pendente de validação!
+						</div>
+					{% else %}
+						<form id="bulkActionForm" method="post" action="{{ path('app_location_bulk') }}">
+							<div class="admin-card-container overflow-hidden">
+
+								<div class="table-bulk-header">
+									<div class="table-bulk-header-selection">
+										<label class="bulk-select-label">
+											<input type="checkbox" id="selectAllSuggestions" class="admin-checkbox">
+											Selecionar Tudo
+										</label>
+									</div>
+									<div class="table-bulk-actions">
+										<button type="submit" name="action" value="approve" class="btn-bulk-action approve">
+											<i class="fa-solid fa-check-double"></i>
+											Aprovar Selecionados
+										</button>
+										<button type="submit" name="action" value="delete" class="btn-bulk-action delete" onclick="return confirm('Deseja realmente rejeitar as sugestões selecionadas?')">
+											<i class="fa-solid fa-trash-can"></i>
+											Rejeitar Selecionados
+										</button>
+									</div>
+								</div>
+
+								<table class="admin-table">
+									<thead>
+										<tr>
+											<th class="checkbox-col"></th>
+											<th>Pokémon</th>
+											<th>Localização Sugerida</th>
+											<th>Data de Envio</th>
+											<th class="text-right">Ações</th>
+										</tr>
+									</thead>
+									<tbody>
+
+										{% for location in pendingLocations %}
+											<tr>
+												<td class="checkbox-col">
+													<input type="checkbox" name="ids[]" value="{{ location.id }}" class="suggestion-checkbox admin-checkbox">
+												</td>
+												<td class="font-bold">
+													<a href="{{ path('app_pokemon_detail', {'name': location.pokemonName}) }}" class="admin-table-link" target="_blank">
+														<i class="fa-solid fa-circle-chevron-right"></i>
+														{{ location.pokemonName|capitalize }}
+													</a>
+												</td>
+												<td>
+													{{ location.locationName }}
+												</td>
+												<td class="text-muted-small">
+													{{ location.createdAt|date('d/m/Y H:i') }}
+												</td>
+												<td class="text-right">
+													<div class="table-actions-cell-wrapper">
+														<form method="post" action="{{ path('app_location_approve', {'id': location.id, 'redirect': 'admin'}) }}">
+															<button type="submit" class="btn-admin-approve">
+																<i class="fa-solid fa-check"></i>
+																Aprovar
+															</button>
+														</form>
+														<form method="post" action="{{ path('app_location_delete', {'id': location.id, 'redirect': 'admin'}) }}" onsubmit="return confirm('Deseja realmente rejeitar esta localização?')">
+															<button type="submit" class="btn-admin-reject">
+																<i class="fa-solid fa-xmark"></i>
+																Rejeitar
+															</button>
+														</form>
+													</div>
+												</td>
+											</tr>
+										{% endfor %}
+
+									</tbody>
+								</table>
+
+							</div>
+						</form>
+
+					{% endif %}
+				{% else %}
+
+					<!-- ABA 2: Jogos oficiais -->
+					<div class="game-search-box">
+						<form method="get" action="{{ path('app_admin') }}#moderation-section" class="game-search-form">
+							<input type="hidden" name="tab" value="games">
+							<div class="game-search-input-wrapper">
+								<label>Buscar Pokémon nos Jogos Oficiais</label>
+								<input type="text" name="pokemon" value="{{ pokemonSearch }}" class="game-search-input" placeholder="Ex: Pikachu, Charizard..." list="pokemon-search-list" autocomplete="off" required>
+								<datalist id="pokemon-search-list">
+									{% for poke in pokemonList %}
+										<option value="{{ poke.name }}">{{ poke.name|capitalize }}</option>
+									{% endfor %}
+								</datalist>
+							</div>
+							<button type="submit" class="btn btn-primary btn-search-submit">
+								<i class="fa-solid fa-magnifying-glass"></i>
+								Buscar
+							</button>
+						</form>
 					</div>
-				{% endfor %}
+
+					{% if pokemonSearch is not empty %}
+						<div class="admin-card-container padded">
+							<div class="game-import-header">
+								<h3 class="admin-section-title">
+									<i class="fa-solid fa-earth-americas color-secondary-icon"></i>
+									Localizações de Encontro de
+									{{ pokemonSearch|capitalize }}
+									(PokéAPI)
+								</h3>
+
+								{% if gameEncounters is not empty %}
+									<a href="{{ path('app_pokemon_detail', {'name': pokemonSearch}) }}" target="_blank" class="admin-view-pokemon-link">
+										Ver Pokémon
+										<i class="fa-solid fa-arrow-up-right-from-square"></i>
+									</a>
+								{% endif %}
+							</div>
+
+							{% if gameEncounters is empty %}
+								<div class="admin-empty-placeholder">
+									<i class="fa-solid fa-circle-info info-icon"></i>
+									Nenhuma localização oficial encontrada na API para "{{ pokemonSearch }}" ou o Pokémon não possui encontros selvagens registrados.
+								</div>
+							{% else %}
+								<form method="post" action="{{ path('app_location_import_official') }}">
+									<input type="hidden" name="pokemonName" value="{{ pokemonSearch }}">
+
+									<div class="game-loc-import-bar">
+										<label class="bulk-select-label">
+											<input type="checkbox" id="selectAllGameLocs" class="admin-checkbox">
+											Selecionar Todas
+										</label>
+										<button type="submit" class="btn-admin-import">
+											Importar Selecionadas
+										</button>
+									</div>
+
+									<div class="game-loc-list-scroll">
+										{% for enc in gameEncounters %}
+											{% set fullLocName = enc.area ~ ' (' ~ enc.versions ~ ')' %}
+
+											<div class="game-loc-row">
+												<input type="checkbox" name="locations[]" value="{{ fullLocName }}" class="game-loc-checkbox admin-checkbox">
+												<div class="flex-1">
+													<div class="game-loc-name">{{ enc.area }}</div>
+													<div class="game-loc-versions">
+														<i class="fa-solid fa-gamepad"></i>
+														{{ enc.versions }}
+													</div>
+												</div>
+											</div>
+										{% endfor %}
+
+									</div>
+								</form>
+							{% endif %}
+
+						</div>
+					{% endif %}
+				{% endif %}
+
 			</div>
 		</div>
 
 		<!-- Gerenciamento de Títulos de Treinador -->
-		<div class="admin-category" style="margin-top: 40px;">
-			<div class="admin-category-header">
-				<h2>
-					<i class="fa-solid fa-crown" style="color: var(--color-secondary);"></i>
-					Gerenciamento de Títulos de Treinador
-				</h2>
-				<span class="admin-hero-badge" style="font-size:0.7rem; background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.3); color:#f59e0b;">{{ titles|length }}
+		<div class="admin-category spaced" id="trainer-titles-section">
+			<div class="admin-category-header" onclick="toggleCategorySection('titles-content', 'titles-chevron')">
+				<h2>Títulos de Trainers</h2>
+				<span class="admin-hero-badge">{{ titles|length }}
 					títulos</span>
+				<i class="fa-solid fa-chevron-down admin-category-chevron" id="titles-chevron"></i>
 			</div>
 
-			<!-- Criar novo título Form -->
-			<div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; margin-bottom: 30px;">
-				<h3 style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 15px;">Criar Novo Título</h3>
+			<div id="titles-content" class="admin-category-content">
+				<!-- Criar novo título Form -->
 
-				{{ form_start(titleForm) }}
-				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
-					<div>
-						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Nome do Título</label>
-						{{ form_widget(titleForm.name, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;'}}) }}
-					</div>
-					<div>
-						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Ribbon (Faixa)</label>
-						{{ form_widget(titleForm.ribbon, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;'}}) }}
-					</div>
-					<div>
-						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Descrição do Requisito</label>
-						{{ form_widget(titleForm.requirement, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;', 'placeholder': 'Ex: Medalha Cientista no nível Bronze'}}) }}
-					</div>
-					<div>
-						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Medalha Requerida</label>
-						{{ form_widget(titleForm.reqMedal, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;'}}) }}
-					</div>
-					<div>
-						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Nível da Medalha</label>
-						{{ form_widget(titleForm.reqTier, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;'}}) }}
-					</div>
-					<div>
-						<label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">Qtd Medalhas Ouro</label>
-						{{ form_widget(titleForm.reqGoldCount, {'attr': {'class': 'form-input', 'style': 'width:100%; border-radius:8px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:#fff; padding:10px;', 'placeholder': 'Vazio se não aplicar'}}) }}
-					</div>
-				</div>
-				<div style="margin-top: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
-					<label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer;">
-						{{ form_widget(titleForm.isDefault) }}
-						Disponível por padrão (Sem requisitos)?
-					</label>
-					<button type="submit" class="btn btn-primary">
-						<i class="fa-solid fa-plus"></i>
-						Salvar Título
-					</button>
-				</div>
-				{{ form_end(titleForm) }}
-			</div>
+				<div class="admin-card-container padded">
+					<h3 class="admin-section-title mb-15">Criar Novo Título</h3>
 
-			<!-- Listagem de títulos -->
-			<div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 30px;">
-				<table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
-					<thead>
-						<tr style="border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.15); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
-							<th style="padding: 12px 18px;">Ribbon</th>
-							<th style="padding: 12px 18px;">Título</th>
-							<th style="padding: 12px 18px;">Requisito</th>
-							<th style="padding: 12px 18px; text-align: center;">Padrão?</th>
-							<th style="padding: 12px 18px; text-align: right;">Ações</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for title in titles %}
-							{% set ribbonUrl = 'https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/gen8/' ~ title.ribbon %}
-							<tr style="border-bottom: 1px solid var(--border-color); transition: background-color 0.2s;">
-								<td style="padding: 12px 18px; vertical-align: middle;">
-									<img src="{{ ribbonUrl }}" alt="Ribbon" style="width: 32px; height: 32px; object-fit: contain; image-rendering: pixelated;">
-								</td>
-								<td style="padding: 12px 18px; font-weight: 700; color: var(--text-primary);">
-									{{ title.name }}
-								</td>
-								<td style="padding: 12px 18px; color: var(--text-secondary); font-size: 0.85rem;">
-									{{ title.requirement }}
-									{% if title.reqMedal %}
-										<span style="display:inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); font-family: monospace; font-size: 0.7rem; color: var(--color-primary);">
-											{{ title.reqMedal }}
-											({{ title.reqTier }})
-										</span>
-									{% endif %}
-									{% if title.reqGoldCount %}
-										<span style="display:inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); font-family: monospace; font-size: 0.7rem; color: #f59e0b;">
-											{{ title.reqGoldCount }}
-											Ouro
-										</span>
-									{% endif %}
-								</td>
-								<td style="padding: 12px 18px; text-align: center; vertical-align: middle;">
-									{% if title.isDefault %}
-										<span style="color: #10b981; font-size: 1.1rem;">
-											<i class="fa-solid fa-circle-check"></i>
-										</span>
-									{% else %}
-										<span style="color: var(--text-muted); font-size: 1.1rem;">
-											<i class="fa-solid fa-circle-xmark" style="opacity:0.3;"></i>
-										</span>
-									{% endif %}
-								</td>
-								<td style="padding: 12px 18px; text-align: right; vertical-align: middle;">
-									{% if not title.isDefault %}
-										<form method="post" action="{{ path('app_admin_title_delete', {'id': title.id}) }}" style="display: inline-block;" onsubmit="return confirm('Deseja realmente excluir este título?')">
-											<button type="submit" class="btn btn-secondary btn-sm" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; background: rgba(239, 68, 68, 0.05);">
-												<i class="fa-solid fa-trash-can"></i>
-												Excluir
-											</button>
-										</form>
-									{% else %}
-										<span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic;">Imutável</span>
-									{% endif %}
-								</td>
+					{{ form_start(titleForm) }}
+					<div class="title-form-grid">
+						<div>
+							<label class="title-form-label">Nome do Título</label>
+							{{ form_widget(titleForm.name, {'attr': {'class': 'form-input'}}) }}
+						</div>
+						<div>
+							<label class="title-form-label">Ribbon (Faixa)</label>
+							{{ form_widget(titleForm.ribbon, {'attr': {'class': 'form-input'}}) }}
+						</div>
+						<div>
+							<label class="title-form-label">Descrição do Requisito</label>
+							{{ form_widget(titleForm.requirement, {'attr': {'class': 'form-input', 'placeholder': 'Ex: Medalha Cientista no nível Bronze'}}) }}
+						</div>
+						<div>
+							<label class="title-form-label">Medalha Requerida</label>
+							{{ form_widget(titleForm.reqMedal, {'attr': {'class': 'form-input'}}) }}
+						</div>
+						<div>
+							<label class="title-form-label">Nível da Medalha</label>
+							{{ form_widget(titleForm.reqTier, {'attr': {'class': 'form-input'}}) }}
+						</div>
+						<div>
+							<label class="title-form-label">Qtd Medalhas Ouro</label>
+							{{ form_widget(titleForm.reqGoldCount, {'attr': {'class': 'form-input', 'placeholder': 'Vazio se não aplicar'}}) }}
+						</div>
+					</div>
+					<div class="title-form-footer">
+						<label class="title-form-checkbox-label">
+							{{ form_widget(titleForm.isDefault) }}
+							Disponível por padrão (Sem requisitos)?
+						</label>
+						<button type="submit" class="btn btn-primary">
+							<i class="fa-solid fa-plus"></i>
+							Salvar Título
+						</button>
+					</div>
+					{{ form_end(titleForm) }}
+				</div>
+
+				<!-- Listagem de títulos -->
+				<div class="admin-card-container overflow-hidden">
+					<table class="admin-table">
+						<thead>
+							<tr>
+								<th>Ribbon</th>
+								<th>Título</th>
+								<th>Requisito</th>
+								<th class="text-center">Padrão?</th>
+								<th class="text-right">Ações</th>
 							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+
+							{% for title in titles %}
+								{% set ribbonUrl = 'https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/gen8/' ~ title.ribbon %}
+
+								<tr>
+									<td>
+										<img src="{{ ribbonUrl }}" alt="Ribbon" class="title-ribbon-img">
+									</td>
+									<td class="font-bold">
+										{{ title.name }}
+									</td>
+									<td class="text-secondary-small">
+										{{ title.requirement }}
+										{% if title.reqMedal %}
+											<span class="title-req-badge">
+												{{ title.reqMedal }}
+												({{ title.reqTier }})
+											</span>
+										{% endif %}
+										{% if title.reqGoldCount %}
+											<span class="title-req-badge gold">
+												{{ title.reqGoldCount }}
+												Ouro
+											</span>
+										{% endif %}
+									</td>
+									<td class="text-center">
+										{% if title.isDefault %}
+											<span class="title-status-icon success">
+												<i class="fa-solid fa-circle-check"></i>
+											</span>
+										{% else %}
+											<span class="title-status-icon muted">
+												<i class="fa-solid fa-circle-xmark"></i>
+											</span>
+										{% endif %}
+									</td>
+									<td class="text-right">
+										{% if not title.isDefault %}
+											<form method="post" action="{{ path('app_admin_title_delete', {'id': title.id}) }}" onsubmit="return confirm('Deseja realmente excluir este título?')">
+												<button type="submit" class="btn-admin-reject">
+													<i class="fa-solid fa-trash-can"></i>
+													Excluir
+												</button>
+											</form>
+										{% else %}
+											<span class="text-muted-italic">Imutável</span>
+										{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+
+						</tbody>
+					</table>
+
+				</div>
 			</div>
+
+		</div>
+
+		<!-- Gerenciamento de Modelos de Trainer Card -->
+		<div class="admin-category spaced" id="card-templates-section">
+			<div class="admin-category-header" onclick="toggleCategorySection('templates-content', 'templates-chevron')">
+				<h2>Planos de Fundo do Card</h2>
+				<span class="admin-hero-badge">{{ templates|length }}
+					modelos</span>
+				<i class="fa-solid fa-chevron-down admin-category-chevron" id="templates-chevron"></i>
+			</div>
+
+			<div id="templates-content" class="admin-category-content">
+				<!-- Criar novo template Form -->
+
+				<div class="admin-card-container padded">
+					<h3 class="admin-section-title mb-15">Criar Novo Plano de Fundo</h3>
+
+					{{ form_start(templateForm) }}
+					<div class="title-form-grid">
+						<div>
+							<label class="title-form-label">Nome do Modelo</label>
+							{{ form_widget(templateForm.name, {'attr': {'class': 'form-input'}}) }}
+						</div>
+						<div>
+							<label class="title-form-label">Imagem de Fundo (PNG)</label>
+							{{ form_widget(templateForm.imageFile, {'attr': {'class': 'form-input'}}) }}
+						</div>
+						<div>
+							<label class="title-form-label">Descrição do Requisito</label>
+							{{ form_widget(templateForm.requirement, {'attr': {'class': 'form-input', 'placeholder': 'Ex: Medalha Cientista no nível Bronze'}}) }}
+						</div>
+						<div>
+							<label class="title-form-label">Medalha Requerida</label>
+							{{ form_widget(templateForm.reqMedal, {'attr': {'class': 'form-input'}}) }}
+						</div>
+						<div>
+							<label class="title-form-label">Nível da Medalha</label>
+							{{ form_widget(templateForm.reqTier, {'attr': {'class': 'form-input'}}) }}
+						</div>
+						<div>
+							<label class="title-form-label">Qtd Medalhas Ouro</label>
+							{{ form_widget(templateForm.reqGoldCount, {'attr': {'class': 'form-input', 'placeholder': 'Vazio se não aplicar'}}) }}
+						</div>
+					</div>
+					<div class="title-form-footer">
+						<label class="title-form-checkbox-label">
+							{{ form_widget(templateForm.isDefault) }}
+							Disponível por padrão (Sem requisitos)?
+						</label>
+						<button type="submit" class="btn btn-primary">
+							<i class="fa-solid fa-plus"></i>
+							Salvar Plano de Fundo
+						</button>
+					</div>
+					{{ form_end(templateForm) }}
+				</div>
+
+				<!-- Listagem de templates -->
+				<div class="admin-card-container overflow-hidden">
+					<table class="admin-table">
+						<thead>
+							<tr>
+								<th>Miniatura</th>
+								<th>Nome</th>
+								<th>Requisito</th>
+								<th class="text-center">Padrão?</th>
+								<th class="text-right">Ações</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for template in templates %}
+								{% set imageUrl = '/uploads/templates/' ~ template.image %}
+
+								<tr>
+									<td>
+										<img src="{{ imageUrl }}" alt="Template background preview" class="title-ribbon-img" style="width: 80px; height: 45px; object-fit: cover; border-radius: var(--radius-xs); border: 1px solid var(--border-color);">
+									</td>
+									<td class="font-bold">
+										{{ template.name }}
+									</td>
+									<td class="text-secondary-small">
+										{{ template.requirement }}
+										{% if template.reqMedal %}
+											<span class="title-req-badge">
+												{{ template.reqMedal }}
+												({{ template.reqTier }})
+											</span>
+										{% endif %}
+										{% if template.reqGoldCount %}
+											<span class="title-req-badge gold">
+												{{ template.reqGoldCount }}
+												Ouro
+											</span>
+										{% endif %}
+									</td>
+									<td class="text-center">
+										{% if template.isDefault %}
+											<span class="title-status-icon success">
+												<i class="fa-solid fa-circle-check"></i>
+											</span>
+										{% else %}
+											<span class="title-status-icon muted">
+												<i class="fa-solid fa-circle-xmark"></i>
+											</span>
+										{% endif %}
+									</td>
+									<td class="text-right">
+										{% if not template.isDefault %}
+											<form method="post" action="{{ path('app_admin_card_template_delete', {'id': template.id}) }}" onsubmit="return confirm('Deseja realmente excluir este plano de fundo?')">
+												<button type="submit" class="btn-admin-reject">
+													<i class="fa-solid fa-trash-can"></i>
+													Excluir
+												</button>
+											</form>
+										{% else %}
+											<span class="text-muted-italic">Imutável</span>
+										{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+
+						</tbody>
+					</table>
+
+				</div>
+			</div>
+
 		</div>
 	</div>
 
 	<!-- Toast -->
 	<div class="admin-toast" id="admin-toast">
-		<i class="fa-solid fa-check-circle" style="color:#10b981;"></i>
+		<i class="fa-solid fa-check-circle"></i>
 		<span id="toast-msg">Salvo!</span>
 	</div>
 {% endblock %}
 
 {% block javascripts %}
+
 	{% set totalMedals = 0 %}
 	{% for cat, medals in medalDefs %}
 		{% set totalMedals = totalMedals + medals|length %}
 	{% endfor %}
 	{% set totalMedals = totalMedals + allVivillonPatterns|length %}
+
 	<script>
 		let enabledCount = parseInt('{{ (enabledMedals|length + enabledVivillonPats|length) }}');
 		const totalCount = parseInt('{{ totalMedals }}');
 
 		function showToast(msg, isError = false) {
-		const toast = document.getElementById('admin-toast');
-		const msgEl = document.getElementById('toast-msg');
-		msgEl.textContent = msg;
-		toast.style.borderColor = isError ? 'rgba(239,68,68,0.4)' : 'rgba(16,185,129,0.4)';
-		toast.style.color = isError ? '#fca5a5' : '#a7f3d0';
-		toast.classList.add('show');
-		clearTimeout(toast._hideTimeout);
-		toast._hideTimeout = setTimeout(() => toast.classList.remove('show'), 2800);
+			const toast = document.getElementById('admin-toast');
+			const msgEl = document.getElementById('toast-msg');
+			msgEl.textContent = msg;
+			toast.style.borderColor = isError ? 'rgba(239,68,68,0.4)' : 'rgba(16,185,129,0.4)';
+			toast.style.color = isError ? '#fca5a5' : '#a7f3d0';
+			toast.classList.add('show');
+			clearTimeout(toast._hideTimeout);
+			toast._hideTimeout = setTimeout(() => toast.classList.remove('show'), 2800);
 		}
 
 		function updateStats(delta) {
-		enabledCount = Math.max(0, Math.min(totalCount, enabledCount + delta));
-		document.getElementById('stat-enabled').textContent = enabledCount;
-		document.getElementById('stat-disabled').textContent = totalCount - enabledCount;
+			enabledCount = Math.max(0, Math.min(totalCount, enabledCount + delta));
+			document.getElementById('stat-enabled').textContent = enabledCount;
+			document.getElementById('stat-disabled').textContent = totalCount - enabledCount;
 		}
 
 		function toggleMedal(medalKey, enabled, type) {
-		const cardId = type === 'vivillon' ? `admin-vivillon-${medalKey}` : `admin-card-${medalKey}`;
-		const toggleId = type === 'vivillon' ? `vtoggle-${medalKey}` : `toggle-${medalKey}`;
-		const card = document.getElementById(cardId);
-		const toggle = document.getElementById(toggleId);
+			const cardId = type === 'vivillon' ? `admin-vivillon-${medalKey}` : `admin-card-${medalKey}`;
+			const toggleId = type === 'vivillon' ? `vtoggle-${medalKey}` : `toggle-${medalKey}`;
+			const card = document.getElementById(cardId);
+			const toggle = document.getElementById(toggleId);
 
-		if (card) {
-			card.classList.toggle('is-enabled', enabled);
-			card.classList.toggle('is-disabled', !enabled);
-		}
-
-		if (toggle) {
-			toggle.checked = enabled;
-		}
-
-		updateStats(enabled ? 1 : -1);
-
-		const formData = new FormData();
-		formData.append('medal', medalKey);
-		formData.append('enabled', enabled ? 'true' : 'false');
-		formData.append('type', type);
-
-		fetch('/admin/medal/toggle', {
-			method: 'POST',
-			body: formData
-		})
-			.then(r => r.json())
-			.then(data => {
-			if (data.success) {
-				showToast(`"${medalKey}" ${enabled ? 'ativada ✓' : 'bloqueada ✗'}`);
-			} else {
-				showToast('Erro ao salvar!', true);
+			if (card) {
+				card.classList.toggle('is-enabled', enabled);
+				card.classList.toggle('is-disabled', !enabled);
 			}
-			})
-			.catch(() => showToast('Erro de conexão!', true));
+
+			if (toggle) {
+				toggle.checked = enabled;
+			}
+
+			updateStats(enabled ? 1 : -1);
+
+			const formData = new FormData();
+			formData.append('medal', medalKey);
+			formData.append('enabled', enabled ? 'true' : 'false');
+			formData.append('type', type);
+
+			fetch('/admin/medal/toggle', {
+				method: 'POST',
+				body: formData
+			}).then(r => r.json()).then(data => {
+				if (data.success) {
+					showToast(`"${medalKey}" ${enabled ? 'ativada ✓' : 'bloqueada ✗'}`);
+				} else {
+					showToast('Erro ao salvar!', true);
+				}
+			}).catch(() => showToast('Erro de conexão!', true));
 		}
 
 		function bulkAction(action) {
-		if (!confirm(action === 'enable_all' ? 'Ativar TODAS as medalhas?' : 'Bloquear TODAS as medalhas?')) {
-			return;
+			if (!confirm(action === 'enable_all' ? 'Ativar TODAS as medalhas?' : 'Bloquear TODAS as medalhas?')) {
+				return;
+			}
+
+			const formData = new FormData();
+			formData.append('action', action);
+
+			fetch('/admin/medals/bulk', {
+				method: 'POST',
+				body: formData
+			}).then(r => r.json()).then(data => {
+				if (data.success) {
+					showToast(action === 'enable_all' ? 'Todas as medalhas ativadas!' : 'Todas as medalhas bloqueadas!');
+					setTimeout(() => window.location.reload(), 1200);
+				}
+			});
 		}
 
-		const formData = new FormData();
-		formData.append('action', action);
+		// Seleção em lote de sugestões de usuários
+		const selectAllSuggestions = document.getElementById('selectAllSuggestions');
+		if (selectAllSuggestions) {
+			selectAllSuggestions.addEventListener('change', function () {
+				const checkboxes = document.querySelectorAll('.suggestion-checkbox');
+				checkboxes.forEach(cb => cb.checked = this.checked);
+			});
+		}
 
-		fetch('/admin/medals/bulk', {
-			method: 'POST',
-			body: formData
-		})
-			.then(r => r.json())
-			.then(data => {
-			if (data.success) {
-				showToast(action === 'enable_all' ? 'Todas as medalhas ativadas!' : 'Todas as medalhas bloqueadas!');
-				setTimeout(() => window.location.reload(), 1200);
-			}
+		// Seleção em lote de localizações oficiais (API)
+		const selectAllGameLocs = document.getElementById('selectAllGameLocs');
+		if (selectAllGameLocs) {
+			selectAllGameLocs.addEventListener('change', function () {
+				const checkboxes = document.querySelectorAll('.game-loc-checkbox');
+				checkboxes.forEach(cb => cb.checked = this.checked);
 			});
 		}
 	</script>
+
 
 {% endblock %}

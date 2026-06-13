@@ -1,0 +1,45 @@
+<div class="card pokemon-locations-card">
+    <h2 class="card-title">
+        Onde Encontrar
+    </h2>
+
+    {% set approvedLocations = [] %}
+    {% for loc in locations %}
+        {% if loc.isApproved %}
+            {% set approvedLocations = approvedLocations|merge([loc]) %}
+        {% endif %}
+    {% endfor %}
+
+    <!-- Localizações -->
+    <div class="locations-list" style="margin-bottom: 20px;">
+        <!-- Formulário  -->
+        <div class="suggest-location-form-container">
+            <form action="{{ path('app_location_add', { name: pokemon.name }) }}" method="POST" style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; gap: 8px; align-items: center; width: 100%;">
+                    <input type="text" name="locationName" placeholder="Ex: Rota 1, Caverna Diglett..." required maxlength="150"
+                        style="flex-grow: 1; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background-color: rgba(255, 255, 255, 0.01); color: var(--text-primary); font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s;"
+                        onfocus="this.style.borderColor='var(--primary-color)';" onblur="this.style.borderColor='var(--border-color)';">
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 16px; font-size: 0.9rem; font-weight: bold; cursor: pointer; border-radius: var(--radius-sm); min-width: 100px;">
+                        Sugerir
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if approvedLocations is empty %}
+            <p class="no-locations-text" style="color: var(--text-secondary); font-style: italic; font-size: 0.95rem; margin: 10px 0;">
+                Nenhuma localização registrada ainda.
+            </p>
+        {% else %}
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+                {% for loc in approvedLocations %}
+                    <li style="display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.02); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <i class="fa-solid fa-location-dot" style="color: var(--primary-color);"></i>
+                        <span style="font-size: 0.95rem; font-weight: 500; color: var(--text-primary);">{{ loc.locationName }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+    </div>
+</div>

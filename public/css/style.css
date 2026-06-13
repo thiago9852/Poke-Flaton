@@ -1,4 +1,4 @@
-/* ---- Componentes: Cards, Botões e Alertas ---- */
+/* Componentes: Cards, Botões e Alertas */
 .card {
     background: var(--bg-card);
     backdrop-filter: blur(10px);
@@ -26,12 +26,10 @@
 .btn-primary {
     background-color: var(--color-primary);
     color: #fff;
-    box-shadow: 0 4px 14px var(--color-primary-glow);
 }
 
 .btn-primary:hover {
     background-color: #7c3aed;
-    box-shadow: 0 6px 20px var(--color-primary-glow);
 }
 
 .btn-secondary {
@@ -142,7 +140,7 @@
     color: var(--color-primary);
 }
 
-/* Sort Select */
+/* Ordenar Select */
 .sort-box {
     display: flex;
     align-items: center;
