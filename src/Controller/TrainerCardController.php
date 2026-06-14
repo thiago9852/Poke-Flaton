@@ -68,6 +68,9 @@ class TrainerCardController extends AbstractController
             $data['typeMedals']
         ]);
 
+        // Obter status de avatares Pokémon
+        $pkmAvatarStatuses = $this->trainerProfileService->getPkmAvatarStatuses($user);
+
         // Obter status de títulos com desbloqueio
         $titleStatuses = $this->trainerProfileService->getTitlesUnlockStatus($user, [
             $data['activityMedals'],
@@ -106,6 +109,7 @@ class TrainerCardController extends AbstractController
         return $this->render('trainer_card/index.html.twig', [
             'user' => $user,
             'avatarStatuses' => $avatarStatuses,
+            'pkmAvatarStatuses' => $pkmAvatarStatuses,
             'titleStatuses' => $titleStatuses,
             'templateStatuses' => $templateStatuses,
             'selectedTitle' => $selectedTitle,
@@ -182,27 +186,41 @@ class TrainerCardController extends AbstractController
             return new JsonResponse(['error' => 'Parâmetro inválido.'], Response::HTTP_BAD_REQUEST);
         }
 
-        $trainersJsonPath = $this->projectDir . '/scratch/trainers.json';
-        $trainers = [];
-        if (file_exists($trainersJsonPath)) {
-            $trainers = json_decode(file_get_contents($trainersJsonPath), true) ?? [];
+        $prefix = 'trainer';
+        $filename = $avatar;
+        if (str_contains($avatar, ':')) {
+            $parts = explode(':', $avatar, 2);
+            $prefix = $parts[0];
+            $filename = $parts[1];
+        } else {
+            $avatar = 'trainer:' . $avatar;
         }
 
-        if (!in_array($avatar, $trainers)) {
-            return new JsonResponse(['error' => 'Avatar inválido.'], Response::HTTP_BAD_REQUEST);
+        if ($prefix !== 'pkm' && $prefix !== 'trainer') {
+            return new JsonResponse(['error' => 'Tipo de avatar inválido.'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Validar se o avatar está desbloqueado para o usuário
         $data = $this->trainerProfileService->getTrainerProfileData($user);
-        $avatarStatuses = $this->trainerProfileService->getAvatarUnlockStatus($user, [
-            $data['activityMedals'],
-            $data['catchMedals'],
-            $data['regionalMedals'],
-            $data['typeMedals']
-        ]);
+        if ($prefix === 'trainer') {
+            $avatarStatuses = $this->trainerProfileService->getAvatarUnlockStatus($user, [
+                $data['activityMedals'],
+                $data['catchMedals'],
+                $data['regionalMedals'],
+                $data['typeMedals']
+            ]);
+        } else {
+            $avatarStatuses = $this->trainerProfileService->getPkmAvatarStatuses($user, [
+                $data['activityMedals'],
+                $data['catchMedals'],
+                $data['regionalMedals'],
+                $data['typeMedals']
+            ]);
+        }
 
+        $found = false;
         foreach ($avatarStatuses as $status) {
             if ($status['filename'] === $avatar) {
+                $found = true;
                 if ($status['isLocked']) {
                     return new JsonResponse([
                         'error' => 'Este avatar está bloqueado! Requisito: ' . $status['requirement']
@@ -212,13 +230,17 @@ class TrainerCardController extends AbstractController
             }
         }
 
+        if (!$found) {
+            return new JsonResponse(['error' => 'Avatar não disponível ou inválido.'], Response::HTTP_BAD_REQUEST);
+        }
+
         $user->setAvatar($avatar);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         return new JsonResponse([
             'success' => true,
-            'avatarUrl' => 'https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/' . $avatar
+            'avatarUrl' => $this->trainerProfileService->getAvatarUrl($avatar)
         ]);
     }
 

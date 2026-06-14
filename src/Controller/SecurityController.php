@@ -56,17 +56,6 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('app_trainer_card');
         }
 
-        $trainersJsonPath = $this->projectDir . '/scratch/trainers.json';
-        $trainers = [];
-        if (file_exists($trainersJsonPath)) {
-            $trainers = json_decode(file_get_contents($trainersJsonPath), true) ?? [];
-        }
-
-        // Filtrar apenas avatares iniciais (não bloqueados por conquistas)
-        $starterTrainers = array_values(array_filter($trainers, function ($trainer) {
-            return !isset(\App\Service\TrainerProfileService::AVATAR_REWARDS[$trainer]);
-        }));
-
         $validRegions = ['Kanto', 'Johto', 'Hoenn', 'Sinnoh', 'Unova', 'Kalos', 'Alola', 'Galar', 'Paldea'];
 
         $errors = [];
@@ -120,7 +109,7 @@ class SecurityController extends AbstractController
                     'Galar'  => 'hilbert.png',
                     'Paldea' => 'hilbert.png',
                 ];
-                $avatar = !empty($starterTrainers) ? $starterTrainers[0] : ($defaultAvatars[$regional] ?? 'hilbert.png');
+                $avatar = 'trainer:unknown.png';
 
                 $user = new User();
                 $user->setUsername($username);

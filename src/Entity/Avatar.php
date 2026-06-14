@@ -2,24 +2,25 @@
 
 namespace App\Entity;
 
-use App\Repository\TitleRepository;
+use App\Repository\AvatarRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: TitleRepository::class)]
-class Title
+#[ORM\Entity(repositoryClass: AvatarRepository::class)]
+#[ORM\Table(name: 'avatar')]
+class Avatar
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $filename = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $ribbon = null;
+    #[ORM\Column(length: 50)]
+    private ?string $type = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $requirement = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -45,26 +46,26 @@ class Title
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getFilename(): ?string
     {
-        return $this->name;
+        return $this->filename;
     }
 
-    public function setName(string $name): static
+    public function setFilename(string $filename): static
     {
-        $this->name = $name;
+        $this->filename = $filename;
 
         return $this;
     }
 
-    public function getRibbon(): ?string
+    public function getType(): ?string
     {
-        return $this->ribbon;
+        return $this->type;
     }
 
-    public function setRibbon(string $ribbon): static
+    public function setType(string $type): static
     {
-        $this->ribbon = $ribbon;
+        $this->type = $type;
 
         return $this;
     }
@@ -74,7 +75,7 @@ class Title
         return $this->requirement;
     }
 
-    public function setRequirement(string $requirement): static
+    public function setRequirement(?string $requirement): static
     {
         $this->requirement = $requirement;
 

@@ -20,7 +20,7 @@
 				<div class="top3-card-header">
 					<div class="top3-user-row">
 						<div class="top3-avatar-container">
-							<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ second.user.avatar }}" alt="Avatar" class="top3-avatar-sprite">
+							<img src="{{ avatar_url(second.user.avatar) }}" alt="Avatar" class="top3-avatar-sprite">
 						</div>
 						<div class="top3-user-meta">
 							<a href="{{ path('app_trainer_profile', { username: second.user.username }) }}" class="top3-username" title="{{ second.user.username }}">{{ second.user.username }}</a>
@@ -74,7 +74,7 @@
 				<div class="top3-card-header">
 					<div class="top3-user-row">
 						<div class="top3-avatar-container">
-							<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ first.user.avatar }}" alt="Avatar" class="top3-avatar-sprite">
+							<img src="{{ avatar_url(first.user.avatar) }}" alt="Avatar" class="top3-avatar-sprite">
 						</div>
 						<div class="top3-user-meta">
 							<a href="{{ path('app_trainer_profile', { username: first.user.username }) }}" class="top3-username" title="{{ first.user.username }}">{{ first.user.username }}</a>
@@ -128,7 +128,7 @@
 				<div class="top3-card-header">
 					<div class="top3-user-row">
 						<div class="top3-avatar-container">
-							<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ third.user.avatar }}" alt="Avatar" class="top3-avatar-sprite">
+							<img src="{{ avatar_url(third.user.avatar) }}" alt="Avatar" class="top3-avatar-sprite">
 						</div>
 						<div class="top3-user-meta">
 							<a href="{{ path('app_trainer_profile', { username: third.user.username }) }}" class="top3-username" title="{{ third.user.username }}">{{ third.user.username }}</a>
@@ -205,7 +205,7 @@
 						<td class="leaderboard-cell">
 							<div class="cell-user">
 								<div class="leaderboard-avatar-frame">
-									<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ row.user.avatar }}" alt="Avatar" class="leaderboard-avatar-img">
+									<img src="{{ avatar_url(row.user.avatar) }}" alt="Avatar" class="leaderboard-avatar-img">
 								</div>
 								<div class="leaderboard-user-details">
 									<a href="{{ path('app_trainer_profile', { username: row.user.username }) }}" class="leaderboard-name-link">{{ row.user.username }}</a>

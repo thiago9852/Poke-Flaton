@@ -7,11 +7,11 @@ use App\Repository\MovesetRepository;
 use App\Repository\UserRepository;
 use App\Repository\TitleRepository;
 use App\Repository\CardTemplateRepository;
-use App\Entity\CardTemplate;
 use App\Enum\Medal;
 use App\Enum\VivillonPattern;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class TrainerProfileService
 {
@@ -22,6 +22,9 @@ class TrainerProfileService
     private TitleRepository $titleRepository;
     private CardTemplateRepository $cardTemplateRepository;
     private string $projectDir;
+    private HttpClientInterface $httpClient;
+    private ?array $cachedLikesRanking = null;
+    private ?array $cachedMedalsRanking = null;
 
     // Avatares de recompensa bloqueados por medalhas de ouro
     public const AVATAR_REWARDS = [
@@ -40,12 +43,27 @@ class TrainerProfileService
         'Colress.png' => ['medal' => 'collector', 'tier' => 'gold', 'label' => 'Medalha de Colecionador de TMs de Ouro'],
         'Zinzolin.png' => ['medal' => 'type_ice', 'tier' => 'gold', 'label' => 'Medalha de Gelo de Ouro'],
         'Bellelba.png' => ['medal' => 'vivillon', 'tier' => 'gold', 'label' => 'Medalha de Coleção Vivillon de Ouro'],
-        'Brycenman.png' => ['medal' => 'vivillon', 'tier' => 'gold', 'label' => 'Medalha de Coleção Vivillon de Ouro'],
         'Tate.png' => ['medal' => 'type_psychic', 'tier' => 'gold', 'label' => 'Medalha de Psíquico de Ouro'],
         'Liza.png' => ['medal' => 'type_fairy', 'tier' => 'gold', 'label' => 'Medalha de Fada de Ouro'],
         'Juan.png' => ['medal' => 'type_normal', 'tier' => 'gold', 'label' => 'Medalha de Normal de Ouro'],
         'Rood.png' => ['medal' => 'type_grass', 'tier' => 'gold', 'label' => 'Medalha de Grama de Ouro'],
         'Shadow_Triad.png' => ['medal' => 'type_dark', 'tier' => 'gold', 'label' => 'Medalha de Sombrio de Ouro'],
+    ];
+
+    public const PKM_AVATARS = [
+        'Vivillon-Pokeball.png',
+        'blastoise.png',
+        'charizard.png',
+        'empoleon.png',
+        'garchomp.png',
+        'gardevoir.png',
+        'glaceon.png',
+        'lucario.png',
+        'luxray.png',
+        'metagross.png',
+        'tyranitar.png',
+        'umbreon.png',
+        'venusaur.png',
     ];
 
     public function __construct(
@@ -55,7 +73,8 @@ class TrainerProfileService
         UserRepository $userRepository,
         TitleRepository $titleRepository,
         CardTemplateRepository $cardTemplateRepository,
-        #[Autowire('%kernel.project_dir%')] string $projectDir
+        #[Autowire('%kernel.project_dir%')] string $projectDir,
+        HttpClientInterface $httpClient
     ) {
         $this->entityManager = $entityManager;
         $this->pokeApiService = $pokeApiService;
@@ -64,6 +83,7 @@ class TrainerProfileService
         $this->titleRepository = $titleRepository;
         $this->cardTemplateRepository = $cardTemplateRepository;
         $this->projectDir = $projectDir;
+        $this->httpClient = $httpClient;
     }
 
     /**
@@ -83,9 +103,19 @@ class TrainerProfileService
                 req_medal VARCHAR(255) DEFAULT NULL, 
                 req_tier VARCHAR(255) DEFAULT NULL, 
                 req_gold_count INTEGER DEFAULT NULL, 
+                req_rank_type VARCHAR(50) DEFAULT NULL,
+                req_rank_pos INTEGER DEFAULT NULL,
                 is_default BOOLEAN DEFAULT 0 NOT NULL
             )";
             $connection->executeStatement($sql);
+        }
+
+        $columns = $schemaManager->listTableColumns('title');
+        if (!isset($columns['req_rank_type'])) {
+            $connection->executeStatement("ALTER TABLE title ADD COLUMN req_rank_type VARCHAR(50) DEFAULT NULL");
+        }
+        if (!isset($columns['req_rank_pos'])) {
+            $connection->executeStatement("ALTER TABLE title ADD COLUMN req_rank_pos INT DEFAULT NULL");
         }
 
         // Se estiver vazia, popula com os títulos padrão
@@ -209,9 +239,94 @@ class TrainerProfileService
     }
 
     /**
+     * Obtém a posição do usuário no ranking de curtidas e de medalhas 
+     */
+    public function getUserRankingPositions(User $user): array
+    {
+        if ($this->cachedLikesRanking !== null && $this->cachedMedalsRanking !== null) {
+            return [
+                'likes' => $this->cachedLikesRanking[$user->getId()] ?? 999,
+                'medals' => $this->cachedMedalsRanking[$user->getId()] ?? 999
+            ];
+        }
+
+        $users = $this->userRepository->findAll();
+        $userData = [];
+
+        foreach ($users as $u) {
+            // Calcula os dados sem ranking para evitar recursão infinita
+            $profileData = $this->getTrainerProfileData($u, false);
+            
+            $gold = 0;
+            $silver = 0;
+            $bronze = 0;
+            
+            $allMedals = array_merge(
+                $profileData['activityMedals'],
+                $profileData['catchMedals'],
+                $profileData['regionalMedals'],
+                $profileData['typeMedals']
+            );
+            
+            foreach ($allMedals as $m) {
+                if ($m['tier'] === 'gold') $gold++;
+                elseif ($m['tier'] === 'silver') $silver++;
+                elseif ($m['tier'] === 'bronze') $bronze++;
+            }
+            
+            $userData[] = [
+                'id' => $u->getId(),
+                'votes' => $profileData['totalVotes'],
+                'gold' => $gold,
+                'silver' => $silver,
+                'bronze' => $bronze
+            ];
+        }
+
+        // Ordena para o ranking de curtidas (Likes)
+        $likesSorted = $userData;
+        usort($likesSorted, function ($a, $b) {
+            if ($a['votes'] !== $b['votes']) {
+                return $b['votes'] <=> $a['votes'];
+            }
+            return $b['gold'] <=> $a['gold'];
+        });
+
+        // Ordena para o ranking de medalhas (Medalhas)
+        $medalsSorted = $userData;
+        usort($medalsSorted, function ($a, $b) {
+            if ($a['gold'] !== $b['gold']) {
+                return $b['gold'] <=> $a['gold'];
+            }
+            if ($a['silver'] !== $b['silver']) {
+                return $b['silver'] <=> $a['silver'];
+            }
+            if ($a['bronze'] !== $b['bronze']) {
+                return $b['bronze'] <=> $a['bronze'];
+            }
+            return $b['votes'] <=> $a['votes'];
+        });
+
+        $this->cachedLikesRanking = [];
+        foreach ($likesSorted as $index => $item) {
+            $this->cachedLikesRanking[$item['id']] = $index + 1;
+        }
+
+        $this->cachedMedalsRanking = [];
+        foreach ($medalsSorted as $index => $item) {
+            $this->cachedMedalsRanking[$item['id']] = $index + 1;
+        }
+
+        return [
+            'likes' => $this->cachedLikesRanking[$user->getId()] ?? 999,
+            'medals' => $this->cachedMedalsRanking[$user->getId()] ?? 999
+        ];
+    }
+
+    /**
      * Calcula e agrupa as estatísticas e medalhas de um treinador
      */
-    public function getTrainerProfileData(User $user): array
+    public function getTrainerProfileData(User $user, bool $includeRanking = true): array
     {
         $this->initializeDatabaseAndTitles();
 
@@ -381,7 +496,7 @@ class TrainerProfileService
 
         foreach (Medal::cases() as $medal) {
             $currentVal = $getCurrentValue($medal);
-            $status = $this->getMedalStatus($medal, $currentVal, $enabledMedals, $titles, $user);
+            $status = $this->getMedalStatus($medal, $currentVal, $enabledMedals, $titles, $user, $includeRanking);
 
             switch ($medal->getGroupName()) {
                 case 'Atividade e Comunidade':
@@ -439,47 +554,80 @@ class TrainerProfileService
      */
     public function getAvatarUnlockStatus(User $user, array $computedMedalGroups): array
     {
-        $trainersJsonPath = $this->projectDir . '/scratch/trainers.json';
-        $trainers = [];
-        if (file_exists($trainersJsonPath)) {
-            $trainers = json_decode(file_get_contents($trainersJsonPath), true) ?? [];
-        }
+        $this->initializeDatabaseAndAvatars();
 
-        // Indexa as medalhas por nome para busca rápida
         $medalsByName = [];
+        $goldCount = 0;
         foreach ($computedMedalGroups as $group) {
             foreach ($group as $medal) {
                 $medalsByName[$medal['name']] = $medal['tier'];
+                if ($medal['tier'] === 'gold') {
+                    $goldCount++;
+                }
             }
         }
 
+        $ranks = $this->getUserRankingPositions($user);
+
+        $connection = $this->entityManager->getConnection();
+        $avatars = $connection->fetchAllAssociative("SELECT * FROM avatar WHERE type = 'trainer' ORDER BY filename ASC");
+
         $avatarStatuses = [];
-        foreach ($trainers as $trainer) {
+        $selectedAvatar = $user->getAvatar();
+        if (empty($selectedAvatar)) {
+            $selectedAvatar = 'trainer:unknown.png';
+        }
+
+        foreach ($avatars as $avatar) {
             $isLocked = false;
-            $requirement = null;
+            $requirement = $avatar['requirement'];
 
-            if (isset(self::AVATAR_REWARDS[$trainer])) {
-                $req = self::AVATAR_REWARDS[$trainer];
-                $reqMedal = $req['medal'];
-                $reqTier = $req['tier'];
+            if (!$avatar['is_default']) {
+                if ($avatar['req_rank_type'] !== null) {
+                    $reqType = $avatar['req_rank_type'];
+                    $reqPos = $avatar['req_rank_pos'] ?? 3;
+                    $userPos = $ranks[$reqType] ?? 999;
+                    if ($userPos > $reqPos) {
+                        $isLocked = true;
+                    }
+                } elseif ($avatar['req_gold_count'] !== null) {
+                    if ($goldCount < $avatar['req_gold_count']) {
+                        $isLocked = true;
+                    }
+                } elseif ($avatar['req_medal'] !== null) {
+                    $reqMedal = $avatar['req_medal'];
+                    $reqTier = $avatar['req_tier'] ?? 'bronze';
+                    $userTier = $medalsByName[$reqMedal] ?? 'locked';
 
-                $userTier = $medalsByName[$reqMedal] ?? 'locked';
+                    $tierWeights = ['locked' => 0, 'bronze' => 1, 'silver' => 2, 'gold' => 3];
+                    $userWeight = $tierWeights[$userTier] ?? 0;
+                    $reqWeight = $tierWeights[$reqTier] ?? 3;
 
-                $tierWeights = ['locked' => 0, 'bronze' => 1, 'silver' => 2, 'gold' => 3];
-                $userWeight = $tierWeights[$userTier] ?? 0;
-                $reqWeight = $tierWeights[$reqTier] ?? 3;
-
-                if ($userWeight < $reqWeight) {
+                    if ($userWeight < $reqWeight) {
+                        $isLocked = true;
+                    }
+                } else {
                     $isLocked = true;
-                    $requirement = $req['label'];
                 }
             }
 
+            $filename = $avatar['filename'];
+            $shortName = substr($filename, 8); // remove 'trainer:'
+            
+            $isSelected = ($selectedAvatar === $filename) 
+                || ($selectedAvatar === $shortName) 
+                || ($selectedAvatar === 'unknown' && $filename === 'trainer:unknown.png');
+
             $avatarStatuses[] = [
-                'filename' => $trainer,
-                'name' => str_replace(['.png', '-', '_'], ['', ' ', ' '], $trainer),
+                'filename' => $filename,
+                'name' => str_replace(['.png', '-', '_'], ['', ' ', ' '], $shortName),
                 'isLocked' => $isLocked,
-                'requirement' => $requirement
+                'requirement' => $requirement,
+                'isSelected' => $isSelected,
+                'reqMedal' => $avatar['req_medal'],
+                'reqGoldCount' => $avatar['req_gold_count'],
+                'reqRankType' => $avatar['req_rank_type'],
+                'reqRankPos' => $avatar['req_rank_pos']
             ];
         }
 
@@ -493,13 +641,16 @@ class TrainerProfileService
     {
         $rewards = [];
 
-        // Check AVATAR_REWARDS
-        foreach (self::AVATAR_REWARDS as $filename => $req) {
-            if ($req['medal'] === $medalName) {
-                $tier = $req['tier'];
-                $name = str_replace(['.png', '-', '_'], ['', ' ', ' '], $filename);
-                $rewards[$tier][] = "Avatar: " . ucwords($name);
-            }
+        // Check DB avatars
+        $this->initializeDatabaseAndAvatars();
+        $connection = $this->entityManager->getConnection();
+        $dbAvatars = $connection->fetchAllAssociative("SELECT * FROM avatar WHERE req_medal = ?", [$medalName]);
+        foreach ($dbAvatars as $avatar) {
+            $tier = $avatar['req_tier'] ?? 'gold';
+            $filename = $avatar['filename'];
+            $shortName = str_starts_with($filename, 'trainer:') ? substr($filename, 8) : (str_starts_with($filename, 'pkm:') ? substr($filename, 4) : $filename);
+            $name = str_replace(['.png', '-', '_'], ['', ' ', ' '], $shortName);
+            $rewards[$tier][] = "Avatar: " . ucwords($name);
         }
 
         // Check DB titles
@@ -531,6 +682,8 @@ class TrainerProfileService
             }
         }
 
+        $ranks = $this->getUserRankingPositions($user);
+
         $titles = $this->titleRepository->findAll();
         $titleStatuses = [];
         $selectedTitle = $user->getTitle();
@@ -539,7 +692,14 @@ class TrainerProfileService
             $isLocked = false;
 
             if (!$title->isDefault()) {
-                if ($title->getReqGoldCount() !== null) {
+                if ($title->getReqRankType() !== null) {
+                    $reqType = $title->getReqRankType();
+                    $reqPos = $title->getReqRankPos() ?? 3;
+                    $userPos = $ranks[$reqType] ?? 999;
+                    if ($userPos > $reqPos) {
+                        $isLocked = true;
+                    }
+                } elseif ($title->getReqGoldCount() !== null) {
                     if ($goldCount < $title->getReqGoldCount()) {
                         $isLocked = true;
                     }
@@ -576,6 +736,10 @@ class TrainerProfileService
                 'isLocked' => $isLocked,
                 'requirement' => $title->getRequirement(),
                 'isSelected' => ($selectedTitle === $title->getName()) || ($selectedTitle === null && $title->isDefault()),
+                'reqMedal' => $title->getReqMedal(),
+                'reqGoldCount' => $title->getReqGoldCount(),
+                'reqRankType' => $title->getReqRankType(),
+                'reqRankPos' => $title->getReqRankPos()
             ];
         }
 
@@ -590,7 +754,8 @@ class TrainerProfileService
         int $current,
         array $enabledMedals = [],
         array $titles = [],
-        User $user = null
+        User $user = null,
+        bool $includeRanking = true
     ): array {
         $baseUrl = 'https://raw.githubusercontent.com/KovuTheHusky/pokemon-medals/main/';
         $name = $medal->value;
@@ -624,8 +789,39 @@ class TrainerProfileService
             if ($regionalLocked) {
                 $description = 'Esta medalha está bloqueada pois sua região de registro é ' . ucfirst($user->getRegional()) . '.';
             } else {
-                $description = 'Esta medalha está atualmente bloqueada/desativada pela administração.';
+                $description = 'Esta medalha está atualmente bloqueada.';
             }
+        } elseif (($name === 'acclaimed' || $name === 'popular') && $includeRanking) {
+            // Overrides para (Curtidas) e Popular (Medalhas) baseados nas colocações de ranking
+            $ranks = $user ? $this->getUserRankingPositions($user) : ['likes' => 999, 'medals' => 999];
+            $pos = ($name === 'acclaimed') ? $ranks['likes'] : $ranks['medals'];
+            
+            if ($pos === 1) {
+                $tier = 'gold';
+                $nextTarget = null;
+                $percent = 100;
+                $description = 'Você é o 1º colocado no ranking de ' . ($name === 'acclaimed' ? 'curtidas' : 'medalhas') . '!';
+            } elseif ($pos === 2) {
+                $tier = 'silver';
+                $nextTarget = 1;
+                $percent = 100;
+                $description = 'Você é o 2º colocado no ranking de ' . ($name === 'acclaimed' ? 'curtidas' : 'medalhas') . '!';
+            } elseif ($pos === 3) {
+                $tier = 'bronze';
+                $nextTarget = 2;
+                $percent = 100;
+                $description = 'Você é o 3º colocado no ranking de ' . ($name === 'acclaimed' ? 'curtidas' : 'medalhas') . '!';
+            } else {
+                $tier = 'locked';
+                $nextTarget = 3;
+                $percent = 0;
+                $description = 'Disponível apenas para o Top 3 no ranking de ' . ($name === 'acclaimed' ? 'curtidas' : 'medalhas') . ' (Sua posição atual: ' . $pos . 'º).';
+            }
+        } elseif (($name === 'acclaimed' || $name === 'popular') && !$includeRanking) {
+            // Se includeRanking é falso, tranca temporariamente para evitar recursão no cálculo do ranking base
+            $tier = 'locked';
+            $nextTarget = 3;
+            $percent = 0;
         } elseif ($current >= $gold) {
             $tier = 'gold';
             $nextTarget = null;
@@ -685,6 +881,8 @@ class TrainerProfileService
             }
         }
 
+        $ranks = $this->getUserRankingPositions($user);
+
         $templates = $this->cardTemplateRepository->findAll();
         $templateStatuses = [];
         $selectedTemplate = $user->getCardTemplate();
@@ -693,7 +891,14 @@ class TrainerProfileService
             $isLocked = false;
 
             if (!$template->isDefault()) {
-                if ($template->getReqGoldCount() !== null) {
+                if ($template->getReqRankType() !== null) {
+                    $reqType = $template->getReqRankType();
+                    $reqPos = $template->getReqRankPos() ?? 3;
+                    $userPos = $ranks[$reqType] ?? 999;
+                    if ($userPos > $reqPos) {
+                        $isLocked = true;
+                    }
+                } elseif ($template->getReqGoldCount() !== null) {
                     if ($goldCount < $template->getReqGoldCount()) {
                         $isLocked = true;
                     }
@@ -709,12 +914,18 @@ class TrainerProfileService
                     if ($userWeight < $reqWeight) {
                         $isLocked = true;
                     }
+                } else {
+                    $isLocked = true;
                 }
             }
 
             $imageUrl = null;
             if ($template->getImage()) {
-                $imageUrl = '/uploads/templates/' . $template->getImage();
+                if (str_starts_with($template->getImage(), 'http://') || str_starts_with($template->getImage(), 'https://')) {
+                    $imageUrl = $template->getImage();
+                } else {
+                    $imageUrl = 'https://raw.githubusercontent.com/thiago9852/pokemon-sprite/main/sprites/src/templates/' . $template->getImage();
+                }
             }
 
             $templateStatuses[] = [
@@ -725,6 +936,10 @@ class TrainerProfileService
                 'isLocked' => $isLocked,
                 'requirement' => $template->getRequirement(),
                 'isSelected' => ($selectedTemplate === $template->getImage()) || ($selectedTemplate === null && $template->isDefault()),
+                'reqMedal' => $template->getReqMedal(),
+                'reqGoldCount' => $template->getReqGoldCount(),
+                'reqRankType' => $template->getReqRankType(),
+                'reqRankPos' => $template->getReqRankPos()
             ];
         }
 
@@ -745,14 +960,370 @@ class TrainerProfileService
                 req_medal VARCHAR(255) DEFAULT NULL, 
                 req_tier VARCHAR(255) DEFAULT NULL, 
                 req_gold_count INTEGER DEFAULT NULL, 
+                req_rank_type VARCHAR(50) DEFAULT NULL,
+                req_rank_pos INTEGER DEFAULT NULL,
                 is_default BOOLEAN DEFAULT 0 NOT NULL
             )";
             $connection->executeStatement($sql);
+        }
+
+        $columns = $schemaManager->listTableColumns('card_template');
+        if (!isset($columns['req_rank_type'])) {
+            $connection->executeStatement("ALTER TABLE card_template ADD COLUMN req_rank_type VARCHAR(50) DEFAULT NULL");
+        }
+        if (!isset($columns['req_rank_pos'])) {
+            $connection->executeStatement("ALTER TABLE card_template ADD COLUMN req_rank_pos INT DEFAULT NULL");
         }
 
         $userColumns = $schemaManager->listTableColumns('user');
         if (!isset($userColumns['card_template'])) {
             $connection->executeStatement("ALTER TABLE user ADD COLUMN card_template VARCHAR(255) DEFAULT NULL");
         }
+    }
+    public function getAvatarUrl(?string $avatar): string
+    {
+        if (empty($avatar) || strcasecmp($avatar, 'unknown') === 0 || strcasecmp($avatar, 'trainer:unknown.png') === 0 || strcasecmp($avatar, 'unknown.png') === 0) {
+            return 'https://raw.githubusercontent.com/thiago9852/pokemon-sprite/main/sprites/src/avatar/trainer/Unknown.png';
+        }
+
+        if (str_starts_with($avatar, 'pkm:')) {
+            $filename = substr($avatar, 4);
+            return 'https://raw.githubusercontent.com/thiago9852/pokemon-sprite/main/sprites/src/avatar/pkm/' . $filename;
+        }
+
+        $filename = str_starts_with($avatar, 'trainer:') ? substr($avatar, 8) : $avatar;
+        return 'https://raw.githubusercontent.com/thiago9852/pokemon-sprite/main/sprites/src/avatar/trainer/' . $filename;
+    }
+
+    public function getPkmAvatarStatuses(User $user, array $computedMedalGroups = []): array
+    {
+        $this->initializeDatabaseAndAvatars();
+
+        $medalsByName = [];
+        $goldCount = 0;
+        foreach ($computedMedalGroups as $group) {
+            foreach ($group as $medal) {
+                $medalsByName[$medal['name']] = $medal['tier'];
+                if ($medal['tier'] === 'gold') {
+                    $goldCount++;
+                }
+            }
+        }
+
+        $connection = $this->entityManager->getConnection();
+        $avatars = $connection->fetchAllAssociative("SELECT * FROM avatar WHERE type = 'pkm' ORDER BY filename ASC");
+
+        $avatarStatuses = [];
+        $selectedAvatar = $user->getAvatar();
+
+        foreach ($avatars as $avatar) {
+            $isLocked = false;
+            $requirement = $avatar['requirement'];
+
+            if (!$avatar['is_default']) {
+                if ($avatar['req_gold_count'] !== null) {
+                    if ($goldCount < $avatar['req_gold_count']) {
+                        $isLocked = true;
+                    }
+                } elseif ($avatar['req_medal'] !== null) {
+                    $reqMedal = $avatar['req_medal'];
+                    $reqTier = $avatar['req_tier'] ?? 'bronze';
+                    $userTier = $medalsByName[$reqMedal] ?? 'locked';
+
+                    $tierWeights = ['locked' => 0, 'bronze' => 1, 'silver' => 2, 'gold' => 3];
+                    $userWeight = $tierWeights[$userTier] ?? 0;
+                    $reqWeight = $tierWeights[$reqTier] ?? 3;
+
+                    if ($userWeight < $reqWeight) {
+                        $isLocked = true;
+                    }
+                } else {
+                    $isLocked = true;
+                }
+            }
+
+            $filename = $avatar['filename'];
+            $shortName = substr($filename, 4); // remove 'pkm:'
+
+            $isSelected = ($selectedAvatar === $filename);
+
+            $avatarStatuses[] = [
+                'filename' => $filename,
+                'name' => str_replace(['.png', '-', '_'], ['', ' ', ' '], $shortName),
+                'isLocked' => $isLocked,
+                'requirement' => $requirement,
+                'isSelected' => $isSelected,
+                'reqMedal' => $avatar['req_medal'],
+                'reqGoldCount' => $avatar['req_gold_count']
+            ];
+        }
+        
+        return $avatarStatuses;
+    }
+
+    public function initializeDatabaseAndAvatars(): void
+    {
+        $connection = $this->entityManager->getConnection();
+        $schemaManager = $connection->createSchemaManager();
+
+        if (!$schemaManager->tablesExist(['avatar'])) {
+            $sql = "CREATE TABLE avatar (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+                filename VARCHAR(255) NOT NULL, 
+                type VARCHAR(50) NOT NULL, 
+                requirement VARCHAR(255) DEFAULT NULL, 
+                req_medal VARCHAR(255) DEFAULT NULL, 
+                req_tier VARCHAR(255) DEFAULT NULL, 
+                req_gold_count INTEGER DEFAULT NULL, 
+                req_rank_type VARCHAR(50) DEFAULT NULL,
+                req_rank_pos INTEGER DEFAULT NULL,
+                is_default BOOLEAN DEFAULT 0 NOT NULL,
+                CONSTRAINT filename_unique UNIQUE (filename)
+            )";
+            $connection->executeStatement($sql);
+        }
+
+        $columns = $schemaManager->listTableColumns('avatar');
+        if (!isset($columns['req_rank_type'])) {
+            $connection->executeStatement("ALTER TABLE avatar ADD COLUMN req_rank_type VARCHAR(50) DEFAULT NULL");
+        }
+        if (!isset($columns['req_rank_pos'])) {
+            $connection->executeStatement("ALTER TABLE avatar ADD COLUMN req_rank_pos INT DEFAULT NULL");
+        }
+
+        // Se estiver vazia, popula com as recompensas iniciais
+        $avatarCount = (int) $connection->fetchOne("SELECT COUNT(*) FROM avatar");
+        if ($avatarCount === 0) {
+            $connection->insert('avatar', [
+                'filename' => 'trainer:unknown.png',
+                'type' => 'trainer',
+                'requirement' => 'Padrão do Sistema',
+                'req_medal' => null,
+                'req_tier' => null,
+                'req_gold_count' => null,
+                'is_default' => 1
+            ]);
+
+            foreach (['Ash.png', 'Beauty.png', 'Hiker.png'] as $defTrainer) {
+                $connection->insert('avatar', [
+                    'filename' => 'trainer:' . $defTrainer,
+                    'type' => 'trainer',
+                    'requirement' => 'Padrão do Sistema',
+                    'req_medal' => null,
+                    'req_tier' => null,
+                    'req_gold_count' => null,
+                    'is_default' => 1
+                ]);
+            }
+
+            foreach (self::AVATAR_REWARDS as $trainer => $req) {
+                $connection->insert('avatar', [
+                    'filename' => 'trainer:' . $trainer,
+                    'type' => 'trainer',
+                    'requirement' => $req['label'],
+                    'req_medal' => $req['medal'],
+                    'req_tier' => $req['tier'],
+                    'req_gold_count' => null,
+                    'is_default' => 0
+                ]);
+            }
+
+            foreach (self::PKM_AVATARS as $pkm) {
+                $isPkmDefault = in_array(strtolower($pkm), ['charizard.png', 'lucario.png']) ? 1 : 0;
+                $connection->insert('avatar', [
+                    'filename' => 'pkm:' . $pkm,
+                    'type' => 'pkm',
+                    'requirement' => $isPkmDefault ? 'Padrão do Sistema' : 'Bloqueado por padrão',
+                    'req_medal' => null,
+                    'req_tier' => null,
+                    'req_gold_count' => null,
+                    'is_default' => $isPkmDefault
+                ]);
+            }
+        }
+
+        // Garante que o avatar unknown.png padrão sempre tenha is_default = 1 e nenhum requisito
+        $connection->executeStatement(
+            "UPDATE avatar SET is_default = 1, req_medal = NULL, req_tier = NULL, req_gold_count = NULL, requirement = 'Padrão do Sistema' WHERE LOWER(filename) = 'trainer:unknown.png'"
+        );
+    }
+
+    public function syncAvatarsFromApi(): array
+    {
+        $this->initializeDatabaseAndAvatars();
+        $connection = $this->entityManager->getConnection();
+        $inserted = 0;
+        $total = 0;
+
+        try {
+            // 1. Sincronizar avatares de Treinador
+            $response = $this->httpClient->request('GET', 'https://api.github.com/repos/thiago9852/pokemon-sprite/contents/sprites/src/avatar/trainer', [
+                'headers' => [
+                    'User-Agent' => 'PokeFlaton-App'
+                ]
+            ]);
+            
+            if ($response->getStatusCode() === 200) {
+                $files = $response->toArray();
+                foreach ($files as $file) {
+                    if (isset($file['type']) && $file['type'] === 'file' && str_ends_with(strtolower($file['name']), '.png')) {
+                        $filename = 'trainer:' . $file['name'];
+                        
+                        // Verificação case-insensitive no banco de dados para evitar duplicados como unknown.png vs Unknown.png
+                        $exists = $connection->fetchOne("SELECT COUNT(*) FROM avatar WHERE LOWER(filename) = LOWER(?)", [$filename]);
+                        if (!$exists) {
+                            $isDefault = 0;
+                            $reqMedal = null;
+                            $reqTier = null;
+                            $requirement = 'Bloqueado por padrão';
+
+                            // Busca correspondência nas recompensas de forma case-insensitive
+                            $matchedReq = null;
+                            foreach (self::AVATAR_REWARDS as $rewardFile => $rewardData) {
+                                if (strcasecmp($rewardFile, $file['name']) === 0) {
+                                    $matchedReq = $rewardData;
+                                    break;
+                                }
+                            }
+
+                            if ($matchedReq !== null) {
+                                $isDefault = 0;
+                                $reqMedal = $matchedReq['medal'];
+                                $reqTier = $matchedReq['tier'];
+                                $requirement = $matchedReq['label'];
+                            } elseif (in_array(strtolower($file['name']), ['ash.png', 'beauty.png', 'hiker.png', 'Unknown.png'])) {
+                                $isDefault = 1;
+                                $requirement = 'Padrão do Sistema';
+                            }
+
+                            $connection->insert('avatar', [
+                                'filename' => $filename,
+                                'type' => 'trainer',
+                                'requirement' => $requirement,
+                                'req_medal' => $reqMedal,
+                                'req_tier' => $reqTier,
+                                'req_gold_count' => null,
+                                'is_default' => $isDefault
+                            ]);
+                            $inserted++;
+                        }
+                        $total++;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        try {
+            // 2. Sincronizar avatares Pokémon
+            $response = $this->httpClient->request('GET', 'https://api.github.com/repos/thiago9852/pokemon-sprite/contents/sprites/src/avatar/pkm', [
+                'headers' => [
+                    'User-Agent' => 'PokeFlaton-App'
+                ]
+            ]);
+            
+            if ($response->getStatusCode() === 200) {
+                $files = $response->toArray();
+                foreach ($files as $file) {
+                    if (isset($file['type']) && $file['type'] === 'file' && str_ends_with(strtolower($file['name']), '.png')) {
+                        $filename = 'pkm:' . $file['name'];
+                        
+                        // Verificação case-insensitive no banco de dados
+                        $exists = $connection->fetchOne("SELECT COUNT(*) FROM avatar WHERE LOWER(filename) = LOWER(?)", [$filename]);
+                        if (!$exists) {
+                            $isPkmDefault = in_array(strtolower($file['name']), ['charizard.png', 'lucario.png']) ? 1 : 0;
+                            $connection->insert('avatar', [
+                                'filename' => $filename,
+                                'type' => 'pkm',
+                                'requirement' => $isPkmDefault ? 'Padrão do Sistema' : 'Bloqueado por padrão',
+                                'req_medal' => null,
+                                'req_tier' => null,
+                                'req_gold_count' => null,
+                                'is_default' => $isPkmDefault
+                            ]);
+                            $inserted++;
+                        }
+                        $total++;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        return [
+            'inserted' => $inserted,
+            'total' => $total
+        ];
+    }
+
+    public function resetAndSyncAvatars(): array
+    {
+        $connection = $this->entityManager->getConnection();
+        $connection->executeStatement("DELETE FROM avatar");
+        
+        return $this->syncAvatarsFromApi();
+    }
+
+    public function syncTemplatesFromApi(): array
+    {
+        $this->initializeDatabaseAndCardTemplates();
+        $connection = $this->entityManager->getConnection();
+        $inserted = 0;
+        $total = 0;
+
+        try {
+            $response = $this->httpClient->request('GET', 'https://api.github.com/repos/thiago9852/pokemon-sprite/contents/sprites/src/templates', [
+                'headers' => [
+                    'User-Agent' => 'PokeFlaton-App'
+                ]
+            ]);
+            
+            if ($response->getStatusCode() === 200) {
+                $files = $response->toArray();
+                foreach ($files as $file) {
+                    if (isset($file['type']) && $file['type'] === 'file' && str_ends_with(strtolower($file['name']), '.png')) {
+                        $filename = $file['name'];
+                        
+                        // Verificação case-insensitive no banco de dados para evitar duplicados
+                        $exists = $connection->fetchOne("SELECT COUNT(*) FROM card_template WHERE LOWER(image) = LOWER(?)", [$filename]);
+                        if (!$exists) {
+                            $name = str_replace(['.png', '-', '_'], ['', ' ', ' '], $filename);
+                            $name = ucwords($name);
+
+                            $connection->insert('card_template', [
+                                'name' => $name,
+                                'image' => $filename,
+                                'requirement' => 'Bloqueado por padrão',
+                                'req_medal' => null,
+                                'req_tier' => null,
+                                'req_gold_count' => null,
+                                'req_rank_type' => null,
+                                'req_rank_pos' => null,
+                                'is_default' => 0
+                            ]);
+                            $inserted++;
+                        }
+                        $total++;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // ignore
+        }
+
+        return [
+            'inserted' => $inserted,
+            'total' => $total
+        ];
+    }
+
+    public function resetAndSyncTemplates(): array
+    {
+        $connection = $this->entityManager->getConnection();
+        $connection->executeStatement("DELETE FROM card_template");
+        
+        return $this->syncTemplatesFromApi();
     }
 }

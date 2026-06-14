@@ -175,7 +175,6 @@ a {
 .nav-user-avatar {
     width: 35px !important;
     height: 35px !important;
-    image-rendering: pixelated;
     object-fit: cover;
     object-position: center top;
 }

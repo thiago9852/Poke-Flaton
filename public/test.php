@@ -1,8 +1,8 @@
 <?php
-// Query the sqlite database and print user caught_pokemon
+// Query the mysql database and print user caught_pokemon
 try {
-    $dbPath = __DIR__ . '/../var/data.db';
-    $db = new PDO('sqlite:' . $dbPath);
+    $dsn = 'mysql:host=127.0.0.1;dbname=poke_moveset;charset=utf8mb4';
+    $db = new PDO($dsn, 'root', 'root123');
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     $stmt = $db->query('SELECT id, username, caught_pokemon, regional FROM user');
@@ -16,3 +16,4 @@ try {
 } catch (Exception $e) {
     echo "ERROR: " . $e->getMessage() . "\n";
 }
+

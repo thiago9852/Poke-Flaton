@@ -44,7 +44,7 @@
 			id="trainer-card-tab" class="tab-content active">
 
 			<!-- Trainer Card -->
-			<div class="trainer-profile-banner" style="{% if selectedTemplateUrl %}background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('{{ selectedTemplateUrl }}'); background-size: cover; background-position: center;{% endif %}">
+			<div class="trainer-profile-banner" style="{% if selectedTemplateUrl %}background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('{{ selectedTemplateUrl }}'); background-size: cover;{% endif %}">
 				<div class="banner-glow"></div>
 				<div class="banner-accent-line"></div>
 
@@ -54,7 +54,7 @@
 						<!-- Avatar -->
 						<div class="banner-avatar-section">
 							<div class="banner-avatar-frame" onclick="openAvatarModal()">
-								<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ user.avatar }}" alt="Avatar" id="trainer-avatar-img" class="trainer-avatar-sprite">
+								<img src="{{ avatar_url(user.avatar) }}" alt="Avatar" id="trainer-avatar-img" class="trainer-avatar-sprite">
 								<div class="banner-avatar-edit-overlay">
 									<i class="fa-solid fa-pen"></i>
 								</div>
@@ -202,27 +202,27 @@
 							</div>
 						</div>
 
-						<!-- Compartilhar perfil / Mudar Fundo -->
-						<div class="banner-actions-section" style="display: flex; flex-direction: column; gap: 8px;">
-							<button class="banner-share-btn" title="Compartilhar Trainer Card (em breve)" disabled>
-								<i class="fa-solid fa-share-nodes"></i>
-								<span>Compartilhar</span>
-							</button>
-							<button class="banner-share-btn" onclick="openTemplateModal()" style="background: rgba(139, 92, 246, 0.2); border-color: var(--color-primary); cursor: pointer;" title="Alterar Plano de Fundo">
-								<i class="fa-solid fa-image"></i>
-								<span>Alterar Fundo</span>
-							</button>
-						</div>
-
 					</div>
 				</div>
 
 				<!-- Rodapé -->
 				<div class="banner-footer-strip">
-					<div class="footer-ball-icon"></div>
-					<span class="region-text"> REGIÃO DE
-						{{ user.regional|upper }}
-					</span>
+					<div style="display: flex; gap: 8px; align-items: center;">
+						<div class="footer-ball-icon"></div>
+						<span class="region-text"> REGIÃO DE
+							{{ user.regional|upper }}
+						</span>
+					</div>
+					
+					<!-- Compartilhar perfil / Mudar Fundo -->
+					<div class="banner-actions-section">
+						<button class="banner-share-btn" title="Compartilhar Trainer Card (em breve)" disabled>
+							<i class="fa-solid fa-share-nodes"></i>
+						</button>
+						<button class="banner-share-btn" onclick="openTemplateModal()" style="background: rgba(139, 92, 246, 0.2); border-color: var(--color-primary); cursor: pointer;" title="Alterar Plano de Fundo">
+							<i class="fa-solid fa-image"></i>
+						</button>
+					</div>
 				</div>
 			</div>
 
@@ -951,7 +951,7 @@
 										<div class="trainer-avatar-container">
 
 											{% if follower.avatar %}
-												<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ follower.avatar }}" alt="{{ follower.username }}" class="trainer-avatar-mini">
+												<img src="{{ avatar_url(follower.avatar) }}" alt="{{ follower.username }}" class="trainer-avatar-mini">
 											{% else %}
 												<i class="fa-solid fa-circle-user generic-avatar-icon" style="font-size: 1.5rem; color: var(--text-muted);"></i>
 											{% endif %}
@@ -1075,7 +1075,13 @@
 
 							<div style="text-align: left;">
 								<strong style="display: block; font-size: 0.95rem; color: {% if ts.isSelected %}var(--color-secondary){% else %}var(--text-primary){% endif %};">{{ ts.name }}</strong>
-								<span style="font-size: 0.75rem; color: var(--text-muted);">{{ ts.requirement }}</span>
+								<span style="font-size: 0.75rem; color: var(--text-muted);">
+									{% if ts.isLocked and not ts.reqMedal and not ts.reqGoldCount %}
+										Bloqueado
+									{% else %}
+										{{ ts.requirement }}
+									{% endif %}
+								</span>
 							</div>
 						</div>
 
@@ -1099,20 +1105,28 @@
 	<!-- Modal para Seleção de Avatar -->
 	<div class="avatar-modal-overlay" id="avatar-modal">
 		<div class="avatar-modal-card card">
-			<div class="avatar-modal-header">
-				<h3>Escolha seu Avatar de Treinador</h3>
-
-				<button class="close-modal-btn" onclick="closeAvatarModal()">
-					<i class="fa-solid fa-xmark"></i>
-				</button>
+			<div class="avatar-modal-header" style="flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 15px; padding-bottom: 8px;">
+				<div style="display: flex; justify-content: space-between; align-items: center;">
+					<h3 style="margin: 0;">Escolha seu Avatar</h3>
+					<button class="close-modal-btn" onclick="closeAvatarModal()">
+						<i class="fa-solid fa-xmark"></i>
+					</button>
+				</div>
+				<!-- Tabs Selector -->
+				<div class="avatar-tabs" style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+					<button id="tab-btn-trainer" class="btn btn-sm btn-secondary active" onclick="switchAvatarTab('trainer')" style="flex: 1; text-align: center;">Treinador</button>
+					<button id="tab-btn-pkm" class="btn btn-sm btn-secondary" onclick="switchAvatarTab('pkm')" style="flex: 1; text-align: center;">Pokémon</button>
+				</div>
 			</div>
 
-			<div class="avatar-modal-grid">
+			<!-- Tab: Trainer -->
+			<div class="avatar-modal-grid" id="avatar-grid-trainer">
 				{% for avatar in avatarStatuses %}
 					{% set trainerName = avatar.name|title %}
-					{% set avatarUrl = 'https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/' ~ avatar.filename %}
+					{% set avatarUrl = avatar_url(avatar.filename) %}
+					{% set isSel = (user.avatar == avatar.filename) or (user.avatar == avatar.filename|replace({'trainer:': ''})) or (user.avatar is empty and avatar.filename == 'trainer:unknown.png') %}
 					
-					<div class="modal-avatar-option {% if user.avatar == avatar.filename %}selected{% endif %} {% if avatar.isLocked %}avatar-locked{% endif %}" data-filename="{{ avatar.filename }}" {% if not avatar.isLocked %} onclick="updateAvatarSelection('{{ avatar.filename }}')" {% endif %} title="{% if avatar.isLocked %}Bloqueado: Requer {{ avatar.requirement }}{% else %}{{ trainerName }}{% endif %}">
+					<div class="modal-avatar-option {% if isSel %}selected{% endif %} {% if avatar.isLocked %}avatar-locked{% endif %}" data-filename="{{ avatar.filename }}" {% if not avatar.isLocked %} onclick="updateAvatarSelection('{{ avatar.filename }}')" {% endif %} title="{% if avatar.isLocked %}Bloqueado{% if avatar.reqMedal or avatar.reqGoldCount %}: Requer {{ avatar.requirement }}{% endif %}{% else %}{{ trainerName }}{% endif %}">
 						<div class="avatar-img-wrapper">
 							<img src="{{ avatarUrl }}" alt="{{ trainerName }}">
 
@@ -1125,10 +1139,47 @@
 						<span class="avatar-label">{{ trainerName }}</span>
 
 						{% if avatar.isLocked %}
-							<span class="avatar-locked-desc" title="{{ avatar.requirement }}">Requer Ouro</span>
+							<span class="avatar-locked-desc" title="{{ avatar.requirement }}">
+								{% if avatar.reqMedal or avatar.reqGoldCount %}
+									{{ avatar.requirement }}
+								{% else %}
+									Bloqueado
+								{% endif %}
+							</span>
 						{% endif %}
 					</div>
+				{% endfor %}
+			</div>
+
+			<!-- Tab: PKM -->
+			<div class="avatar-modal-grid" id="avatar-grid-pkm" style="display: none;">
+				{% for avatar in pkmAvatarStatuses %}
+					{% set pkmName = avatar.name|title %}
+					{% set avatarUrl = avatar_url(avatar.filename) %}
+					{% set isSel = (user.avatar == avatar.filename) %}
 					
+					<div class="modal-avatar-option {% if isSel %}selected{% endif %} {% if avatar.isLocked %}avatar-locked{% endif %}" data-filename="{{ avatar.filename }}" {% if not avatar.isLocked %} onclick="updateAvatarSelection('{{ avatar.filename }}')" {% endif %} title="{% if avatar.isLocked %}Bloqueado{% if avatar.reqMedal or avatar.reqGoldCount %}: Requer {{ avatar.requirement }}{% endif %}{% else %}{{ pkmName }}{% endif %}">
+						<div class="avatar-img-wrapper">
+							<img src="{{ avatarUrl }}" alt="{{ pkmName }}">
+
+							{% if avatar.isLocked %}
+								<div class="avatar-lock-overlay">
+									<i class="fa-solid fa-lock"></i>
+								</div>
+							{% endif %}
+						</div>
+						<span class="avatar-label">{{ pkmName }}</span>
+
+						{% if avatar.isLocked %}
+							<span class="avatar-locked-desc" title="{{ avatar.requirement }}">
+								{% if avatar.reqMedal or avatar.reqGoldCount %}
+									{{ avatar.requirement }}
+								{% else %}
+									Bloqueado
+								{% endif %}
+							</span>
+						{% endif %}
+					</div>
 				{% endfor %}
 			</div>
 

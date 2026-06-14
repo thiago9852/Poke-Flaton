@@ -31,6 +31,12 @@ class CardTemplate
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $reqGoldCount = null;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $reqRankType = null;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $reqRankPos = null;
+
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $isDefault = false;
 
@@ -107,6 +113,30 @@ class CardTemplate
     public function setReqGoldCount(?int $reqGoldCount): static
     {
         $this->reqGoldCount = $reqGoldCount;
+
+        return $this;
+    }
+
+    public function getReqRankType(): ?string
+    {
+        return $this->reqRankType;
+    }
+
+    public function setReqRankType(?string $reqRankType): static
+    {
+        $this->reqRankType = $reqRankType;
+
+        return $this;
+    }
+
+    public function getReqRankPos(): ?int
+    {
+        return $this->reqRankPos;
+    }
+
+    public function setReqRankPos(?int $reqRankPos): static
+    {
+        $this->reqRankPos = $reqRankPos;
 
         return $this;
     }

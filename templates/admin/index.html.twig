@@ -393,63 +393,82 @@
 					<table class="admin-table">
 						<thead>
 							<tr>
-								<th>Ribbon</th>
+								<th style="width: 80px;">Ribbon</th>
 								<th>Título</th>
-								<th>Requisito</th>
-								<th class="text-center">Padrão?</th>
-								<th class="text-right">Ações</th>
+								<th>Requisito Exibido</th>
+								<th>Requisitos (Medalhas / Ranking)</th>
+								<th class="text-center" style="width: 120px;">Padrão?</th>
+								<th class="text-right" style="width: 180px;">Ações</th>
 							</tr>
 						</thead>
 						<tbody>
 
 							{% for title in titles %}
-								{% set ribbonUrl = 'https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/gen8/' ~ title.ribbon %}
+								{% set ribbonUrl = title.ribbon|slice(0, 4) == 'http' or title.ribbon|slice(0, 5) == 'https' ? title.ribbon : 'https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/gen8/' ~ title.ribbon %}
 
 								<tr>
-									<td>
-										<img src="{{ ribbonUrl }}" alt="Ribbon" class="title-ribbon-img">
-									</td>
-									<td class="font-bold">
-										{{ title.name }}
-									</td>
-									<td class="text-secondary-small">
-										{{ title.requirement }}
-										{% if title.reqMedal %}
-											<span class="title-req-badge">
-												{{ title.reqMedal }}
-												({{ title.reqTier }})
-											</span>
-										{% endif %}
-										{% if title.reqGoldCount %}
-											<span class="title-req-badge gold">
-												{{ title.reqGoldCount }}
-												Ouro
-											</span>
-										{% endif %}
-									</td>
-									<td class="text-center">
-										{% if title.isDefault %}
-											<span class="title-status-icon success">
-												<i class="fa-solid fa-circle-check"></i>
-											</span>
-										{% else %}
-											<span class="title-status-icon muted">
-												<i class="fa-solid fa-circle-xmark"></i>
-											</span>
-										{% endif %}
-									</td>
-									<td class="text-right">
-										{% if not title.isDefault %}
-											<form method="post" action="{{ path('app_admin_title_delete', {'id': title.id}) }}" onsubmit="return confirm('Deseja realmente excluir este título?')">
-												<button type="submit" class="btn-admin-reject">
-													<i class="fa-solid fa-trash-can"></i>
-													Excluir
+									<form method="post" action="{{ path('app_admin_title_update', {'id': title.id}) }}">
+										<td>
+											<img src="{{ ribbonUrl }}" alt="Ribbon" class="title-ribbon-img">
+										</td>
+										<td>
+											<strong style="display: block;">{{ title.name }}</strong>
+											<span class="text-muted" style="font-size: 0.75rem;">{{ title.ribbon }}</span>
+										</td>
+										<td>
+											<input type="text" name="requirement" value="{{ title.requirement }}" class="form-input" style="width: 100%; font-size: 0.85rem;" placeholder="Ex: Medalha de Hoenn de Ouro">
+										</td>
+										<td>
+											<div style="display: flex; gap: 6px;">
+												<select name="reqMedal" class="form-input" style="font-size: 0.8rem; padding: 4px; flex: 2; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="">Nenhuma Medalha</option>
+													{% for cat, medals in medalDefs %}
+														<optgroup label="{{ cat }}">
+															{% for m in medals %}
+																<option value="{{ m.key }}" {% if title.reqMedal == m.key %}selected{% endif %}>{{ m.title }}</option>
+															{% endfor %}
+														</optgroup>
+													{% endfor %}
+												</select>
+												<select name="reqTier" class="form-input" style="font-size: 0.8rem; padding: 4px; flex: 1; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="bronze" {% if title.reqTier == 'bronze' %}selected{% endif %}>Bronze</option>
+													<option value="silver" {% if title.reqTier == 'silver' %}selected{% endif %}>Prata</option>
+													<option value="gold" {% if title.reqTier == 'gold' or title.reqTier is empty %}selected{% endif %}>Ouro</option>
+												</select>
+												<input type="number" name="reqGoldCount" value="{{ title.reqGoldCount }}" class="form-input" style="width: 60px; font-size: 0.8rem; padding: 4px;" placeholder="Ouro" title="Quantidade de medalhas de ouro requeridas">
+											</div>
+											<div style="display: flex; gap: 6px; margin-top: 6px; align-items: center;">
+												<span style="font-size: 0.75rem; color: var(--text-secondary); white-space: nowrap;">Ou Ranking:</span>
+												<select name="reqRankType" class="form-input" style="font-size: 0.8rem; padding: 4px; flex: 1; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="">Nenhum Ranking</option>
+													<option value="likes" {% if title.reqRankType == 'likes' %}selected{% endif %}>Curtidas (Top 3)</option>
+													<option value="medals" {% if title.reqRankType == 'medals' %}selected{% endif %}>Medalhas (Top 3)</option>
+												</select>
+												<select name="reqRankPos" class="form-input" style="font-size: 0.8rem; padding: 4px; width: 80px; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="3" {% if title.reqRankPos == 3 or title.reqRankPos is empty %}selected{% endif %}>Top 3</option>
+													<option value="2" {% if title.reqRankPos == 2 %}selected{% endif %}>Top 2</option>
+													<option value="1" {% if title.reqRankPos == 1 %}selected{% endif %}>Top 1</option>
+												</select>
+											</div>
+										</td>
+										<td class="text-center">
+											<input type="checkbox" name="isDefault" value="1" {% if title.isDefault %}checked{% endif %} class="admin-checkbox">
+										</td>
+										<td class="text-right">
+											<div style="display: flex; gap: 6px; justify-content: flex-end;">
+												<button type="submit" class="btn btn-primary btn-sm">
+													<i class="fa-solid fa-floppy-disk"></i>
+													Salvar
 												</button>
-											</form>
-										{% else %}
-											<span class="text-muted-italic">Imutável</span>
-										{% endif %}
-									</td>
+												{% if not title.isDefault %}
+													<button type="submit" formAction="{{ path('app_admin_title_delete', {'id': title.id}) }}" class="btn-admin-reject btn-sm" onclick="return confirm('Deseja realmente excluir este título?')" style="padding: 6px 12px; font-size: 0.8rem;">
+														<i class="fa-solid fa-trash-can"></i>
+														Excluir
+													</button>
+												{% endif %}
+											</div>
+										</td>
+									</form>
 								</tr>
 							{% endfor %}
 
@@ -471,121 +490,238 @@
 			</div>
 
 			<div id="templates-content" class="admin-category-content">
-				<!-- Criar novo template Form -->
-
-				<div class="admin-card-container padded">
-					<h3 class="admin-section-title mb-15">Criar Novo Plano de Fundo</h3>
-
-					{{ form_start(templateForm) }}
-					<div class="title-form-grid">
-						<div>
-							<label class="title-form-label">Nome do Modelo</label>
-							{{ form_widget(templateForm.name, {'attr': {'class': 'form-input'}}) }}
-						</div>
-						<div>
-							<label class="title-form-label">Imagem de Fundo (PNG)</label>
-							{{ form_widget(templateForm.imageFile, {'attr': {'class': 'form-input'}}) }}
-						</div>
-						<div>
-							<label class="title-form-label">Descrição do Requisito</label>
-							{{ form_widget(templateForm.requirement, {'attr': {'class': 'form-input', 'placeholder': 'Ex: Medalha Cientista no nível Bronze'}}) }}
-						</div>
-						<div>
-							<label class="title-form-label">Medalha Requerida</label>
-							{{ form_widget(templateForm.reqMedal, {'attr': {'class': 'form-input'}}) }}
-						</div>
-						<div>
-							<label class="title-form-label">Nível da Medalha</label>
-							{{ form_widget(templateForm.reqTier, {'attr': {'class': 'form-input'}}) }}
-						</div>
-						<div>
-							<label class="title-form-label">Qtd Medalhas Ouro</label>
-							{{ form_widget(templateForm.reqGoldCount, {'attr': {'class': 'form-input', 'placeholder': 'Vazio se não aplicar'}}) }}
-						</div>
+				<div class="admin-card-container padded" style="display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 20px;">
+					<div>
+						<h3 class="admin-section-title" style="margin: 0;">Sincronização e Regras</h3>
+						<p class="text-muted" style="font-size: 0.85rem; margin-top: 4px; color: var(--text-muted);">Sincronize novos planos de fundo da API do GitHub sem alterar as regras customizadas, ou limpe e restaure os padrões.</p>
 					</div>
-					<div class="title-form-footer">
-						<label class="title-form-checkbox-label">
-							{{ form_widget(templateForm.isDefault) }}
-							Disponível por padrão (Sem requisitos)?
-						</label>
-						<button type="submit" class="btn btn-primary">
-							<i class="fa-solid fa-plus"></i>
-							Salvar Plano de Fundo
-						</button>
+					<div style="display: flex; gap: 10px; align-items: center;">
+						<form method="post" action="{{ path('app_admin_templates_sync') }}">
+							<button type="submit" class="btn btn-primary">
+								<i class="fa-solid fa-rotate"></i>
+								Sincronizar
+							</button>
+						</form>
+						<form method="post" action="{{ path('app_admin_templates_reset') }}" onsubmit="return confirm('ATENÇÃO: Isso irá apagar todas as customizações de requisitos feitas nos planos de fundo. Deseja prosseguir?')">
+							<button type="submit" class="btn-admin-reject" style="padding: 10px 16px; border: none; border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+								<i class="fa-solid fa-trash-arrow-up"></i>
+								Restaurar
+							</button>
+						</form>
 					</div>
-					{{ form_end(templateForm) }}
 				</div>
 
-				<!-- Listagem de templates -->
 				<div class="admin-card-container overflow-hidden">
-					<table class="admin-table">
+					<table class="admin-table" id="admin-templates-table">
 						<thead>
 							<tr>
-								<th>Miniatura</th>
+								<th style="width: 100px;">Miniatura</th>
 								<th>Nome</th>
-								<th>Requisito</th>
-								<th class="text-center">Padrão?</th>
-								<th class="text-right">Ações</th>
+								<th>Requisito Exibido</th>
+								<th>Requisitos (Medalhas / Ranking)</th>
+								<th class="text-center" style="width: 120px;">Padrão?</th>
+								<th class="text-right" style="width: 180px;">Ações</th>
 							</tr>
 						</thead>
 						<tbody>
 							{% for template in templates %}
-								{% set imageUrl = '/uploads/templates/' ~ template.image %}
-
+								{% set imageUrl = template.image|slice(0, 4) == 'http' ? template.image : 'https://raw.githubusercontent.com/thiago9852/pokemon-sprite/main/sprites/src/templates/' ~ template.image %}
+								
 								<tr>
-									<td>
-										<img src="{{ imageUrl }}" alt="Template background preview" class="title-ribbon-img" style="width: 80px; height: 45px; object-fit: cover; border-radius: var(--radius-xs); border: 1px solid var(--border-color);">
-									</td>
-									<td class="font-bold">
-										{{ template.name }}
-									</td>
-									<td class="text-secondary-small">
-										{{ template.requirement }}
-										{% if template.reqMedal %}
-											<span class="title-req-badge">
-												{{ template.reqMedal }}
-												({{ template.reqTier }})
-											</span>
-										{% endif %}
-										{% if template.reqGoldCount %}
-											<span class="title-req-badge gold">
-												{{ template.reqGoldCount }}
-												Ouro
-											</span>
-										{% endif %}
-									</td>
-									<td class="text-center">
-										{% if template.isDefault %}
-											<span class="title-status-icon success">
-												<i class="fa-solid fa-circle-check"></i>
-											</span>
-										{% else %}
-											<span class="title-status-icon muted">
-												<i class="fa-solid fa-circle-xmark"></i>
-											</span>
-										{% endif %}
-									</td>
-									<td class="text-right">
-										{% if not template.isDefault %}
-											<form method="post" action="{{ path('app_admin_card_template_delete', {'id': template.id}) }}" onsubmit="return confirm('Deseja realmente excluir este plano de fundo?')">
-												<button type="submit" class="btn-admin-reject">
-													<i class="fa-solid fa-trash-can"></i>
-													Excluir
+									<form method="post" action="{{ path('app_admin_template_update', {'id': template.id}) }}">
+										<td>
+											<img src="{{ imageUrl }}" alt="{{ template.name }}" style="width: 80px; height: 45px; object-fit: cover; border-radius: var(--radius-xs); border: 1px solid var(--border-color);">
+										</td>
+										<td>
+											<strong style="display: block;">{{ template.name }}</strong>
+											<span class="text-muted" style="font-size: 0.75rem;">{{ template.image }}</span>
+										</td>
+										<td>
+											<input type="text" name="requirement" value="{{ template.requirement }}" class="form-input" style="width: 100%; font-size: 0.85rem;" placeholder="Ex: Medalha de Hoenn de Ouro">
+										</td>
+										<td>
+											<div style="display: flex; gap: 6px;">
+												<select name="reqMedal" class="form-input" style="font-size: 0.8rem; padding: 4px; flex: 2; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="">Nenhuma Medalha</option>
+													{% for cat, medals in medalDefs %}
+														<optgroup label="{{ cat }}">
+															{% for m in medals %}
+																<option value="{{ m.key }}" {% if template.reqMedal == m.key %}selected{% endif %}>{{ m.title }}</option>
+															{% endfor %}
+														</optgroup>
+													{% endfor %}
+												</select>
+												<select name="reqTier" class="form-input" style="font-size: 0.8rem; padding: 4px; flex: 1; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="bronze" {% if template.reqTier == 'bronze' %}selected{% endif %}>Bronze</option>
+													<option value="silver" {% if template.reqTier == 'silver' %}selected{% endif %}>Prata</option>
+													<option value="gold" {% if template.reqTier == 'gold' or template.reqTier is empty %}selected{% endif %}>Ouro</option>
+												</select>
+												<input type="number" name="reqGoldCount" value="{{ template.reqGoldCount }}" class="form-input" style="width: 60px; font-size: 0.8rem; padding: 4px;" placeholder="Ouro" title="Quantidade de medalhas de ouro requeridas">
+											</div>
+											<div style="display: flex; gap: 6px; margin-top: 6px; align-items: center;">
+												<span style="font-size: 0.75rem; color: var(--text-secondary); white-space: nowrap;">Ou Ranking:</span>
+												<select name="reqRankType" class="form-input" style="font-size: 0.8rem; padding: 4px; flex: 1; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="">Nenhum Ranking</option>
+													<option value="likes" {% if template.reqRankType == 'likes' %}selected{% endif %}>Curtidas (Top 3)</option>
+													<option value="medals" {% if template.reqRankType == 'medals' %}selected{% endif %}>Medalhas (Top 3)</option>
+												</select>
+												<select name="reqRankPos" class="form-input" style="font-size: 0.8rem; padding: 4px; width: 80px; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="3" {% if template.reqRankPos == 3 or template.reqRankPos is empty %}selected{% endif %}>Top 3</option>
+													<option value="2" {% if template.reqRankPos == 2 %}selected{% endif %}>Top 2</option>
+													<option value="1" {% if template.reqRankPos == 1 %}selected{% endif %}>Top 1</option>
+												</select>
+											</div>
+										</td>
+										<td class="text-center">
+											<input type="checkbox" name="isDefault" value="1" {% if template.isDefault %}checked{% endif %} class="admin-checkbox">
+										</td>
+										<td class="text-right">
+											<div style="display: flex; gap: 6px; justify-content: flex-end;">
+												<button type="submit" class="btn btn-primary btn-sm">
+													<i class="fa-solid fa-floppy-disk"></i>
+													Salvar
 												</button>
-											</form>
-										{% else %}
-											<span class="text-muted-italic">Imutável</span>
-										{% endif %}
-									</td>
+												{% if not template.isDefault %}
+													<button type="submit" formAction="{{ path('app_admin_card_template_delete', {'id': template.id}) }}" class="btn-admin-reject btn-sm" onclick="return confirm('Deseja realmente excluir este plano de fundo?')" style="padding: 6px 12px; font-size: 0.8rem;">
+														<i class="fa-solid fa-trash-can"></i>
+														Excluir
+													</button>
+												{% endif %}
+											</div>
+										</td>
+									</form>
 								</tr>
 							{% endfor %}
-
 						</tbody>
 					</table>
-
 				</div>
 			</div>
 
+		</div>
+
+		<!-- Gerenciamento de Avatares -->
+		<div class="admin-category spaced" id="avatars-section">
+			<div class="admin-category-header" onclick="toggleCategorySection('avatars-content', 'avatars-chevron')">
+				<h2>Gerenciamento de Avatares</h2>
+				<span class="admin-hero-badge">{{ avatars|length }} avatares</span>
+				<i class="fa-solid fa-chevron-down admin-category-chevron" id="avatars-chevron"></i>
+			</div>
+
+			<div id="avatars-content" class="admin-category-content">
+				<div class="admin-card-container padded" style="display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 20px;">
+					<div>
+						<h3 class="admin-section-title" style="margin: 0;">Sincronização e Regras</h3>
+						<p class="text-muted" style="font-size: 0.85rem; margin-top: 4px; color: var(--text-muted);">Sincronize novos avatares sem alterar as regras customizadas, ou limpe o banco e restaure os padrões de fábrica.</p>
+					</div>
+					<div style="display: flex; gap: 10px; align-items: center;">
+						<form method="post" action="{{ path('app_admin_avatars_sync') }}">
+							<button type="submit" class="btn btn-primary">
+								<i class="fa-solid fa-rotate"></i>
+								Sincronizar
+							</button>
+						</form>
+						<form method="post" action="{{ path('app_admin_avatars_reset') }}" onsubmit="return confirm('ATENÇÃO: Isso irá apagar todas as customizações de requisitos feitas e restaurará os avatares aos seus padrões corretos. Deseja prosseguir?')">
+							<button type="submit" class="btn-admin-reject" style="padding: 10px 16px; border: none; border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+								<i class="fa-solid fa-trash-arrow-up"></i>
+								Restaurar
+							</button>
+						</form>
+					</div>
+				</div>
+
+				<div class="admin-card-container padded mb-15">
+					<div style="display: flex; gap: 15px; align-items: center;">
+						<div style="flex: 1;">
+							<input type="text" id="avatar-admin-search" onkeyup="filterAdminAvatars()" placeholder="Buscar por nome do avatar..." class="form-input" style="width: 100%;">
+						</div>
+						<div style="width: 200px;">
+							<select id="avatar-admin-type-filter" onchange="filterAdminAvatars()" class="form-input" style="width: 100%;">
+								<option value="all">Todos os Tipos</option>
+								<option value="trainer">Treinadores</option>
+								<option value="pkm">Pokémon</option>
+							</select>
+						</div>
+					</div>
+				</div>
+
+				<div class="admin-card-container overflow-hidden">
+					<table class="admin-table" id="admin-avatars-table">
+						<thead>
+							<tr>
+								<th style="width: 60px;">Avatar</th>
+								<th>Nome & Tipo</th>
+								<th>Requisito Exibido</th>
+								<th>Medalha Requerida / Nível / Qtd Ouro</th>
+								<th class="text-center" style="width: 120px;">Padrão?</th>
+								<th class="text-right" style="width: 100px;">Ações</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for avatar in avatars %}
+								{% set shortName = avatar.filename|replace({'trainer:': '', 'pkm:': ''}) %}
+								{% set displayName = shortName|replace({'.png': '', '-': ' ', '_': ' '})|title %}
+								
+								<tr class="avatar-admin-row" data-name="{{ displayName|lower }}" data-type="{{ avatar.type }}">
+									<form method="post" action="{{ path('app_admin_avatar_update', {'id': avatar.id}) }}">
+										<td>
+											<img src="{{ avatar_url(avatar.filename) }}" alt="{{ displayName }}" style="width: 40px; height: 40px; object-fit: contain;">
+										</td>
+										<td>
+											<strong style="display: block;">{{ displayName }}</strong>
+											<span class="text-muted" style="font-size: 0.75rem; text-transform: uppercase;">{{ avatar.type }}</span>
+										</td>
+										<td>
+											<input type="text" name="requirement" value="{{ avatar.requirement }}" class="form-input" style="width: 100%; font-size: 0.85rem;" placeholder="Ex: Medalha de Hoenn de Ouro">
+										</td>
+										<td>
+											<div style="display: flex; gap: 6px;">
+												<select name="reqMedal" class="form-input" style="font-size: 0.8rem; padding: 4px; flex: 2; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="">Nenhuma Medalha</option>
+													{% for cat, medals in medalDefs %}
+														<optgroup label="{{ cat }}">
+															{% for m in medals %}
+																<option value="{{ m.key }}" {% if avatar.reqMedal == m.key %}selected{% endif %}>{{ m.title }}</option>
+															{% endfor %}
+														</optgroup>
+													{% endfor %}
+												</select>
+												<select name="reqTier" class="form-input" style="font-size: 0.8rem; padding: 4px; flex: 1; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="bronze" {% if avatar.reqTier == 'bronze' %}selected{% endif %}>Bronze</option>
+													<option value="silver" {% if avatar.reqTier == 'silver' %}selected{% endif %}>Prata</option>
+													<option value="gold" {% if avatar.reqTier == 'gold' or avatar.reqTier is empty %}selected{% endif %}>Ouro</option>
+												</select>
+												<input type="number" name="reqGoldCount" value="{{ avatar.reqGoldCount }}" class="form-input" style="width: 60px; font-size: 0.8rem; padding: 4px;" placeholder="Ouro" title="Quantidade de medalhas de ouro requeridas">
+											</div>
+											<div style="display: flex; gap: 6px; margin-top: 6px; align-items: center;">
+												<span style="font-size: 0.75rem; color: var(--text-secondary); white-space: nowrap;">Ou Ranking:</span>
+												<select name="reqRankType" class="form-input" style="font-size: 0.8rem; padding: 4px; flex: 1; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="">Nenhum Ranking</option>
+													<option value="likes" {% if avatar.reqRankType == 'likes' %}selected{% endif %}>Curtidas (Top 3)</option>
+													<option value="medals" {% if avatar.reqRankType == 'medals' %}selected{% endif %}>Medalhas (Top 3)</option>
+												</select>
+												<select name="reqRankPos" class="form-input" style="font-size: 0.8rem; padding: 4px; width: 80px; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border-color);">
+													<option value="3" {% if avatar.reqRankPos == 3 or avatar.reqRankPos is empty %}selected{% endif %}>Top 3</option>
+													<option value="2" {% if avatar.reqRankPos == 2 %}selected{% endif %}>Top 2</option>
+													<option value="1" {% if avatar.reqRankPos == 1 %}selected{% endif %}>Top 1</option>
+												</select>
+											</div>
+										</td>
+										<td class="text-center">
+											<input type="checkbox" name="isDefault" value="1" {% if avatar.isDefault %}checked{% endif %} class="admin-checkbox">
+										</td>
+										<td class="text-right">
+											<button type="submit" class="btn btn-primary btn-sm">
+												<i class="fa-solid fa-floppy-disk"></i>
+												Salvar
+											</button>
+										</td>
+									</form>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -695,6 +831,26 @@
 				checkboxes.forEach(cb => cb.checked = this.checked);
 			});
 		}
+
+		// Filtro local de avatares no Admin
+		window.filterAdminAvatars = function () {
+			const query = document.getElementById('avatar-admin-search').value.toLowerCase().trim();
+			const type = document.getElementById('avatar-admin-type-filter').value;
+			
+			document.querySelectorAll('.avatar-admin-row').forEach(row => {
+				const name = row.dataset.name;
+				const rowType = row.dataset.type;
+				
+				const matchesQuery = name.includes(query);
+				const matchesType = (type === 'all' || rowType === type);
+				
+				if (matchesQuery && matchesType) {
+					row.style.display = '';
+				} else {
+					row.style.display = 'none';
+				}
+			});
+		};
 	</script>
 
 

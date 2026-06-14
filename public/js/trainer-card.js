@@ -197,6 +197,25 @@ window.updateTitleSelection = async function (titleName) {
 window.openAvatarModal = () => document.getElementById('avatar-modal').classList.add('active');
 window.closeAvatarModal = () => document.getElementById('avatar-modal').classList.remove('active');
 
+window.switchAvatarTab = function (tab) {
+    const btnTrainer = document.getElementById('tab-btn-trainer');
+    const btnPkm = document.getElementById('tab-btn-pkm');
+    const gridTrainer = document.getElementById('avatar-grid-trainer');
+    const gridPkm = document.getElementById('avatar-grid-pkm');
+    
+    if (tab === 'trainer') {
+        btnTrainer.classList.add('active');
+        btnPkm.classList.remove('active');
+        gridTrainer.style.display = 'grid';
+        gridPkm.style.display = 'none';
+    } else {
+        btnPkm.classList.add('active');
+        btnTrainer.classList.remove('active');
+        gridTrainer.style.display = 'none';
+        gridPkm.style.display = 'grid';
+    }
+};
+
 window.updateAvatarSelection = async function (filename) {
     const formData = new FormData();
     formData.append('avatar', filename);
@@ -205,6 +224,7 @@ window.updateAvatarSelection = async function (filename) {
         const data = await response.json();
         if (data.success) {
             document.getElementById('trainer-avatar-img').src = data.avatarUrl;
+            document.querySelectorAll('.nav-user-avatar').forEach(img => img.src = data.avatarUrl);
             document.querySelectorAll('.modal-avatar-option').forEach(opt => opt.classList.toggle('selected', opt.dataset.filename === filename));
             closeAvatarModal();
         } else alert(data.error || 'Erro ao atualizar avatar.');

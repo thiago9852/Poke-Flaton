@@ -52,7 +52,7 @@
 						<div class="nav-user-dropdown" id="userDropdown">
 
 							<button class="nav-link nav-user-btn" id="userDropdownBtn" aria-expanded="false" aria-haspopup="true">
-								<img src="https://raw.githubusercontent.com/smogon/sprites/master/src/_uncategorized/canonical/trainers/gen5/black2-white2/{{ app.user.avatar }}" alt="Avatar" class="nav-user-avatar">
+								<img src="{{ avatar_url(app.user.avatar) }}" alt="Avatar" class="nav-user-avatar">
 								<span>{{ app.user.username }}</span>
 								<i class="fa-solid fa-chevron-down nav-dropdown-caret"></i>
 							</button>

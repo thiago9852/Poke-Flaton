@@ -60,7 +60,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var array<string> Up to 4 medal names to showcase on the trainer card
      */
-    #[ORM\Column(type: 'json', options: ['default' => '[]'])]
+    #[ORM\Column(type: 'json')]
     private array $showcaseMedals = [];
 
     #[ORM\Column(length: 255, nullable: true)]
