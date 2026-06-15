@@ -734,6 +734,13 @@ class TrainerProfileService
             ];
         }
 
+        usort($avatarStatuses, function ($a, $b) {
+            if ($a['isLocked'] !== $b['isLocked']) {
+                return $a['isLocked'] <=> $b['isLocked'];
+            }
+            return strcmp($a['filename'], $b['filename']);
+        });
+
         return $avatarStatuses;
     }
 
@@ -838,6 +845,13 @@ class TrainerProfileService
                 'reqRankPos' => $title->getReqRankPos()
             ];
         }
+
+        usort($titleStatuses, function ($a, $b) {
+            if ($a['isLocked'] !== $b['isLocked']) {
+                return $a['isLocked'] <=> $b['isLocked'];
+            }
+            return strcmp($a['name'], $b['name']);
+        });
 
         return $titleStatuses;
     }
@@ -1039,6 +1053,13 @@ class TrainerProfileService
             ];
         }
 
+        usort($templateStatuses, function ($a, $b) {
+            if ($a['isLocked'] !== $b['isLocked']) {
+                return $a['isLocked'] <=> $b['isLocked'];
+            }
+            return strcmp($a['name'], $b['name']);
+        });
+
         return $templateStatuses;
     }
 
@@ -1159,6 +1180,13 @@ class TrainerProfileService
                 'reqGoldCount' => $avatar['req_gold_count']
             ];
         }
+
+        usort($avatarStatuses, function ($a, $b) {
+            if ($a['isLocked'] !== $b['isLocked']) {
+                return $a['isLocked'] <=> $b['isLocked'];
+            }
+            return strcmp($a['filename'], $b['filename']);
+        });
         
         return $avatarStatuses;
     }
