@@ -1,6 +1,4 @@
-{% set first_title = (sort == 'likes') ? '👑 Lenda da Popularidade' : '👑 Campeão Supremo' %}
-{% set second_title = (sort == 'likes') ? '🥈 Ícone da Comunidade' : '🥈 Mestre de Elite' %}
-{% set third_title = (sort == 'likes') ? '🥉 Querido do Público' : '🥉 Especialista Lendário' %}
+{# Títulos do Top 3 resolvidos dinamicamente no controller #}
 
 {% if rankedUsers is empty %}
 	<div class="empty-ranking card">
@@ -64,7 +62,12 @@
 				</div>
 
 				<div class="top3-card-footer">
-					<div class="top3-title-pill">{{ second_title }}</div>
+					<div class="top3-title-pill" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+						{% if second_title_ribbon %}
+							<img src="{{ second_title_ribbon }}" alt="Ribbon" style="width: 20px; height: 20px; object-fit: contain; image-rendering: pixelated;">
+						{% endif %}
+						<span>{{ second_title }}</span>
+					</div>
 				</div>
 			</div>
 
@@ -118,7 +121,12 @@
 				</div>
 
 				<div class="top3-card-footer">
-					<div class="top3-title-pill">{{ first_title }}</div>
+					<div class="top3-title-pill" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+						{% if first_title_ribbon %}
+							<img src="{{ first_title_ribbon }}" alt="Ribbon" style="width: 20px; height: 20px; object-fit: contain; image-rendering: pixelated;">
+						{% endif %}
+						<span>{{ first_title }}</span>
+					</div>
 				</div>
 			</div>
 
@@ -172,7 +180,12 @@
 				</div>
 
 				<div class="top3-card-footer">
-					<div class="top3-title-pill">{{ third_title }}</div>
+					<div class="top3-title-pill" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+						{% if third_title_ribbon %}
+							<img src="{{ third_title_ribbon }}" alt="Ribbon" style="width: 20px; height: 20px; object-fit: contain; image-rendering: pixelated;">
+						{% endif %}
+						<span>{{ third_title }}</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -209,14 +222,26 @@
 								</div>
 								<div class="leaderboard-user-details">
 									<a href="{{ path('app_trainer_profile', { username: row.user.username }) }}" class="leaderboard-name-link">{{ row.user.username }}</a>
-									<span class="leaderboard-title-label">
+									<span class="leaderboard-title-label" style="display: flex; align-items: center; gap: 4px;">
 										{% if index == 0 %}
+											{% if first_title_ribbon %}
+												<img src="{{ first_title_ribbon }}" alt="Ribbon" style="width: 16px; height: 16px; object-fit: contain; image-rendering: pixelated;">
+											{% endif %}
 											{{ first_title }}
 										{% elseif index == 1 %}
+											{% if second_title_ribbon %}
+												<img src="{{ second_title_ribbon }}" alt="Ribbon" style="width: 16px; height: 16px; object-fit: contain; image-rendering: pixelated;">
+											{% endif %}
 											{{ second_title }}
 										{% elseif index == 2 %}
+											{% if third_title_ribbon %}
+												<img src="{{ third_title_ribbon }}" alt="Ribbon" style="width: 16px; height: 16px; object-fit: contain; image-rendering: pixelated;">
+											{% endif %}
 											{{ third_title }}
 										{% else %}
+											{% if row.titleRibbon %}
+												<img src="{{ row.titleRibbon }}" alt="Ribbon" style="width: 16px; height: 16px; object-fit: contain; image-rendering: pixelated;">
+											{% endif %}
 											{{ row.title }}
 										{% endif %}
 									</span>

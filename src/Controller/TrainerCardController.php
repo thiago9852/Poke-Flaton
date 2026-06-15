@@ -452,9 +452,11 @@ class TrainerCardController extends AbstractController
             ]);
 
             $selectedTitle = 'Treinador Novato';
+            $selectedRibbon = $this->trainerProfileService->getRibbonUrl('alert-ribbon.png');
             foreach ($titleStatuses as $ts) {
                 if ($ts['isSelected']) {
                     $selectedTitle = $ts['name'];
+                    $selectedRibbon = $ts['ribbonUrl'];
                     break;
                 }
             }
@@ -469,6 +471,7 @@ class TrainerCardController extends AbstractController
                 'created' => $data['createdCount'],
                 'followers' => $data['followersCount'],
                 'title' => $selectedTitle,
+                'titleRibbon' => $selectedRibbon,
             ];
         }
 
@@ -495,19 +498,49 @@ class TrainerCardController extends AbstractController
             });
         }
 
-        if ($request->query->get('ajax') || $request->isXmlHttpRequest()) {
-            return $this->render('trainer_card/_ranking_content.html.twig', [
-                'rankedUsers' => $rankedUsers,
-                'search' => $search,
-                'sort' => $sortBy,
-            ]);
+        // Recuperar títulos do Top 3 dinamicamente do banco de dados (ou fallback)
+        $titleRepo = $this->entityManager->getRepository(\App\Entity\Title::class);
+        $topTitles = $titleRepo->findBy(['reqRankType' => $sortBy], ['reqRankPos' => 'ASC']);
+
+        $firstTitle = $sortBy === 'likes' ? 'Lenda da Popularidade' : 'Campeão Supremo';
+        $firstRibbon = $this->trainerProfileService->getRibbonUrl($sortBy === 'likes' ? 'royal-ribbon.png' : 'championship-ribbon.png');
+
+        $secondTitle = $sortBy === 'likes' ? 'Ícone da Comunidade' : 'Mestre de Elite';
+        $secondRibbon = $this->trainerProfileService->getRibbonUrl($sortBy === 'likes' ? 'red-ribbon.png' : 'elite-four-ribbon.png');
+
+        $thirdTitle = $sortBy === 'likes' ? 'Querido do Público' : 'Especialista Lendário';
+        $thirdRibbon = $this->trainerProfileService->getRibbonUrl($sortBy === 'likes' ? 'best-friends-ribbon.png' : 'classic-ribbon.png');
+
+        foreach ($topTitles as $t) {
+            if ($t->getReqRankPos() === 1) {
+                $firstTitle = $t->getName();
+                $firstRibbon = $this->trainerProfileService->getRibbonUrl($t->getRibbon());
+            } elseif ($t->getReqRankPos() === 2) {
+                $secondTitle = $t->getName();
+                $secondRibbon = $this->trainerProfileService->getRibbonUrl($t->getRibbon());
+            } elseif ($t->getReqRankPos() === 3) {
+                $thirdTitle = $t->getName();
+                $thirdRibbon = $this->trainerProfileService->getRibbonUrl($t->getRibbon());
+            }
         }
 
-        return $this->render('trainer_card/ranking.html.twig', [
+        $renderParams = [
             'rankedUsers' => $rankedUsers,
             'search' => $search,
             'sort' => $sortBy,
-        ]);
+            'first_title' => $firstTitle,
+            'first_title_ribbon' => $firstRibbon,
+            'second_title' => $secondTitle,
+            'second_title_ribbon' => $secondRibbon,
+            'third_title' => $thirdTitle,
+            'third_title_ribbon' => $thirdRibbon,
+        ];
+
+        if ($request->query->get('ajax') || $request->isXmlHttpRequest()) {
+            return $this->render('trainer_card/_ranking_content.html.twig', $renderParams);
+        }
+
+        return $this->render('trainer_card/ranking.html.twig', $renderParams);
     }
 
     #[Route('/trainer/{username}', name: 'app_trainer_profile', methods: ['GET'])]

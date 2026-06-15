@@ -25,6 +25,9 @@ class TrainerProfileService
     private HttpClientInterface $httpClient;
     private ?array $cachedLikesRanking = null;
     private ?array $cachedMedalsRanking = null;
+    private bool $titlesInitialized = false;
+    private bool $avatarsInitialized = false;
+    private bool $templatesInitialized = false;
 
     // Avatares de recompensa bloqueados por medalhas de ouro
     public const AVATAR_REWARDS = [
@@ -91,6 +94,10 @@ class TrainerProfileService
      */
     public function initializeDatabaseAndTitles(): void
     {
+        if ($this->titlesInitialized) {
+            return;
+        }
+
         $connection = $this->entityManager->getConnection();
         $schemaManager = $connection->createSchemaManager();
 
@@ -118,124 +125,220 @@ class TrainerProfileService
             $connection->executeStatement("ALTER TABLE title ADD COLUMN req_rank_pos INT DEFAULT NULL");
         }
 
-        // Se estiver vazia, popula com os títulos padrão
-        $titlesCount = (int) $connection->fetchOne("SELECT COUNT(*) FROM title");
-        if ($titlesCount === 0) {
-            $defaultTitles = [
-                [
-                    'name' => 'Treinador Novato',
-                    'ribbon' => 'alert-ribbon.png',
-                    'requirement' => 'Desbloqueado por padrão.',
-                    'req_medal' => null,
-                    'req_tier' => null,
-                    'req_gold_count' => null,
-                    'is_default' => 1
-                ],
-                [
-                    'name' => 'Cientista de Elite',
-                    'ribbon' => 'effort-ribbon.png',
-                    'requirement' => 'Medalha "Cientista" no nível Bronze.',
-                    'req_medal' => 'creator',
-                    'req_tier' => 'bronze',
-                    'req_gold_count' => null,
-                    'is_default' => 0
-                ],
-                [
-                    'name' => 'Pesquisador de Elite',
-                    'ribbon' => 'classic-ribbon.png',
-                    'requirement' => 'Medalha "Pesquisador Pokémon" no nível Prata.',
-                    'req_medal' => 'pokedex',
-                    'req_tier' => 'silver',
-                    'req_gold_count' => null,
-                    'is_default' => 0
-                ],
-                [
-                    'name' => 'Querido da Galera',
-                    'ribbon' => 'best-friends-ribbon.png',
-                    'requirement' => 'Medalha "Treinador Aclamado" no nível Bronze.',
-                    'req_medal' => 'acclaimed',
-                    'req_tier' => 'bronze',
-                    'req_gold_count' => null,
-                    'is_default' => 0
-                ],
-                [
-                    'name' => 'Ídolo do PokeFlaton',
-                    'ribbon' => 'gorgeous-royal-ribbon.png',
-                    'requirement' => 'Medalha "Treinador Aclamado" no nível Ouro.',
-                    'req_medal' => 'acclaimed',
-                    'req_tier' => 'gold',
-                    'req_gold_count' => null,
-                    'is_default' => 0
-                ],
-                [
-                    'name' => 'Mestre Pescador',
-                    'ribbon' => 'souvenir-ribbon.png',
-                    'requirement' => 'Medalha "Pescador" no nível Prata.',
-                    'req_medal' => 'fisherman',
-                    'req_tier' => 'silver',
-                    'req_gold_count' => null,
-                    'is_default' => 0
-                ],
-                [
-                    'name' => 'Artista Vivillon',
-                    'ribbon' => 'artist-ribbon.png',
-                    'requirement' => 'Medalha "Coleção Vivillon" no nível Ouro.',
-                    'req_medal' => 'vivillon',
-                    'req_tier' => 'gold',
-                    'req_gold_count' => null,
-                    'is_default' => 0
-                ],
-                [
-                    'name' => 'Mestre da Torre de TMs',
-                    'ribbon' => 'tower-master-ribbon.png',
-                    'requirement' => 'Medalha "Colecionador de TMs" no nível Ouro.',
-                    'req_medal' => 'collector',
-                    'req_tier' => 'gold',
-                    'req_gold_count' => null,
-                    'is_default' => 0
-                ],
-                [
-                    'name' => 'Campeão de Galar',
-                    'ribbon' => 'galar-champion-ribbon.png',
-                    'requirement' => 'Medalha regional de "Galar/Hisui" no nível Ouro.',
-                    'req_medal' => 'galar',
-                    'req_tier' => 'gold',
-                    'req_gold_count' => null,
-                    'is_default' => 0
-                ],
-                [
-                    'name' => 'Campeão de Unova',
-                    'ribbon' => 'champion-ribbon.png',
-                    'requirement' => 'Medalha regional de "Unova" no nível Ouro.',
-                    'req_medal' => 'unova',
-                    'req_tier' => 'gold',
-                    'req_gold_count' => null,
-                    'is_default' => 0
-                ],
-                [
-                    'name' => 'Ranger Pokémon',
-                    'ribbon' => 'battle-champion-ribbon.png',
-                    'requirement' => 'Medalha "Gotta Catch Em All" no nível Prata.',
-                    'req_medal' => 'gotta-catch-all',
-                    'req_tier' => 'silver',
-                    'req_gold_count' => null,
-                    'is_default' => 0
-                ],
-                [
-                    'name' => 'Mestre Pokémon',
-                    'ribbon' => 'master-rank-ribbon.png',
-                    'requirement' => 'Ter pelo menos 20 medalhas de Ouro.',
-                    'req_medal' => null,
-                    'req_tier' => null,
-                    'req_gold_count' => 20,
-                    'is_default' => 0
-                ]
-            ];
+        $defaultTitles = [
+            [
+                'name' => 'Treinador Novato',
+                'ribbon' => 'alert-ribbon.png',
+                'requirement' => 'Desbloqueado por padrão.',
+                'req_medal' => null,
+                'req_tier' => null,
+                'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 1
+            ],
+            [
+                'name' => 'Cientista de Elite',
+                'ribbon' => 'effort-ribbon.png',
+                'requirement' => 'Medalha "Cientista" no nível Bronze.',
+                'req_medal' => 'creator',
+                'req_tier' => 'bronze',
+                'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Pesquisador de Elite',
+                'ribbon' => 'classic-ribbon.png',
+                'requirement' => 'Medalha "Pesquisador Pokémon" no nível Prata.',
+                'req_medal' => 'pokedex',
+                'req_tier' => 'silver',
+                'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Querido da Galera',
+                'ribbon' => 'best-friends-ribbon.png',
+                'requirement' => 'Medalha "Treinador Aclamado" no nível Bronze.',
+                'req_medal' => 'acclaimed',
+                'req_tier' => 'bronze',
+                'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Ídolo do PokeFlaton',
+                'ribbon' => 'gorgeous-royal-ribbon.png',
+                'requirement' => 'Medalha "Treinador Aclamado" no nível Ouro.',
+                'req_medal' => 'acclaimed',
+                'req_tier' => 'gold',
+                'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Mestre Pescador',
+                'ribbon' => 'souvenir-ribbon.png',
+                'requirement' => 'Medalha "Pescador" no nível Prata.',
+                'req_medal' => 'fisherman',
+                'req_tier' => 'silver',
+                'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Artista Vivillon',
+                'ribbon' => 'artist-ribbon.png',
+                'requirement' => 'Medalha "Coleção Vivillon" no nível Ouro.',
+                'req_medal' => 'vivillon',
+                'req_tier' => 'gold',
+                'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Mestre da Torre de TMs',
+                'ribbon' => 'tower-master-ribbon.png',
+                'requirement' => 'Medalha "Colecionador de TMs" no nível Ouro.',
+                'req_medal' => 'collector',
+                'req_tier' => 'gold',
+                'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Campeão de Galar',
+                'ribbon' => 'galar-champion-ribbon.png',
+                'requirement' => 'Medalha regional de "Galar/Hisui" no nível Ouro.',
+                'req_medal' => 'galar',
+                'req_tier' => 'gold',
+                'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Campeão de Unova',
+                'ribbon' => 'champion-ribbon.png',
+                'requirement' => 'Medalha regional de "Unova" no nível Ouro.',
+                'req_medal' => 'unova',
+                'req_tier' => 'gold',
+                'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Ranger Pokémon',
+                'ribbon' => 'battle-champion-ribbon.png',
+                'requirement' => 'Medalha "Gotta Catch Em All" no nível Prata.',
+                'req_medal' => 'gotta-catch-all',
+                'req_tier' => 'silver',
+                'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Mestre Pokémon',
+                'ribbon' => 'master-rank-ribbon.png',
+                'requirement' => 'Ter pelo menos 20 medalhas de Ouro.',
+                'req_medal' => null,
+                'req_tier' => null,
+                'req_gold_count' => 20,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Lenda da Popularidade',
+                'ribbon' => 'royal-ribbon.png',
+                'requirement' => '1º colocado no ranking de curtidas.',
+                'req_medal' => null,
+                'req_tier' => null,
+                'req_gold_count' => null,
+                'req_rank_type' => 'likes',
+                'req_rank_pos' => 1,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Ícone da Comunidade',
+                'ribbon' => 'red-ribbon.png',
+                'requirement' => '2º colocado no ranking de curtidas.',
+                'req_medal' => null,
+                'req_tier' => null,
+                'req_gold_count' => null,
+                'req_rank_type' => 'likes',
+                'req_rank_pos' => 2,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Querido do Público',
+                'ribbon' => 'best-friends-ribbon.png',
+                'requirement' => '3º colocado no ranking de curtidas.',
+                'req_medal' => null,
+                'req_tier' => null,
+                'req_gold_count' => null,
+                'req_rank_type' => 'likes',
+                'req_rank_pos' => 3,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Campeão Supremo',
+                'ribbon' => 'champion-ribbon.png',
+                'requirement' => '1º colocado no ranking de medalhas.',
+                'req_medal' => null,
+                'req_tier' => null,
+                'req_gold_count' => null,
+                'req_rank_type' => 'medals',
+                'req_rank_pos' => 1,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Mestre de Elite',
+                'ribbon' => 'elite-four-ribbon.png',
+                'requirement' => '2º colocado no ranking de medalhas.',
+                'req_medal' => null,
+                'req_tier' => null,
+                'req_gold_count' => null,
+                'req_rank_type' => 'medals',
+                'req_rank_pos' => 2,
+                'is_default' => 0
+            ],
+            [
+                'name' => 'Especialista Lendário',
+                'ribbon' => 'classic-ribbon.png',
+                'requirement' => '3º colocado no ranking de medalhas.',
+                'req_medal' => null,
+                'req_tier' => null,
+                'req_gold_count' => null,
+                'req_rank_type' => 'medals',
+                'req_rank_pos' => 3,
+                'is_default' => 0
+            ]
+        ];
 
-            foreach ($defaultTitles as $t) {
+        foreach ($defaultTitles as $t) {
+            $exists = (bool) $connection->fetchOne("SELECT COUNT(*) FROM title WHERE name = ?", [$t['name']]);
+            if (!$exists) {
                 $connection->insert('title', $t);
             }
         }
+
+        // Corrigir possíveis registros com ribbon errado no banco de dados
+        $connection->executeStatement(
+            "UPDATE title SET ribbon = 'champion-ribbon.png' WHERE name = 'Campeão Supremo' AND ribbon = 'championship-ribbon.png'"
+        );
+
+        $this->titlesInitialized = true;
     }
 
     /**
@@ -719,14 +822,7 @@ class TrainerProfileService
             }
 
             $ribbon = $title->getRibbon();
-            $ribbonUrl = null;
-            if ($ribbon) {
-                if (str_starts_with($ribbon, 'http://') || str_starts_with($ribbon, 'https://')) {
-                    $ribbonUrl = $ribbon;
-                } else {
-                    $ribbonUrl = 'https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/gen8/' . $ribbon;
-                }
-            }
+            $ribbonUrl = $this->getRibbonUrl($ribbon);
 
             $titleStatuses[] = [
                 'id' => $title->getId(),
@@ -948,6 +1044,10 @@ class TrainerProfileService
 
     public function initializeDatabaseAndCardTemplates(): void
     {
+        if ($this->templatesInitialized) {
+            return;
+        }
+
         $connection = $this->entityManager->getConnection();
         $schemaManager = $connection->createSchemaManager();
 
@@ -979,6 +1079,8 @@ class TrainerProfileService
         if (!isset($userColumns['card_template'])) {
             $connection->executeStatement("ALTER TABLE user ADD COLUMN card_template VARCHAR(255) DEFAULT NULL");
         }
+
+        $this->templatesInitialized = true;
     }
     public function getAvatarUrl(?string $avatar): string
     {
@@ -1063,6 +1165,10 @@ class TrainerProfileService
 
     public function initializeDatabaseAndAvatars(): void
     {
+        if ($this->avatarsInitialized) {
+            return;
+        }
+
         $connection = $this->entityManager->getConnection();
         $schemaManager = $connection->createSchemaManager();
 
@@ -1091,9 +1197,8 @@ class TrainerProfileService
             $connection->executeStatement("ALTER TABLE avatar ADD COLUMN req_rank_pos INT DEFAULT NULL");
         }
 
-        // Se estiver vazia, popula com as recompensas iniciais
-        $avatarCount = (int) $connection->fetchOne("SELECT COUNT(*) FROM avatar");
-        if ($avatarCount === 0) {
+        $existsUnknown = (bool) $connection->fetchOne("SELECT COUNT(*) FROM avatar WHERE LOWER(filename) = 'trainer:unknown.png'");
+        if (!$existsUnknown) {
             $connection->insert('avatar', [
                 'filename' => 'trainer:unknown.png',
                 'type' => 'trainer',
@@ -1101,42 +1206,62 @@ class TrainerProfileService
                 'req_medal' => null,
                 'req_tier' => null,
                 'req_gold_count' => null,
+                'req_rank_type' => null,
+                'req_rank_pos' => null,
                 'is_default' => 1
             ]);
+        }
 
-            foreach (['Ash.png', 'Beauty.png', 'Hiker.png'] as $defTrainer) {
+        foreach (['Ash.png', 'Beauty.png', 'Hiker.png'] as $defTrainer) {
+            $filename = 'trainer:' . $defTrainer;
+            $exists = (bool) $connection->fetchOne("SELECT COUNT(*) FROM avatar WHERE filename = ?", [$filename]);
+            if (!$exists) {
                 $connection->insert('avatar', [
-                    'filename' => 'trainer:' . $defTrainer,
+                    'filename' => $filename,
                     'type' => 'trainer',
                     'requirement' => 'Padrão do Sistema',
                     'req_medal' => null,
                     'req_tier' => null,
                     'req_gold_count' => null,
+                    'req_rank_type' => null,
+                    'req_rank_pos' => null,
                     'is_default' => 1
                 ]);
             }
+        }
 
-            foreach (self::AVATAR_REWARDS as $trainer => $req) {
+        foreach (self::AVATAR_REWARDS as $trainer => $req) {
+            $filename = 'trainer:' . $trainer;
+            $exists = (bool) $connection->fetchOne("SELECT COUNT(*) FROM avatar WHERE filename = ?", [$filename]);
+            if (!$exists) {
                 $connection->insert('avatar', [
-                    'filename' => 'trainer:' . $trainer,
+                    'filename' => $filename,
                     'type' => 'trainer',
                     'requirement' => $req['label'],
                     'req_medal' => $req['medal'],
                     'req_tier' => $req['tier'],
                     'req_gold_count' => null,
+                    'req_rank_type' => null,
+                    'req_rank_pos' => null,
                     'is_default' => 0
                 ]);
             }
+        }
 
-            foreach (self::PKM_AVATARS as $pkm) {
+        foreach (self::PKM_AVATARS as $pkm) {
+            $filename = 'pkm:' . $pkm;
+            $exists = (bool) $connection->fetchOne("SELECT COUNT(*) FROM avatar WHERE filename = ?", [$filename]);
+            if (!$exists) {
                 $isPkmDefault = in_array(strtolower($pkm), ['charizard.png', 'lucario.png']) ? 1 : 0;
                 $connection->insert('avatar', [
-                    'filename' => 'pkm:' . $pkm,
+                    'filename' => $filename,
                     'type' => 'pkm',
                     'requirement' => $isPkmDefault ? 'Padrão do Sistema' : 'Bloqueado por padrão',
                     'req_medal' => null,
                     'req_tier' => null,
                     'req_gold_count' => null,
+                    'req_rank_type' => null,
+                    'req_rank_pos' => null,
                     'is_default' => $isPkmDefault
                 ]);
             }
@@ -1146,6 +1271,19 @@ class TrainerProfileService
         $connection->executeStatement(
             "UPDATE avatar SET is_default = 1, req_medal = NULL, req_tier = NULL, req_gold_count = NULL, requirement = 'Padrão do Sistema' WHERE LOWER(filename) = 'trainer:unknown.png'"
         );
+
+        $this->avatarsInitialized = true;
+    }
+
+    public function getRibbonUrl(?string $ribbon): ?string
+    {
+        if (!$ribbon) {
+            return null;
+        }
+        if (str_starts_with($ribbon, 'http://') || str_starts_with($ribbon, 'https://')) {
+            return $ribbon;
+        }
+        return 'https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/gen8/' . $ribbon;
     }
 
     public function syncAvatarsFromApi(): array
