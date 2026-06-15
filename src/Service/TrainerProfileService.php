@@ -799,7 +799,7 @@ class TrainerProfileService
                     $reqType = $title->getReqRankType();
                     $reqPos = $title->getReqRankPos() ?? 3;
                     $userPos = $ranks[$reqType] ?? 999;
-                    if ($userPos > $reqPos) {
+                    if ($userPos !== $reqPos) {
                         $isLocked = true;
                     }
                 } elseif ($title->getReqGoldCount() !== null) {
