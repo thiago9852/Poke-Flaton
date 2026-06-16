@@ -40,11 +40,18 @@
 					<img src="{{ asset('image/PokeFlaton-pokeball.png') }}" alt="PokeFlaton" class="logo-img">
 				</a>
 
-				<nav class="app-nav">
+				<!-- Botão Hambúrguer para Mobile -->
+				<button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+					<i class="fa-solid fa-bars"></i>
+				</button>
+
+				<nav class="app-nav" id="appNav">
 					<a href="{{ path('app_home') }}" class="nav-link">
 						Início</a>
 					<a href="{{ path('app_pokemon_index') }}" class="nav-link">
 						Moveset</a>
+					<a href="{{ path('app_game_daily') }}" class="nav-link">
+						Pokémon do Dia</a>
 					<a href="{{ path('app_trainer_ranking') }}" class="nav-link">
 						Trainers</a>
 
