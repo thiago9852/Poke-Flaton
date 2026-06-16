@@ -2101,7 +2101,37 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Modal responsividade */
+
+/* Ajuste para tablets */
+@media (max-width: 768px) {
+  .pokemon-detail-layout {
+    grid-template-columns: 1fr; 
+    gap: 20px;
+  }
+
+  /* Linha Evolutiva */
+  .evolution-node {
+    min-width: 110px;
+    padding: 10px;
+  }
+  .evolution-sprite {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 5px;
+  }
+  .evolution-name {
+    font-size: 0.9rem;
+  }
+  .evolution-arrow {
+    font-size: 1rem;
+    gap: 2px;
+  }
+  .evolution-method {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+}
+
 @media (max-width: 576px) {
     .share-modal-body {
         padding: 16px;
@@ -2113,5 +2143,46 @@
     .share-modal-footer button {
         width: 100%;
     }
+}
+
+/* Ajuste para celulares */
+@media (max-width: 480px) {
+  .pokemon-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  /* Linha Evolutiva */
+  .evolution-chain-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .evolution-node-wrapper {
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .evolution-node {
+    width: 100%;
+    max-width: 220px;
+    min-width: unset;
+    padding: 12px;
+  }
+  
+  .evolution-sprite {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .evolution-arrow {
+    margin: 8px 0;
+  }
+  
+  .evolution-arrow i {
+    transform: rotate(90deg);
+  }
 }
 
