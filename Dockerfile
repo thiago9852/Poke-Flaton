@@ -48,7 +48,7 @@ RUN composer install --no-interaction --no-dev --optimize-autoloader --no-script
 
 # Instalar assets JS externos e compilar assets para produção
 RUN DATABASE_URL=sqlite:///:memory: php bin/console importmap:install
-RUN DATABASE_URL=sqlite:///:memory: php bin/console asset-mapper:compile
+RUN DATABASE_URL=sqlite:///:memory: php bin/console asset-map:compile
 
 # Criar pastas necessárias e dar permissões corretas para o Apache
 RUN mkdir -p var/cache var/log \
