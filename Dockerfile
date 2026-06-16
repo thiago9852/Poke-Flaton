@@ -54,5 +54,5 @@ RUN mkdir -p var/cache var/log \
 # Expor a porta 80
 EXPOSE 80
 
-# Iniciar o Apache
-CMD ["apache2-foreground"]
+# Iniciar as migrações e depois o Apache
+CMD ["sh", "-c", "php bin/console doctrine:migrations:migrate --no-interaction && apache2-foreground"]
