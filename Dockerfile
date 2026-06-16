@@ -41,9 +41,10 @@ COPY . .
 # Variáveis de ambiente padrão para produção
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Instalar dependências do Composer para produção (sem dev dependencies)
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
 
 # Criar pastas necessárias e dar permissões corretas para o Apache
 RUN mkdir -p var/cache var/log \
