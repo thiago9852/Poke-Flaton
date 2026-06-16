@@ -384,15 +384,27 @@ class PokeApiPokemonFetcher
         $detailsList = [];
         $missedNames = [];
 
-        foreach ($names as $name) {
+         foreach ($names as $name) {
             $nameLower = strtolower($name);
-            $cacheKey = 'pokemon_details_' . $nameLower;
-            $item = $this->cache->getItem($cacheKey);
-            if ($item->isHit()) {
-                $detailsList[$nameLower] = $item->get();
-            } else {
-                $missedNames[] = $nameLower;
+            
+            // 1. Verificar se o cache do lote (light) existe
+            $batchCacheKey = 'pokemon_details_batch_' . $nameLower;
+            $batchItem = $this->cache->getItem($batchCacheKey);
+            if ($batchItem->isHit()) {
+                $detailsList[$nameLower] = $batchItem->get();
+                continue;
             }
+
+            // 2. Alternativa: Se o cache detalhado completo existir, podemos usá-lo!
+            $fullCacheKey = 'pokemon_details_' . $nameLower;
+            $fullItem = $this->cache->getItem($fullCacheKey);
+            if ($fullItem->isHit()) {
+                $detailsList[$nameLower] = $fullItem->get();
+                continue;
+            }
+
+            // 3. Caso contrário, precisamos buscar na API
+            $missedNames[] = $nameLower;
         }
 
         if (!empty($missedNames)) {
