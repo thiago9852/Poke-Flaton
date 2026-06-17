@@ -1,53 +1,55 @@
 (() => {
-    const shinyToggle = document.getElementById('shiny-toggle');
-    if (shinyToggle) {
-        // Elementos da img
-        const mainArtwork = document.getElementById('pokemon-artwork');
+    function initDetail() {
+        const shinyToggle = document.getElementById('shiny-toggle');
+        if (shinyToggle && !shinyToggle.dataset.initialized) {
+            shinyToggle.dataset.initialized = 'true';
+            // Elementos da img
+            const mainArtwork = document.getElementById('pokemon-artwork');
 
-        // Elementos de stats
-        const statValues = document.querySelectorAll('.stat-value');
-        const statBars = document.querySelectorAll('.stat-bar-fill');
-        const MAX_STAT = 150;
+            // Elementos de stats
+            const statValues = document.querySelectorAll('.stat-value');
+            const statBars = document.querySelectorAll('.stat-bar-fill');
+            const MAX_STAT = 150;
 
-        shinyToggle.addEventListener('click', function () {
-            const isShiny = shinyToggle.classList.toggle('active');
-            shinyToggle.style.opacity = isShiny ? '1' : '0.35';
+            shinyToggle.addEventListener('click', function () {
+                const isShiny = shinyToggle.classList.toggle('active');
+                shinyToggle.style.opacity = isShiny ? '1' : '0.35';
 
-            // troca sprite
-            if (mainArtwork) {
-                mainArtwork.src = isShiny ? mainArtwork.dataset.shiny : mainArtwork.dataset.normal;
-            }
-
-            // Analisar base stats com buff de 50%
-            statValues.forEach((span, index) => {
-                const baseVal = parseInt(span.dataset.baseVal, 10);
-                const newVal = isShiny ? Math.round(baseVal * 1.5) : baseVal;
-                span.textContent = newVal;
-
-                // Recupera a barra base e a barra do buff
-                const bar = statBars[index];
-                if (bar) {
-                    const container = bar.parentElement;
-                    const buffBar = container.querySelector('.stat-bar-buff');
-
-                    if (isShiny) {
-                        bar.style.width = bar.dataset.basePercentage + '%';
-                        const basePercentage = parseFloat(bar.dataset.basePercentage);
-                        let buffPercentage = ((newVal - baseVal) / MAX_STAT) * 100;
-
-                        // Se a soma ultrapassar 100%, limita o buff
-                        if (basePercentage + buffPercentage > 100) {
-                            buffPercentage = 100 - basePercentage;
-                        }
-                        if (buffBar) buffBar.style.width = buffPercentage + '%';
-                    } else {
-                        bar.style.width = bar.dataset.basePercentage + '%';
-                        if (buffBar) buffBar.style.width = '0%';
-                    }
+                // troca sprite
+                if (mainArtwork) {
+                    mainArtwork.src = isShiny ? mainArtwork.dataset.shiny : mainArtwork.dataset.normal;
                 }
+
+                // Analisar base stats com buff de 50%
+                statValues.forEach((span, index) => {
+                    const baseVal = parseInt(span.dataset.baseVal, 10);
+                    const newVal = isShiny ? Math.round(baseVal * 1.5) : baseVal;
+                    span.textContent = newVal;
+
+                    // Recupera a barra base e a barra do buff
+                    const bar = statBars[index];
+                    if (bar) {
+                        const container = bar.parentElement;
+                        const buffBar = container.querySelector('.stat-bar-buff');
+
+                        if (isShiny) {
+                            bar.style.width = bar.dataset.basePercentage + '%';
+                            const basePercentage = parseFloat(bar.dataset.basePercentage);
+                            let buffPercentage = ((newVal - baseVal) / MAX_STAT) * 100;
+
+                            // Se a soma ultrapassar 100%, limita o buff
+                            if (basePercentage + buffPercentage > 100) {
+                                buffPercentage = 100 - basePercentage;
+                            }
+                            if (buffBar) buffBar.style.width = buffPercentage + '%';
+                        } else {
+                            bar.style.width = bar.dataset.basePercentage + '%';
+                            if (buffBar) buffBar.style.width = '0%';
+                        }
+                    }
+                });
             });
-        });
-    }
+        }
 
 // AJAX catch/release Pokémon
 window.toggleCatchState = async function (btn) {
@@ -187,27 +189,36 @@ window.closeShareModal = function () {
     }
 };
 
-// Evento para fechar modal clicando fora do card no overlay
-const modal = document.getElementById('share-modal');
-if (modal) {
-    modal.addEventListener('click', function (e) {
-        if (e.target === modal) {
-            closeShareModal();
+        // Evento para fechar modal clicando fora do card no overlay
+        const modal = document.getElementById('share-modal');
+        if (modal && !modal.dataset.initialized) {
+            modal.dataset.initialized = 'true';
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    closeShareModal();
+                }
+            });
         }
-    });
-}
 
-// Lógica de Curtir (Upvote) Moveset
-document.querySelectorAll('.upvote-btn').forEach(btn => {
-    const movesetId = btn.dataset.id;
-    if (localStorage.getItem(`voted_moveset_${movesetId}`) === 'true') {
-        btn.classList.add('voted');
-        const icon = btn.querySelector('i');
-        if (icon) {
-            icon.className = 'fa-solid fa-thumbs-up';
-        }
+        // Lógica de Curtir (Upvote) Moveset
+        document.querySelectorAll('.upvote-btn').forEach(btn => {
+            if (!btn.dataset.initialized) {
+                btn.dataset.initialized = 'true';
+                const movesetId = btn.dataset.id;
+                if (localStorage.getItem(`voted_moveset_${movesetId}`) === 'true') {
+                    btn.classList.add('voted');
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        icon.className = 'fa-solid fa-thumbs-up';
+                    }
+                }
+            }
+        });
     }
-});
+
+    // Registrar para eventos do Turbo e executar imediatamente
+    document.addEventListener('turbo:load', initDetail);
+    initDetail();
 
 if (window.upvoteClickHandler) {
     document.removeEventListener('click', window.upvoteClickHandler);
