@@ -1308,7 +1308,7 @@ class TrainerProfileService
         if (!$ribbon) {
             return null;
         }
-        if (str_starts_with($ribbon, 'https://') || str_starts_with($ribbon, 'https://')) {
+        if (str_starts_with($ribbon, 'http://') || str_starts_with($ribbon, 'https://')) {
             return $ribbon;
         }
         return 'https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/gen8/' . $ribbon;
