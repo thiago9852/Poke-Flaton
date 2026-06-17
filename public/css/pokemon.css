@@ -1,6 +1,4 @@
-/* ----
-    Poke List - INDEX
----- */
+/* Poke List - INDEX */
 .pokemon-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -85,7 +83,7 @@
     gap: 6px;
 }
 
-/* ---- Pokemon Detalhe ---- */
+/* Pokemon Detalhe */
 .pokemon-detail-layout {
     display: grid;
     grid-template-columns: 360px 1fr;
@@ -196,7 +194,7 @@
 }
 
 
-/* ---- Stats ---- */
+/* Stats */
 .card-title {
     font-family: 'Outfit', sans-serif;
     font-size: 1.25rem;
@@ -247,20 +245,55 @@
     border-radius: 4px;
 }
 
-/* ---- Evolução ---- */
-.evolution-chain-container {
+/* Evolução */
+.evolution-stages-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
-    padding: 10px 0;
-    flex-wrap: wrap;
+    gap: 20px;
+    padding: 15px 0;
+    width: 100%;
+    overflow-x: auto;
 }
 
-.evolution-node-wrapper {
+.evolution-stage-column {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
+    justify-content: center;
+    gap: 20px;
+}
+
+.evolution-arrows-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.evolution-arrow-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    gap: 6px;
+    min-height: 130px;
+}
+
+.evolution-arrow-item i {
+    font-size: 1.25rem;
+    transition: transform 0.2s ease;
+}
+
+/* Inclinações para evoluções bifurcadas */
+.evolution-arrows-column:has(.evolution-arrow-item:nth-child(2)) .evolution-arrow-item:first-child i {
+    transform: rotate(-25deg);
+}
+
+.evolution-arrows-column:has(.evolution-arrow-item:nth-child(2)) .evolution-arrow-item:last-child i {
+    transform: rotate(25deg);
 }
 
 .evolution-node {
@@ -268,13 +301,16 @@
     flex-direction: column;
     align-items: center;
     text-decoration: none;
-    padding: 15px;
+    padding: 12px;
     border-radius: var(--radius-md);
     background-color: rgba(255, 255, 255, 0.02);
     border: 1px solid transparent;
     transition: var(--transition-smooth);
-    min-width: 140px;
+    width: 100%;
+    min-width: 130px;
+    max-width: 150px;
     text-align: center;
+    box-sizing: border-box;
 }
 
 .evolution-node:hover {
@@ -289,63 +325,68 @@
 }
 
 .evolution-sprite {
-    width: 120px;
-    height: 120px;
+    width: 80px;
+    height: 80px;
     object-fit: contain;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    transition: transform 0.2s ease;
+}
+
+.evolution-node:hover .evolution-sprite {
+    transform: scale(1.1);
 }
 
 .evolution-details {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
+    width: 100%;
 }
 
 .evolution-id {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
     font-weight: 600;
 }
 
 .evolution-name {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }
 
 .evolution-types {
     display: flex;
-    gap: 5px;
-    margin-top: 5px;
+    gap: 4px;
+    margin-top: 4px;
 }
 
 .evolution-types .type-badge {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     padding: 2px 6px;
 }
 
-.evolution-arrow {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--text-muted);
-    font-size: 1.2rem;
-    gap: 5px;
-}
-
 .evolution-method {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--text-secondary);
     background: rgba(255,255,255,0.05);
-    padding: 4px 8px;
+    padding: 3px 8px;
     border-radius: 12px;
     white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
 }
 
 
-/* ---- moveset list detalhe ---- */
+/* moveset list detalhe */
 .moveset-list-item {
     padding: 15px;
     background: rgba(255,255,255,0.05);
@@ -364,7 +405,7 @@
 }
 
 
-/* ---- Pagination ---- */
+/* Pagination */
 .pagination-container {
     display: flex;
     justify-content: center;
@@ -387,7 +428,7 @@
     cursor: not-allowed;
 }
 
-/* ---- Barra de navegação do Pokémon ---- */
+/* Barra de navegação do Pokémon */
 .pokemon-navigation-bar {
     display: flex;
     justify-content: space-between;
@@ -457,7 +498,21 @@
     opacity: 0.95;
 }
 
-/* ---- Hover cor para tipo especifico do poke ---- */
+.nav-text-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-prev .nav-text-container {
+    flex-direction: row;
+}
+
+.nav-next .nav-text-container {
+    flex-direction: row-reverse;
+}
+
+/* Hover cor para tipo especifico do poke */
 .nav-button:not(.disabled):hover {
     color: #ffffff;
 }
@@ -498,7 +553,7 @@
 .type-hover-steel:hover .nav-arrow-circle { color: var(--type-steel); }
 .type-hover-fairy:hover .nav-arrow-circle { color: var(--type-fairy); }
 
-/* ---- Header do Pokemon atual ---- */
+/* Header do Pokemon atual */
 .pokemon-current-header {
     text-align: center;
     margin-top: -16px;
@@ -544,18 +599,43 @@
     }
     
     .nav-prev {
-        justify-content: center;
-        padding-left: 10px;
+        justify-content: space-between;
+        padding: 10px;
     }
     
     .nav-next {
-        justify-content: center;
-        padding-right: 10px;
+        justify-content: space-between;
+        padding: 10px;
     }
     
     .nav-arrow-circle {
         width: 28px;
         height: 28px;
+    }
+
+    .nav-text-container {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 2px !important;
+    }
+
+    .nav-next .nav-text-container {
+        align-items: flex-end !important;
+    }
+
+    .nav-number {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        font-weight: 700;
+    }
+
+    .nav-name {
+        font-size: 0.85rem;
+        font-weight: 800;
+        max-width: 80px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     
     .pokemon-current-header {
@@ -574,7 +654,7 @@
     }
 }
 
-/* ---- Sessão de Movesets da coluna direita ---- */
+/* Sessão de Movesets da coluna direita */
 .pokemon-movesets-column {
     display: flex;
     flex-direction: column;
@@ -823,7 +903,7 @@
     white-space: pre-line;
 }
 
-/* ---- Badges de método de aprendizado e ícones ---- */
+/* Badges de método de aprendizado e ícones */
 .move-header-badges {
     display: flex;
     align-items: center;
@@ -868,18 +948,16 @@
     color: #34d399;
 }
 
-/* ------------------------------ */
-/* ---- PAGE: CRIAR MOVESET E FORM ---- */
-/* ------------------------------ */
+/* Página: CRIAR MOVESET E FORM */
 
-/* ---- Wrapper externo do formulário ---- */
+/* Wrapper externo do formulário */
 .moveset-form-wrapper {
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
-/* ---- TOPO: card do pokémon + campos de build lado a lado ---- */
+/* card do pokémon + campos de build lado a lado */
 .moveset-top-layout {
     display: grid;
     grid-template-columns: 280px 1fr;
@@ -887,7 +965,7 @@
     align-items: start;
 }
 
-/* ---- Campos de build (direita do topo) ---- */
+/* Campos de build (direita do topo) */
 .moveset-build-fields {
     display: flex;
     flex-direction: column;
@@ -895,7 +973,7 @@
     padding: 26px;
 }
 
-/* ---- Seção de moves em largura total ---- */
+/* Seção de moves em largura total */
 .moveset-moves-fullwidth {
     display: flex;
     flex-direction: column;
@@ -911,7 +989,6 @@
     padding-bottom: 14px;
 }
 
-/* ---- Seção de justificativa + ações abaixo dos moves ---- */
 .moveset-bottom-section {
     display: flex;
     flex-direction: column;
@@ -1149,7 +1226,7 @@
     margin-top: 10px;
 }
 
-/* ---- Evolução / locais de captura / estilos adicionais de habilidades ---- */
+/* Evolução / locais de captura / estilos adicionais de habilidades */
 .locations-list {
     list-style: none;
     display: flex;
@@ -1233,7 +1310,7 @@
     }
 }
 
-/* ---- Layout da página de seleção de moves ---- */
+/* Layout da página de seleção de moves */
 .moves-selection-container.stacked {
     display: flex;
     flex-direction: column;
@@ -1293,7 +1370,7 @@
     display: none;
 }
 
-/* ---- Quando um move é colocado em um slot ---- */
+/* Quando um move é colocado em um slot */
 .selected-slot-card:not(.empty) {
     background-color: rgba(255, 255, 255, 0.04);
     border-color: rgba(255, 255, 255, 0.1);
@@ -1368,7 +1445,7 @@
     transform: scale(1.15);
 }
 
-/* ---- Bordas dos slots de acordo com o tipo ---- */
+/* Bordas dos slots de acordo com o tipo */
 .selected-slot-card.border-type-normal { border-color: rgba(168, 162, 158, 0.3); box-shadow: 0 0 5px rgba(168, 162, 158, 0.1); }
 .selected-slot-card.border-type-fire { border-color: rgba(249, 115, 22, 0.4); box-shadow: 0 0 5px rgba(249, 115, 22, 0.15); }
 .selected-slot-card.border-type-water { border-color: rgba(59, 130, 246, 0.4); box-shadow: 0 0 5px rgba(59, 130, 246, 0.15); }
@@ -1387,7 +1464,7 @@
 .selected-slot-card.border-type-steel { border-color: rgba(107, 114, 128, 0.4); box-shadow: 0 0 5px rgba(107, 114, 128, 0.15); }
 .selected-slot-card.border-type-fairy { border-color: rgba(244, 114, 182, 0.4); box-shadow: 0 0 5px rgba(244, 114, 182, 0.15); }
 
-/* ---- Seção de moves disponíveis abaixo dos slots ---- */
+/* Seção de moves disponíveis abaixo dos slots */
 .available-moves-section {
     display: flex;
     flex-direction: column;
@@ -1457,7 +1534,7 @@
     background-color: rgba(0, 0, 0, 0.15);
 }
 
-/* ---- Scrollbar customizada para a lista de moves disponíveis ---- */
+/* Scrollbar customizada para a lista de moves disponíveis */
 .available-moves-list::-webkit-scrollbar {
     width: 6px;
 }
@@ -1526,9 +1603,7 @@
     margin-left: 6px;
 }
 
-/* ----
- Hover Tooltip
- ---- */
+/* Hover Tooltip */
 .move-tooltip {
     position: absolute;
     z-index: 9999;
@@ -1612,7 +1687,7 @@
 .moveset-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
 
 
-/* --- Cartão de Compartilhar (CANVAS) + modal --- */
+/* Cartão de Compartilhar (CANVAS) + modal */
 
 .share-card-canvas-container {
     width: 800px;
@@ -1960,7 +2035,7 @@
     font-style: italic;
 }
 
-/* --- Modal de compartilhamento --- */
+/* Modal de compartilhamento */
 
 .share-modal-overlay {
     position: fixed;
@@ -2101,8 +2176,73 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Modal responsividade */
+
+/* Ajuste para tablets */
+@media (max-width: 768px) {
+  .pokemon-detail-layout {
+    grid-template-columns: 1fr; 
+    gap: 20px;
+  }
+
+  /* Pokemon nome e num */
+  .pokemon-current-header .current-title {font-size: 20px; margin-bottom: 10px;}
+
+  /* Grid principal do moveset -> empilhar */
+  .moveset-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* Moveset Header */
+  .movesets-header-container {
+    flex-direction:column;
+    gap: 10px;
+  }
+
+  .movesets-header-container a {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Linha Evolutiva */
+  .evolution-stages-container {
+    gap: 12px;
+  }
+  .evolution-stage-column {
+    gap: 15px;
+  }
+  .evolution-arrows-column {
+    gap: 15px;
+  }
+  .evolution-arrow-item {
+    min-height: 110px;
+  }
+  .evolution-node {
+    min-width: 110px;
+    max-width: 130px;
+    padding: 8px;
+  }
+  .evolution-sprite {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 4px;
+  }
+  .evolution-name {
+    font-size: 0.85rem;
+  }
+  .evolution-method {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+}
+
 @media (max-width: 576px) {
+    /* Grid de golpes 1 coluna para não estourar a tela */
+    .moves-grid {
+        grid-template-columns: 1fr !important;
+    }
+
     .share-modal-body {
         padding: 16px;
     }
@@ -2115,3 +2255,69 @@
     }
 }
 
+/* Ajuste para celulares */
+@media (max-width: 480px) {
+  .pokemon-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  /* Linha Evolutiva */
+  .evolution-stages-container {
+    flex-direction: column;
+    gap: 15px;
+    overflow-x: visible;
+  }
+  
+  .evolution-stage-column {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    gap: 12px;
+  }
+  
+  .evolution-arrows-column {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    gap: 12px;
+  }
+  
+  .evolution-arrow-item {
+    min-height: unset;
+    margin: 5px 0;
+    flex: 1;
+    min-width: 80px;
+    max-width: 120px;
+    text-align: center;
+  }
+  
+  .evolution-arrow-item i {
+    transform: rotate(90deg) !important;
+  }
+  
+  .evolution-node {
+    width: calc(50% - 6px);
+    max-width: 140px;
+    min-width: 100px;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  .evolution-sprite {
+    width: 65px;
+    height: 65px;
+  }
+  
+  .evolution-name {
+    font-size: 0.85rem;
+  }
+  
+  .evolution-method {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    max-width: 100px;
+  }
+}

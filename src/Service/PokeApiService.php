@@ -62,6 +62,11 @@ class PokeApiService
         return $this->pokemonFetcher->getPokemonBasicList();
     }
 
+    public function getPokemonGameList(): array
+    {
+        return $this->pokemonFetcher->getPokemonGameList();
+    }
+
     public function getPokemonBasicListByType(string $type): array
     {
         return $this->pokemonFetcher->getPokemonBasicListByType($type);

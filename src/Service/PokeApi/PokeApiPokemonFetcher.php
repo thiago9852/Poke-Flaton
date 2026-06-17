@@ -82,7 +82,7 @@ class PokeApiPokemonFetcher
         return $this->cache->get('pokemon_type_' . $type . '_' . $limit . '_' . $offset, function (ItemInterface $item) use ($type, $limit, $offset) {
             $item->expiresAfter(86400 * 7); // Cache por 7 dias
 
-            // 1. Busca todos os pokemons daquele tipo (requisição rápida e leve)
+            // 1. Busca todos os pokemons daquele tipo
             $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/type/' . strtolower($type));
             $data = $response->toArray();
 
@@ -159,113 +159,154 @@ class PokeApiPokemonFetcher
      */
     public function getPokemonDetails(string $nameOrId): array
     {
-        return $this->cache->get('pokemon_details_' . strtolower($nameOrId), function (ItemInterface $item) use ($nameOrId) {
+        $cacheKey = 'pokemon_details_' . strtolower($nameOrId);
+        $details = $this->cache->get($cacheKey, function (ItemInterface $item) use ($nameOrId) {
             $item->expiresAfter(86400 * 7); // Cache por 7 dias
-
-            $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon/' . strtolower($nameOrId));
-            $data = $response->toArray();
-
-            // Status base
-            $stats = [];
-            foreach ($data['stats'] as $s) {
-                $stats[$s['stat']['name']] = $s['base_stat'];
-            }
-
-            // Tipos
-            $types = [];
-            foreach ($data['types'] as $t) {
-                $types[] = $t['type']['name'];
-            }
-
-            // Habilidades possíveis
-            $abilities = [];
-            foreach ($data['abilities'] as $a) {
-                $abilities[] = $a['ability']['name'];
-            }
-
-            // Itens dropados selvagens (held items)
-            $heldItems = [];
-            foreach ($data['held_items'] as $hi) {
-                $itemName = $hi['item']['name'];
-                $maxRarity = 0;
-                foreach ($hi['version_details'] as $vd) {
-                    if ($vd['rarity'] > $maxRarity) {
-                        $maxRarity = $vd['rarity'];
-                    }
-                }
-                $heldItems[] = [
-                    'name' => $itemName,
-                    'chance' => $maxRarity,
-                    'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/%s.png', $itemName)
-                ];
-            }
-
-            // Movimentos que pode aprender
-            $moves = [];
-            foreach ($data['moves'] as $m) {
-                $hasBase = false;
-                $hasTM   = false;
-                foreach ($m['version_group_details'] as $vgd) {
-                    $method = $vgd['move_learn_method']['name'];
-                    if ($method === 'machine') {
-                        $hasTM = true;
-                    } elseif ($method === 'level-up') {
-                        $hasBase = true;
-                    }
-                }
-
-                if ($hasBase && $hasTM) {
-                    $learnMethod = 'both';
-                } elseif ($hasTM) {
-                    $learnMethod = 'TM';
-                } else {
-                    $learnMethod = 'base';
-                }
-
-                $moves[$m['move']['name']] = [
-                    'name'         => $m['move']['name'],
-                    'learn_method' => $learnMethod
-                ];
-            }
-            ksort($moves);
-
-            $speciesUrl = $data['species']['url'];
-            $speciesParts = explode('/', rtrim($speciesUrl, '/'));
-            $speciesId = (int) end($speciesParts);
-            $speciesName = $data['species']['name'];
-
-            // Fetch varieties from species
-            $speciesData = $this->cache->get('pokemon_species_' . $speciesId, function (ItemInterface $item) use ($speciesUrl) {
-                $item->expiresAfter(86400 * 7);
-                $resp = $this->httpClient->request('GET', $speciesUrl);
-                return $resp->toArray();
-            });
-
-            $varieties = [];
-            foreach ($speciesData['varieties'] as $v) {
-                $vName = $v['pokemon']['name'];
-                if (str_contains($vName, '-mega')) {
-                    $varieties[] = [
-                        'name' => $vName,
-                        'display_name' => str_replace('-x', ' X', str_replace('-y', ' Y', str_replace('-mega', ' Mega', $vName)))
-                    ];
-                }
-            }
-
-            return [
-                'id' => $data['id'],
-                'name' => $data['name'],
-                'species_id' => $speciesId,
-                'species_name' => $speciesName,
-                'varieties' => $varieties,
-                'sprite_official' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $data['id']),
-                'types' => $types,
-                'stats' => $stats,
-                'drops' => $heldItems,
-                'moves' => $moves,
-                'abilities' => $abilities
-            ];
+            return $this->fetchPokemonDetailsRaw($nameOrId);
         });
+
+        // Se o cache for antigo e não contiver os novos campos, força a re-busca
+        if (!isset($details['weight'])) {
+            $this->cache->delete($cacheKey);
+            $details = $this->cache->get($cacheKey, function (ItemInterface $item) use ($nameOrId) {
+                $item->expiresAfter(86400 * 7);
+                return $this->fetchPokemonDetailsRaw($nameOrId);
+            });
+        }
+
+        return $details;
+    }
+
+    /**
+     * Busca os detalhes reais do Pokémon na API
+     */
+    private function fetchPokemonDetailsRaw(string $nameOrId): array
+    {
+        $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon/' . strtolower($nameOrId));
+        $data = $response->toArray();
+
+        // Status base
+        $stats = [];
+        foreach ($data['stats'] as $s) {
+            $stats[$s['stat']['name']] = $s['base_stat'];
+        }
+
+        // Tipos
+        $types = [];
+        foreach ($data['types'] as $t) {
+            $types[] = $t['type']['name'];
+        }
+
+        // Habilidades possíveis
+        $abilities = [];
+        foreach ($data['abilities'] as $a) {
+            $abilities[] = $a['ability']['name'];
+        }
+
+        // Itens dropados selvagens (held items)
+        $heldItems = [];
+        foreach ($data['held_items'] as $hi) {
+            $itemName = $hi['item']['name'];
+            $maxRarity = 0;
+            foreach ($hi['version_details'] as $vd) {
+                if ($vd['rarity'] > $maxRarity) {
+                    $maxRarity = $vd['rarity'];
+                }
+            }
+            $heldItems[] = [
+                'name' => $itemName,
+                'chance' => $maxRarity,
+                'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/%s.png', $itemName)
+            ];
+        }
+
+        // Movimentos que pode aprender
+        $moves = [];
+        foreach ($data['moves'] as $m) {
+            $hasBase = false;
+            $hasTM   = false;
+            foreach ($m['version_group_details'] as $vgd) {
+                $method = $vgd['move_learn_method']['name'];
+                if ($method === 'machine') {
+                    $hasTM = true;
+                } elseif ($method === 'level-up') {
+                    $hasBase = true;
+                }
+            }
+
+            if ($hasBase && $hasTM) {
+                $learnMethod = 'both';
+            } elseif ($hasTM) {
+                $learnMethod = 'TM';
+            } else {
+                $learnMethod = 'base';
+            }
+
+            $moves[$m['move']['name']] = [
+                'name'         => $m['move']['name'],
+                'learn_method' => $learnMethod
+            ];
+        }
+        ksort($moves);
+
+        $speciesUrl = $data['species']['url'];
+        $speciesParts = explode('/', rtrim($speciesUrl, '/'));
+        $speciesId = (int) end($speciesParts);
+        $speciesName = $data['species']['name'];
+
+        // Fetch variedade de especies
+        $speciesData = $this->cache->get('pokemon_species_' . $speciesId, function (ItemInterface $item) use ($speciesUrl) {
+            $item->expiresAfter(86400 * 7);
+            $resp = $this->httpClient->request('GET', $speciesUrl);
+            return $resp->toArray();
+        });
+
+        $varieties = [];
+        foreach ($speciesData['varieties'] as $v) {
+            $vName = $v['pokemon']['name'];
+            if (str_contains($vName, '-mega')) {
+                $varieties[] = [
+                    'name' => $vName,
+                    'display_name' => str_replace('-x', ' X', str_replace('-y', ' Y', str_replace('-mega', ' Mega', $vName)))
+                ];
+            }
+        }
+
+        // Extrai a descrição/flavor text em português ou inglês
+        $description = '';
+        if (!empty($speciesData['flavor_text_entries'])) {
+            foreach ($speciesData['flavor_text_entries'] as $entry) {
+                if ($entry['language']['name'] === 'pt' || $entry['language']['name'] === 'pt-BR') {
+                    $description = str_replace(["\n", "\f", "\r"], ' ', $entry['flavor_text']);
+                    break;
+                }
+            }
+            if (empty($description)) {
+                foreach ($speciesData['flavor_text_entries'] as $entry) {
+                    if ($entry['language']['name'] === 'en') {
+                        $description = str_replace(["\n", "\f", "\r"], ' ', $entry['flavor_text']);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return [
+            'id' => $data['id'],
+            'name' => $data['name'],
+            'species_id' => $speciesId,
+            'species_name' => $speciesName,
+            'varieties' => $varieties,
+            'sprite_official' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $data['id']),
+            'types' => $types,
+            'stats' => $stats,
+            'drops' => $heldItems,
+            'moves' => $moves,
+            'abilities' => $abilities,
+            'weight' => $data['weight'] ?? 0,
+            'height' => $data['height'] ?? 0,
+            'description' => $description ?: 'Nenhuma descrição de Pokédex disponível para este Pokémon.'
+        ];
     }
 
     /**
@@ -291,6 +332,38 @@ class PokeApiPokemonFetcher
                 if (!$this->validator->isPokemonAllowed($id)) {
                     continue;
                 }
+                $list[] = [
+                    'id' => $id,
+                    'name' => $pokemon['name'],
+                    'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $id),
+                    'types' => [] // vazio por padrão para velocidade
+                ];
+            }
+            return $list;
+        });
+    }
+
+    /**
+     * Obter lista de todos os Pokémons das gerações 1 a 6 para o mini-game,
+     * incluindo lendários e míticos.
+     */
+    public function getPokemonGameList(): array
+    {
+        return $this->cache->get('pokemon_game_list_gens1_6', function (ItemInterface $item) {
+            $item->expiresAfter(86400 * 30); // 30 dias
+            $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon?limit=721');
+            $data = $response->toArray();
+
+            $list = [];
+            foreach ($data['results'] as $pokemon) {
+                $parts = explode('/', rtrim($pokemon['url'], '/'));
+                $id = (int) end($parts);
+
+                // Garante que está no range de Gen 1 a 6 (1 a 721)
+                if ($id < 1 || $id > 721) {
+                    continue;
+                }
+
                 $list[] = [
                     'id' => $id,
                     'name' => $pokemon['name'],
@@ -386,13 +459,25 @@ class PokeApiPokemonFetcher
 
         foreach ($names as $name) {
             $nameLower = strtolower($name);
-            $cacheKey = 'pokemon_details_' . $nameLower;
-            $item = $this->cache->getItem($cacheKey);
-            if ($item->isHit()) {
-                $detailsList[$nameLower] = $item->get();
-            } else {
-                $missedNames[] = $nameLower;
+            
+            // 1. Verificar se o cache do lote (light) existe
+            $batchCacheKey = 'pokemon_details_batch_' . $nameLower;
+            $batchItem = $this->cache->getItem($batchCacheKey);
+            if ($batchItem->isHit()) {
+                $detailsList[$nameLower] = $batchItem->get();
+                continue;
             }
+
+            // 2. Alternativa: Se o cache detalhado completo existir, podemos usá-lo!
+            $fullCacheKey = 'pokemon_details_' . $nameLower;
+            $fullItem = $this->cache->getItem($fullCacheKey);
+            if ($fullItem->isHit()) {
+                $detailsList[$nameLower] = $fullItem->get();
+                continue;
+            }
+
+            // 3. Caso contrário, precisamos buscar na API
+            $missedNames[] = $nameLower;
         }
 
         if (!empty($missedNames)) {
@@ -451,11 +536,12 @@ class PokeApiPokemonFetcher
                         'abilities' => $abilities
                     ];
 
-                    $cacheKey = 'pokemon_details_' . $name;
-                    $item = $this->cache->getItem($cacheKey);
-                    $item->set($parsed);
-                    $item->expiresAfter(86400 * 7);
-                    $this->cache->save($item);
+                    // Salvar no cache específico de LOTE (batch), nunca sobrescrevendo o completo
+                    $batchCacheKey = 'pokemon_details_batch_' . $name;
+                    $batchItem = $this->cache->getItem($batchCacheKey);
+                    $batchItem->set($parsed);
+                    $batchItem->expiresAfter(86400 * 7);
+                    $this->cache->save($batchItem);
 
                     $detailsList[$name] = $parsed;
                 } catch (\Exception $e) {
@@ -472,7 +558,7 @@ class PokeApiPokemonFetcher
      */
     public function getPokemonEvolutionChain(string $pokemonName): array
     {
-        return $this->cache->get('evolution_chain_for_' . $pokemonName, function (ItemInterface $item) use ($pokemonName) {
+        return $this->cache->get('evolution_chain_v2_for_' . $pokemonName, function (ItemInterface $item) use ($pokemonName) {
             $item->expiresAfter(86400 * 30); // 30 dias
             try {
                 // 1. Busca espécie para obter a URL da cadeia evolutiva
@@ -485,7 +571,7 @@ class PokeApiPokemonFetcher
                 $chainResponse = $this->httpClient->request('GET', $chainUrl);
                 $chainData = $chainResponse->toArray();
 
-                return $this->parseEvolutionChain($chainData['chain']);
+                return $this->parseEvolutionChainStages($chainData['chain']);
             } catch (\Exception $e) {
                 return [];
             }
@@ -493,11 +579,11 @@ class PokeApiPokemonFetcher
     }
 
     /**
-     * Helper recursivo para mapear a árvore de evolução
+     * Mapeia a árvore de evolução agrupando os Pokémon por estágio evolutivo (bifurcações)
      */
-    private function parseEvolutionChain(array $chainNode): array
+    private function parseEvolutionChainStages(array $chainNode, int $stage = 1): array
     {
-        $evolutionList = [];
+        $stages = [];
 
         $speciesName = $chainNode['species']['name'];
         $parts = explode('/', rtrim($chainNode['species']['url'], '/'));
@@ -515,11 +601,11 @@ class PokeApiPokemonFetcher
             $types = ['normal']; // fallback
         }
 
-        $evolutionList[] = [
-            'name' => $speciesName,
-            'id' => $speciesId,
+        $stages[$stage][] = [
+            'name'   => $speciesName,
+            'id'     => $speciesId,
             'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $speciesId),
-            'types' => $types
+            'types'  => $types
         ];
 
         if (!empty($chainNode['evolves_to'])) {
@@ -528,21 +614,35 @@ class PokeApiPokemonFetcher
 
                 // Busca a regra de evolução customizada
                 $rule = $this->evolutionRuleRepository->findOneBy([
-                    'basePokemon' => strtolower($speciesName),
+                    'basePokemon'    => strtolower($speciesName),
                     'evolvedPokemon' => strtolower($nextSpeciesName)
                 ]);
 
                 $method = $rule ? $rule->getMethod() : 'Nível/Stone';
 
-                // Adiciona a informação ao nó atual (para indicar como ELE evolui para o próximo)
-                $evolutionList[count($evolutionList) - 1]['evolves_to_next'] = true;
-                $evolutionList[count($evolutionList) - 1]['evolution_method'] = $method;
+                // Processa recursivamente o próximo estágio
+                $nextStages = $this->parseEvolutionChainStages($nextBranch, $stage + 1);
 
-                $evolutionList = array_merge($evolutionList, $this->parseEvolutionChain($nextBranch));
+                // Associa o método de evolução correspondente a cada nó filho
+                if (isset($nextStages[$stage + 1])) {
+                    foreach ($nextStages[$stage + 1] as &$childNode) {
+                        if ($childNode['name'] === $nextSpeciesName) {
+                            $childNode['evolution_method'] = $method;
+                        }
+                    }
+                }
+
+                // Mescla os estágios filhos no array principal de estágios
+                foreach ($nextStages as $sIndex => $sNodes) {
+                    if (!isset($stages[$sIndex])) {
+                        $stages[$sIndex] = [];
+                    }
+                    $stages[$sIndex] = array_merge($stages[$sIndex], $sNodes);
+                }
             }
         }
 
-        return $evolutionList;
+        return $stages;
     }
 
     /**

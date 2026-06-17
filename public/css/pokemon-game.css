@@ -1,0 +1,1104 @@
+/* Container Principal */
+.game-container {
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Hero Section do Game */
+.game-hero {
+    text-align: center;
+    position: relative;
+}
+
+.game-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #a78bfa, #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+}
+
+@keyframes spinPokeball {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Abas/Modos de Jogo */
+.game-modes {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.mode-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mode-btn:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-primary);
+}
+
+.mode-btn.active {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2));
+    border-color: var(--border-focus);
+    color: var(--text-primary);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.25);
+}
+
+/* Painel de Ações */
+.game-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 25px;
+    backdrop-filter: blur(12px);
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Autocomplete e Busca */
+.guess-form {
+    display: flex;
+    gap: 12px;
+    position: relative;
+}
+
+.search-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.guess-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 14px 20px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+}
+
+.guess-input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 15px var(--color-primary-glow);
+}
+
+.btn-guess {
+    background: linear-gradient(135deg, var(--color-primary), #7c3aed);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0 25px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-guess:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(139, 92, 246, 0.45);
+}
+
+.btn-guess:active {
+    transform: translateY(0);
+}
+
+/* Dropdown Autocomplete */
+.game-autocomplete {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: rgba(18, 19, 28, 0.95);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 10;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(139, 92, 246, 0.15);
+    display: none;
+    flex-direction: column;
+}
+
+.game-autocomplete-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.game-autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.game-autocomplete-item:hover,
+.game-autocomplete-item.active {
+    background: rgba(255, 255, 255, 0.05);
+    padding-left: 20px;
+}
+
+.game-autocomplete-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.game-autocomplete-item span {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+/* Tabuleiro de Palpites */
+.guesses-board {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Cabeçalho da Tabela */
+.board-header {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    padding: 0 5px;
+}
+
+/* Linha de Palpite estilo Cápsula */
+.guess-capsule-row {
+    background: #dcdcdc;
+    border-radius: 50px;
+    padding: 8px 24px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    color: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: var(--transition-smooth);
+    opacity: 1;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Animação de entrada da Cápsula */
+.guess-capsule-row.animate-row {
+    opacity: 0;
+    animation: slideInCapsule 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideInCapsule {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Informações do Pokémon na esquerda */
+.guess-pokemon-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.guess-pokemon-img {
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.15));
+}
+
+.guess-pokemon-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* Indicadores de Feedback na direita */
+.guess-indicators {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Círculos de Status */
+.indicator-circle {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease;
+}
+
+.indicator-circle:hover {
+    transform: scale(1.05);
+}
+
+/* Cores de Status */
+.indicator-circle.correct {
+    background: #00c2a8;
+    /* verde/teal vibrante */
+    box-shadow: 0 4px 10px rgba(0, 194, 168, 0.3);
+}
+
+.indicator-circle.partial {
+    background: #f59e0b;
+    /* amarelo/laranja vibrante */
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+}
+
+.indicator-circle.incorrect {
+    background: #ef4444;
+    /* vermelho vibrante */
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+}
+
+/* Conteúdo interno dos círculos */
+.indicator-value {
+    font-size: 1.2rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.indicator-icon {
+    font-size: 1.1rem;
+    line-height: 1.1;
+    margin-bottom: 2px;
+}
+
+.indicator-label {
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.9;
+    letter-spacing: 0.5px;
+}
+
+/* Pequeno balão/badge da Seta Direcional */
+.indicator-arrow-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 20px;
+    height: 20px;
+    background: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f172a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+}
+
+.indicator-arrow-badge i {
+    font-size: 9px;
+    font-weight: 900;
+}
+
+/* Estilo para Conteúdo dos Blocos */
+.guess-box img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+}
+
+.guess-box-title {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+    margin-bottom: 4px;
+}
+
+.guess-box-value {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.95rem;
+}
+
+/* Tipos */
+.guess-types-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.guess-type-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    width: 100%;
+}
+
+/* Indicadores de seta */
+.direction-arrow {
+    font-size: 0.9rem;
+    display: inline-block;
+}
+
+.direction-arrow.higher {
+    color: #fca5a5;
+    animation: arrowBounceUp 1.2s ease-in-out infinite;
+}
+
+.direction-arrow.lower {
+    color: #93c5fd;
+    animation: arrowBounceDown 1.2s ease-in-out infinite;
+}
+
+@keyframes arrowBounceUp {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes arrowBounceDown {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(4px);
+    }
+}
+
+/* Botoes auxiliares */
+.game-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.btn-giveup {
+    background: transparent;
+    border: 1px solid #f87171;
+    color: #f87171;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.btn-giveup:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+    color: #fca5a5;
+}
+
+.attempts-counter {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Modais de Sucesso e Fim de Jogo */
+.game-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(12, 13, 18, 0.85);
+    backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.game-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.game-modal {
+    background: #11131c;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 500px;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(139, 92, 246, 0.15);
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.game-modal-overlay.active .game-modal {
+    transform: translateY(0) scale(1);
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+}
+
+.modal-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+.modal-title.win {
+    background: linear-gradient(135deg, #10b981, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.modal-title.lose {
+    background: linear-gradient(135deg, #ef4444, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.modal-artwork-container {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 20px;
+}
+
+.modal-artwork-glow {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--color-primary-glow) 0%, transparent 70%);
+    filter: blur(10px);
+    z-index: 1;
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: scale(1.25);
+        opacity: 1;
+    }
+}
+
+.modal-artwork {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: relative;
+    z-index: 2;
+    animation: floatArtwork 4s ease-in-out infinite;
+}
+
+@keyframes floatArtwork {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.modal-pkm-info-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.modal-pkm-number {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-muted);
+}
+
+.modal-pkm-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.modal-pkm-types {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.modal-pkm-types .guess-type-badge {
+    width: auto;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.modal-pkm-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    padding: 0 10px;
+}
+
+/* Estatísticas */
+.modal-stats {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-top: 3px;
+}
+
+/* Ações do Modal */
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.btn-share {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-share:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+}
+
+.btn-restart {
+    background: linear-gradient(135deg, var(--color-primary), #7c3aed);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-restart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(139, 92, 246, 0.45);
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .guess-capsule-row {
+        padding: 5px 8px;
+        border-radius: 30px;
+    }
+
+    .guess-pokemon-img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .guess-pokemon-name {
+        font-size: 0.78rem;
+        max-width: 65px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .guess-indicators {
+        gap: 3px;
+    }
+
+    .indicator-circle {
+        width: 38px;
+        height: 38px;
+    }
+
+    .indicator-value {
+        font-size: 0.65rem;
+        line-height: 1;
+    }
+
+    .indicator-icon {
+        font-size: 0.7rem;
+    }
+
+    .indicator-label {
+        display: block !important;
+        font-size: 0.42rem !important;
+        margin-top: 1px !important;
+        letter-spacing: 0px !important;
+        line-height: 1 !important;
+        opacity: 0.85;
+    }
+
+    .indicator-arrow-badge {
+        width: 12px;
+        height: 12px;
+        top: -2px;
+        right: -2px;
+    }
+
+    .indicator-arrow-badge i {
+        font-size: 6px;
+    }
+}
+.game-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 20px;
+}
+
+.game-hero-content {
+    flex: 1;
+    text-align: left;
+}
+
+.solved-pokemon-container {
+    display: none;
+    align-items: center;
+    gap: 15px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15));
+    border-radius: var(--radius-md);
+    padding: 10px 18px;
+    animation: fadeInSolved 0.5s ease-out;
+}
+
+.solved-pokemon-container.active {
+    display: flex;
+}
+
+@keyframes fadeInSolved {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateX(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateX(0);
+    }
+}
+
+.solved-pokemon-art {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+    animation: floatArtwork 4s ease-in-out infinite;
+}
+
+.solved-pokemon-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.solved-pokemon-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #10b981;
+    letter-spacing: 0.5px;
+}
+
+.solved-pokemon-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.solved-pokemon-number {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Rank mensal - section */
+.game-ranking-section {
+    margin-top: 40px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 30px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.ranking-section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ranking-section-title i {
+    color: #f59e0b;
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.4));
+}
+
+.ranking-section-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+}
+
+.ranking-table-container {
+    overflow-x: auto;
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.ranking-table th {
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.ranking-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition-smooth);
+}
+
+.ranking-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.ranking-row td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.rank-val {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
+
+.rank-1 .rank-val {
+    color: #f59e0b;
+    /* ouro */
+}
+
+.rank-2 .rank-val {
+    color: #cbd5e1;
+    /* prata */
+}
+
+.rank-3 .rank-val {
+    color: #b45309;
+    /* bronze */
+}
+
+.gold-crown {
+    color: #f59e0b;
+    margin-right: 4px;
+}
+
+.silver-medal {
+    color: #cbd5e1;
+    margin-right: 4px;
+}
+
+.bronze-medal {
+    color: #b45309;
+    margin-right: 4px;
+}
+
+.trainer-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ranking-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.rank-1 .ranking-avatar {
+    border-color: #f59e0b;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+}
+
+.trainer-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.attempts-val {
+    color: var(--text-secondary);
+}
+
+.attempts-val strong {
+    font-family: 'Outfit', sans-serif;
+    color: #22d3ee;
+    font-size: 1.05rem;
+}
+
+.date-val {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.no-ranking {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Imagem sprite para feedback tipo círculos */
+.type-sprite-img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+@media (max-width: 600px) {
+    .game-hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+        align-items: center;
+    }
+
+    .game-hero-content {
+        text-align: center;
+    }
+
+    .solved-pokemon-container {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .game-ranking-section {
+        padding: 15px;
+    }
+
+    .ranking-row td {
+        padding: 10px 8px;
+    }
+
+    .type-sprite-img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .game-title {
+        font-size: 1.6rem !important;
+        align-items: flex-start !important;
+        text-align: left;
+    }
+
+    .game-title i {
+        margin-top: 4px;
+        font-size: 1.5rem !important;
+    }
+
+    .ranking-section-title {
+        font-size: 1.25rem !important;
+        align-items: flex-start !important;
+    }
+
+    .ranking-section-title i {
+        margin-top: 3px;
+    }
+}
+
+.guesses-board, .guess-capsule-row {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Layout em Duas Colunas (Desktop) */
+.game-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.game-main-col, .game-sidebar-col {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.game-sidebar-col .solved-pokemon-container.active {
+    display: flex;
+    margin-bottom: 24px;
+}
+
+@media (min-width: 992px) {
+    .game-container {
+        max-width: 1100px !important;
+    }
+
+    .game-layout-grid {
+        grid-template-columns: 1fr 360px;
+        align-items: start;
+    }
+
+    .game-ranking-section {
+        margin-top: 0 !important;
+    }
+}

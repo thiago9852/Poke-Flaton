@@ -16,23 +16,27 @@
 	<!-- Pokémon Navigation Bar -->
 	<div class="pokemon-navigation-bar">
 		{% if prevPokemon %}
+
 			<a href="{{ path('app_pokemon_detail', { name: prevPokemon.name }) }}" class="nav-button nav-prev type-hover-{{ prevPokemon.types|first }}">
 				<span class="nav-arrow-circle">
 					<i class="fa-solid fa-chevron-left"></i>
 				</span>
-				<span class="nav-number">Nº
-					{{ "%04d"|format(prevPokemon.species_id) }}</span>
-				<span class="nav-name">{{ prevPokemon.name|capitalize }}</span>
+				<div class="nav-text-container">
+					<span class="nav-number">Nº {{ "%04d"|format(prevPokemon.species_id) }}</span>
+					<span class="nav-name">{{ prevPokemon.name|capitalize }}</span>
+				</div>
 			</a>
+			
 		{% else %}
 			<div class="nav-button nav-prev disabled"></div>
 		{% endif %}
 
 		{% if nextPokemon %}
 			<a href="{{ path('app_pokemon_detail', { name: nextPokemon.name }) }}" class="nav-button nav-next type-hover-{{ nextPokemon.types|first }}">
-				<span class="nav-name">{{ nextPokemon.name|capitalize }}</span>
-				<span class="nav-number">Nº
-					{{ "%04d"|format(nextPokemon.species_id) }}</span>
+				<div class="nav-text-container">
+					<span class="nav-number">Nº {{ "%04d"|format(nextPokemon.species_id) }}</span>
+					<span class="nav-name">{{ nextPokemon.name|capitalize }}</span>
+				</div>
 				<span class="nav-arrow-circle">
 					<i class="fa-solid fa-chevron-right"></i>
 				</span>
@@ -47,11 +51,13 @@
 		<h1 class="current-title" style="margin: 0;">
 			{{ pokemon.name|capitalize }}
 			<span class="current-number">Nº
-				{{ "%04d"|format(pokemon.species_id) }}</span>
+				{{ "%04d"|format(pokemon.species_id) }}
+			</span>
 		</h1>
 
 		{% if app.user %}
 			{% set isCaught = pokemon.name in app.user.caughtPokemon %}
+
 			<button id="catch-btn" class="catch-pokemon-btn {% if isCaught %}caught{% endif %}" data-pokemon-name="{{ pokemon.name }}" onclick="toggleCatchState(this)" title="{% if isCaught %}Na sua Pokedex (Soltar?){% else %}Capturar Pokémon!{% endif %}" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 0.95rem; color: {% if isCaught %}#10b981{% else %}var(--text-secondary){% endif %}; transition: var(--transition-smooth); padding: 8px 16px; border-radius: var(--radius-sm); background-color: rgba(255, 255, 255, 0.03); border: 1px solid {% if isCaught %}rgba(16, 185, 129, 0.3){% else %}var(--border-color){% endif %};">
 				<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/poke-ball.png" id="catch-pokeball-icon" class="pokeball-sprite-icon" style="width: 24px; height: 24px; image-rendering: pixelated; transition: var(--transition-smooth); {% if not isCaught %}filter: grayscale(1) opacity(0.6);{% endif %}">
 				<span id="catch-btn-text">
@@ -59,6 +65,7 @@
 					{% endif %}
 				</span>
 			</button>
+			
 		{% endif %}
 	</div>
 
@@ -117,7 +124,7 @@
 						{% if typeMovesets is empty %}
 							<div class="empty-moveset card" style="text-align: center; padding: 40px;">
 								<h4>Nenhum moveset criado para esta categoria</h4>
-								<a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-secondary mt-3">
+								<a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-secondary" style="margin-top: 10px;">
 									Criar Agora
 								</a>
 							</div>

@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }} | PokeFlaton{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/pokemon-game.css') }}">
+{% endblock %}
+
+{% block body %}
+<turbo-frame id="pokemon-game-frame" data-turbo-action="advance"
+    data-controller="pokemon-game"
+    data-pokemon-game-mode-value="{{ mode }}"
+    data-pokemon-game-pokemon-list-value="{{ pokemonListJson }}"
+    data-pokemon-game-guess-url-value="{{ path('api_game_guess') }}"
+    data-pokemon-game-reveal-url-value="{{ path('api_game_reveal') }}"
+>
+<div class="game-container">
+    
+    <div class="game-layout-grid">
+        <!-- Coluna Principal (Esquerda) -->
+        <main class="game-main-col">
+            
+            <header class="game-hero">
+                <div class="game-hero-content">
+                    <h1 class="game-title"> Qual é o Pokémon do Dia?</h1>
+                </div>
+            </header>
+
+            <!-- Painel de Ações do Jogo -->
+            <div class="game-panel" id="gamePanel">
+                <form class="guess-form ajax-form" id="guessForm" autocomplete="off" onsubmit="event.preventDefault();" data-action="submit->pokemon-game#submitGuess" data-ajax="true">
+                    <div class="search-wrapper">
+                        <input 
+                            type="text" 
+                            id="guessInput" 
+                            placeholder="Digite o nome de um Pokémon..." 
+                            class="guess-input"
+                            data-pokemon-game-target="guessInput"
+                            data-action="input->pokemon-game#onInput keydown->pokemon-game#onKeydown"
+                        >
+                        <div class="game-autocomplete" id="gameAutocomplete" data-pokemon-game-target="gameAutocomplete"></div>
+                    </div>
+                </form>
+
+                <div class="game-actions">
+                    <button class="btn-giveup" id="btnGiveUp" data-pokemon-game-target="btnGiveUp" data-action="click->pokemon-game#giveUp">Desistir</button>
+                    <div class="attempts-counter" id="attemptsCounter" data-pokemon-game-target="attemptsCounter">Palpites: 0</div>
+                </div>
+            </div>
+
+            <!-- Tabuleiro de Palpites -->
+            <section class="guesses-board-wrapper">
+                <div class="guesses-board" id="guessesBoard" data-pokemon-game-target="guessesBoard">
+                    <!-- render por JavaScript -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Coluna Lateral (Direita) -->
+        <aside class="game-sidebar-col">
+            <div class="solved-pokemon-container" id="solvedPokemonContainer" data-pokemon-game-target="solvedPokemonContainer">
+                <!-- render por Stimulus -->
+            </div>
+
+            <!-- Ranking Mensal -->
+            <section class="game-ranking-section">
+                <h2 class="ranking-section-title"><i class="fa-solid fa-trophy"></i> Top 5 do Mês</h2>
+                <p class="ranking-section-subtitle">Os treinadores que adivinharam o Pokémon do dia com o menor número de tentativas este mês.</p>
+                
+                <div class="ranking-table-container">
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th class="rank-col">#</th>
+                                <th class="trainer-col">Treinador</th>
+                                <th class="attempts-col">Tentativas</th>
+                                <th class="date-col">Data de Conclusão</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for score in monthlyRanking %}
+                                <tr class="ranking-row rank-{{ loop.index }}">
+                                    <td class="rank-val">
+                                        {% if loop.index == 1 %}
+                                            <i class="fa-solid fa-crown gold-crown"></i> 01
+                                        {% elseif loop.index == 2 %}
+                                            <i class="fa-solid fa-medal silver-medal"></i> 02
+                                        {% elseif loop.index == 3 %}
+                                            <i class="fa-solid fa-medal bronze-medal"></i> 03
+                                        {% else %}
+                                            0{{ loop.index }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="trainer-info">
+                                        <img src="{{ score.avatar ? avatar_url(score.avatar) : asset('image/Pokeball.png') }}" class="ranking-avatar" alt="Avatar">
+                                        <span class="trainer-name">{{ score.username }}</span>
+                                    </td>
+                                    <td class="attempts-val"><strong>{{ score.attempts }} </strong> {{ score.attempts == 1 ? 'tentativa' : 'tentativas' }}</td>
+                                    <td class="date-val">{{ score.createdAt|date('d/m/Y H:i') }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="no-ranking">Ainda não há pontuações registradas para este mês. Seja o primeiro!</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<!-- Modal de Fim de Jogo -->
+<div class="game-modal-overlay" id="gameModalOverlay" data-pokemon-game-target="gameModalOverlay" data-action="click->pokemon-game#closeModal">
+    <div class="game-modal">
+        <button class="modal-close" id="modalCloseBtn" data-action="click->pokemon-game#closeModal"><i class="fa-solid fa-xmark"></i></button>
+        <h2 class="modal-title" id="modalTitle" data-pokemon-game-target="modalTitle">Você Ganhou!</h2>
+        
+        <div class="modal-artwork-container">
+            <div class="modal-artwork-glow"></div>
+            <img src="" alt="Secret Pokémon" class="modal-artwork" id="modalArtwork" data-pokemon-game-target="modalArtwork">
+        </div>
+
+        <div class="modal-pkm-info-row">
+            <span class="modal-pkm-number" id="modalPkmNumber" data-pokemon-game-target="modalPkmNumber">#000</span>
+            <h3 class="modal-pkm-name" id="modalPkmName" data-pokemon-game-target="modalPkmName">Pikachu</h3>
+        </div>
+        <div class="modal-pkm-types" id="modalPkmTypes" data-pokemon-game-target="modalPkmTypes"></div>
+        <p class="modal-pkm-desc" id="modalPkmDesc" data-pokemon-game-target="modalPkmDesc">"Carrega eletricidade em suas bochechas..."</p>
+
+        <!-- Estatísticas da Partida -->
+        <div class="modal-stats">
+            <div class="stat-item">
+                <span class="stat-val" id="statAttempts" data-pokemon-game-target="statAttempts">4</span>
+                <span class="stat-label">Tentativas</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-val" id="statStreak" data-pokemon-game-target="statStreak">1</span>
+                <span class="stat-label">Seq. Diária</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-val" id="statMaxStreak" data-pokemon-game-target="statMaxStreak">1</span>
+                <span class="stat-label">Melhor Seq.</span>
+            </div>
+        </div>
+
+        <!-- Ações do Modal -->
+        <div class="modal-actions">
+            <button class="btn-share" id="btnShare" data-pokemon-game-target="btnShare" data-action="click->pokemon-game#share">
+                <i class="fa-solid fa-share-nodes"></i> Compartilhar
+            </button>
+        </div>
+    </div>
+</div>
+</turbo-frame>
+{% endblock %}

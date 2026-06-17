@@ -72,6 +72,7 @@
 		{% else %}
 			<div class="pokemon-grid">
 				{% for pokemon in trendingPokemons %}
+
 					<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="pokemon-card">
 						<div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
 						<span class="pokemon-id">#{{ "%03d"|format(pokemon.dex_id|default(pokemon.id)) }}</span>
@@ -85,9 +86,11 @@
 							{% endfor %}
 						</div>
 					</a>
+
 				{% endfor %}
 			</div>
 		{% endif %}
+		
 	</section>
 
 {% endblock %}

@@ -1,46 +1,53 @@
 <div class="card pokemon-evolution-card">
-    <h2 class="card-title"><i class="fa-solid fa-dna"></i> Linha Evolutiva</h2>
+    <h2 class="card-title"> Linha Evolutiva</h2>
     
     {% if evolutionChain is empty %}
         <p class="no-drops-text" style="color: var(--text-secondary); font-style: italic; font-size: 0.95rem; margin: 10px 0;">Este Pokémon não possui evolução cadastrada.</p>
     {% else %}
-        <div class="evolution-chain-container">
-            {% for evo in evolutionChain %}
-
-                <div class="evolution-node-wrapper">
-                    
-                    <a href="{{ path('app_pokemon_detail', { name: evo.name }) }}" 
-                        class="evolution-node {% if evo.name == pokemon.name %}active{% endif %}" 
-                    >
-                        <img src="{{ evo.sprite }}" alt="{{ evo.name|capitalize }}" class="evolution-sprite">
-
-                        <div class="evolution-details">
-                            <span class="evolution-id">#{{ "%04d"|format(evo.id) }}</span>
-                            <span class="evolution-name" style="display: block; font-family: 'Outfit', sans-serif;">{{ evo.name|capitalize }}</span>
-
-                            <div class="evolution-types">
-                                {% if evo.types is defined %}
-                                    {% for type in evo.types %}
-                                        {% include 'partials/type_badge.html.twig' with {'type': type, 'typeDetails': typeDetails} %}
-                                    {% endfor %}
-                                {% endif %}
+        <div class="evolution-stages-container">
+            {% for stageIndex, stageNodes in evolutionChain %}
+                
+                <!-- Coluna de Setas e Métodos -->
+                {% if stageIndex > 1 %}
+                    <div class="evolution-arrows-column">
+                        {% for node in stageNodes %}
+                            <div class="evolution-arrow-item">
+                                <span class="evolution-method">
+                                    {{ node.evolution_method|default('Nível/Stone') }}
+                                </span>
+                                <i class="fa-solid fa-chevron-right"></i>
                             </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Coluna dos Pokémon do Estágio Atual -->
+                <div class="evolution-stage-column">
+                    {% for node in stageNodes %}
 
-                        </div>
-                    </a>
-                    
-                    {% if not loop.last %}
-                        <div class="evolution-arrow">
-                            <span class="evolution-method">
-                                {{ evo.evolution_method|default('Nível/Stone') }}
-                            </span>
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </div>
-                    {% endif %}
-                    
+                        <a href="{{ path('app_pokemon_detail', { name: node.name }) }}" 
+                            class="evolution-node {% if node.name == pokemon.name %}active{% endif %}" 
+                        >
+                            <img src="{{ node.sprite }}" alt="{{ node.name|capitalize }}" class="evolution-sprite">
+
+                            <div class="evolution-details">
+                                <span class="evolution-id">#{{ "%04d"|format(node.id) }}</span>
+                                <span class="evolution-name" style="display: block; font-family: 'Outfit', sans-serif;">{{ node.name|capitalize }}</span>
+
+                                <div class="evolution-types">
+                                    {% if node.types is defined %}
+                                        {% for type in node.types %}
+                                            {% include 'partials/type_badge.html.twig' with {'type': type, 'typeDetails': typeDetails} %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                        
+                    {% endfor %}
                 </div>
-            {% endfor %}
 
+            {% endfor %}
         </div>
     {% endif %}
     

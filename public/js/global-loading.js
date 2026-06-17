@@ -21,6 +21,38 @@
     });
 })();
 
+(function () {
+    var navToggle = document.getElementById('navToggle');
+    var appNav = document.getElementById('appNav');
+    if (!navToggle || !appNav) return;
+
+    navToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var isOpen = appNav.classList.toggle('open');
+        var icon = navToggle.querySelector('i');
+        if (icon) {
+            if (isOpen) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            } else {
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            }
+        }
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!appNav.contains(event.target) && !navToggle.contains(event.target)) {
+            appNav.classList.remove('open');
+            var icon = navToggle.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            }
+        }
+    });
+})();
+
 // Global loading
 window.Loader = {
     show: function () {
