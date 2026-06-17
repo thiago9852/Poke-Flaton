@@ -196,4 +196,62 @@ if (modal) {
         }
     });
 }
+
+// Lógica de Curtir (Upvote) Moveset
+document.querySelectorAll('.upvote-btn').forEach(btn => {
+    const movesetId = btn.dataset.id;
+    if (localStorage.getItem(`voted_moveset_${movesetId}`) === 'true') {
+        btn.classList.add('voted');
+        const icon = btn.querySelector('i');
+        if (icon) {
+            icon.className = 'fa-solid fa-thumbs-up';
+        }
+    }
+});
+
+if (window.upvoteClickHandler) {
+    document.removeEventListener('click', window.upvoteClickHandler);
+}
+window.upvoteClickHandler = async function (e) {
+    const btn = e.target.closest('.upvote-btn');
+    if (!btn) return;
+
+    e.preventDefault();
+    if (btn.classList.contains('voted') || btn.disabled) return;
+
+    btn.disabled = true;
+    const movesetId = btn.dataset.id;
+    const voteCountSpan = btn.querySelector('.vote-count');
+    const icon = btn.querySelector('i');
+
+    try {
+        const response = await fetch(`/moveset/${movesetId}/vote`, {
+            method: 'POST'
+        });
+
+        if (!response.ok) {
+            throw new Error('Falha ao registrar voto.');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+            if (voteCountSpan) {
+                voteCountSpan.textContent = data.votes;
+            }
+            btn.classList.add('voted');
+            if (icon) {
+                icon.className = 'fa-solid fa-thumbs-up';
+            }
+            localStorage.setItem(`voted_moveset_${movesetId}`, 'true');
+        } else {
+            alert(data.error || 'Erro ao curtir moveset.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Erro de conexão ao curtir o moveset.');
+    } finally {
+        btn.disabled = false;
+    }
+};
+document.addEventListener('click', window.upvoteClickHandler);
 })();
