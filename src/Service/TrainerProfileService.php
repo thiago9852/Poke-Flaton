@@ -1031,7 +1031,7 @@ class TrainerProfileService
 
             $imageUrl = null;
             if ($template->getImage()) {
-                if (str_starts_with($template->getImage(), 'http://') || str_starts_with($template->getImage(), 'https://')) {
+                if (str_starts_with($template->getImage(), 'https://') || str_starts_with($template->getImage(), 'https://')) {
                     $imageUrl = $template->getImage();
                 } else {
                     $imageUrl = 'https://raw.githubusercontent.com/thiago9852/pokemon-sprite/main/sprites/src/templates/' . $template->getImage();
@@ -1308,7 +1308,7 @@ class TrainerProfileService
         if (!$ribbon) {
             return null;
         }
-        if (str_starts_with($ribbon, 'http://') || str_starts_with($ribbon, 'https://')) {
+        if (str_starts_with($ribbon, 'https://') || str_starts_with($ribbon, 'https://')) {
             return $ribbon;
         }
         return 'https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/gen8/' . $ribbon;
