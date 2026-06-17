@@ -2184,6 +2184,7 @@
     gap: 20px;
   }
 
+<<<<<<< HEAD
   /* Pokemon nome e num */
   .pokemon-current-header .current-title {font-size: 20px; margin-bottom: 10px;}
 
@@ -2230,6 +2231,24 @@
   }
   .evolution-name {
     font-size: 0.85rem;
+=======
+  /* Linha Evolutiva */
+  .evolution-node {
+    min-width: 110px;
+    padding: 10px;
+  }
+  .evolution-sprite {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 5px;
+  }
+  .evolution-name {
+    font-size: 0.9rem;
+  }
+  .evolution-arrow {
+    font-size: 1rem;
+    gap: 2px;
+>>>>>>> a36686b68d73fd8ccd7ffcaa928642587f5d9073
   }
   .evolution-method {
     font-size: 0.65rem;
@@ -2263,6 +2282,7 @@
   }
 
   /* Linha Evolutiva */
+<<<<<<< HEAD
   .evolution-stages-container {
     flex-direction: column;
     gap: 15px;
@@ -2321,3 +2341,38 @@
     max-width: 100px;
   }
 }
+=======
+  .evolution-chain-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .evolution-node-wrapper {
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .evolution-node {
+    width: 100%;
+    max-width: 220px;
+    min-width: unset;
+    padding: 12px;
+  }
+  
+  .evolution-sprite {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .evolution-arrow {
+    margin: 8px 0;
+  }
+  
+  .evolution-arrow i {
+    transform: rotate(90deg);
+  }
+}
+
+>>>>>>> a36686b68d73fd8ccd7ffcaa928642587f5d9073

@@ -457,7 +457,7 @@ class PokeApiPokemonFetcher
         $detailsList = [];
         $missedNames = [];
 
-        foreach ($names as $name) {
+         foreach ($names as $name) {
             $nameLower = strtolower($name);
             
             // 1. Verificar se o cache do lote (light) existe
