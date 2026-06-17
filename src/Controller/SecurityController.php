@@ -116,7 +116,7 @@ class SecurityController extends AbstractController
                 $user->setApelido($apelido !== '' ? $apelido : null);
                 $user->setRegional($regional);
                 $user->setAvatar($avatar);
-                $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+                $user->setRoles(['ROLE_USER']);
                 $user->setPassword(
                     $userPasswordHasher->hashPassword(
                         $user,
