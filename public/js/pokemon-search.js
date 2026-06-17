@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+(() => {
 
     // ==========================================
     // UTOCOMPLETE DROPDOWN (Usado na Home)
@@ -58,11 +58,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        document.addEventListener('click', function (e) {
+        if (window.globalSearchClickHandler) {
+            document.removeEventListener('click', window.globalSearchClickHandler);
+        }
+        window.globalSearchClickHandler = function (e) {
             if (!autocompleteInput.contains(e.target) && !resultsContainer.contains(e.target)) {
                 resultsContainer.style.display = 'none';
             }
-        });
+        };
+        document.addEventListener('click', window.globalSearchClickHandler);
     }
 
     // ==========================================
@@ -166,12 +170,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.filter-section .search-box')?.addEventListener('click', (e) => { const cb = e.target.closest('.clear-search-btn'); if (cb) { e.preventDefault(); gridSearchInput.value = ''; gridSearchInput.dispatchEvent(new Event('input')); } });
         gridContainer.addEventListener('click', (e) => { const pageLink = e.target.closest('.pagination-container a'); if (pageLink) { e.preventDefault(); fetchAndUpdateGrid(pageLink.href); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
         if (typeFilterContainer) typeFilterContainer.addEventListener('click', (e) => { const typeLink = e.target.closest('.type-badge-link'); if (typeLink) { e.preventDefault(); fetchAndUpdateGrid(typeLink.href); } });
-        window.addEventListener('popstate', () => {
+        if (window.pokemonSearchPopstateHandler) {
+            window.removeEventListener('popstate', window.pokemonSearchPopstateHandler);
+        }
+        window.pokemonSearchPopstateHandler = () => {
             fetchAndUpdateGrid(window.location.href, false);
             const params = new URLSearchParams(window.location.search);
             if (gridSearchInput) gridSearchInput.value = params.get('q') || '';
             const sortSel = gridForm.querySelector('.sort-select');
             if (sortSel) sortSel.value = params.get('sort') || '';
-        });
+        };
+        window.addEventListener('popstate', window.pokemonSearchPopstateHandler);
     }
-});
+})();

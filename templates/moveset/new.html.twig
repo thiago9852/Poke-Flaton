@@ -55,8 +55,8 @@
 
 				<div class="summary-quick-stats">
 					<div class="quick-stat-item">
-						<span class="label">HP</span>
-						<span class="value">{{ pokemon.stats.hp }}</span>
+						<span class="label">S.ATK</span>
+						<span class="value">{{ pokemon.stats['special-attack'] }}</span>
 					</div>
 					<div class="quick-stat-item">
 						<span class="label">ATK</span>
@@ -65,6 +65,10 @@
 					<div class="quick-stat-item">
 						<span class="label">DEF</span>
 						<span class="value">{{ pokemon.stats.defense }}</span>
+					</div>
+					<div class="quick-stat-item">
+						<span class="label">S.DEF</span>
+						<span class="value">{{ pokemon.stats['special-defense'] }}</span>
 					</div>
 				</div>
 
@@ -230,7 +234,7 @@
 								<span class="learn-method-badge method-base">Lvl</span>
 							{% endif %}
 
-							<span class="type-badge-sm type-badge-pd type-badge-loading"></span>
+							<span class="type-badge-sm type-badge-pr type-badge-loading"></span>
 						</div>
 					</div>
 
@@ -244,7 +248,7 @@
 				<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="btn btn-secondary">Cancelar</a>
 				<button type="submit" class="btn btn-primary">
 					<i class="fa-solid fa-floppy-disk"></i>
-					Salvar Moveset</button>
+					Salvar</button>
 			</div>
 		</div>
 

@@ -1,3 +1,4 @@
+(() => {
 const TYPE_IDS = {
     'normal': 1, 'fighting': 2, 'flying': 3, 'poison': 4, 'ground': 5,
     'rock': 6, 'bug': 7, 'ghost': 8, 'steel': 9, 'fire': 10,
@@ -13,50 +14,50 @@ let selectedMoves = [];
 let currentFilter = 'all';
 let searchQuery = '';
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Resgatar os dados passados pelo Twig
+    // Resgatar os dados passados pelo Twig e inicializar
     const appData = document.getElementById('moveset-app-data');
-    if (appData && appData.dataset.maxMoves) {
-        MAX_MOVES = parseInt(appData.dataset.maxMoves, 10);
-    }
+    if (appData) {
+        if (appData.dataset.maxMoves) {
+            MAX_MOVES = parseInt(appData.dataset.maxMoves, 10);
+        }
 
-    selectedMoves = Array(MAX_MOVES).fill(null);
+        selectedMoves = Array(MAX_MOVES).fill(null);
 
-    // Inicializar UI
-    updateUI();
-    loadAllMoveTypes();
+        // Inicializar UI
+        updateUI();
+        loadAllMoveTypes();
 
-    // Validação ao enviar o formulário
-    const formWrapper = document.querySelector('.moveset-form-wrapper');
-    if (formWrapper) {
-        formWrapper.addEventListener('submit', function (e) {
-            const activeMovesCount = selectedMoves.filter(m => m !== null).length;
-            if (activeMovesCount < 4) {
-                e.preventDefault();
-                alert(`Por favor, selecione pelo menos 4 movimentos para salvar o moveset.`);
-            }
+        // Validação ao enviar o formulário
+        const formWrapper = document.querySelector('.moveset-form-wrapper');
+        if (formWrapper) {
+            formWrapper.addEventListener('submit', function (e) {
+                const activeMovesCount = selectedMoves.filter(m => m !== null).length;
+                if (activeMovesCount < 4) {
+                    e.preventDefault();
+                    alert(`Por favor, selecione pelo menos 4 movimentos para salvar o moveset.`);
+                }
+            });
+        }
+
+        // Filtro de pesquisa
+        const searchInput = document.getElementById('available-moves-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', function (e) {
+                searchQuery = e.target.value;
+                applyFilters();
+            });
+        }
+
+        // Filtros por botões
+        document.querySelectorAll('.btn-filter').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                applyFilters();
+            });
         });
     }
-
-    // Filtro de pesquisa
-    const searchInput = document.getElementById('available-moves-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', function (e) {
-            searchQuery = e.target.value;
-            applyFilters();
-        });
-    }
-
-    // Filtros por botões
-    document.querySelectorAll('.btn-filter').forEach(btn => {
-        btn.addEventListener('click', function () {
-            document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            currentFilter = this.dataset.filter;
-            applyFilters();
-        });
-    });
-});
 
 function formatMoveName(name) {
     return name.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -115,9 +116,9 @@ async function getMoveType(moveName) {
 function updateMoveCardType(card, type) {
     const badgeSpan = card.querySelector('.type-badge-sm');
     if (badgeSpan) {
-        badgeSpan.className = `type-badge-sm type-badge-${type}`;
+        badgeSpan.className = `type-badge-sm type-badge-pr type-badge-${type}`;
         const typeIconUrl = getTypeIconUrl(type);
-        badgeSpan.innerHTML = `<img src="${typeIconUrl}" alt="${type}" class="move-type-icon"> ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+        badgeSpan.innerHTML = `<img src="${typeIconUrl}" alt="${type}" class="move-type-icon" style="width:17px; height:17px;"> ${type.charAt(0).toUpperCase() + type.slice(1)}`;
     }
 }
 
@@ -247,3 +248,4 @@ function updateCounter() {
     const counter = document.getElementById('slots-counter');
     if (counter) counter.textContent = `(${count} / ${MAX_MOVES})`;
 }
+})();

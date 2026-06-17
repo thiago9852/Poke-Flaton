@@ -1,3 +1,4 @@
+(() => {
 // Função para recuperar as URLs injetadas pelo Twig no DOM
 function getTcUrl(key) {
     const dataEl = document.getElementById('trainer-card-data');
@@ -247,10 +248,8 @@ window.closeMedalPickerModal = function () {
     document.body.style.overflow = '';
 };
 
-document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('medal-picker-modal');
     if (modal) modal.addEventListener('click', function (e) { if (e.target === this) closeMedalPickerModal(); });
-});
 
 window.selectShowcaseMedal = async function (medalName) {
     const formData = new FormData(); formData.append('slot', currentMedalSlot); formData.append('medal', medalName);
@@ -291,11 +290,10 @@ window.updateTemplateSelection = async function (templateImage) {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
     const templateModal = document.getElementById('template-modal');
     if (templateModal) {
         templateModal.addEventListener('click', function (e) {
             if (e.target === this) closeTemplateModal();
         });
     }
-});
+})();
