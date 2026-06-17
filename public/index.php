@@ -10,8 +10,11 @@ return static function (array $context) {
     if ($trustedProxies) {
         Request::setTrustedProxies(explode(',', $trustedProxies), Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_HOST);
     } elseif (($context['APP_ENV'] ?? 'dev') === 'prod') {
-        // Automatically trust the current request's remote address if running in production behind a load balancer
-        Request::setTrustedProxies(['127.0.0.1', '::1', $_SERVER['REMOTE_ADDR'] ?? ''], Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_HOST);
+        // Automatically trust loopback, private networks, and current request's remote address in production (e.g. on Render/Heroku)
+        Request::setTrustedProxies(
+            ['127.0.0.1', '::1', '10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', $_SERVER['REMOTE_ADDR'] ?? ''],
+            Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_HOST
+        );
     }
 
     return new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
