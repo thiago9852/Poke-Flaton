@@ -109,12 +109,16 @@ if (!window.globalLoadingInitialized) {
         window.Loader.show();
     });
 
-    // Hide loader on Turbo load, request end, or error to prevent getting stuck
+    // Hide loader on Turbo load, submit end, fetch response, or error to prevent getting stuck
     document.addEventListener('turbo:load', function () {
         window.Loader.hide();
     });
 
-    document.addEventListener('turbo:request-end', function () {
+    document.addEventListener('turbo:submit-end', function () {
+        window.Loader.hide();
+    });
+
+    document.addEventListener('turbo:before-fetch-response', function () {
         window.Loader.hide();
     });
 
