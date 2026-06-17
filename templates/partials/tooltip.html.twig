@@ -54,25 +54,35 @@
 </style>
 
 <script>
-    const globalTooltipEl = document.getElementById('generic-tooltip');
+(() => {
     let globalTooltipTimeout = null;
 
     window.showGenericTooltip = function(event, title, bodyHTML) {
         clearTimeout(globalTooltipTimeout);
 
+        const globalTooltipEl = document.getElementById('generic-tooltip');
+        if (!globalTooltipEl) return;
+
         if (globalTooltipEl.parentNode !== document.body) {
             document.body.appendChild(globalTooltipEl);
         }
 
-        document.getElementById('generic-tooltip-title').innerHTML = title;
-        document.getElementById('generic-tooltip-body').innerHTML = bodyHTML;
+        const titleEl = globalTooltipEl.querySelector('#generic-tooltip-title');
+        const bodyEl = globalTooltipEl.querySelector('#generic-tooltip-body');
+        
+        if (titleEl) titleEl.innerHTML = title;
+        if (bodyEl) bodyEl.innerHTML = bodyHTML;
         
         globalTooltipEl.style.display = 'block';
-        positionGenericTooltip(event);
+        positionGenericTooltip(event, globalTooltipEl);
     };
 
     window.hideGenericTooltip = function() {
-        globalTooltipTimeout = setTimeout(() => { globalTooltipEl.style.display = 'none'; }, 100);
+        clearTimeout(globalTooltipTimeout);
+        const globalTooltipEl = document.getElementById('generic-tooltip');
+        if (globalTooltipEl) {
+            globalTooltipTimeout = setTimeout(() => { globalTooltipEl.style.display = 'none'; }, 100);
+        }
     };
 
     window.showTemplateTooltip = function(event) {
@@ -81,26 +91,28 @@
         const title = trigger.getAttribute('data-tooltip-title') || '';
         const template = trigger.querySelector('.js-tooltip-template');
         if (template) {
-            showGenericTooltip(event, title, template.innerHTML);
+            window.showGenericTooltip(event, title, template.innerHTML);
         }
     };
 
-    function positionGenericTooltip(event) {
-        const target = event.currentTarget;
+    function positionGenericTooltip(event, tooltipEl) {
+        const target = event.currentTarget || event.target;
+        if (!target) return;
         const rect = target.getBoundingClientRect();
         
         let left = rect.left + window.scrollX;
-        let top = rect.top + window.scrollY - globalTooltipEl.offsetHeight - 10;
+        let top = rect.top + window.scrollY - tooltipEl.offsetHeight - 10;
         
         if (top < window.scrollY) {
             top = rect.bottom + window.scrollY + 10;
         }
         
-        if (left + globalTooltipEl.offsetWidth > window.innerWidth + window.scrollX) {
-            left = window.innerWidth + window.scrollX - globalTooltipEl.offsetWidth - 10;
+        if (left + tooltipEl.offsetWidth > window.innerWidth + window.scrollX) {
+            left = window.innerWidth + window.scrollX - tooltipEl.offsetWidth - 10;
         }
         
-        globalTooltipEl.style.left = left + 'px';
-        globalTooltipEl.style.top = top + 'px';
+        tooltipEl.style.left = left + 'px';
+        tooltipEl.style.top = top + 'px';
     }
+})();
 </script>
