@@ -246,6 +246,10 @@
 }
 
 /* Evolução */
+.evolution-container {
+    margin-top: 15px;
+}
+
 .evolution-stages-container {
     display: flex;
     align-items: center;
@@ -555,10 +559,11 @@
 
 /* Header do Pokemon atual */
 .pokemon-current-header {
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-top: -16px;
     margin-bottom: 24px;
-    justify-content: space-between;
     position: relative;
     z-index: 5;
 }
@@ -665,6 +670,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 20px;
 }
 
 .section-column-title {
@@ -2184,9 +2190,28 @@
     gap: 20px;
   }
 
-<<<<<<< HEAD
-  /* Pokemon nome e num */
-  .pokemon-current-header .current-title {font-size: 20px; margin-bottom: 10px;}
+  /* Header do Pokemon atual - empilhar para evitar estouro e sobreposição */
+  .pokemon-current-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-top: 12px !important;
+    margin-bottom: 20px !important;
+    text-align: center !important;
+  }
+
+  .current-title {
+    font-size: 1.8rem !important;
+    position: static !important;
+    transform: none !important;
+    left: auto !important;
+    text-align: center !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
 
   /* Grid principal do moveset -> empilhar */
   .moveset-grid {
@@ -2206,83 +2231,24 @@
     text-align: center;
   }
 
-  /* Linha Evolutiva */
-  .evolution-stages-container {
-    gap: 12px;
+  /* Tabs Container responsivo para evitar estouro horizontal */
+  .tabs-container {
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    scrollbar-width: none; /* Firefox */
   }
-  .evolution-stage-column {
-    gap: 15px;
+  .tabs-container::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
   }
-  .evolution-arrows-column {
-    gap: 15px;
-  }
-  .evolution-arrow-item {
-    min-height: 110px;
-  }
-  .evolution-node {
-    min-width: 110px;
-    max-width: 130px;
-    padding: 8px;
-  }
-  .evolution-sprite {
-    width: 70px;
-    height: 70px;
-    margin-bottom: 4px;
-  }
-  .evolution-name {
-    font-size: 0.85rem;
-=======
-  /* Linha Evolutiva */
-  .evolution-node {
-    min-width: 110px;
-    padding: 10px;
-  }
-  .evolution-sprite {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 5px;
-  }
-  .evolution-name {
-    font-size: 0.9rem;
-  }
-  .evolution-arrow {
-    font-size: 1rem;
-    gap: 2px;
->>>>>>> a36686b68d73fd8ccd7ffcaa928642587f5d9073
-  }
-  .evolution-method {
-    font-size: 0.65rem;
-    padding: 2px 6px;
-  }
-}
-
-@media (max-width: 576px) {
-    /* Grid de golpes 1 coluna para não estourar a tela */
-    .moves-grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    .share-modal-body {
-        padding: 16px;
-    }
-    .share-modal-footer {
-        flex-direction: column-reverse;
-        padding: 16px;
-    }
-    .share-modal-footer button {
-        width: 100%;
-    }
-}
-
-/* Ajuste para celulares */
-@media (max-width: 480px) {
-  .pokemon-detail-layout {
-    grid-template-columns: 1fr;
-    gap: 15px;
+  .tab-btn {
+    padding: 10px 16px !important;
+    font-size: 0.85rem !important;
+    flex-shrink: 0 !important;
   }
 
-  /* Linha Evolutiva */
-<<<<<<< HEAD
+  /* Linha Evolutiva Responsiva: Empilha na vertical no tablet/mobile */
   .evolution-stages-container {
     flex-direction: column;
     gap: 15px;
@@ -2341,38 +2307,29 @@
     max-width: 100px;
   }
 }
-=======
-  .evolution-chain-container {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .evolution-node-wrapper {
-    flex-direction: column;
-    width: 100%;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .evolution-node {
-    width: 100%;
-    max-width: 220px;
-    min-width: unset;
-    padding: 12px;
-  }
-  
-  .evolution-sprite {
-    width: 90px;
-    height: 90px;
-  }
-  
-  .evolution-arrow {
-    margin: 8px 0;
-  }
-  
-  .evolution-arrow i {
-    transform: rotate(90deg);
-  }
+
+@media (max-width: 576px) {
+    /* Grid de golpes 1 coluna para não estourar a tela */
+    .moves-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .share-modal-body {
+        padding: 16px;
+    }
+    .share-modal-footer {
+        flex-direction: column-reverse;
+        padding: 16px;
+    }
+    .share-modal-footer button {
+        width: 100%;
+    }
 }
 
->>>>>>> a36686b68d73fd8ccd7ffcaa928642587f5d9073
+/* Ajuste para celulares */
+@media (max-width: 480px) {
+  .pokemon-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}

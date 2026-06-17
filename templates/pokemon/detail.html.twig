@@ -47,7 +47,7 @@
 	</div>
 
 	<!-- Pokémon Header -->
-	<div class="pokemon-current-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+	<div class="pokemon-current-header">
 		<h1 class="current-title" style="margin: 0;">
 			{{ pokemon.name|capitalize }}
 			<span class="current-number">Nº
@@ -82,7 +82,7 @@
 		<!-- Coluna direita: Seção de Movesets -->
 		<div class="pokemon-movesets-column">
 
-			<div class="movesets-header-container" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+			<div class="movesets-header-container">
 				<h2 class="section-column-title" style="margin: 0;">
 					<i class="fa-solid fa-shield-halved"></i>
 					Melhores Movesets
@@ -166,13 +166,13 @@
 				{% endif %}
 			</div>
 
-			<!-- Linha Evolutiva -->
-			<div class="evolution-container mt-5">
-				{% include 'partials/pokemon_evolution_card.html.twig' with {'pokemon': pokemon, 'evolutionChain': evolutionChain, 'typeDetails': typeDetails} %}
-			</div>
-
 		</div>
 
+	</div>
+
+	<!-- Linha Evolutiva -->
+	<div class="evolution-container mt-5">
+		{% include 'partials/pokemon_evolution_card.html.twig' with {'pokemon': pokemon, 'evolutionChain': evolutionChain, 'typeDetails': typeDetails} %}
 	</div>
 
 	<!-- Cards de compartilhamento oculto -->
