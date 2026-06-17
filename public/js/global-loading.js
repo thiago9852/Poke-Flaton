@@ -109,8 +109,16 @@ if (!window.globalLoadingInitialized) {
         window.Loader.show();
     });
 
-    // Hide loader on Turbo load to prevent getting stuck
+    // Hide loader on Turbo load, request end, or error to prevent getting stuck
     document.addEventListener('turbo:load', function () {
+        window.Loader.hide();
+    });
+
+    document.addEventListener('turbo:request-end', function () {
+        window.Loader.hide();
+    });
+
+    document.addEventListener('turbo:fetch-error', function () {
         window.Loader.hide();
     });
 }
