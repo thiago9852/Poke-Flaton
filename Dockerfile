@@ -47,6 +47,8 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs --prefer-dist
 
 # Instalar assets JS externos e compilar assets para produção
+RUN php bin/console importmap:install
+RUN php bin/console asset-map:compile
 
 # Criar pastas necessárias e dar permissões corretas para o Apache
 RUN mkdir -p var/cache var/log \
