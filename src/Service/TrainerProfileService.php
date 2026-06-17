@@ -864,7 +864,7 @@ class TrainerProfileService
         int $current,
         array $enabledMedals = [],
         array $titles = [],
-        User $user = null,
+        ?User $user = null,
         bool $includeRanking = true
     ): array {
         $baseUrl = 'https://raw.githubusercontent.com/KovuTheHusky/pokemon-medals/main/';
