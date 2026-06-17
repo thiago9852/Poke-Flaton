@@ -8,5 +8,3 @@ when@prod:
     framework:
         router:
             strict_requirements: null
-            request_context:
-                scheme: https
