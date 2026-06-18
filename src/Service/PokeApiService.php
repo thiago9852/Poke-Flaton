@@ -27,6 +27,11 @@ class PokeApiService
         return $this->validator->getMegaEvolutions();
     }
 
+    public function getAllowedGenerations(): array
+    {
+        return $this->validator->getAllowedGenerations();
+    }
+
     public function isPokemonAllowed(int $id): bool
     {
         return $this->validator->isPokemonAllowed($id);

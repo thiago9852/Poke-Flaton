@@ -20,14 +20,22 @@
 			</div>
 
 			<div class="sort-box">
-				<select name="sort" class="sort-select" aria-label="Ordenar pokémons">
+				<select name="sort" class="sort-select" aria-label="Ordenar pokémons" onchange="this.form.submit()">
 					<option value="" {% if not sort %}selected{% endif %}>Ordenar por:</option>
 					<option value="number_asc" {% if sort == 'number_asc' %}selected{% endif %}>Nº (001 → 999)</option>
 					<option value="number_desc" {% if sort == 'number_desc' %}selected{% endif %}>Nº (999 → 001)</option>
 					<option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Nome (A → Z)</option>
 					<option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Nome (Z → A)</option>
 				</select>
+			</div>
 
+			<div class="sort-box">
+				<select name="gen" class="sort-select" aria-label="Filtrar por geração" onchange="this.form.submit()">
+					<option value="" {% if not selectedGen %}selected{% endif %}>Todas Gerações</option>
+					{% for g in allowedGenerations %}
+						<option value="{{ g }}" {% if selectedGen == g %}selected{% endif %}>Geração {{ g }}</option>
+					{% endfor %}
+				</select>
 			</div>
 
 			<a href="{{ path('app_pokemon_index') }}" class="btn btn-secondary btn-clear-filters" title="Limpar todos os filtros">
@@ -42,7 +50,7 @@
 			</span>
 			<div class="type-badges-list">
 				{% for type in allTypes %}
-					<a href="{{ path('app_pokemon_index', { search: search, type: selectedType == type.value ? '' : type.value, sort: sort }) }}" class="type-badge-link type-badge-{{ type.value }}{{ selectedType == type.value ? ' active' : '' }}">
+					<a href="{{ path('app_pokemon_index', { q: search, type: selectedType == type.value ? '' : type.value, gen: selectedGen, sort: sort }) }}" class="type-badge-link type-badge-{{ type.value }}{{ selectedType == type.value ? ' active' : '' }}">
 						{{ type.value|capitalize }}
 					</a>
 				{% endfor %}
@@ -87,7 +95,7 @@
 			<div class="pagination-container">
 
 				{% if currentPage > 1 %}
-					<a href="{{ path('app_pokemon_index', { page: currentPage - 1, q: search, type: selectedType, sort: sort }) }}" class="btn btn-secondary btn-sm">
+					<a href="{{ path('app_pokemon_index', { page: currentPage - 1, q: search, type: selectedType, gen: selectedGen, sort: sort }) }}" class="btn btn-secondary btn-sm">
 						<i class="fa-solid fa-chevron-left"></i>
 						Anterior
 					</a>
@@ -104,7 +112,7 @@
 				</span>
 
 				{% if currentPage < lastPage %}
-					<a href="{{ path('app_pokemon_index', { page: currentPage + 1, q: search, type: selectedType, sort: sort }) }}" class="btn btn-secondary btn-sm">
+					<a href="{{ path('app_pokemon_index', { page: currentPage + 1, q: search, type: selectedType, gen: selectedGen, sort: sort }) }}" class="btn btn-secondary btn-sm">
 						Próxima
 						<i class="fa-solid fa-chevron-right"></i>
 					</a>

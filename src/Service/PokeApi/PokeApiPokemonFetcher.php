@@ -264,10 +264,10 @@ class PokeApiPokemonFetcher
         $varieties = [];
         foreach ($speciesData['varieties'] as $v) {
             $vName = $v['pokemon']['name'];
-            if (str_contains($vName, '-mega')) {
+            if (str_contains($vName, '-mega') || str_contains($vName, '-z')) {
                 $varieties[] = [
                     'name' => $vName,
-                    'display_name' => str_replace('-x', ' X', str_replace('-y', ' Y', str_replace('-mega', ' Mega', $vName)))
+                    'display_name' => str_replace(['-x', '-y', '-mega', '-z'], [' X', ' Y', ' Mega', ' Z'], $vName)
                 ];
             }
         }

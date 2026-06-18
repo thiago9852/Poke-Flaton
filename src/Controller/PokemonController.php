@@ -26,7 +26,7 @@ class PokemonController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function home(PokemonAccessRepository $pokemonAccessRepository): Response
     {
-        $trending = $pokemonAccessRepository->findTrending(6);
+        $trending = $pokemonAccessRepository->findTrending(8);
         $trendingPokemons = [];
 
         if (!empty($trending)) {
@@ -49,8 +49,42 @@ class PokemonController extends AbstractController
             }
         }
 
+        // Metadados das gerações de pokémon
+        $allGenerationsMetadata = [
+            1 => ['number' => 1, 'games' => 'Red & Blue', 'region' => 'Kanto'],
+            2 => ['number' => 2, 'games' => 'Gold & Silver', 'region' => 'Johto'],
+            3 => ['number' => 3, 'games' => 'Ruby & Sapphire', 'region' => 'Hoenn'],
+            4 => ['number' => 4, 'games' => 'Diamond & Pearl', 'region' => 'Sinnoh'],
+            5 => ['number' => 5, 'games' => 'Black & White', 'region' => 'Unova'],
+            6 => ['number' => 6, 'games' => 'X & Y', 'region' => 'Kalos'],
+            7 => ['number' => 7, 'games' => 'Sun & Moon', 'region' => 'Alola'],
+            8 => ['number' => 8, 'games' => 'Sword & Shield', 'region' => 'Galar'],
+            9 => ['number' => 9, 'games' => 'Scarlet & Violet', 'region' => 'Paldea'],
+        ];
+
+        $allowedGens = $this->pokeApiService->getAllowedGenerations();
+        $basicList = $this->pokeApiService->getPokemonBasicList();
+
+        $genCounts = [];
+        foreach ($basicList as $p) {
+            $gen = PokeApiService::getGenerationById($p['id']);
+            if ($gen > 0) {
+                $genCounts[$gen] = ($genCounts[$gen] ?? 0) + 1;
+            }
+        }
+
+        $generations = [];
+        foreach ($allowedGens as $genNum) {
+            if (isset($allGenerationsMetadata[$genNum])) {
+                $meta = $allGenerationsMetadata[$genNum];
+                $meta['count'] = $genCounts[$genNum] ?? 0;
+                $generations[] = $meta;
+            }
+        }
+
         return $this->render('index/index.html.twig', [
             'trendingPokemons' => $trendingPokemons,
+            'generations' => $generations,
         ]);
     }
 
@@ -59,6 +93,7 @@ class PokemonController extends AbstractController
     {
         $search = $request->query->get('q');
         $typeFilter = $request->query->get('type');
+        $genFilter = $request->query->get('gen');
         $sort = $request->query->get('sort', '');
 
         $page = max(1, $request->query->getInt('page', 1));
@@ -70,6 +105,14 @@ class PokemonController extends AbstractController
             $basicList = $this->pokeApiService->getPokemonBasicListByType($typeFilter);
         } else {
             $basicList = $this->pokeApiService->getPokemonBasicList();
+        }
+
+        // Filtra pela geração se especificado
+        if (!empty($genFilter)) {
+            $genInt = (int)$genFilter;
+            $basicList = array_filter($basicList, function ($p) use ($genInt) {
+                return PokeApiService::getGenerationById($p['id']) === $genInt;
+            });
         }
 
         // Filtra pelo termo de busca
@@ -113,6 +156,9 @@ class PokemonController extends AbstractController
             if (!empty($search) && str_contains(strtolower($search), 'mega')) {
                 $searchLower = strtolower(trim($search));
                 foreach ($this->pokeApiService->getMegaEvolutions() as $baseId => $megasArr) {
+                    if (!empty($genFilter) && PokeApiService::getGenerationById($baseId) !== (int)$genFilter) {
+                        continue;
+                    }
                     foreach ($megasArr as $mega) {
                         if (!$this->pokeApiService->isPokemonAllowed($mega['id'])) {
                             continue;
@@ -185,6 +231,8 @@ class PokemonController extends AbstractController
             'lastPage' => $lastPage,
             'allTypes' => TypeEnum::getCasesForModule('type'),
             'selectedType' => $typeFilter,
+            'selectedGen' => $genFilter,
+            'allowedGenerations' => $this->pokeApiService->getAllowedGenerations(),
             'search' => $search,
             'sort' => $sort,
         ]);
@@ -200,7 +248,11 @@ class PokemonController extends AbstractController
 
         try {
             $pokemon = $this->pokeApiService->getPokemonDetails($name);
-            if (!$this->pokeApiService->isPokemonAllowed($pokemon['id'])) {
+            $isAllowed = $this->pokeApiService->isPokemonAllowed($pokemon['id']);
+            if (!$isAllowed && $pokemon['id'] >= 10000 && isset($pokemon['species_id'])) {
+                $isAllowed = $this->pokeApiService->isPokemonAllowed($pokemon['species_id']);
+            }
+            if (!$isAllowed) {
                 throw $this->createNotFoundException('Pokémon não encontrado.');
             }
         } catch (\Exception $e) {

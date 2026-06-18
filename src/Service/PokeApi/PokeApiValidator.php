@@ -26,6 +26,11 @@ class PokeApiValidator
         return $this->megaEvolutions;
     }
 
+    public function getAllowedGenerations(): array
+    {
+        return $this->allowedGenerations;
+    }
+
     public static function getGenerationById(int $id): int
     {
         if ($id >= 1 && $id <= 151) return 1;

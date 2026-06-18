@@ -59,6 +59,25 @@
 		</div>
 	</section>
 
+	<!-- Gerações Disponíveis -->
+	<section class="generations-section">
+		<h2 class="generations-title">
+			<i class="fa-solid fa-gamepad" style="color: var(--color-primary); text-shadow: 0 0 10px rgba(139, 92, 246, 0.4);"></i>
+			Gerações Disponíveis
+		</h2>
+		<div class="generations-grid">
+			{% for gen in generations %}
+				<a href="{{ path('app_pokemon_index', { gen: gen.number }) }}" class="generation-card">
+					<div class="gen-card-glow"></div>
+					<span class="gen-badge">GEN {{ gen.number }}</span>
+					<h3 class="gen-games">{{ gen.games }}</h3>
+					<span class="gen-region">{{ gen.region }}</span>
+					<span class="gen-count">{{ gen.count }} Pokémon</span>
+				</a>
+			{% endfor %}
+		</div>
+	</section>
+
 	<!-- Pokémons em Alta -->
 	<section class="trending-section">
 		<h2 class="trending-title">
