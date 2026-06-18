@@ -537,6 +537,7 @@
 .type-hover-ghost:hover { background-color: var(--type-ghost); }
 .type-hover-dragon:hover { background-color: var(--type-dragon); }
 .type-hover-steel:hover { background-color: var(--type-steel); }
+.type-hover-dark:hover { background-color: var(--type-dark); }
 .type-hover-fairy:hover { background-color: var(--type-fairy); }
 
 .type-hover-normal:hover .nav-arrow-circle { color: var(--type-normal); }
@@ -555,6 +556,7 @@
 .type-hover-ghost:hover .nav-arrow-circle { color: var(--type-ghost); }
 .type-hover-dragon:hover .nav-arrow-circle { color: var(--type-dragon); }
 .type-hover-steel:hover .nav-arrow-circle { color: var(--type-steel); }
+.type-hover-dark:hover .nav-arrow-circle { color: var(--type-dark); }
 .type-hover-fairy:hover .nav-arrow-circle { color: var(--type-fairy); }
 
 /* Header do Pokemon atual */
@@ -1468,6 +1470,7 @@
 .selected-slot-card.border-type-ghost { border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 0 5px rgba(99, 102, 241, 0.15); }
 .selected-slot-card.border-type-dragon { border-color: rgba(124, 58, 237, 0.4); box-shadow: 0 0 5px rgba(124, 58, 237, 0.15); }
 .selected-slot-card.border-type-steel { border-color: rgba(107, 114, 128, 0.4); box-shadow: 0 0 5px rgba(107, 114, 128, 0.15); }
+.selected-slot-card.border-type-dark { border-color: rgba(55, 65, 81, 0.5); box-shadow: 0 0 5px rgba(55, 65, 81, 0.2); }
 .selected-slot-card.border-type-fairy { border-color: rgba(244, 114, 182, 0.4); box-shadow: 0 0 5px rgba(244, 114, 182, 0.15); }
 
 /* Seção de moves disponíveis abaixo dos slots */

@@ -45,6 +45,7 @@
 .type-badge-ghost, .type-badge-sm-ghost { background: linear-gradient(135deg, #6366f1, #312e81); box-shadow: 0 0 10px rgba(99, 102, 241, 0.3); }
 .type-badge-dragon, .type-badge-sm-dragon { background: linear-gradient(135deg, #7c3aed, #4338ca); box-shadow: 0 0 10px rgba(124, 58, 237, 0.3); }
 .type-badge-steel, .type-badge-sm-steel { background: linear-gradient(135deg, #6b7280, #374151); box-shadow: 0 0 10px rgba(107, 114, 128, 0.3); }
+.type-badge-dark, .type-badge-sm-dark { background: linear-gradient(135deg, #374151, #111827); box-shadow: 0 0 10px rgba(55, 65, 81, 0.3); }
 .type-badge-fairy, .type-badge-sm-fairy { background: linear-gradient(135deg, #f472b6, #ec4899); box-shadow: 0 0 10px rgba(244, 114, 182, 0.3); }
 
 /* Efeitos de fundo com brilho */
@@ -64,6 +65,7 @@
 .type-glow-ghost { --glow-color: var(--type-ghost); }
 .type-glow-dragon { --glow-color: var(--type-dragon); }
 .type-glow-steel { --glow-color: var(--type-steel); }
+.type-glow-dark { --glow-color: var(--type-dark); }
 .type-glow-fairy { --glow-color: var(--type-fairy); }
 
 .type-bg-normal { background-color: var(--type-normal); }
@@ -82,6 +84,7 @@
 .type-bg-ghost { background-color: var(--type-ghost); }
 .type-bg-dragon { background-color: var(--type-dragon); }
 .type-bg-steel { background-color: var(--type-steel); }
+.type-bg-dark { background-color: var(--type-dark); }
 .type-bg-fairy { background-color: var(--type-fairy); }
 
 /* Filtro de tipos de Pokemon - botões badge */
@@ -151,4 +154,5 @@
 .type-badge-link.type-badge-ghost.active { background-color: var(--type-ghost); border-color: var(--type-ghost); box-shadow: 0 0 12px rgba(99, 102, 241, 0.4); }
 .type-badge-link.type-badge-dragon.active { background-color: var(--type-dragon); border-color: var(--type-dragon); box-shadow: 0 0 12px rgba(124, 58, 237, 0.4); }
 .type-badge-link.type-badge-steel.active { background-color: var(--type-steel); border-color: var(--type-steel); box-shadow: 0 0 12px rgba(107, 114, 128, 0.4); }
+.type-badge-link.type-badge-dark.active { background-color: var(--type-dark); border-color: var(--type-dark); box-shadow: 0 0 12px rgba(55, 65, 81, 0.4); }
 .type-badge-link.type-badge-fairy.active { background-color: var(--type-fairy); border-color: var(--type-fairy); box-shadow: 0 0 12px rgba(244, 114, 182, 0.4); }
