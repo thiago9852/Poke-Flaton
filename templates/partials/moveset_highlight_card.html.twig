@@ -74,17 +74,19 @@
                 </div>
             </div>
 
-            <div class="build-sub-section">
-                <h4 class="moveset-title">Ability</h4>
-                
-                <div style="margin-bottom: 15px;">
-                    {% include 'partials/tooltip_trigger.html.twig' with {
-                        'title': 'Ability: ' ~ m.ability|replace({'-': ' '})|title,
-                        'content': abilityDetails[m.ability].description|default('Habilidade recomendada.'),
-                        'label': m.ability|replace({'-': ' '})|title
-                    } %}
+            {% if m.ability %}
+                <div class="build-sub-section">
+                    <h4 class="moveset-title">Ability</h4>
+                    
+                    <div style="margin-bottom: 15px;">
+                        {% include 'partials/tooltip_trigger.html.twig' with {
+                            'title': 'Ability: ' ~ m.ability|replace({'-': ' '})|title,
+                            'content': abilityDetails[m.ability].description|default('Habilidade recomendada.'),
+                            'label': m.ability|replace({'-': ' '})|title
+                        } %}
+                    </div>
                 </div>
-            </div>
+            {% endif %}
             
         </div>
         

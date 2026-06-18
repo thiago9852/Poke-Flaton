@@ -316,11 +316,11 @@
 											</div>
 											<div class="moveset-detail-item">
 												<span class="moveset-detail-label">Habilidade</span>
-												<span class="moveset-detail-value" title="{{ m.ability|capitalize }}">{{ m.ability|capitalize }}</span>
+												<span class="moveset-detail-value" title="{{ m.ability ? m.ability|capitalize : '-' }}">{{ m.ability ? m.ability|capitalize : '-' }}</span>
 											</div>
 											<div class="moveset-detail-item">
 												<span class="moveset-detail-label">Item</span>
-												<span class="moveset-detail-value" title="{{ m.heldItem|capitalize }}">{{ m.heldItem|capitalize }}</span>
+												<span class="moveset-detail-value" title="{{ m.heldItem ? m.heldItem|capitalize : '-' }}">{{ m.heldItem ? m.heldItem|capitalize : '-' }}</span>
 											</div>
 										</div>
 

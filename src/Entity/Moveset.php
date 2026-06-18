@@ -26,10 +26,10 @@ class Moveset
     #[ORM\Column(type: Types::JSON)]
     private array $moves = []; // array 4 - 10 moves
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, nullable: true)]
     private ?string $ability = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, nullable: true)]
     private ?string $heldItem = null;
 
     #[ORM\Column(length: 100)]
@@ -104,7 +104,7 @@ class Moveset
         return $this->ability;
     }
 
-    public function setAbility(string $ability): static
+    public function setAbility(?string $ability): static
     {
         $this->ability = $ability;
         return $this;
@@ -115,7 +115,7 @@ class Moveset
         return $this->heldItem;
     }
 
-    public function setHeldItem(string $heldItem): static
+    public function setHeldItem(?string $heldItem): static
     {
         $this->heldItem = $heldItem;
         return $this;

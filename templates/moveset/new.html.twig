@@ -114,8 +114,8 @@
 				<div class="form-row">
 
 					<div class="form-group half-width">
-						<label for="ability" class="form-label">Habilidade</label>
-						<select name="ability" id="ability" class="form-select" required>
+						<label for="ability" class="form-label">Habilidade (Opcional)</label>
+						<select name="ability" id="ability" class="form-select">
 							<option value="">-- Escolha a Habilidade --</option>
 							{% for ab in pokemon.abilities %}
 								<option value="{{ ab }}">{{ ab|replace({'-': ' '})|title }}</option>
@@ -143,8 +143,8 @@
 					</div>
 
 					<div class="form-group half-width">
-						<label for="heldItemInput" class="form-label">Item Segurado</label>
-						<input type="text" id="heldItemInput" name="heldItem" list="items-list" class="form-input" placeholder="Digite para buscar..." required autocomplete="off">
+						<label for="heldItemInput" class="form-label">Item Segurado (Opcional)</label>
+						<input type="text" id="heldItemInput" name="heldItem" list="items-list" class="form-input" placeholder="Digite para buscar..." autocomplete="off">
 						<datalist id="items-list">
 							{% for item in items %}
 								<option value="{{ item.name }}">{{ item.name|replace({'-': ' '})|title }}</option>

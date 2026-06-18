@@ -52,8 +52,8 @@ class MovesetController extends AbstractController
 
         if ($request->isMethod('POST')) {
             $type = $request->request->get('type');
-            $ability = $request->request->get('ability');
-            $heldItem = $request->request->get('heldItem');
+            $ability = $request->request->get('ability') ?: null;
+            $heldItem = $request->request->get('heldItem') ?: null;
             $nature = $request->request->get('nature');
 
             // Capturar até 10 golpes e filtrar vazios
@@ -71,12 +71,6 @@ class MovesetController extends AbstractController
             }
             if (count($moves) < 4 || count($moves) > $maxMoves) {
                 $errors[] = sprintf('Você deve selecionar entre 4 e %d golpes.', $maxMoves);
-            }
-            if (empty($ability)) {
-                $errors[] = 'A habilidade recomendada deve ser selecionada.';
-            }
-            if (empty($heldItem)) {
-                $errors[] = 'O item recomendado deve ser selecionado.';
             }
             if (empty($nature)) {
                 $errors[] = 'A Nature ideal deve ser selecionada.';
@@ -102,8 +96,12 @@ class MovesetController extends AbstractController
 
                 // Add sugestão
                 $this->addSuggestionVote($pokemon['name'], 'nature', $nature);
-                $this->addSuggestionVote($pokemon['name'], 'ability', $ability);
-                $this->addSuggestionVote($pokemon['name'], 'item', $heldItem);
+                if ($ability) {
+                    $this->addSuggestionVote($pokemon['name'], 'ability', $ability);
+                }
+                if ($heldItem) {
+                    $this->addSuggestionVote($pokemon['name'], 'item', $heldItem);
+                }
 
                 $this->entityManager->flush();
 
