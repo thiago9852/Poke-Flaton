@@ -1,5 +1,12 @@
 import { Controller } from '@hotwired/stimulus';
 
+function formatLocalDateYMD(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 export default class extends Controller {
     static values = {
         mode: String,
@@ -31,7 +38,7 @@ export default class extends Controller {
 
     connect() {
         this.maxAttempts = 8;
-        this.todayStr = new Date().toISOString().split('T')[0];
+        this.todayStr = formatLocalDateYMD(new Date());
         
         // Garante a existência do user_token no localStorage para identificação anônima
         this.userTokenKey = 'pokeflaton_user_token';
@@ -567,7 +574,7 @@ export default class extends Controller {
             // Verifica se continuou a sequência de ontem
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            const yesterdayStr = formatLocalDateYMD(yesterday);
             
             if (stats.lastPlayedDate === yesterdayStr || stats.lastPlayedDate === '') {
                 stats.currentStreak++;

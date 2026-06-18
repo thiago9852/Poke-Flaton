@@ -25,10 +25,6 @@
 				<i class="fa-solid fa-address-card"></i>
 				Trainer Card
 			</button>
-			<button class="tab-btn" onclick="switchTab(event, 'pokedex-tab')">
-				<i class="fa-solid fa-square-poll-horizontal"></i>
-				Minha Pokedéx (<span id="pokedex-count-badge">{{ caughtCount }}</span>)
-			</button>
 			<button class="tab-btn" onclick="switchTab(event, 'medals-tab')">
 				<i class="fa-solid fa-medal"></i>
 				Medalhas
@@ -341,53 +337,6 @@
 					</div>
 				</div>
 
-			</div>
-		</div>
-
-		<!-- Minha Pokedéx -->
-		<div id="pokedex-tab" class="tab-content">
-			<div class="pokedex-list-container card">
-				<div class="tms-header">
-					<p>Veja todos os Pokémons que você já capturou na sua jornada!</p>
-				</div>
-
-				{% if caughtDetails is empty %}
-					<div class="empty-pokedex-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
-						<i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
-						<h3>Nenhum Pokémon capturado ainda!</h3>
-						<p>Navegue pela lista de Pokémons e clique em "Capturar" nos seus favoritos!</p>
-					</div>
-				{% else %}
-					<div class="pokedex-caught-grid">
-						{% for poke in caughtDetails %}
-
-							<div class="pokedex-caught-card" id="caught-card-{{ poke.name }}">
-								<div class="caught-card-inner">
-
-									<button class="release-btn" onclick="releasePokemon('{{ poke.name }}')" title="Soltar Pokémon">
-										<i class="fa-solid fa-trash-can"></i>
-									</button>
-									<a href="{{ path('app_pokemon_detail', { name: poke.name }) }}" class="poke-sprite-link">
-										<img src="{{ poke.sprite }}" alt="{{ poke.name|capitalize }}" class="poke-sprite-img">
-									</a>
-									<span class="poke-id">Nº
-										{{ "%04d"|format(poke.id) }}</span>
-									<a href="{{ path('app_pokemon_detail', { name: poke.name }) }}" class="poke-name-link">
-										<span class="poke-name-text">{{ poke.name|capitalize }}</span>
-									</a>
-									<div class="poke-badges-container">
-										{% for type in poke.types %}
-											<span class="type-badge-sm type-badge-pd type-badge-{{ type }}">{{ type|capitalize }}</span>
-										{% endfor %}
-									</div>
-
-								</div>
-							</div>
-
-						{% endfor %}
-					</div>
-
-				{% endif %}
 			</div>
 		</div>
 

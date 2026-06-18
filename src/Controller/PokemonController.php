@@ -430,4 +430,105 @@ class PokemonController extends AbstractController
 
         return new JsonResponse($results);
     }
+
+    #[Route('/pokedex', name: 'app_pokedex')]
+    public function pokedex(Request $request): Response
+    {
+        $user = $this->getUser();
+        $caught = [];
+        if ($user) {
+            $caught = $user->getCaughtPokemon();
+        }
+
+        // Pega a lista básica de todos os Pokémons permitidos
+        $basicList = $this->pokeApiService->getPokemonBasicList();
+
+        $allGenerationsMetadata = [
+            1 => ['number' => 1, 'games' => 'Red & Blue', 'region' => 'Kanto'],
+            2 => ['number' => 2, 'games' => 'Gold & Silver', 'region' => 'Johto'],
+            3 => ['number' => 3, 'games' => 'Ruby & Sapphire', 'region' => 'Hoenn'],
+            4 => ['number' => 4, 'games' => 'Diamond & Pearl', 'region' => 'Sinnoh'],
+            5 => ['number' => 5, 'games' => 'Black & White', 'region' => 'Unova'],
+            6 => ['number' => 6, 'games' => 'X & Y', 'region' => 'Kalos'],
+            7 => ['number' => 7, 'games' => 'Sun & Moon', 'region' => 'Alola'],
+            8 => ['number' => 8, 'games' => 'Sword & Shield', 'region' => 'Galar'],
+            9 => ['number' => 9, 'games' => 'Scarlet & Violet', 'region' => 'Paldea'],
+        ];
+
+        $allowedGens = $this->pokeApiService->getAllowedGenerations();
+
+        $pokedexList = [];
+        $totalRegistered = 0;
+        
+        foreach ($basicList as $p) {
+            $gen = PokeApiService::getGenerationById($p['id']);
+            if (!in_array($gen, $allowedGens)) {
+                continue;
+            }
+
+            $pNameLower = strtolower($p['name']);
+            $isCaught = false;
+            $caughtAt = null;
+
+            // Verifica se o usuário capturou o Pokémon
+            if (array_key_exists($pNameLower, $caught)) {
+                $isCaught = true;
+                $caughtAt = $caught[$pNameLower];
+            } elseif (in_array($pNameLower, $caught)) {
+                $isCaught = true;
+            }
+
+            if ($isCaught) {
+                $totalRegistered++;
+            }
+
+            $pokedexList[] = [
+                'id' => $p['id'],
+                'name' => $p['name'],
+                'display_name' => ucfirst(str_replace('-', ' ', $p['name'])),
+                'sprite' => $p['sprite'],
+                'generation' => $gen,
+                'isCaught' => $isCaught,
+                'caughtAt' => $caughtAt
+            ];
+        }
+
+        // Aplica o filtro de busca se presente
+        $search = $request->query->get('q');
+        if (!empty($search)) {
+            $searchLower = strtolower(trim($search));
+            $pokedexList = array_filter($pokedexList, function ($p) use ($searchLower) {
+                return str_contains(strtolower($p['name']), $searchLower) || strval($p['id']) === $searchLower;
+            });
+        }
+
+        // Aplica o filtro de geração se presente
+        $genFilter = $request->query->get('gen');
+        if (!empty($genFilter)) {
+            $genInt = (int)$genFilter;
+            $pokedexList = array_filter($pokedexList, function ($p) use ($genInt) {
+                return $p['generation'] === $genInt;
+            });
+        }
+
+        // Ordena por id crescente
+        usort($pokedexList, fn($a, $b) => $a['id'] <=> $b['id']);
+
+        // Coleta nomes das regiões e contagens de gerações para o cabeçalho ou filtros
+        $generationsInfo = [];
+        foreach ($allowedGens as $genNum) {
+            if (isset($allGenerationsMetadata[$genNum])) {
+                $generationsInfo[] = $allGenerationsMetadata[$genNum];
+            }
+        }
+
+        return $this->render('pokemon/pokedex.html.twig', [
+            'pokedexList' => $pokedexList,
+            'totalCount' => count($pokedexList),
+            'totalRegistered' => $totalRegistered,
+            'allGenerations' => $generationsInfo,
+            'selectedGen' => $genFilter,
+            'search' => $search
+        ]);
+    }
 }

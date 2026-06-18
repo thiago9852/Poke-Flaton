@@ -168,6 +168,29 @@ class PokemonGameController extends AbstractController
             $userToken = $data['user_token'] ?? null;
             $attempts = (int) ($data['attempts'] ?? 1);
             $this->saveScore($request, $userToken, $attempts, true);
+
+            // Se o usuário estiver logado, registra na pokedex com a data atual
+            $user = $this->getUser();
+            if ($user) {
+                $caught = $user->getCaughtPokemon();
+                $pkmName = strtolower($targetPokemon['name']);
+                
+                $isAlreadyCaught = false;
+                foreach ($caught as $key => $val) {
+                    $caughtName = is_int($key) ? $val : $key;
+                    if (strtolower($caughtName) === $pkmName) {
+                        $isAlreadyCaught = true;
+                        break;
+                    }
+                }
+                
+                if (!$isAlreadyCaught) {
+                    $caught[$pkmName] = date('Y-m-d H:i:s');
+                    $user->setCaughtPokemon($caught);
+                    $this->entityManager->persist($user);
+                    $this->entityManager->flush();
+                }
+            }
         }
 
         return new JsonResponse($response);

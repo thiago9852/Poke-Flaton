@@ -76,7 +76,6 @@
                                 <th class="rank-col">#</th>
                                 <th class="trainer-col">Treinador</th>
                                 <th class="attempts-col">Tentativas</th>
-                                <th class="date-col">Data de Conclusão</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -98,7 +97,6 @@
                                         <span class="trainer-name">{{ score.username }}</span>
                                     </td>
                                     <td class="attempts-val"><strong>{{ score.attempts }} </strong> {{ score.attempts == 1 ? 'tentativa' : 'tentativas' }}</td>
-                                    <td class="date-val">{{ score.createdAt|date('d/m/Y H:i') }}</td>
                                 </tr>
                             {% else %}
                                 <tr>

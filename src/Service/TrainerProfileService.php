@@ -444,11 +444,15 @@ class TrainerProfileService
             $uniquePokemonNames[$m->getPokemonName()] = true;
         }
 
-        // Batch pre-fetch Pokemon details to optimize performance (avoid N sequential API calls)
+        // Pre-fetch detalhes do Pokémons para otimizar a performance (evita chamadas sequenciais à API)
         $caughtPokemon = $user->getCaughtPokemon();
+        $caughtNames = [];
+        foreach ($caughtPokemon as $key => $val) {
+            $caughtNames[] = is_int($key) ? $val : $key;
+        }
         $pokemonNamesToFetch = array_unique(array_merge(
             array_keys($uniquePokemonNames),
-            $caughtPokemon
+            $caughtNames
         ));
         $fetchedDetails = [];
         if (!empty($pokemonNamesToFetch)) {
@@ -490,7 +494,9 @@ class TrainerProfileService
             'paldea' => 0,
         ];
 
-        foreach ($caughtPokemon as $caughtName) {
+        foreach ($caughtPokemon as $key => $val) {
+            $caughtName = is_int($key) ? $val : $key;
+            $caughtDate = is_int($key) ? null : $val;
             try {
                 $details = $fetchedDetails[strtolower($caughtName)] ?? $this->pokeApiService->getPokemonDetails($caughtName);
                 $id = $details['id'];
@@ -507,7 +513,8 @@ class TrainerProfileService
                     'name' => $details['name'],
                     'id' => $id,
                     'sprite' => $details['sprite_official'],
-                    'types' => $types
+                    'types' => $types,
+                    'caughtAt' => $caughtDate
                 ];
 
                 // Checagens de capturas especiais

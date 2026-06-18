@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pokédex | PokeFlaton{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/pokedex.css') }}">
+{% endblock %}
+
+{% block body %}
+	<div class="pokedex-page-container">
+		
+		<!-- Cabeçalho Principal -->
+		<header class="pokedex-header">
+			<div class="pokedex-title-section">
+				<h1 class="pokedex-title">
+					Pokédex
+				</h1>
+				<p class="pokedex-subtitle">Acompanhe a sua jornada de capturas completando o Pokédex através do jogo "Pokémon do Dia".</p>
+			</div>
+
+			<!-- Estatísticas de Progresso -->
+			<div class="pokedex-stats-card card">
+				<div class="pokedex-stats-header">
+					<span class="stats-label">Progresso Geral</span>
+					<span class="stats-numbers">
+						<strong>{{ totalRegistered }}</strong> / {{ totalCount }}
+						<span class="percentage">({{ totalCount > 0 ? ((totalRegistered / totalCount) * 100)|round(1) : 0 }}%)</span>
+					</span>
+				</div>
+				<div class="pokedex-progress-bar-container">
+					<div class="pokedex-progress-bar-fill" style="width: {{ totalCount > 0 ? (totalRegistered / totalCount) * 100 : 0 }}%;"></div>
+				</div>
+			</div>
+		</header>
+
+		<!-- Filtros e Busca -->
+		<section class="pokedex-filters-section card">
+			<form action="{{ path('app_pokedex') }}" method="GET" class="pokedex-filters-form">
+				<!-- Caixa de Busca -->
+				<div class="search-box">
+					<input type="text" name="q" value="{{ search }}" class="search-input" placeholder="Buscar por nome ou Nº...">
+					<i class="fa-solid fa-magnifying-glass search-icon"></i>
+				</div>
+
+				<!-- Filtro por Geração (Abas de Filtro) -->
+				<div class="gen-filters">
+					<a href="{{ path('app_pokedex', { q: search }) }}" class="gen-filter-btn {% if not selectedGen %}active{% endif %}">
+						Todos
+					</a>
+					{% for gen in allGenerations %}
+						<a href="{{ path('app_pokedex', { gen: gen.number, q: search }) }}" class="gen-filter-btn {% if selectedGen == gen.number %}active{% endif %}" title="{{ gen.games }}">
+							GEN {{ gen.number }}
+						</a>
+					{% endfor %}
+				</div>
+				
+				{% if selectedGen %}
+					<input type="hidden" name="gen" value="{{ selectedGen }}">
+				{% endif %}
+			</form>
+		</section>
+
+		<!-- Lista de Pokémons -->
+		<section class="pokedex-grid-section">
+			{% if pokedexList is empty %}
+				<div class="empty-pokedex-result card">
+					<i class="fa-solid fa-circle-exclamation empty-icon"></i>
+					<h3>Nenhum Pokémon encontrado</h3>
+					<p>Tente ajustar os filtros ou o termo de busca.</p>
+					<a href="{{ path('app_pokedex') }}" class="btn btn-secondary mt-3">Limpar Filtros</a>
+				</div>
+			{% else %}
+				<div class="pokedex-grid">
+					{% for pkm in pokedexList %}
+						<div class="pokedex-card {% if pkm.isCaught %}caught{% else %}uncaught{% endif %}">
+							<div class="pokedex-card-glow"></div>
+							
+							<!-- Sprite / Silhueta -->
+							<div class="pokedex-sprite-wrapper">
+								{% if pkm.isCaught %}
+									<a href="{{ path('app_pokemon_detail', { name: pkm.name }) }}">
+										<img src="{{ pkm.sprite }}" alt="{{ pkm.display_name }}" class="pokedex-sprite" loading="lazy">
+									</a>
+								{% else %}
+									<img src="{{ pkm.sprite }}" alt="{{ pkm.display_name }}" class="pokedex-sprite silhouette" loading="lazy">
+								{% endif %}
+							</div>
+
+							<!-- ID & Geração -->
+							<div class="pokedex-meta-row">
+								<span class="pokedex-id-tag">Nº {{ "%04d"|format(pkm.id) }}</span>
+								<span class="pokedex-gen-tag">G{{ pkm.generation }}</span>
+							</div>
+
+							<!-- Nome -->
+							<h3 class="pokedex-name">
+								{% if pkm.isCaught %}
+									<a href="{{ path('app_pokemon_detail', { name: pkm.name }) }}">
+										{{ pkm.display_name }}
+									</a>
+								{% else %}
+									???
+								{% endif %}
+							</h3>
+
+							<!-- Status de Registro -->
+							<div class="pokedex-status-footer">
+								{% if pkm.isCaught %}
+									<span class="status-badge status-caught" title="Registrado na Pokédex">
+										<i class="fa-solid fa-circle-check"></i>
+										{% if pkm.caughtAt %}
+											{{ pkm.caughtAt|date('d/m/Y H:i') }}
+										{% else %}
+											Registrado
+										{% endif %}
+									</span>
+								{% else %}
+									<span class="status-badge status-missing">
+										<i class="fa-solid fa-circle-minus"></i>
+										Não Registrado
+									</span>
+								{% endif %}
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+		</section>
+
+	</div>
+{% endblock %}
