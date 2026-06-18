@@ -5,7 +5,11 @@ parameters:
 
     # IDs individuais permitidos de gerações não totalmente ativadas.
     # Ex: [722] se quisermos permitir apenas o Decidueye de Gen 7 no site.
-    app.pokemon.allowed_extra_ids: []
+    app.pokemon.allowed_extra_ids: [
+        722, 723, 724, 725, 726, 727, 728, 729, 730, 778, 781, 782, 783, 784, 793, 794, 796,
+        798, 799, 806, 810, 811, 812, 813, 814, 815, 816, 817, 818, 848, 849, 856, 857, 858, 859, 
+        860, 861, 865, 885, 886, 887, 901, 903, 935, 936, 937, 959, 979, 1005
+    ]
 
     # IDs excluídos de serem exibidos ou acessados (Lendários e Míticos das Gerações 1 a 6 e suas Megas)
     app.pokemon.excluded_ids: [
