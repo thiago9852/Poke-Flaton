@@ -30,6 +30,17 @@
 		{% endfor %}
 		{% set totalMedals = totalMedals + allVivillonPatterns|length %}
 
+		<div class="admin-tabs" style="margin-bottom: 30px;">
+			<a href="{{ path('app_admin') }}" class="admin-tab-btn active">
+				<i class="fa-solid fa-sliders"></i>
+				Personalização & Medalhas
+			</a>
+			<a href="{{ path('app_admin_pokemon') }}" class="admin-tab-btn">
+				<i class="fa-solid fa-gamepad"></i>
+				Dados de Pokémon (Evoluções & Locais)
+			</a>
+		</div>
+
 		<div class="admin-stats-row">
 			<div class="admin-stat-card">
 				<div class="admin-stat-num users">{{ totalUsers }}</div>
@@ -138,200 +149,7 @@
 			</div>
 		</div>
 
-		<!-- Moderação de Localizações -->
-		{% set moderationExpanded = (activeTab == 'games' or pendingLocations|length > 0 or pokemonSearch is not empty) %}
-		<div class="admin-category spaced" id="moderation-section">
-			<div class="admin-category-header" onclick="toggleCategorySection('moderation-content', 'moderation-chevron')">
-				<h2>Localizações</h2>
-				<i class="fa-solid fa-chevron-down admin-category-chevron {{ moderationExpanded ? 'rotated' : '' }}" id="moderation-chevron"></i>
-			</div>
 
-			<div id="moderation-content" class="admin-category-content {{ moderationExpanded ? 'expanded' : '' }}">
-				
-				<!-- Menu de Abas -->
-				<div class="admin-tabs">
-					<a href="{{ path('app_admin', {'tab': 'users'}) }}#moderation-section" class="admin-tab-btn {{ activeTab == 'users' ? 'active' : '' }}">
-						<i class="fa-solid fa-user-pen"></i>
-						Sugestões dos Usuários ({{ pendingLocations|length }})
-					</a>
-					<a href="{{ path('app_admin', {'tab': 'games'}) }}#moderation-section" class="admin-tab-btn {{ activeTab == 'games' ? 'active' : '' }}">
-						<i class="fa-solid fa-gamepad"></i>
-						Jogos Oficiais
-					</a>
-				</div>
-
-				<!-- Conteúdo das Abas -->
-				{% if activeTab == 'users' %}
-
-					<!-- ABA 1: Sugestões dos Usuários -->
-					{% if pendingLocations is empty %}
-						<div class="admin-empty-placeholder">
-							<i class="fa-solid fa-circle-check success-icon"></i>
-							Nenhuma sugestão de localização pendente de validação!
-						</div>
-					{% else %}
-						<form id="bulkActionForm" method="post" action="{{ path('app_location_bulk') }}">
-							<div class="admin-card-container overflow-hidden">
-
-								<div class="table-bulk-header">
-									<div class="table-bulk-header-selection">
-										<label class="bulk-select-label">
-											<input type="checkbox" id="selectAllSuggestions" class="admin-checkbox">
-											Selecionar Tudo
-										</label>
-									</div>
-									<div class="table-bulk-actions">
-										<button type="submit" name="action" value="approve" class="btn-bulk-action approve">
-											<i class="fa-solid fa-check-double"></i>
-											Aprovar Selecionados
-										</button>
-										<button type="submit" name="action" value="delete" class="btn-bulk-action delete" onclick="return confirm('Deseja realmente rejeitar as sugestões selecionadas?')">
-											<i class="fa-solid fa-trash-can"></i>
-											Rejeitar Selecionados
-										</button>
-									</div>
-								</div>
-
-								<table class="admin-table">
-									<thead>
-										<tr>
-											<th class="checkbox-col"></th>
-											<th>Pokémon</th>
-											<th>Localização Sugerida</th>
-											<th>Data de Envio</th>
-											<th class="text-right">Ações</th>
-										</tr>
-									</thead>
-									<tbody>
-
-										{% for location in pendingLocations %}
-											<tr>
-												<td class="checkbox-col">
-													<input type="checkbox" name="ids[]" value="{{ location.id }}" class="suggestion-checkbox admin-checkbox">
-												</td>
-												<td class="font-bold">
-													<a href="{{ path('app_pokemon_detail', {'name': location.pokemonName}) }}" class="admin-table-link" target="_blank">
-														<i class="fa-solid fa-circle-chevron-right"></i>
-														{{ location.pokemonName|capitalize }}
-													</a>
-												</td>
-												<td>
-													{{ location.locationName }}
-												</td>
-												<td class="text-muted-small">
-													{{ location.createdAt|date('d/m/Y H:i') }}
-												</td>
-												<td class="text-right">
-													<div class="table-actions-cell-wrapper">
-														<form method="post" action="{{ path('app_location_approve', {'id': location.id, 'redirect': 'admin'}) }}">
-															<button type="submit" class="btn-admin-approve">
-																<i class="fa-solid fa-check"></i>
-																Aprovar
-															</button>
-														</form>
-														<form method="post" action="{{ path('app_location_delete', {'id': location.id, 'redirect': 'admin'}) }}" onsubmit="return confirm('Deseja realmente rejeitar esta localização?')">
-															<button type="submit" class="btn-admin-reject">
-																<i class="fa-solid fa-xmark"></i>
-																Rejeitar
-															</button>
-														</form>
-													</div>
-												</td>
-											</tr>
-										{% endfor %}
-
-									</tbody>
-								</table>
-
-							</div>
-						</form>
-
-					{% endif %}
-				{% else %}
-
-					<!-- ABA 2: Jogos oficiais -->
-					<div class="game-search-box">
-						<form method="get" action="{{ path('app_admin') }}#moderation-section" class="game-search-form">
-							<input type="hidden" name="tab" value="games">
-							<div class="game-search-input-wrapper">
-								<label>Buscar Pokémon nos Jogos Oficiais</label>
-								<input type="text" name="pokemon" value="{{ pokemonSearch }}" class="game-search-input" placeholder="Ex: Pikachu, Charizard..." list="pokemon-search-list" autocomplete="off" required>
-								<datalist id="pokemon-search-list">
-									{% for poke in pokemonList %}
-										<option value="{{ poke.name }}">{{ poke.name|capitalize }}</option>
-									{% endfor %}
-								</datalist>
-							</div>
-							<button type="submit" class="btn btn-primary btn-search-submit">
-								<i class="fa-solid fa-magnifying-glass"></i>
-								Buscar
-							</button>
-						</form>
-					</div>
-
-					{% if pokemonSearch is not empty %}
-						<div class="admin-card-container padded">
-							<div class="game-import-header">
-								<h3 class="admin-section-title">
-									<i class="fa-solid fa-earth-americas color-secondary-icon"></i>
-									Localizações de Encontro de
-									{{ pokemonSearch|capitalize }}
-									(PokéAPI)
-								</h3>
-
-								{% if gameEncounters is not empty %}
-									<a href="{{ path('app_pokemon_detail', {'name': pokemonSearch}) }}" target="_blank" class="admin-view-pokemon-link">
-										Ver Pokémon
-										<i class="fa-solid fa-arrow-up-right-from-square"></i>
-									</a>
-								{% endif %}
-							</div>
-
-							{% if gameEncounters is empty %}
-								<div class="admin-empty-placeholder">
-									<i class="fa-solid fa-circle-info info-icon"></i>
-									Nenhuma localização oficial encontrada na API para "{{ pokemonSearch }}" ou o Pokémon não possui encontros selvagens registrados.
-								</div>
-							{% else %}
-								<form method="post" action="{{ path('app_location_import_official') }}">
-									<input type="hidden" name="pokemonName" value="{{ pokemonSearch }}">
-
-									<div class="game-loc-import-bar">
-										<label class="bulk-select-label">
-											<input type="checkbox" id="selectAllGameLocs" class="admin-checkbox">
-											Selecionar Todas
-										</label>
-										<button type="submit" class="btn-admin-import">
-											Importar Selecionadas
-										</button>
-									</div>
-
-									<div class="game-loc-list-scroll">
-										{% for enc in gameEncounters %}
-											{% set fullLocName = enc.area ~ ' (' ~ enc.versions ~ ')' %}
-
-											<div class="game-loc-row">
-												<input type="checkbox" name="locations[]" value="{{ fullLocName }}" class="game-loc-checkbox admin-checkbox">
-												<div class="flex-1">
-													<div class="game-loc-name">{{ enc.area }}</div>
-													<div class="game-loc-versions">
-														<i class="fa-solid fa-gamepad"></i>
-														{{ enc.versions }}
-													</div>
-												</div>
-											</div>
-										{% endfor %}
-
-									</div>
-								</form>
-							{% endif %}
-
-						</div>
-					{% endif %}
-				{% endif %}
-
-			</div>
-		</div>
 
 		<!-- Gerenciamento de Títulos de Treinador -->
 		<div class="admin-category spaced" id="trainer-titles-section">
@@ -716,14 +534,13 @@
 											</button>
 										</td>
 									</form>
-								</tr>
-							{% endfor %}
-						</tbody>
-					</table>
+					</tr>
+					{% endfor %}
+					</tbody>
+				</table>
 				</div>
 			</div>
 		</div>
-	</div>
 
 	<!-- Toast -->
 	<div class="admin-toast" id="admin-toast">
@@ -814,23 +631,7 @@
 			});
 		}
 
-		// Seleção em lote de sugestões de usuários
-		const selectAllSuggestions = document.getElementById('selectAllSuggestions');
-		if (selectAllSuggestions) {
-			selectAllSuggestions.addEventListener('change', function () {
-				const checkboxes = document.querySelectorAll('.suggestion-checkbox');
-				checkboxes.forEach(cb => cb.checked = this.checked);
-			});
-		}
 
-		// Seleção em lote de localizações oficiais (API)
-		const selectAllGameLocs = document.getElementById('selectAllGameLocs');
-		if (selectAllGameLocs) {
-			selectAllGameLocs.addEventListener('change', function () {
-				const checkboxes = document.querySelectorAll('.game-loc-checkbox');
-				checkboxes.forEach(cb => cb.checked = this.checked);
-			});
-		}
 
 		// Filtro local de avatares no Admin
 		window.filterAdminAvatars = function () {
@@ -851,6 +652,7 @@
 				}
 			});
 		};
+
 	</script>
 
 

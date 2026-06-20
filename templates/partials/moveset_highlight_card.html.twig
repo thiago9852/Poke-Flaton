@@ -63,14 +63,24 @@
                 <h4 class="moveset-title">Nature</h4>
                 
                 <div style="margin-bottom: 15px;">
-                    <span style="font-weight: bold; color: #fff;">{{ m.nature|capitalize }}</span>
-                    <p style="font-size: 0.85em; color: #aaa; margin: 0;">
-                        {% if naturesMap[m.nature] is defined %}
-                            + {{ naturesMap[m.nature].increased|replace({'-': ' '})|title }} / - {{ naturesMap[m.nature].decreased|replace({'-': ' '})|title }}
-                        {% else %}
-                            Nature ideal.
-                        {% endif %}
-                    </p>
+                    {% set displayNature = mostUsedNature|default(m.nature) %}
+                    {% if displayNature %}
+                        <span style="font-weight: bold; color: #fff;">
+                            {{ displayNature|capitalize }}
+                            {% if mostUsedNaturePercent is defined and mostUsedNaturePercent > 0 %}
+                                ({{ mostUsedNaturePercent }}%)
+                            {% endif %}
+                        </span>
+                        <p style="font-size: 0.85em; color: #aaa; margin: 0;">
+                            {% if naturesMap[displayNature] is defined %}
+                                + {{ naturesMap[displayNature].increased|replace({'-': ' '})|title }} / - {{ naturesMap[displayNature].decreased|replace({'-': ' '})|title }}
+                            {% else %}
+                                Nature ideal.
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <span style="font-weight: bold; color: #fff;">Não especificada</span>
+                    {% endif %}
                 </div>
             </div>
 

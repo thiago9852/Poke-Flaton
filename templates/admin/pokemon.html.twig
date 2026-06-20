@@ -1,0 +1,661 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pokémon Master | PokeFlaton
+{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/trainer-card.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+	<div class="admin-wrapper">
+		<!-- Flashes -->
+		{% for label, messages in app.flashes %}
+			{% for message in messages %}
+				<div class="alert alert-{{ label == 'error' ? 'error' : 'success' }}">
+					<i class="fa-solid {{ label == 'error' ? 'fa-circle-exclamation' : 'fa-circle-check' }}"></i>
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endfor %}
+
+		<!-- Tab Header -->
+		<div class="admin-tabs" style="margin-bottom: 30px;">
+			<a href="{{ path('app_admin') }}" class="admin-tab-btn">
+				<i class="fa-solid fa-sliders"></i>
+				Personalização & Medalhas
+			</a>
+			<a href="{{ path('app_admin_pokemon') }}" class="admin-tab-btn active">
+				<i class="fa-solid fa-gamepad"></i>
+				Dados de Pokémon (Evoluções & Locais)
+			</a>
+		</div>
+
+		<!-- Moderação de Localizações -->
+		{% set moderationExpanded = (activeTab == 'games' or pendingLocations|length > 0 or pokemonSearch is not empty) %}
+		<div class="admin-category spaced" id="moderation-section">
+			<div class="admin-category-header" onclick="toggleCategorySection('moderation-content', 'moderation-chevron')">
+				<h2>Localizações</h2>
+				<i class="fa-solid fa-chevron-down admin-category-chevron {{ moderationExpanded ? 'rotated' : 'expanded' }}" id="moderation-chevron"></i>
+			</div>
+
+			<div id="moderation-content" class="admin-category-content expanded">
+				
+				<!-- Importação de Localizações em Lote -->
+				<div class="admin-card-container padded mb-15" style="margin-top: 15px; margin-bottom: 20px;">
+					<h3 class="admin-section-title mb-15">
+						Importação de Localizações em Lote via JSON
+					</h3>
+					<p class="text-muted" style="font-size: 0.85rem; margin-bottom: 16px; color: var(--text-muted);">
+						Envie um arquivo <code>.json</code> contendo uma lista de localizações de Pokémon.
+						O arquivo deve seguir a estrutura abaixo:
+						<code style="display: block; background: var(--bg-main); padding: 10px; border-radius: var(--radius-sm); margin-top: 8px; font-size: 0.8rem; color: #a7f3d0; border: 1px solid var(--border-color); white-space: pre; overflow-x: auto;">[
+							{ "pokemon": "kirlia", "location": "Rota 208", "isApproved": true },
+							{ "pokemon": "ralts", "location": "Rota 203", "isApproved": true }
+						]</code>
+					</p>
+					
+					<form method="post" action="{{ path('app_admin_import_resource', {'resource': 'locations'}) }}" enctype="multipart/form-data">
+						<div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+							<div style="flex: 1; min-width: 250px;">
+								<input type="file" name="import_file" accept=".json" class="form-input" required style="padding: 8px;">
+							</div>
+							<button type="submit" class="btn btn-primary">
+								<i class="fa-solid fa-upload"></i>
+								Importar Localizações
+							</button>
+						</div>
+					</form>
+				</div>
+
+				<!-- Menu de Abas -->
+				<div class="admin-tabs">
+					<a href="{{ path('app_admin_pokemon', {'tab': 'users'}) }}#moderation-section" class="admin-tab-btn {{ activeTab == 'users' ? 'active' : '' }}">
+						<i class="fa-solid fa-user-pen"></i>
+						Sugestões dos Usuários ({{ pendingLocations|length }})
+					</a>
+					<a href="{{ path('app_admin_pokemon', {'tab': 'games'}) }}#moderation-section" class="admin-tab-btn {{ activeTab == 'games' ? 'active' : '' }}">
+						<i class="fa-solid fa-gamepad"></i>
+						Jogos Oficiais
+					</a>
+				</div>
+
+				<!-- Conteúdo das Abas -->
+				{% if activeTab == 'users' %}
+
+					<!-- ABA 1: Sugestões dos Usuários -->
+					{% if pendingLocations is empty %}
+						<div class="admin-empty-placeholder">
+							<i class="fa-solid fa-circle-check success-icon"></i>
+							Nenhuma sugestão de localização pendente de validação!
+						</div>
+					{% else %}
+						<form id="bulkActionForm" method="post" action="{{ path('app_location_bulk') }}">
+							<div class="admin-card-container overflow-hidden">
+
+								<div class="table-bulk-header">
+									<div class="table-bulk-header-selection">
+										<label class="bulk-select-label">
+											<input type="checkbox" id="selectAllSuggestions" class="admin-checkbox">
+											Selecionar Tudo
+										</label>
+									</div>
+									<div class="table-bulk-actions">
+										<button type="submit" name="action" value="approve" class="btn-bulk-action approve">
+											<i class="fa-solid fa-check-double"></i>
+											Aprovar Selecionados
+										</button>
+										<button type="submit" name="action" value="delete" class="btn-bulk-action delete" onclick="return confirm('Deseja realmente rejeitar as sugestões selecionadas?')">
+											<i class="fa-solid fa-trash-can"></i>
+											Rejeitar Selecionados
+										</button>
+									</div>
+								</div>
+
+								<table class="admin-table">
+									<thead>
+										<tr>
+											<th class="checkbox-col"></th>
+											<th>Pokémon</th>
+											<th>Localização Sugerida</th>
+											<th>Data de Envio</th>
+											<th class="text-right">Ações</th>
+										</tr>
+									</thead>
+									<tbody>
+
+										{% for location in pendingLocations %}
+											<tr>
+												<td class="checkbox-col">
+													<input type="checkbox" name="ids[]" value="{{ location.id }}" class="suggestion-checkbox admin-checkbox">
+												</td>
+												<td class="font-bold">
+													<a href="{{ path('app_pokemon_detail', {'name': location.pokemonName}) }}" class="admin-table-link" target="_blank">
+														<i class="fa-solid fa-circle-chevron-right"></i>
+														{{ location.pokemonName|capitalize }}
+													</a>
+												</td>
+												<td>
+													{{ location.locationName }}
+												</td>
+												<td class="text-muted-small">
+													{{ location.createdAt|date('d/m/Y H:i') }}
+												</td>
+												<td class="text-right">
+													<div class="table-actions-cell-wrapper">
+														<form method="post" action="{{ path('app_location_approve', {'id': location.id, 'redirect': 'admin'}) }}">
+															<button type="submit" class="btn-admin-approve">
+																<i class="fa-solid fa-check"></i>
+																Aprovar
+															</button>
+														</form>
+														<form method="post" action="{{ path('app_location_delete', {'id': location.id, 'redirect': 'admin'}) }}" onsubmit="return confirm('Deseja realmente rejeitar esta localização?')">
+															<button type="submit" class="btn-admin-reject">
+																<i class="fa-solid fa-xmark"></i>
+																Rejeitar
+															</button>
+														</form>
+													</div>
+												</td>
+											</tr>
+										{% endfor %}
+
+									</tbody>
+								</table>
+
+							</div>
+						</form>
+
+					{% endif %}
+				{% else %}
+
+					<!-- ABA 2: Jogos oficiais -->
+					<div class="game-search-box">
+						<form method="get" action="{{ path('app_admin_pokemon') }}#moderation-section" class="game-search-form">
+							<input type="hidden" name="tab" value="games">
+							<div class="game-search-input-wrapper">
+								<label>Buscar Pokémon nos Jogos Oficiais</label>
+								<input type="text" name="pokemon" value="{{ pokemonSearch }}" class="game-search-input" placeholder="Ex: Pikachu, Charizard..." list="pokemon-search-list" autocomplete="off" required>
+								<datalist id="pokemon-search-list">
+									{% for poke in pokemonList %}
+										<option value="{{ poke.name }}">{{ poke.name|capitalize }}</option>
+									{% endfor %}
+								</datalist>
+							</div>
+							<button type="submit" class="btn btn-primary btn-search-submit">
+								<i class="fa-solid fa-magnifying-glass"></i>
+								Buscar
+							</button>
+						</form>
+					</div>
+
+					{% if pokemonSearch is not empty %}
+						<div class="admin-card-container padded">
+							<div class="game-import-header">
+								<h3 class="admin-section-title">
+									<i class="fa-solid fa-earth-americas color-secondary-icon"></i>
+									Localizações de Encontro de
+									{{ pokemonSearch|capitalize }}
+									(PokéAPI)
+								</h3>
+
+								{% if gameEncounters is not empty %}
+									<a href="{{ path('app_pokemon_detail', {'name': pokemonSearch}) }}" target="_blank" class="admin-view-pokemon-link">
+										Ver Pokémon
+										<i class="fa-solid fa-arrow-up-right-from-square"></i>
+									</a>
+								{% endif %}
+							</div>
+
+							{% if gameEncounters is empty %}
+								<div class="admin-empty-placeholder">
+									<i class="fa-solid fa-circle-info info-icon"></i>
+									Nenhuma localização oficial encontrada na API para "{{ pokemonSearch }}" ou o Pokémon não possui encontros selvagens registrados.
+								</div>
+							{% else %}
+								<form method="post" action="{{ path('app_location_import_official') }}">
+									<input type="hidden" name="pokemonName" value="{{ pokemonSearch }}">
+
+									<div class="game-loc-import-bar">
+										<label class="bulk-select-label">
+											<input type="checkbox" id="selectAllGameLocs" class="admin-checkbox">
+											Selecionar Todas
+										</label>
+										<button type="submit" class="btn-admin-import">
+											Importar Selecionadas
+										</button>
+									</div>
+
+									<div class="game-loc-list-scroll">
+										{% for enc in gameEncounters %}
+											{% set fullLocName = enc.area ~ ' (' ~ enc.versions ~ ')' %}
+
+											<div class="game-loc-row">
+												<input type="checkbox" name="locations[]" value="{{ fullLocName }}" class="game-loc-checkbox admin-checkbox">
+												<div class="flex-1">
+													<div class="game-loc-name">{{ enc.area }}</div>
+													<div class="game-loc-versions">
+														<i class="fa-solid fa-gamepad"></i>
+														{{ enc.versions }}
+													</div>
+												</div>
+											</div>
+										{% endfor %}
+
+									</div>
+								</form>
+							{% endif %}
+
+						</div>
+					{% endif %}
+				{% endif %}
+
+			</div>
+		</div>
+
+		<!-- Gerenciamento de Variações de Pokémon -->
+		<div class="admin-category spaced" id="variations-section">
+			<div class="admin-category-header" onclick="toggleCategorySection('variations-content', 'variations-chevron')">
+				<h2>Variações de Pokémon</h2>
+				<span class="admin-hero-badge">{{ variations|length }} variações</span>
+				<i class="fa-solid fa-chevron-down admin-category-chevron" id="variations-chevron"></i>
+			</div>
+
+			<div id="variations-content" class="admin-category-content expanded">
+
+				<!-- Formulário de adição -->
+				<div class="admin-card-container padded">
+					<h3 class="admin-section-title mb-15">
+						Adicionar Nova Variação
+					</h3>
+					<p class="text-muted" style="font-size: 0.85rem; margin-bottom: 16px; color: var(--text-muted);">
+						O <strong>ID da Variação</strong> deve ser o ID numérico da PokéAPI (geralmente ≥ 10000 para formas regionais/alternativas).
+						O <strong>ID Base</strong> é o número do Pokémon original (ex: 412 para Burmy). O <strong>nome</strong> deve seguir o slug da API (ex: <code>burmy-trash</code>).
+					</p>
+					<form method="post" action="{{ path('app_admin_variation_add') }}">
+						<div class="title-form-grid" style="grid-template-columns: 1fr 1fr 2fr;">
+							<div>
+								<label class="title-form-label">ID da Variação (PokéAPI) *</label>
+								<input type="number" name="variation_id" class="form-input" placeholder="Ex: 10003" min="1" required id="var-id-input">
+							</div>
+							<div>
+								<label class="title-form-label">ID Base (Pokémon original) *</label>
+								<input type="number" name="base_id" class="form-input" placeholder="Ex: 412" min="1" required id="var-base-id-input">
+							</div>
+							<div>
+								<label class="title-form-label">Nome (slug PokéAPI) *</label>
+								<input type="text" name="name" class="form-input" placeholder="Ex: burmy-trash" pattern="[a-z0-9\-]+" title="Apenas letras minúsculas, números e hífens" required id="var-name-input">
+							</div>
+						</div>
+						<div class="title-form-footer">
+							<span class="text-muted" style="font-size: 0.8rem; color: var(--text-muted);">
+								<i class="fa-solid fa-circle-info"></i>
+								Verifique o ID correto em <a href="https://pokeapi.co/api/v2/pokemon/burmy-trash" target="_blank" style="color: var(--accent-primary);">pokeapi.co</a>
+							</span>
+							<button type="submit" class="btn btn-primary">
+								<i class="fa-solid fa-plus"></i>
+								Adicionar Variação
+							</button>
+						</div>
+					</form>
+				</div>
+
+				<!-- Importação de Variações em Lote -->
+				<div class="admin-card-container padded mt-15" style="margin-top: 20px; margin-bottom: 20px;">
+					<h3 class="admin-section-title mb-15">
+						Importação de Variações em Lote via JSON
+					</h3>
+					<p class="text-muted" style="font-size: 0.85rem; margin-bottom: 16px; color: var(--text-muted);">
+						Envie um arquivo <code>.json</code> contendo uma lista de variações de Pokémon.
+						O arquivo deve seguir a estrutura abaixo (onde <code>id</code> é o ID da variação na PokéAPI e <code>baseId</code> é o ID base):
+						<code style="display: block; background: var(--bg-main); padding: 10px; border-radius: var(--radius-sm); margin-top: 8px; font-size: 0.8rem; color: #a7f3d0; border: 1px solid var(--border-color); white-space: pre; overflow-x: auto;">[
+							{ "id": 10233, "baseId": 157, "name": "typhlosion-hisui" },
+							{ "id": 10004, "baseId": 413, "name": "wormadam-sandy" }
+						]</code>
+					</p>
+					
+					<form method="post" action="{{ path('app_admin_import_resource', {'resource': 'variations'}) }}" enctype="multipart/form-data">
+						<div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+							<div style="flex: 1; min-width: 250px;">
+								<input type="file" name="import_file" accept=".json" class="form-input" required style="padding: 8px;">
+							</div>
+							<button type="submit" class="btn btn-primary">
+								<i class="fa-solid fa-	upload"></i>
+								Importar Variações
+							</button>
+						</div>
+					</form>
+				</div>
+
+
+				<!-- Barra de busca -->
+				<div class="admin-card-container padded mb-15">
+					<input type="text" id="variation-search" onkeyup="filterVariations()" placeholder="Buscar por nome ou ID..." class="form-input" style="width: 100%;">
+				</div>
+
+				<!-- Tabela de variações existentes -->
+				<div class="admin-card-container overflow-hidden">
+					<table class="admin-table" id="variations-table">
+						<thead>
+							<tr>
+								<th style="width: 60px;">Sprite</th>
+								<th style="width: 100px;">ID Variação</th>
+								<th style="width: 100px;">ID Base</th>
+								<th>Nome (slug)</th>
+								<th>Visualizar</th>
+								<th class="text-right" style="width: 110px;">Ações</th>
+							</tr>
+						</thead>
+						<tbody id="variations-tbody">
+							{% for variation in variations %}
+								{% set spriteUrl = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' ~ variation.id ~ '.png' %}
+								<tr class="variation-row" data-search="{{ variation.name }} {{ variation.id }} {{ variation.baseId }}">
+									<td>
+										<img src="{{ spriteUrl }}" alt="{{ variation.name }}" style="width: 40px; height: 40px; object-fit: contain; image-rendering: pixelated;" onerror="this.style.opacity='0.2'">
+									</td>
+									<td>
+										<span class="admin-hero-badge" style="background: rgba(99,102,241,0.15); color: #818cf8;">#{{ variation.id }}</span>
+									</td>
+									<td>
+										<span class="text-muted" style="font-size: 0.85rem;">#{{ variation.baseId }}</span>
+									</td>
+									<td>
+										<strong>{{ variation.name }}</strong>
+										<br>
+										<span class="text-muted" style="font-size: 0.75rem;">{{ variation.name|replace({'-': ' '})|title }}</span>
+									</td>
+									<td>
+										<a href="{{ path('app_pokemon_detail', {'name': variation.name}) }}" target="_blank" class="admin-table-link" style="font-size: 0.85rem;">
+											<i class="fa-solid fa-arrow-up-right-from-square"></i>
+											Ver Pokémon
+										</a>
+									</td>
+									<td class="text-right">
+										<form method="post" action="{{ path('app_admin_variation_delete', {'id': variation.id}) }}" onsubmit="return confirm('Remover a variação &quot;{{ variation.name }}&quot;?')">
+											<button type="submit" class="btn-admin-reject btn-sm" style="padding: 6px 12px; font-size: 0.8rem;">
+												<i class="fa-solid fa-trash-can"></i>
+												Remover
+											</button>
+										</form>
+									</td>
+								</tr>
+							{% else %}
+								<tr>
+									<td colspan="6">
+										<div class="admin-empty-placeholder">
+											<i class="fa-solid fa-circle-info info-icon"></i>
+											Nenhuma variação cadastrada. Use o formulário acima para adicionar.
+										</div>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+		</div>
+
+		<!-- Associação de Evolução de Pokémon -->
+		<div class="admin-category spaced" id="evolution-rules-section">
+			<div class="admin-category-header" onclick="toggleCategorySection('evolution-rules-content', 'evolution-rules-chevron')">
+				<h2>Regras de Evolução de Pokémon</h2>
+				<span class="admin-hero-badge">{{ evolutionRules|length }} regras</span>
+				<i class="fa-solid fa-chevron-down admin-category-chevron" id="evolution-rules-chevron"></i>
+			</div>
+
+			<div id="evolution-rules-content" class="admin-category-content expanded">
+
+				<!-- Formulário de adição -->
+				<div class="admin-card-container padded">
+					<h3 class="admin-section-title mb-15">
+						Associar Nova Evolução (Pedra/Sexo)
+					</h3>
+					<p class="text-muted" style="font-size: 0.85rem; margin-bottom: 16px; color: var(--text-muted);">
+						Selecione o Pokémon base e o evoluído, depois escolha o tipo de pedra evolutiva e se há restrição de sexo.
+					</p>
+					
+					<!-- Datalist para autocomplete dos Pokémon -->
+					<datalist id="evolution-pokemon-list">
+						{% for pkm in pokemonList %}
+							<option value="{{ pkm.name }}"></option>
+						{% endfor %}
+					</datalist>
+
+					<form method="post" action="{{ path('app_admin_evolution_rule_add') }}">
+						<div class="title-form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+							<div>
+								<label class="title-form-label">Pokémon Base (Nome) *</label>
+								<input type="text" name="base_pokemon" class="form-input" list="evolution-pokemon-list" placeholder="Ex: kirlia" required autocomplete="off">
+							</div>
+							<div>
+								<label class="title-form-label">Pokémon Evoluído (Nome) *</label>
+								<input type="text" name="evolved_pokemon" class="form-input" list="evolution-pokemon-list" placeholder="Ex: gallade" required autocomplete="off">
+							</div>
+							<div>
+								<label class="title-form-label">Pedra Evolutiva *</label>
+								<select name="evolution_stone" class="form-input" onchange="toggleCustomStoneField(this.value)" required>
+									{% for stone in stones %}
+										<option value="{{ stone.value }}" {% if stone.value == 'Dawn Stone' %}selected{% endif %}>
+											{{ stone.getLabel() }}
+										</option>
+									{% endfor %}
+									<option value="custom">Outra Pedra/Item...</option>
+								</select>
+								<input type="text" name="custom_stone" id="custom-stone-field" class="form-input" style="display: none; margin-top: 8px;" placeholder="Digite o nome do item...">
+							</div>
+							<div>
+								<label class="title-form-label">Restrição de Gênero</label>
+								<select name="gender" class="form-input">
+									<option value="both" selected>Qualquer Sexo (Ambos)</option>
+									<option value="male">Apenas Macho</option>
+									<option value="female">Apenas Fêmea</option>
+								</select>
+							</div>
+						</div>
+						<div class="title-form-footer">
+							<span class="text-muted" style="font-size: 0.8rem; color: var(--text-muted);">
+								<i class="fa-solid fa-circle-info"></i>
+								Ao associar, o método customizado substituirá o valor padrão de evolução no frontend.
+							</span>
+							<button type="submit" class="btn btn-primary">
+								<i class="fa-solid fa-plus"></i>
+								Associar Evolução
+							</button>
+						</div>
+					</form>
+				</div>
+
+				<!-- Importação em Lote -->
+				<div class="admin-card-container padded mt-15" style="margin-top: 20px; margin-bottom: 20px;">
+					<h3 class="admin-section-title mb-15">
+						Importação em Lote via JSON
+					</h3>
+					<p class="text-muted" style="font-size: 0.85rem; margin-bottom: 16px; color: var(--text-muted);">
+						Envie um arquivo <code>.json</code> contendo uma lista de regras de evolução.
+						O arquivo deve seguir a estrutura abaixo:
+						<code style="display: block; background: var(--bg-main); padding: 10px; border-radius: var(--radius-sm); margin-top: 8px; font-size: 0.8rem; color: #a7f3d0; border: 1px solid var(--border-color); white-space: pre; overflow-x: auto;">[
+							{ "base": "kirlia", "evolved": "gallade", "stone": "Dawn Stone", "gender": "male" },
+							{ "base": "snorunt", "evolved": "froslass", "stone": "Dawn Stone", "gender": "female" }
+						]</code>
+					</p>
+					
+					<form method="post" action="{{ path('app_admin_import_resource', {'resource': 'evolutions'}) }}" enctype="multipart/form-data">
+						<div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+							<div style="flex: 1; min-width: 250px;">
+								<input type="file" name="import_file" accept=".json" class="form-input" required style="padding: 8px;">
+							</div>
+							<button type="submit" class="btn btn-primary">
+								<i class="fa-solid fa-upload"></i>
+								Importar Regras
+							</button>
+						</div>
+					</form>
+				</div>
+
+
+				<!-- Barra de busca para filtrar regras na tabela -->
+				<div class="admin-card-container padded mb-15">
+					<input type="text" id="evolution-search" onkeyup="filterEvolutionRules()" placeholder="Buscar por Pokémon base, evoluído ou método..." class="form-input" style="width: 100%;">
+				</div>
+
+				<!-- Tabela de regras de evolução existentes -->
+				<div class="admin-card-container overflow-hidden">
+					<table class="admin-table" id="evolution-table">
+						<thead>
+							<tr>
+								<th style="width: 60px;">Sprite</th>
+								<th>Pokémon Base</th>
+								<th style="width: 50px; text-align: center;"></th>
+								<th style="width: 60px;">Sprite</th>
+								<th>Pokémon Evoluído</th>
+								<th>Método de Evolução</th>
+								<th class="text-right" style="width: 110px;">Ações</th>
+							</tr>
+						</thead>
+						<tbody id="evolution-tbody">
+							{% for rule in evolutionRules %}
+								{% set basePkm = pokemonByName[rule.basePokemon]|default(null) %}
+								{% set evolvedPkm = pokemonByName[rule.evolvedPokemon]|default(null) %}
+								
+								{% set baseSprite = basePkm ? basePkm.sprite : 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png' %}
+								{% set evolvedSprite = evolvedPkm ? evolvedPkm.sprite : 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png' %}
+								
+								<tr class="evolution-row" data-search="{{ rule.basePokemon }} {{ rule.evolvedPokemon }} {{ rule.method }} {% if rule.gender == 'male' %}macho{% elseif rule.gender == 'female' %}femea{% endif %}">
+									<td>
+										<img src="{{ baseSprite }}" alt="{{ rule.basePokemon }}" style="width: 40px; height: 40px; object-fit: contain;" onerror="this.style.opacity='0.2'">
+									</td>
+									<td>
+										<strong>{{ rule.basePokemon|title }}</strong>
+										<br>
+										{% if basePkm %}
+											<span class="text-muted" style="font-size: 0.75rem;">#{{ "%04d"|format(basePkm.id) }}</span>
+										{% endif %}
+									</td>
+									<td style="text-align: center; color: var(--text-secondary);">
+										<i class="fa-solid fa-right-long"></i>
+									</td>
+									<td>
+										<img src="{{ evolvedSprite }}" alt="{{ rule.evolvedPokemon }}" style="width: 40px; height: 40px; object-fit: contain;" onerror="this.style.opacity='0.2'">
+									</td>
+									<td>
+										<strong>{{ rule.evolvedPokemon|title }}</strong>
+										<br>
+										{% if evolvedPkm %}
+											<span class="text-muted" style="font-size: 0.75rem;">#{{ "%04d"|format(evolvedPkm.id) }}</span>
+										{% endif %}
+									</td>
+									<td>
+										<span class="admin-hero-badge" style="background: rgba(16,185,129,0.15); color: #34d399; font-size: 0.85rem; padding: 4px 10px;">
+											{{ rule.method }}
+											{% if rule.gender == 'male' %}
+												- Macho
+											{% elseif rule.gender == 'female' %}
+												- Fêmea
+											{% endif %}
+										</span>
+									</td>
+									<td class="text-right">
+										<form method="post" action="{{ path('app_admin_evolution_rule_delete', {'id': rule.id}) }}" onsubmit="return confirm('Remover esta regra de evolução?')">
+											<button type="submit" class="btn-admin-reject btn-sm" style="padding: 6px 12px; font-size: 0.8rem;">
+												<i class="fa-solid fa-trash-can"></i>
+												Remover
+											</button>
+										</form>
+									</td>
+								</tr>
+							{% else %}
+								<tr>
+									<td colspan="7">
+										<div class="admin-empty-placeholder">
+											<i class="fa-solid fa-circle-info info-icon"></i>
+											Nenhuma regra de evolução customizada cadastrada. Use o formulário acima para associar.
+										</div>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+
+	<!-- Toast -->
+	<div class="admin-toast" id="admin-toast">
+		<i class="fa-solid fa-check-circle"></i>
+		<span id="toast-msg">Salvo!</span>
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	<script>
+		// Moderação / Colapso de categorias
+		window.toggleCategorySection = function(contentId, chevronId) {
+			const content = document.getElementById(contentId);
+			const chevron = document.getElementById(chevronId);
+			if (content && chevron) {
+				content.classList.toggle('expanded');
+				chevron.classList.toggle('rotated');
+				
+				// Se ocultar, display none, se exibir, display block
+				if (content.classList.contains('expanded')) {
+					content.style.display = 'block';
+				} else {
+					content.style.display = 'none';
+				}
+			}
+		};
+
+		// Seleção em lote de sugestões de usuários
+		const selectAllSuggestions = document.getElementById('selectAllSuggestions');
+		if (selectAllSuggestions) {
+			selectAllSuggestions.addEventListener('change', function () {
+				const checkboxes = document.querySelectorAll('.suggestion-checkbox');
+				checkboxes.forEach(cb => cb.checked = this.checked);
+			});
+		}
+
+		// Seleção em lote de localizações oficiais (API)
+		const selectAllGameLocs = document.getElementById('selectAllGameLocs');
+		if (selectAllGameLocs) {
+			selectAllGameLocs.addEventListener('change', function () {
+				const checkboxes = document.querySelectorAll('.game-loc-checkbox');
+				checkboxes.forEach(cb => cb.checked = this.checked);
+			});
+		}
+
+		// Filtro local de variações
+		window.filterVariations = function () {
+			const q = document.getElementById('variation-search').value.toLowerCase().trim();
+			document.querySelectorAll('.variation-row').forEach(row => {
+				row.style.display = row.dataset.search.toLowerCase().includes(q) ? '' : 'none';
+			});
+		};
+
+		// Controle de exibição do campo de pedra customizada
+		window.toggleCustomStoneField = function (val) {
+			const customField = document.getElementById('custom-stone-field');
+			if (customField) {
+				customField.style.display = val === 'custom' ? 'block' : 'none';
+				if (val === 'custom') {
+					customField.setAttribute('required', 'required');
+				} else {
+					customField.removeAttribute('required');
+				}
+			}
+		};
+
+		// Filtro local de regras de evolução
+		window.filterEvolutionRules = function () {
+			const q = document.getElementById('evolution-search').value.toLowerCase().trim();
+			document.querySelectorAll('.evolution-row').forEach(row => {
+				row.style.display = row.dataset.search.toLowerCase().includes(q) ? '' : 'none';
+			});
+		};
+	</script>
+{% endblock %}

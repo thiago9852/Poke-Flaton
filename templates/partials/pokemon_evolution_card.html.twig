@@ -12,6 +12,15 @@
                     <div class="evolution-arrows-column">
                         {% for node in stageNodes %}
                             <div class="evolution-arrow-item">
+                                {% if node.evolution_gender is defined and node.evolution_gender is not empty %}
+                                    <div class="evolution-method-gender {{ node.evolution_gender }}" title="Apenas {{ node.evolution_gender == 'male' ? 'Macho' : 'Fêmea' }}">
+                                        {% if node.evolution_gender == 'male' %}
+                                            <i class="fa-solid fa-mars"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-venus"></i>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
                                 <span class="evolution-method">
                                     {{ node.evolution_method|default('Nível/Stone') }}
                                 </span>

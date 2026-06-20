@@ -46,7 +46,7 @@ class MovesetController extends AbstractController
         $items   = $this->pokeApiService->getItems();
 
         // Calcular o limite de moves com base no estágio evolutivo e BST
-        $maxMoves = $this->pokeApiService->calculateMaxMoves($pokemon['name'], $pokemon['stats']);
+        $maxMoves = $this->pokeApiService->calculateMaxMoves($pokemon['species_name'], $pokemon['stats']);
 
         $errors = [];
 

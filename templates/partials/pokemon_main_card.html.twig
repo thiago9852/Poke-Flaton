@@ -30,9 +30,9 @@
 
     {% if pokemon.varieties is not empty %}
         <div class="variety-selector">
-            <a href="{{ path('app_pokemon_detail', { name: pokemon.species_name }) }}" 
-               class="variety-btn {{ pokemon.name == pokemon.species_name ? 'active type-bg-' ~ pokemon.types|first : '' }}">
-                Padrão
+            <a href="{{ path('app_pokemon_detail', { name: pokemon.default_variety_name|default(pokemon.species_name) }) }}" 
+               class="variety-btn {{ pokemon.name == pokemon.species_name or pokemon.name == pokemon.default_variety_name ? 'active type-bg-' ~ pokemon.types|first : '' }}">
+                {{ pokemon.default_display_name|default('Padrão') }}
             </a>
             {% for variety in pokemon.varieties %}
                 <a href="{{ path('app_pokemon_detail', { name: variety.name }) }}" 

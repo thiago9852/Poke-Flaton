@@ -286,17 +286,17 @@
     min-height: 130px;
 }
 
-.evolution-arrow-item i {
+.evolution-arrow-item > i {
     font-size: 1.25rem;
     transition: transform 0.2s ease;
 }
 
 /* Inclinações para evoluções bifurcadas */
-.evolution-arrows-column:has(.evolution-arrow-item:nth-child(2)) .evolution-arrow-item:first-child i {
+.evolution-arrows-column:has(.evolution-arrow-item:nth-child(2)) .evolution-arrow-item:first-child > i {
     transform: rotate(-25deg);
 }
 
-.evolution-arrows-column:has(.evolution-arrow-item:nth-child(2)) .evolution-arrow-item:last-child i {
+.evolution-arrows-column:has(.evolution-arrow-item:nth-child(2)) .evolution-arrow-item:last-child > i {
     transform: rotate(25deg);
 }
 
@@ -315,6 +315,7 @@
     max-width: 150px;
     text-align: center;
     box-sizing: border-box;
+    position: relative;
 }
 
 .evolution-node:hover {
@@ -326,6 +327,30 @@
     background-color: rgba(139, 92, 246, 0.08);
     border-color: rgba(139, 92, 246, 0.25);
     box-shadow: 0 0 15px rgba(139, 92, 246, 0.1);
+}
+
+.evolution-method-gender {
+    font-size: 0.8rem;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    margin-bottom: 2px;
+}
+
+.evolution-method-gender.male {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.evolution-method-gender.female {
+    background-color: rgba(244, 63, 94, 0.15);
+    color: #fb7185;
+    border: 1px solid rgba(244, 63, 94, 0.3);
 }
 
 .evolution-sprite {
@@ -380,13 +405,11 @@
     font-weight: 600;
     color: var(--text-secondary);
     background: rgba(255,255,255,0.05);
-    padding: 3px 8px;
+    padding: 4px 10px;
     border-radius: 12px;
-    white-space: nowrap;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
     text-align: center;
+    max-width: 180px;
+    word-wrap: break-word;
 }
 
 
@@ -2307,7 +2330,8 @@
   .evolution-method {
     font-size: 0.65rem;
     padding: 2px 6px;
-    max-width: 100px;
+    max-width: 130px;
+    word-wrap: break-word;
   }
 }
 

@@ -22,6 +22,9 @@ class EvolutionRule
     #[ORM\Column(length: 100)]
     private ?string $method = null;
 
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $gender = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +62,18 @@ class EvolutionRule
     public function setMethod(string $method): static
     {
         $this->method = $method;
+
+        return $this;
+    }
+
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+
+    public function setGender(?string $gender): static
+    {
+        $this->gender = $gender;
 
         return $this;
     }

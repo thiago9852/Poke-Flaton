@@ -49,80 +49,29 @@ class SecurityController extends AbstractController
     public function register(
         Request $request,
         UserPasswordHasherInterface $userPasswordHasher,
-        UserRepository $userRepository,
         EntityManagerInterface $entityManager
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_trainer_card');
         }
 
-        $validRegions = ['Kanto', 'Johto', 'Hoenn', 'Sinnoh', 'Unova', 'Kalos', 'Alola', 'Galar', 'Paldea'];
+        $user = new User();
+        $form = $this->createForm(\App\Form\RegistrationType::class, $user);
+        $form->handleRequest($request);
 
         $errors = [];
-        $username = '';
-        $apelido = '';
-        $regional = 'Kanto';
 
-        if ($request->isMethod('POST')) {
-            $username = trim($request->request->get('username', ''));
-            $password = $request->request->get('password', '');
-            $confirmPassword = $request->request->get('confirm_password', '');
-            $apelido = trim($request->request->get('apelido', ''));
-            $regional = $request->request->get('regional', 'Kanto');
-
-            if (empty($username)) {
-                $errors[] = 'O nome de usuário não pode estar vazio.';
-            } elseif (strlen($username) < 3 || strlen($username) > 30) {
-                $errors[] = 'O nome de usuário deve ter entre 3 e 30 caracteres.';
-            } elseif ($userRepository->findOneBy(['username' => $username])) {
-                $errors[] = 'Este nome de usuário já está sendo utilizado.';
-            }
-
-            if (!empty($apelido) && strlen($apelido) > 30) {
-                $errors[] = 'O apelido deve ter no máximo 30 caracteres.';
-            }
-
-            if (empty($password)) {
-                $errors[] = 'A senha não pode estar vazia.';
-            } elseif (strlen($password) < 6) {
-                $errors[] = 'A senha deve ter no mínimo 6 caracteres.';
-            }
-
-            if ($password !== $confirmPassword) {
-                $errors[] = 'As senhas informadas não coincidem.';
-            }
-
-            if (!in_array($regional, $validRegions)) {
-                $regional = 'Kanto';
-            }
-
-            if (empty($errors)) {
-                // Avatar padrão baseado na região escolhida
-                $defaultAvatars = [
-                    'Kanto'  => 'hilbert.png',
-                    'Johto'  => 'hilbert.png',
-                    'Hoenn'  => 'hilbert.png',
-                    'Sinnoh' => 'hilbert.png',
-                    'Unova'  => 'hilbert.png',
-                    'Kalos'  => 'hilbert.png',
-                    'Alola'  => 'hilbert.png',
-                    'Galar'  => 'hilbert.png',
-                    'Paldea' => 'hilbert.png',
-                ];
-                $avatar = 'trainer:unknown.png';
-
-                $user = new User();
-                $user->setUsername($username);
-                $user->setApelido($apelido !== '' ? $apelido : null);
-                $user->setRegional($regional);
-                $user->setAvatar($avatar);
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $user->setAvatar('trainer:unknown.png');
                 $user->setRoles(['ROLE_USER']);
-                $user->setPassword(
-                    $userPasswordHasher->hashPassword(
-                        $user,
-                        $password
-                    )
+                
+                // Hash password
+                $hashedPassword = $userPasswordHasher->hashPassword(
+                    $user,
+                    $form->get('password')->getData()
                 );
+                $user->setPassword($hashedPassword);
 
                 $entityManager->persist($user);
                 $entityManager->flush();
@@ -130,15 +79,16 @@ class SecurityController extends AbstractController
                 $this->addFlash('success', 'Cadastro realizado com sucesso! Faça seu login para continuar.');
 
                 return $this->redirectToRoute('app_login');
+            } else {
+                foreach ($form->getErrors(true) as $error) {
+                    $errors[] = $error->getMessage();
+                }
             }
         }
 
         return $this->render('security/register.html.twig', [
-            'errors'       => $errors,
-            'username'     => $username,
-            'apelido'      => $apelido,
-            'regional'     => $regional,
-            'validRegions' => $validRegions,
+            'form'   => $form->createView(),
+            'errors' => $errors,
         ]);
     }
 }

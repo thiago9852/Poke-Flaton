@@ -25,7 +25,6 @@ class PokemonGameController extends AbstractController
     #[Route('/pokemon-do-dia', name: 'app_game_daily')]
     public function daily(): Response
     {
-        $this->ensureScoreTableExists();
         $allowedList = $this->getAllowedBasePokemonList();
 
         $startOfMonth = new \DateTime('first day of this month 00:00:00');
@@ -285,7 +284,6 @@ class PokemonGameController extends AbstractController
 
     private function saveScore(Request $request, ?string $userToken, int $attempts, bool $won): void
     {
-        $this->ensureScoreTableExists();
         $user = $this->getUser();
 
         if (!$user && !$userToken) {
@@ -325,26 +323,4 @@ class PokemonGameController extends AbstractController
         }
     }
 
-    private function ensureScoreTableExists(): void
-    {
-        $connection = $this->entityManager->getConnection();
-        $schemaManager = $connection->createSchemaManager();
-
-        if (!$schemaManager->tablesExist(['pokemon_game_score'])) {
-            $sql = "CREATE TABLE pokemon_game_score (
-                id INT AUTO_INCREMENT NOT NULL, 
-                user_id INT DEFAULT NULL, 
-                user_token VARCHAR(255) DEFAULT NULL, 
-                username VARCHAR(255) NOT NULL, 
-                attempts INT NOT NULL, 
-                won TINYINT(1) NOT NULL, 
-                created_at DATETIME NOT NULL, 
-                game_date DATE NOT NULL, 
-                INDEX IDX_POKEMON_GAME_SCORE_USER (user_id), 
-                PRIMARY KEY(id),
-                CONSTRAINT FK_POKEMON_GAME_SCORE_USER FOREIGN KEY (user_id) REFERENCES `user` (id) ON DELETE SET NULL
-            ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB";
-            $connection->executeStatement($sql);
-        }
-    }
 }

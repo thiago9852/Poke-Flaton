@@ -74,7 +74,7 @@ class LocationController extends AbstractController
         $this->addFlash('success', 'Sugestão de localização aprovada com sucesso!');
 
         if ($request->query->get('redirect') === 'admin') {
-            return $this->redirectToRoute('app_admin', ['_fragment' => 'moderation-section']);
+            return $this->redirectToRoute('app_admin_pokemon', ['_fragment' => 'moderation-section']);
         }
 
         return $this->redirectToRoute('app_pokemon_detail', ['name' => $location->getPokemonName()]);
@@ -98,7 +98,7 @@ class LocationController extends AbstractController
         $this->addFlash('success', 'Sugestão de localização removida/rejeitada com sucesso!');
 
         if ($request->query->get('redirect') === 'admin') {
-            return $this->redirectToRoute('app_admin', ['_fragment' => 'moderation-section']);
+            return $this->redirectToRoute('app_admin_pokemon', ['_fragment' => 'moderation-section']);
         }
 
         return $this->redirectToRoute('app_pokemon_detail', ['name' => $pokemonName]);
@@ -114,7 +114,7 @@ class LocationController extends AbstractController
 
         if (empty($ids) || !is_array($ids)) {
             $this->addFlash('error', 'Nenhuma localização selecionada.');
-            return $this->redirectToRoute('app_admin', ['tab' => 'users', '_fragment' => 'moderation-section']);
+            return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'users', '_fragment' => 'moderation-section']);
         }
 
         $repo = $this->entityManager->getRepository(PokemonLocation::class);
@@ -140,7 +140,7 @@ class LocationController extends AbstractController
             $this->addFlash('success', sprintf('%d localizações removidas com sucesso!', $count));
         }
 
-        return $this->redirectToRoute('app_admin', ['tab' => 'users', '_fragment' => 'moderation-section']);
+        return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'users', '_fragment' => 'moderation-section']);
     }
 
     #[Route('/admin/location/import-official', name: 'app_location_import_official', methods: ['POST'])]
@@ -153,12 +153,12 @@ class LocationController extends AbstractController
 
         if (empty($pokemonName)) {
             $this->addFlash('error', 'Nome do Pokémon não especificado.');
-            return $this->redirectToRoute('app_admin', ['tab' => 'games', '_fragment' => 'moderation-section']);
+            return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'games', '_fragment' => 'moderation-section']);
         }
 
         if (empty($locations) || !is_array($locations)) {
             $this->addFlash('error', 'Nenhuma localização oficial selecionada para importação.');
-            return $this->redirectToRoute('app_admin', ['tab' => 'games', 'pokemon' => $pokemonName, '_fragment' => 'moderation-section']);
+            return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'games', 'pokemon' => $pokemonName, '_fragment' => 'moderation-section']);
         }
 
         $count = 0;
@@ -190,6 +190,6 @@ class LocationController extends AbstractController
             $this->addFlash('info', 'As localizações selecionadas já estavam cadastradas.');
         }
 
-        return $this->redirectToRoute('app_admin', ['tab' => 'games', 'pokemon' => $pokemonName, '_fragment' => 'moderation-section']);
+        return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'games', 'pokemon' => $pokemonName, '_fragment' => 'moderation-section']);
     }
 }

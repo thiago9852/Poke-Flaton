@@ -87,9 +87,9 @@ class PokeApiService
         return $this->pokemonFetcher->getPokemonDetailsBatchByNames($names);
     }
 
-    public function getPokemonEvolutionChain(string $pokemonName): array
+    public function getPokemonEvolutionChain(string $pokemonName, ?array $currentPokemon = null): array
     {
-        return $this->pokemonFetcher->getPokemonEvolutionChain($pokemonName);
+        return $this->pokemonFetcher->getPokemonEvolutionChain($pokemonName, $currentPokemon);
     }
 
     public function calculateMaxMoves(string $pokemonName, array $stats): int

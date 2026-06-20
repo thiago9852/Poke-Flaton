@@ -67,7 +67,7 @@ class PokemonController extends AbstractController
 
         $genCounts = [];
         foreach ($basicList as $p) {
-            $gen = PokeApiService::getGenerationById($p['id']);
+            $gen = PokeApiService::getGenerationById($p['dex_id'] ?? $p['id']);
             if ($gen > 0) {
                 $genCounts[$gen] = ($genCounts[$gen] ?? 0) + 1;
             }
@@ -111,7 +111,7 @@ class PokemonController extends AbstractController
         if (!empty($genFilter)) {
             $genInt = (int)$genFilter;
             $basicList = array_filter($basicList, function ($p) use ($genInt) {
-                return PokeApiService::getGenerationById($p['id']) === $genInt;
+                return PokeApiService::getGenerationById($p['dex_id'] ?? $p['id']) === $genInt;
             });
         }
 
@@ -277,7 +277,7 @@ class PokemonController extends AbstractController
         }
 
         // Buscar a linha evolutiva completa
-        $evolutionChain = $this->pokeApiService->getPokemonEvolutionChain($pokemon['species_name']);
+        $evolutionChain = $this->pokeApiService->getPokemonEvolutionChain($pokemon['species_name'], $pokemon);
 
         // Buscar Pokémon anterior com base na espécie
         $prevPokemon = null;
@@ -361,6 +361,25 @@ class PokemonController extends AbstractController
             }
         }
 
+        // Calcular a nature mais usada no geral (independente de tipo) e sua porcentagem
+        $mostUsedNature = null;
+        $mostUsedNaturePercent = 0;
+        $totalMovesets = count($movesets);
+        if ($totalMovesets > 0) {
+            $overallNatureCounts = [];
+            foreach ($movesets as $m) {
+                $n = $m->getNature();
+                if (!empty($n)) {
+                    $overallNatureCounts[$n] = ($overallNatureCounts[$n] ?? 0) + 1;
+                }
+            }
+            if (!empty($overallNatureCounts)) {
+                arsort($overallNatureCounts);
+                $mostUsedNature = array_key_first($overallNatureCounts);
+                $mostUsedNaturePercent = (int) round(($overallNatureCounts[$mostUsedNature] / $totalMovesets) * 100);
+            }
+        }
+
         $locations = $entityManager->getRepository(\App\Entity\PokemonLocation::class)->findBy(
             ['pokemonName' => $pokemon['name']],
             ['createdAt' => 'ASC']
@@ -379,6 +398,8 @@ class PokemonController extends AbstractController
             'typeDetails' => $typeDetails,
             'recommendedNatures' => $recommendedNatures,
             'locations' => $locations,
+            'mostUsedNature' => $mostUsedNature,
+            'mostUsedNaturePercent' => $mostUsedNaturePercent,
         ]);
     }
 
@@ -461,7 +482,7 @@ class PokemonController extends AbstractController
         $totalRegistered = 0;
         
         foreach ($basicList as $p) {
-            $gen = PokeApiService::getGenerationById($p['id']);
+            $gen = PokeApiService::getGenerationById($p['dex_id'] ?? $p['id']);
             if (!in_array($gen, $allowedGens)) {
                 continue;
             }
@@ -484,6 +505,7 @@ class PokemonController extends AbstractController
 
             $pokedexList[] = [
                 'id' => $p['id'],
+                'dex_id' => $p['dex_id'] ?? $p['id'],
                 'name' => $p['name'],
                 'display_name' => ucfirst(str_replace('-', ' ', $p['name'])),
                 'sprite' => $p['sprite'],
