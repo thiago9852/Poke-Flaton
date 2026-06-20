@@ -71,11 +71,11 @@
                     <img id="share-pokemon-artwork-{{ m.id }}" 
                         src="{{ pokemon.sprite_official }}" 
                         class="share-pokemon-image" 
-                        alt="{{ pokemon.name|capitalize }}"
+                        alt="{{ pokemon.name|abbr_pokemon_name }}"
                     >
 
                 </div>
-                <h2 class="share-pokemon-name" style="font-size: 1.4rem;">{{ pokemon.name|capitalize }}</h2>
+                <h2 class="share-pokemon-name" style="font-size: 1.4rem;">{{ pokemon.name|abbr_pokemon_name }}</h2>
                 <div class="share-pokemon-id" style="margin: 0 0 6px;">Nº {{ "%04d"|format(pokemon.species_id) }}</div>
 
                 <div class="share-pokemon-types">

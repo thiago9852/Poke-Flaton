@@ -74,9 +74,9 @@
 						<div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
 						<span class="pokemon-id">#{{ "%03d"|format(pokemon.dex_id|default(pokemon.id)) }}</span>
 						<div class="pokemon-sprite-container">
-							<img src="{{ pokemon.sprite }}" alt="{{ pokemon.name|capitalize }}" class="pokemon-image" loading="lazy">
+							<img src="{{ pokemon.sprite }}" alt="{{ pokemon.name|abbr_pokemon_name }}" class="pokemon-image" loading="lazy">
 						</div>
-						<h3 class="pokemon-name">{{ pokemon.name|capitalize }}</h3>
+						<h3 class="pokemon-name">{{ pokemon.name|abbr_pokemon_name }}</h3>
 						<div class="pokemon-types">
 
 							{% for type in pokemon.types %}

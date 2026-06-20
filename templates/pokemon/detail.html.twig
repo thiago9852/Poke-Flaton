@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}PokeFlaton |
-	{{ pokemon.name|capitalize }}
+	{{ pokemon.name|abbr_pokemon_name }}
 {% endblock %}
 
 {% block stylesheets %}
@@ -23,7 +23,7 @@
 				</span>
 				<div class="nav-text-container">
 					<span class="nav-number">Nº {{ "%04d"|format(prevPokemon.species_id) }}</span>
-					<span class="nav-name">{{ prevPokemon.name|capitalize }}</span>
+					<span class="nav-name">{{ prevPokemon.name|abbr_pokemon_name }}</span>
 				</div>
 			</a>
 			
@@ -35,7 +35,7 @@
 			<a href="{{ path('app_pokemon_detail', { name: nextPokemon.name }) }}" class="nav-button nav-next type-hover-{{ nextPokemon.types|first }}">
 				<div class="nav-text-container">
 					<span class="nav-number">Nº {{ "%04d"|format(nextPokemon.species_id) }}</span>
-					<span class="nav-name">{{ nextPokemon.name|capitalize }}</span>
+					<span class="nav-name">{{ nextPokemon.name|abbr_pokemon_name }}</span>
 				</div>
 				<span class="nav-arrow-circle">
 					<i class="fa-solid fa-chevron-right"></i>
@@ -49,7 +49,7 @@
 	<!-- Pokémon Header -->
 	<div class="pokemon-current-header">
 		<h1 class="current-title" style="margin: 0;">
-			{{ pokemon.name|capitalize }}
+			{{ pokemon.name|abbr_pokemon_name }}
 			<span class="current-number">Nº
 				{{ "%04d"|format(pokemon.species_id) }}
 			</span>

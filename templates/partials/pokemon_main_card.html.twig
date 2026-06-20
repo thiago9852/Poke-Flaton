@@ -15,12 +15,12 @@
             src="{{ pokemon.sprite_official }}" 
             data-normal="{{ pokemon.sprite_official }}" 
             data-shiny="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/{{ pokemon.id }}.png" 
-            alt="{{ pokemon.name|capitalize }}" 
+            alt="{{ pokemon.name|abbr_pokemon_name }}" 
             class="detail-artwork"
         >
     </div>
 
-    <h1 class="detail-pokemon-name">{{ pokemon.name|capitalize }}</h1>
+    <h1 class="detail-pokemon-name">{{ pokemon.name|abbr_pokemon_name }}</h1>
 
     <div class="detail-pokemon-types">
         {% for type in pokemon.types %}
@@ -37,7 +37,7 @@
             {% for variety in pokemon.varieties %}
                 <a href="{{ path('app_pokemon_detail', { name: variety.name }) }}" 
                    class="variety-btn {{ pokemon.name == variety.name ? 'active type-bg-' ~ pokemon.types|first : '' }}">
-                    {{ variety.display_name|replace({' Mega': ''})|trim }}
+                    {{ variety.name|abbr_variety_name(pokemon.species_name) }}
                 </a>
             {% endfor %}
         </div>

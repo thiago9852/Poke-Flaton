@@ -969,6 +969,7 @@
     height: 35px;
     border-radius: 50%;
     object-fit: cover;
+    object-position: top;
     border: 2px solid rgba(255, 255, 255, 0.1);
 }
 

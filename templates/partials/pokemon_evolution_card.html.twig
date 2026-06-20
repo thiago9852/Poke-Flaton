@@ -41,7 +41,7 @@
 
                             <div class="evolution-details">
                                 <span class="evolution-id">#{{ "%04d"|format(node.id) }}</span>
-                                <span class="evolution-name" style="display: block; font-family: 'Outfit', sans-serif;">{{ node.name|capitalize }}</span>
+                                <span class="evolution-name" style="display: block; font-family: 'Outfit', sans-serif;">{{ node.name|abbr_pokemon_name }}</span>
 
                                 <div class="evolution-types">
                                     {% if node.types is defined %}
