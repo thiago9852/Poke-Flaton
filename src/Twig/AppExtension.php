@@ -91,7 +91,7 @@ class AppExtension extends AbstractExtension
 
         // Regras genéricas para encurtar partes conhecidas
         $parts = explode('-', $suffix);
-        
+
         $termMap = [
             'paldea' => 'P.',
             'alola' => 'Alola',
@@ -188,7 +188,7 @@ class AppExtension extends AbstractExtension
             'iron-boulder' => 'Iron Boulder',
             'gouging-fire' => 'Gouging Fire',
             'raging-bolt' => 'Raging Bolt',
-            
+
             // Sub-formas específicas muito grandes
             'tauros-paldea-combat-breed' => 'Tauros (Combat)',
             'tauros-paldea-blaze-breed'  => 'Tauros (Blaze)',
@@ -225,7 +225,7 @@ class AppExtension extends AbstractExtension
         if (count($parts) > 1) {
             $base = ucfirst($parts[0]);
             $suffixParts = array_slice($parts, 1);
-            
+
             // Mapeamento de termos comuns
             $termMap = [
                 'paldea' => 'P.',
@@ -259,7 +259,7 @@ class AppExtension extends AbstractExtension
                 'ice' => 'Ice',
                 'rider' => '',
             ];
-            
+
             $newSuffixParts = [];
             foreach ($suffixParts as $part) {
                 if (isset($termMap[$part])) {
@@ -270,11 +270,11 @@ class AppExtension extends AbstractExtension
                     $newSuffixParts[] = ucfirst($part);
                 }
             }
-            
+
             if (empty($newSuffixParts)) {
                 return $base;
             }
-            
+
             return $base . ' (' . implode(' ', $newSuffixParts) . ')';
         }
 

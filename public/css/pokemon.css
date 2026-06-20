@@ -480,18 +480,18 @@
     gap: 12px;
 }
 
-.nav-button.disabled {
-    background-color: rgba(255, 255, 255, 0.02);
-    color: var(--text-muted);
-    pointer-events: none;
-    cursor: default;
-}
-
 .nav-prev {
     width: calc(50% - 1px);
     justify-content: flex-start;
     padding-left: 40px;
-    clip-path: polygon(0 0, 100% 0, 100% 50px, calc(100% - 140px) 50px, calc(100% - 190px) 80px, 0 80px);
+    clip-path: polygon(0 0, 100% 0, 100% 50px, calc(100% - 175px) 50px, calc(100% - 245px) 80px, 0 80px);
+}
+
+.nav-next {
+    width: calc(50% - 1px);
+    justify-content: flex-end;
+    padding-right: 40px;
+    clip-path: polygon(0 0, 100% 0, 100% 80px, 245px 80px, 175px 50px, 0 50px);
 }
 
 .nav-next {

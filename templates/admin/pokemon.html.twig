@@ -92,6 +92,12 @@
 							Nenhuma sugestão de localização pendente de validação!
 						</div>
 					{% else %}
+						{# Formulários individuais auxiliares (evita tags <form> aninhadas inválidas) #}
+						{% for location in pendingLocations %}
+							<form id="approve-form-{{ location.id }}" method="post" action="{{ path('app_location_approve', {'id': location.id, 'redirect': 'admin'}) }}"></form>
+							<form id="delete-form-{{ location.id }}" method="post" action="{{ path('app_location_delete', {'id': location.id, 'redirect': 'admin'}) }}" onsubmit="return confirm('Deseja realmente rejeitar esta localização?')"></form>
+						{% endfor %}
+
 						<form id="bulkActionForm" method="post" action="{{ path('app_location_bulk') }}">
 							<div class="admin-card-container overflow-hidden">
 
@@ -145,18 +151,14 @@
 												</td>
 												<td class="text-right">
 													<div class="table-actions-cell-wrapper">
-														<form method="post" action="{{ path('app_location_approve', {'id': location.id, 'redirect': 'admin'}) }}">
-															<button type="submit" class="btn-admin-approve">
-																<i class="fa-solid fa-check"></i>
-																Aprovar
-															</button>
-														</form>
-														<form method="post" action="{{ path('app_location_delete', {'id': location.id, 'redirect': 'admin'}) }}" onsubmit="return confirm('Deseja realmente rejeitar esta localização?')">
-															<button type="submit" class="btn-admin-reject">
-																<i class="fa-solid fa-xmark"></i>
-																Rejeitar
-															</button>
-														</form>
+														<button type="submit" form="approve-form-{{ location.id }}" class="btn-admin-approve">
+															<i class="fa-solid fa-check"></i>
+															Aprovar
+														</button>
+														<button type="submit" form="delete-form-{{ location.id }}" class="btn-admin-reject">
+															<i class="fa-solid fa-xmark"></i>
+															Rejeitar
+														</button>
 													</div>
 												</td>
 											</tr>
