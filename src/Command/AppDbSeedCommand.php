@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Service\TrainerProfileService;
+use App\Service\PokeApi\PokeApiValidator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,11 +17,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class AppDbSeedCommand extends Command
 {
     private TrainerProfileService $trainerProfileService;
+    private PokeApiValidator $pokeApiValidator;
 
-    public function __construct(TrainerProfileService $trainerProfileService)
+    public function __construct(TrainerProfileService $trainerProfileService, PokeApiValidator $pokeApiValidator)
     {
         parent::__construct();
         $this->trainerProfileService = $trainerProfileService;
+        $this->pokeApiValidator = $pokeApiValidator;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -32,6 +35,10 @@ class AppDbSeedCommand extends Command
         $io->section('Inicializando Títulos padrão...');
         $this->trainerProfileService->initializeDatabaseAndTitles();
         $io->success('Títulos inicializados com sucesso!');
+
+        $io->section('Inicializando Variações de Pokémon padrão...');
+        $this->pokeApiValidator->initializeDatabaseAndVariations();
+        $io->success('Variações de Pokémon inicializadas com sucesso!');
 
         $io->section('Inicializando Avatares padrão...');
         $this->trainerProfileService->initializeDatabaseAndAvatars();

@@ -101,24 +101,24 @@
 				{% for tabType in ['padrao', 'pvp', 'dg'] %}
 					<div id="tab-{{ tabType }}" class="tab-content {{ tabType == 'padrao' ? 'active' : '' }}">
 
-						{% set typeMovesets = [] %}
+						{% set defaultMoveset = null %}
 						{% for m in movesets %}
-							{% if m.type == tabType %}
-								{% set typeMovesets = typeMovesets|merge([m]) %}
+							{% if m.type == tabType and m.isDefault %}
+								{% set defaultMoveset = m %}
 							{% endif %}
 						{% endfor %}
 
-						{% if typeMovesets is empty %}
+						{% if defaultMoveset is null %}
 							<div class="empty-moveset card" style="text-align: center; padding: 40px;">
-								<h4>Nenhum moveset criado para esta categoria</h4>
+								<h4>Nenhum moveset padrão oficial definido para esta categoria</h4>
+								<p class="text-muted" style="font-size: 0.9rem; margin-top: 5px;">Sugira um moveset abaixo para que o administrador possa defini-lo como padrão.</p>
 								<a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-secondary" style="margin-top: 10px;">
-									Criar Agora
+									Criar / Sugerir Moveset
 								</a>
 							</div>
 						{% else %}
-							{% set m = typeMovesets|first %}
 							{% include 'partials/moveset_highlight_card.html.twig' with {
-                                'm': m,
+                                'm': defaultMoveset,
                                 'moveDetails': moveDetails,
                                 'pokemon': pokemon,
                                 'itemDetails': itemDetails,

@@ -1,29 +1,5 @@
 [
     {
-        "item": "hm01",
-        "move": "cut"
-    },
-    {
-        "item": "hm02",
-        "move": "fly"
-    },
-    {
-        "item": "hm03",
-        "move": "surf"
-    },
-    {
-        "item": "hm04",
-        "move": "strength"
-    },
-    {
-        "item": "hm05",
-        "move": "waterfall"
-    },
-    {
-        "item": "hm06",
-        "move": "dive"
-    },
-    {
         "item": "tm01",
         "move": "hone-claws"
     },

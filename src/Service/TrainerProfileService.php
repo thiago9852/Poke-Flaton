@@ -74,7 +74,50 @@ class TrainerProfileService
         }
 
         $this->titlesInitialized = true;
+        $this->initializeMovesetColumns();
     }
+
+    /**
+     * Garante a criação das colunas is_approved e is_default na tabela moveset caso não existam.
+     */
+    public function initializeMovesetColumns(): void
+    {
+        try {
+            $connection = $this->entityManager->getConnection();
+            $schemaManager = $connection->createSchemaManager();
+            if ($schemaManager->tablesExist(['moveset'])) {
+                $columns = $schemaManager->listTableColumns('moveset');
+                $hasApproved = false;
+                $hasDefault = false;
+                $hasSuggestedDefault = false;
+                foreach ($columns as $column) {
+                    if (strtolower($column->getName()) === 'is_approved') {
+                        $hasApproved = true;
+                    }
+                    if (strtolower($column->getName()) === 'is_default') {
+                        $hasDefault = true;
+                    }
+                    if (strtolower($column->getName()) === 'suggested_default') {
+                        $hasSuggestedDefault = true;
+                    }
+                }
+                
+                if (!$hasApproved) {
+                    $connection->executeStatement('ALTER TABLE moveset ADD is_approved TINYINT(1) DEFAULT 0 NOT NULL');
+                    $connection->executeStatement('UPDATE moveset SET is_approved = 1');
+                }
+                if (!$hasDefault) {
+                    $connection->executeStatement('ALTER TABLE moveset ADD is_default TINYINT(1) DEFAULT 0 NOT NULL');
+                }
+                if (!$hasSuggestedDefault) {
+                    $connection->executeStatement('ALTER TABLE moveset ADD suggested_default TINYINT(1) DEFAULT 0 NOT NULL');
+                }
+            }
+        } catch (\Exception $e) {
+            // Ignore
+        }
+    }
+
 
     /**
      * Obtém a posição do usuário no ranking de curtidas e de medalhas 
@@ -787,7 +830,7 @@ class TrainerProfileService
                 'imageUrl' => $imageUrl,
                 'isLocked' => $isLocked,
                 'requirement' => $template->getRequirement(),
-                'isSelected' => ($selectedTemplate === $template->getImage()) || ($selectedTemplate === null && $template->isDefault()),
+                'isSelected' => $selectedTemplate !== null && $selectedTemplate !== '' && $selectedTemplate === $template->getImage(),
                 'reqMedal' => $template->getReqMedal(),
                 'reqGoldCount' => $template->getReqGoldCount(),
                 'reqRankType' => $template->getReqRankType(),

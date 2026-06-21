@@ -44,9 +44,38 @@ class PokeApiPokemonFetcher
         $canonicalName = strtolower(trim($canonicalName));
         $map = [
             'burmy-plant' => 'burmy',
-            'wormadam-plant' => 'wormadam',
         ];
         return $map[$canonicalName] ?? $canonicalName;
+    }
+
+    public static function getSpeciesName(string $name): string
+    {
+        $name = strtolower(trim($name));
+        $suffixes = [
+            '-mega', '-mega-x', '-mega-y', '-mega-z',
+            '-alola', '-galar', '-hisui', '-paldea',
+            '-combat-breed', '-blaze-breed', '-aqua-breed',
+            '-gmax', '-amped', '-low-key',
+            '-red-striped', '-white-striped', '-blue-striped',
+            '-disguised', '-busted'
+        ];
+        
+        foreach ($suffixes as $suffix) {
+            if (str_ends_with($name, $suffix)) {
+                return substr($name, 0, -strlen($suffix));
+            }
+        }
+        
+        $map = [
+            'burmy-plant' => 'burmy',
+            'burmy-sandy' => 'burmy',
+            'burmy-trash' => 'burmy',
+            'wormadam-plant' => 'wormadam',
+            'wormadam-sandy' => 'wormadam',
+            'wormadam-trash' => 'wormadam',
+        ];
+        
+        return $map[$name] ?? $name;
     }
 
     /**
@@ -183,7 +212,7 @@ class PokeApiPokemonFetcher
     public function getPokemonDetails(string $nameOrId): array
     {
         $canonicalNameOrId = is_numeric($nameOrId) ? $nameOrId : self::resolveNameAlias($nameOrId);
-        $cacheKey = 'pokemon_details_v3_' . strtolower($canonicalNameOrId);
+        $cacheKey = 'pokemon_details_v5_' . strtolower($canonicalNameOrId);
         $details = $this->cache->get($cacheKey, function (ItemInterface $item) use ($canonicalNameOrId) {
             $item->expiresAfter(86400 * 7); // Cache por 7 dias
             return $this->fetchPokemonDetailsRaw($canonicalNameOrId);
@@ -278,6 +307,41 @@ class PokeApiPokemonFetcher
         $speciesParts = explode('/', rtrim($speciesUrl, '/'));
         $speciesId = (int) end($speciesParts);
         $speciesName = $data['species']['name'];
+
+        if (empty($moves)) {
+            try {
+                $baseResponse = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon/' . $speciesId);
+                $baseData = $baseResponse->toArray();
+                foreach ($baseData['moves'] as $m) {
+                    $hasBase = false;
+                    $hasTM   = false;
+                    foreach ($m['version_group_details'] as $vgd) {
+                        $method = $vgd['move_learn_method']['name'];
+                        if ($method === 'machine') {
+                            $hasTM = true;
+                        } elseif ($method === 'level-up') {
+                            $hasBase = true;
+                        }
+                    }
+
+                    if ($hasBase && $hasTM) {
+                        $learnMethod = 'both';
+                    } elseif ($hasTM) {
+                        $learnMethod = 'TM';
+                    } else {
+                        $learnMethod = 'base';
+                    }
+
+                    $moves[$m['move']['name']] = [
+                        'name'         => $m['move']['name'],
+                        'learn_method' => $learnMethod
+                    ];
+                }
+                ksort($moves);
+            } catch (\Exception $e) {
+                // ignore
+            }
+        }
 
         // Fetch variedade de especies
         $speciesData = $this->cache->get('pokemon_species_' . $speciesId, function (ItemInterface $item) use ($speciesUrl) {
@@ -391,7 +455,7 @@ class PokeApiPokemonFetcher
      */
     public function getPokemonBasicList(): array
     {
-        return $this->cache->get('pokemon_basic_list_configured_v5', function (ItemInterface $item) {
+        return $this->cache->get('pokemon_basic_list_configured_v7', function (ItemInterface $item) {
             $item->expiresAfter(86400 * 30); // 30 dias
             $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon?limit=2000');
             $data = $response->toArray();
@@ -458,7 +522,7 @@ class PokeApiPokemonFetcher
      */
     public function getPokemonBasicListByType(string $type): array
     {
-        return $this->cache->get('pokemon_basic_list_type_v3_' . strtolower($type), function (ItemInterface $item) use ($type) {
+        return $this->cache->get('pokemon_basic_list_type_v4_' . strtolower($type), function (ItemInterface $item) use ($type) {
             $item->expiresAfter(86400 * 7); // Cache por 7 dias
 
             $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/type/' . strtolower($type));
@@ -640,10 +704,10 @@ class PokeApiPokemonFetcher
     {
         $canonicalName = self::resolveNameAlias($pokemonName);
         $cacheSuffix = $currentPokemon ? '_' . $currentPokemon['id'] : '';
-        return $this->cache->get('evolution_chain_v4_for_' . $canonicalName . $cacheSuffix, function (ItemInterface $item) use ($canonicalName, $currentPokemon) {
+        return $this->cache->get('evolution_chain_v7_for_' . $canonicalName . $cacheSuffix, function (ItemInterface $item) use ($canonicalName, $currentPokemon) {
             $item->expiresAfter(86400 * 30); // 30 dias
             try {
-                $apiName = self::getPokeApiName($canonicalName);
+                $apiName = self::getSpeciesName($canonicalName);
                 // 1. Busca espécie para obter a URL da cadeia evolutiva
                 $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon-species/' . strtolower($apiName));
                 $speciesData = $response->toArray();
@@ -654,110 +718,298 @@ class PokeApiPokemonFetcher
                 $chainResponse = $this->httpClient->request('GET', $chainUrl);
                 $chainData = $chainResponse->toArray();
 
-                return $this->parseEvolutionChainStages($chainData['chain'], 1, $currentPokemon);
+                // 3. Builda floresta de variação
+                $rootNodes = $this->buildVarietyForest($chainData['chain'], 1, []);
+
+                // 4. Busca nodo
+                $targetName = $currentPokemon ? $currentPokemon['name'] : $canonicalName;
+                $targetNode = $this->findTargetNode($rootNodes, $targetName);
+                if (!$targetNode && $currentPokemon) {
+                    $targetNode = $this->findTargetNodeFallback($rootNodes, $currentPokemon['id'], $currentPokemon['species_name']);
+                }
+
+                // 5. Marca o alvo, antecessor e descendente
+                if ($targetNode) {
+                    $targetNode->isTarget = true;
+                    
+                    $p = $targetNode->parent;
+                    while ($p !== null) {
+                        $p->isAncestor = true;
+                        $p = $p->parent;
+                    }
+                    
+                    $this->markDescendants($targetNode);
+                } else {
+                    // Fallback
+                    foreach ($rootNodes as $rn) {
+                        if ($rn->isDefault) {
+                            $rn->isTarget = true;
+                            $this->markDescendants($rn);
+                        }
+                    }
+                }
+
+                // 6. Pega nodo e o grupo
+                $stages = [];
+                $this->collectKeptNodes($rootNodes, $stages);
+                
+                ksort($stages);
+                return $stages;
             } catch (\Exception $e) {
                 return [];
             }
         });
     }
 
-    /**
-     * Mapeia a árvore de evolução agrupando os Pokémon por estágio evolutivo (bifurcações)
-     */
-    private function parseEvolutionChainStages(array $chainNode, int $stage = 1, ?array $currentPokemon = null): array
+    private function getFormSuffix(string $name): ?string
     {
-        $stages = [];
+        $suffixes = ['alola', 'galar', 'hisui', 'paldea'];
+        foreach ($suffixes as $suffix) {
+            if (str_contains($name, '-' . $suffix)) {
+                return $suffix;
+            }
+        }
+        return null;
+    }
 
+    private function isCompatibleTransition(
+        string $parentVarietyName,
+        string $childVarietyName,
+        array $evolutionDetails,
+        array $parentVarietiesInfo
+    ): bool {
+        if (empty($evolutionDetails)) {
+            foreach ($parentVarietiesInfo as $pv) {
+                if ($pv['name'] === $parentVarietyName) {
+                    return $pv['is_default'];
+                }
+            }
+            return false;
+        }
+
+        foreach ($evolutionDetails as $detail) {
+            if (!empty($detail['base_form']['name'])) {
+                if ($parentVarietyName === $detail['base_form']['name']) {
+                    return true;
+                }
+            } else {
+                // base_form is null/empty. This evolves from the default parent variety.
+                $parentIsDefault = false;
+                foreach ($parentVarietiesInfo as $pv) {
+                    if ($pv['name'] === $parentVarietyName && $pv['is_default']) {
+                        $parentIsDefault = true;
+                        break;
+                    }
+                }
+
+                if ($parentIsDefault) {
+                    // Disambiguate when base_form is null by checking suffixes (aligning standard with standard, regional with regional)
+                    $childSuffix = $this->getFormSuffix($childVarietyName);
+                    $parentSuffix = $this->getFormSuffix($parentVarietyName);
+                    if ($childSuffix === $parentSuffix) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private function buildVarietyForest(array $chainNode, int $stage = 1, array $parentNodes = []): array
+    {
         $speciesName = $chainNode['species']['name'];
         $parts = explode('/', rtrim($chainNode['species']['url'], '/'));
         $speciesId = (int) end($parts);
 
-        $nodeId = $speciesId;
-        $nodeName = $speciesName;
-        $types = [];
+        $speciesUrl = $chainNode['species']['url'];
+        try {
+            $speciesData = $this->cache->get('pokemon_species_' . $speciesId, function (ItemInterface $item) use ($speciesUrl) {
+                $item->expiresAfter(86400 * 7);
+                $resp = $this->httpClient->request('GET', $speciesUrl);
+                return $resp->toArray();
+            });
+        } catch (\Exception $e) {
+            return [];
+        }
 
-        if ($currentPokemon && $currentPokemon['species_id'] === $speciesId) {
-            $nodeId = $currentPokemon['id'];
-            $nodeName = $currentPokemon['name'];
-            $types = $currentPokemon['types'];
-        } else {
-            // Busca a variedade padrão da espécie para obter o nome correto e evitar 404 (Toxtricity, Wormadam, etc.)
-            try {
-                $speciesResponse = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon-species/' . $speciesId);
-                $speciesData = $speciesResponse->toArray();
-                
-                $defaultVarietyName = $speciesName;
-                foreach ($speciesData['varieties'] as $v) {
-                    if ($v['is_default']) {
-                        $defaultVarietyName = $v['pokemon']['name'];
-                        // Obter ID da variedade padrão
-                        $vParts = explode('/', rtrim($v['pokemon']['url'], '/'));
-                        $nodeId = (int) end($vParts);
-                        break;
-                    }
-                }
-            } catch (\Exception $e) {
-                $defaultVarietyName = $speciesName;
+        $varietiesInfo = [];
+        foreach ($speciesData['varieties'] as $v) {
+            $vName = $v['pokemon']['name'];
+            $vUrl = $v['pokemon']['url'];
+            $vParts = explode('/', rtrim($vUrl, '/'));
+            $vId = (int) end($vParts);
+
+            if (str_contains($vName, '-mega') || str_contains($vName, '-gmax') || str_contains($vName, '-totem') || str_contains($vName, '-primal')) {
+                continue;
             }
 
-            $nodeName = self::resolveNameAlias($defaultVarietyName);
-
-            // Busca os tipos daquela variedade padrão de pokemon
-            try {
-                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon/' . strtolower($defaultVarietyName));
-                $data = $response->toArray();
-                foreach ($data['types'] as $t) {
-                    $types[] = $t['type']['name'];
-                }
-            } catch (\Exception $e) {
-                $types = ['normal']; // fallback
+            if ($this->validator->isPokemonAllowed($vId)) {
+                $varietiesInfo[] = [
+                    'name' => self::resolveNameAlias($vName),
+                    'id' => $vId,
+                    'is_default' => $v['is_default']
+                ];
             }
         }
 
-        $stages[$stage][] = [
-            'name'   => self::resolveNameAlias($nodeName),
-            'id'     => $nodeId,
-            'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $nodeId),
-            'types'  => $types
-        ];
+        if (empty($varietiesInfo)) {
+            $defaultVarietyName = $speciesName;
+            $defaultVarietyId = $speciesId;
+            foreach ($speciesData['varieties'] as $v) {
+                if ($v['is_default']) {
+                    $defaultVarietyName = $v['pokemon']['name'];
+                    $vParts = explode('/', rtrim($v['pokemon']['url'], '/'));
+                    $defaultVarietyId = (int) end($vParts);
+                    break;
+                }
+            }
+            $varietiesInfo[] = [
+                'name' => self::resolveNameAlias($defaultVarietyName),
+                'id' => $defaultVarietyId,
+                'is_default' => true
+            ];
+        }
+
+        $currentLevelNodes = [];
+        foreach ($varietiesInfo as $var) {
+            try {
+                $details = $this->getPokemonDetails($var['name']);
+                $types = $details['types'];
+                $sprite = $details['sprite_official'];
+            } catch (\Exception $e) {
+                $types = ['normal'];
+                $sprite = sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $var['id']);
+            }
+
+            $node = new \stdClass();
+            $node->name = $var['name'];
+            $node->id = $var['id'];
+            $node->types = $types;
+            $node->sprite = $sprite;
+            $node->evolution_method = null;
+            $node->evolution_gender = null;
+            $node->children = [];
+            $node->parent = null;
+            $node->stage = $stage;
+            $node->isTarget = false;
+            $node->isAncestor = false;
+            $node->isDescendant = false;
+            $node->isDefault = $var['is_default'];
+
+            if ($stage > 1 && !empty($parentNodes)) {
+                foreach ($parentNodes as $parent) {
+                    $parentVarietiesInfo = [];
+                    foreach ($parentNodes as $pn) {
+                        $parentVarietiesInfo[] = [
+                            'name' => $pn->name,
+                            'is_default' => $pn->isDefault
+                        ];
+                    }
+
+                    if ($this->isCompatibleTransition($parent->name, $node->name, $chainNode['evolution_details'], $parentVarietiesInfo)) {
+                        $cleanParent = explode('-', $parent->name)[0];
+                        $cleanChild = explode('-', $node->name)[0];
+                        $rule = $this->evolutionRuleRepository->findOneBy([
+                            'basePokemon' => strtolower($cleanParent),
+                            'evolvedPokemon' => strtolower($cleanChild)
+                        ]);
+
+                        $node->evolution_method = $rule ? $rule->getMethod() : 'Nível/Stone';
+                        $node->evolution_gender = $rule ? $rule->getGender() : null;
+                        $node->parent = $parent;
+                        $parent->children[] = $node;
+                    }
+                }
+            }
+
+            $currentLevelNodes[] = $node;
+        }
 
         if (!empty($chainNode['evolves_to'])) {
             foreach ($chainNode['evolves_to'] as $nextBranch) {
-                $nextSpeciesName = $nextBranch['species']['name'];
-
-                // Busca a regra de evolução customizada
-                $rule = $this->evolutionRuleRepository->findOneBy([
-                    'basePokemon'    => strtolower($speciesName),
-                    'evolvedPokemon' => strtolower($nextSpeciesName)
-                ]);
-
-                $method = $rule ? $rule->getMethod() : 'Nível/Stone';
-                $gender = $rule ? $rule->getGender() : null;
-
-                // Processa recursivamente o próximo estágio
-                $nextStages = $this->parseEvolutionChainStages($nextBranch, $stage + 1, $currentPokemon);
-
-                // Associa o método de evolução correspondente a cada nó filho
-                if (isset($nextStages[$stage + 1])) {
-                    foreach ($nextStages[$stage + 1] as &$childNode) {
-                        if ($childNode['name'] === $nextSpeciesName || str_starts_with($childNode['name'], $nextSpeciesName . '-')) {
-                            $childNode['evolution_method'] = $method;
-                            $childNode['evolution_gender'] = $gender;
-                        }
-                    }
-                }
-
-                // Mescla os estágios filhos no array principal de estágios
-                foreach ($nextStages as $sIndex => $sNodes) {
-                    if (!isset($stages[$sIndex])) {
-                        $stages[$sIndex] = [];
-                    }
-                    $stages[$sIndex] = array_merge($stages[$sIndex], $sNodes);
-                }
+                $this->buildVarietyForest($nextBranch, $stage + 1, $currentLevelNodes);
             }
         }
 
-        return $stages;
+        return $currentLevelNodes;
+    }
+
+    private function findTargetNode(array $nodes, string $targetName)
+    {
+        foreach ($nodes as $node) {
+            if ($node->name === $targetName) {
+                return $node;
+            }
+            $found = $this->findTargetNode($node->children, $targetName);
+            if ($found) {
+                return $found;
+            }
+        }
+        return null;
+    }
+
+    private function findTargetNodeFallback(array $nodes, int $targetId, string $targetSpeciesName)
+    {
+        foreach ($nodes as $node) {
+            $nodeCleanName = explode('-', $node->name)[0];
+            $targetCleanName = explode('-', $targetSpeciesName)[0];
+            if ($node->id === $targetId || $nodeCleanName === $targetCleanName) {
+                return $node;
+            }
+            $found = $this->findTargetNodeFallback($node->children, $targetId, $targetSpeciesName);
+            if ($found) {
+                return $found;
+            }
+        }
+        return null;
+    }
+
+    private function markDescendants($node)
+    {
+        foreach ($node->children as $child) {
+            $child->isDescendant = true;
+            $this->markDescendants($child);
+        }
+    }
+
+    private function collectKeptNodes(array $nodes, array &$stages)
+    {
+        foreach ($nodes as $node) {
+            $isParentAncestorOrTarget = false;
+            if ($node->parent !== null) {
+                if ($node->parent->isAncestor || $node->parent->isTarget) {
+                    $isParentAncestorOrTarget = true;
+                }
+            }
+
+            $keep = $node->isTarget || $node->isAncestor || $node->isDescendant || $isParentAncestorOrTarget;
+
+            if ($keep) {
+                if (!isset($stages[$node->stage])) {
+                    $stages[$node->stage] = [];
+                }
+                $exists = false;
+                foreach ($stages[$node->stage] as $existing) {
+                    if ($existing['id'] === $node->id) {
+                        $exists = true;
+                        break;
+                    }
+                }
+                if (!$exists) {
+                    $stages[$node->stage][] = [
+                        'name' => $node->name,
+                        'id' => $node->id,
+                        'sprite' => $node->sprite,
+                        'types' => $node->types,
+                        'evolution_method' => $node->evolution_method,
+                        'evolution_gender' => $node->evolution_gender,
+                    ];
+                }
+            }
+
+            $this->collectKeptNodes($node->children, $stages);
+        }
     }
 
     /**

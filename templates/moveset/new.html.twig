@@ -244,11 +244,16 @@
 
 		<!-- Ações abaixo dos moves -->
 		<div class="moveset-bottom-section card">
-			<div class="form-actions">
+			<div class="form-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
 				<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="btn btn-secondary">Cancelar</a>
-				<button type="submit" class="btn btn-primary">
+				<button type="submit" name="action" value="save" class="btn btn-secondary" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-secondary);">
 					<i class="fa-solid fa-floppy-disk"></i>
-					Salvar</button>
+					Salvar
+				</button>
+				<button type="submit" name="action" value="suggest" class="btn btn-primary">
+					<i class="fa-solid fa-star"></i>
+					Salvar e Sugerir
+				</button>
 			</div>
 		</div>
 

@@ -257,6 +257,127 @@
 			</div>
 		</div>
 
+		<!-- Moderação de Movesets -->
+		{% set movesetsExpanded = (activeTab == 'movesets' or pendingMovesets|length > 0) %}
+		<div class="admin-category spaced" id="movesets-section">
+			<div class="admin-category-header" onclick="toggleCategorySection('movesets-content', 'movesets-chevron')">
+				<h2>Movesets Pendentes de Validação</h2>
+				<span class="admin-hero-badge">{{ pendingMovesets|length }} pendentes</span>
+				<i class="fa-solid fa-chevron-down admin-category-chevron {{ movesetsExpanded ? 'rotated' : 'expanded' }}" id="movesets-chevron"></i>
+			</div>
+
+			<div id="movesets-content" class="admin-category-content {{ movesetsExpanded ? 'expanded' : '' }}" style="display: {{ movesetsExpanded ? 'block' : 'none' }};">
+				{% if pendingMovesets is empty %}
+					<div class="admin-empty-placeholder" style="margin-top: 15px;">
+						<i class="fa-solid fa-circle-check success-icon"></i>
+						Nenhum moveset pendente de validação!
+					</div>
+				{% else %}
+					<form id="bulkMovesetForm" method="post" action="{{ path('app_admin_moveset_bulk') }}">
+						<div class="admin-card-container overflow-hidden" style="margin-top: 15px;">
+
+							<div class="table-bulk-header">
+								<div class="table-bulk-header-selection">
+									<label class="bulk-select-label">
+										<input type="checkbox" id="selectAllMovesets" class="admin-checkbox">
+										Selecionar Tudo
+									</label>
+								</div>
+								<div class="table-bulk-actions">
+									<button type="submit" name="action" value="approve" class="btn-bulk-action approve">
+										<i class="fa-solid fa-check-double"></i>
+										Aprovar Selecionados
+									</button>
+									<button type="submit" name="action" value="delete" class="btn-bulk-action delete" onclick="return confirm('Deseja realmente rejeitar as sugestões selecionadas? Elas continuarão disponíveis como secundárias.')">
+										<i class="fa-solid fa-trash-can"></i>
+										Rejeitar Selecionadas
+									</button>
+								</div>
+							</div>
+
+							<table class="admin-table">
+								<thead>
+									<tr>
+										<th class="checkbox-col"></th>
+										<th>Pokémon</th>
+										<th>Tipo</th>
+										<th>Autor</th>
+										<th>Nature / Ability / Item</th>
+										<th>Golpes Recomendados</th>
+										<th class="text-right" style="width: 200px;">Ações</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for m in pendingMovesets %}
+										<form id="approve-moveset-form-{{ m.id }}" method="post" action="{{ path('app_admin_moveset_approve', {'id': m.id}) }}"></form>
+										<form id="reject-moveset-form-{{ m.id }}" method="post" action="{{ path('app_admin_moveset_reject', {'id': m.id}) }}" onsubmit="return confirm('Deseja rejeitar a sugestão deste moveset como padrão? Ele continuará disponível em Outros Movesets.')"></form>
+
+										<tr>
+											<td class="checkbox-col">
+												<input type="checkbox" name="ids[]" value="{{ m.id }}" class="moveset-checkbox admin-checkbox">
+											</td>
+											<td class="font-bold">
+												<a href="{{ path('app_pokemon_detail', {'name': m.pokemonName}) }}" class="admin-table-link" target="_blank">
+													<i class="fa-solid fa-circle-chevron-right"></i>
+													{{ m.pokemonName|capitalize }}
+												</a>
+											</td>
+											<td>
+												<span class="badge bg-primary">
+													{% if m.type == 'padrao' %}
+														PADRÃO
+													{% elseif m.type == 'pvp' %}
+														PvP
+													{% elseif m.type == 'dg' %}
+														DG
+													{% else %}
+														{{ m.type|capitalize }}
+													{% endif %}
+												</span>
+											</td>
+											<td>
+												{{ m.author|default('Anônimo') }}
+											</td>
+											<td>
+												<span style="font-size: 0.85rem;">
+													<strong>Nature:</strong> {{ m.nature|capitalize }}<br>
+													<strong>Habilidade:</strong> {{ m.ability|default('Nenhuma')|capitalize }}<br>
+													<strong>Item:</strong> {{ m.heldItem|default('Nenhum')|replace({'-': ' '})|title }}
+												</span>
+											</td>
+											<td>
+												<div style="display: flex; flex-wrap: wrap; gap: 4px;">
+													{% for mv in m.moves %}
+														{% if mv %}
+															<span class="admin-hero-badge" style="background: rgba(255,255,255,0.08); color: #fff; font-size: 0.75rem; padding: 2px 6px;">
+																{{ mv|replace({'-': ' '})|title }}
+															</span>
+														{% endif %}
+													{% endfor %}
+												</div>
+											</td>
+											<td class="text-right">
+												<div class="table-actions-cell-wrapper" style="display: inline-flex; gap: 8px;">
+													<button type="submit" form="approve-moveset-form-{{ m.id }}" class="btn-admin-approve" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 4px; height: auto;">
+														<i class="fa-solid fa-check"></i>
+														Aprovar
+													</button>
+													<button type="submit" form="reject-moveset-form-{{ m.id }}" class="btn-admin-reject" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 4px; height: auto;">
+														<i class="fa-solid fa-xmark"></i>
+														Rejeitar
+													</button>
+												</div>
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</form>
+				{% endif %}
+			</div>
+		</div>
+
 		<!-- Gerenciamento de Variações de Pokémon -->
 		<div class="admin-category spaced" id="variations-section">
 			<div class="admin-category-header" onclick="toggleCategorySection('variations-content', 'variations-chevron')">
@@ -627,6 +748,15 @@
 		if (selectAllGameLocs) {
 			selectAllGameLocs.addEventListener('change', function () {
 				const checkboxes = document.querySelectorAll('.game-loc-checkbox');
+				checkboxes.forEach(cb => cb.checked = this.checked);
+			});
+		}
+
+		// Seleção em lote de sugestões de moveset
+		const selectAllMovesets = document.getElementById('selectAllMovesets');
+		if (selectAllMovesets) {
+			selectAllMovesets.addEventListener('change', function () {
+				const checkboxes = document.querySelectorAll('.moveset-checkbox');
 				checkboxes.forEach(cb => cb.checked = this.checked);
 			});
 		}

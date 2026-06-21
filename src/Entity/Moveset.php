@@ -44,6 +44,15 @@ class Moveset
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isApproved = false;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isDefault = false;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $suggestedDefault = false;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -168,6 +177,39 @@ class Moveset
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->isApproved;
+    }
+
+    public function setIsApproved(bool $isApproved): static
+    {
+        $this->isApproved = $isApproved;
+        return $this;
+    }
+
+    public function isDefault(): bool
+    {
+        return $this->isDefault;
+    }
+
+    public function setIsDefault(bool $isDefault): static
+    {
+        $this->isDefault = $isDefault;
+        return $this;
+    }
+
+    public function isSuggestedDefault(): bool
+    {
+        return $this->suggestedDefault;
+    }
+
+    public function setSuggestedDefault(bool $suggestedDefault): static
+    {
+        $this->suggestedDefault = $suggestedDefault;
         return $this;
     }
 }

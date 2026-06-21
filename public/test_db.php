@@ -1,0 +1,2 @@
+<?php
+// Safe empty file.

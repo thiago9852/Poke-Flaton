@@ -92,9 +92,22 @@ class MovesetController extends AbstractController
                     $moveset->setAuthor('Anônimo'); // Se não tiver sessão, ficará como anônimo
                 }
                 
+                $moveset->setIsApproved(true);
+                $moveset->setIsDefault(false);
+
+                // Determina se o user determinou como padrão
+                $action = $request->request->get('action', 'save');
+                if ($action === 'suggest') {
+                    $moveset->setSuggestedDefault(true);
+                    $this->addFlash('success', 'Moveset criado e sugerido como padrão oficial para o administrador!');
+                } else {
+                    $moveset->setSuggestedDefault(false);
+                    $this->addFlash('success', 'Moveset criado com sucesso!');
+                }
+
                 $this->entityManager->persist($moveset);
 
-                // Add sugestão
+                // Add sugestão de votos imediatamente para calcular estatísticas
                 $this->addSuggestionVote($pokemon['name'], 'nature', $nature);
                 if ($ability) {
                     $this->addSuggestionVote($pokemon['name'], 'ability', $ability);
@@ -104,8 +117,6 @@ class MovesetController extends AbstractController
                 }
 
                 $this->entityManager->flush();
-
-                $this->addFlash('success', 'Moveset criado com sucesso!');
 
                 return $this->redirectToRoute('app_pokemon_detail', ['name' => $pokemon['name']]);
             }

@@ -53,6 +53,16 @@ class TrainerCardController extends AbstractController
         // Obter dados unificados de perfil e conquistas via Service
         $data = $this->trainerProfileService->getTrainerProfileData($user);
 
+        // DIAGNOSTIC CODE
+        $templates = $this->entityManager->getRepository(\App\Entity\CardTemplate::class)->findAll();
+        $output = "=== CARD TEMPLATES ===\n";
+        foreach ($templates as $t) {
+            $output .= "ID: " . $t->getId() . " | Name: " . $t->getName() . " | Image: " . var_export($t->getImage(), true) . " | isDefault: " . ($t->isDefault() ? 'YES' : 'NO') . "\n";
+        }
+        $output .= "\n=== USER ===\n";
+        $output .= "Username: " . $user->getUsername() . " | CardTemplate: " . var_export($user->getCardTemplate(), true) . "\n";
+        file_put_contents($this->projectDir . '/scratch/db_diagnostic.txt', $output);
+
         // Obter lista de TMs mapeadas
         $tmsJsonPath = $this->projectDir . '/scratch/tms.json';
         $tms = [];

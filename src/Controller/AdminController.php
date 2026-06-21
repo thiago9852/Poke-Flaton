@@ -6,6 +6,7 @@ use App\Entity\Title;
 use App\Entity\PokemonVariation;
 use App\Entity\EvolutionRule;
 use App\Entity\PokemonLocation;
+use App\Entity\Moveset;
 use App\Enum\EvolutionStone;
 use App\Repository\UserRepository;
 use App\Repository\TitleRepository;
@@ -114,6 +115,9 @@ class AdminController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
+        // Garante as colunas no banco
+        $this->trainerProfileService->initializeMovesetColumns();
+
         $activeTab = $request->query->get('tab', 'users');
         $pokemonSearch = trim($request->query->get('pokemon', ''));
 
@@ -127,6 +131,7 @@ class AdminController extends AbstractController
         }
 
         $pendingLocations = $this->entityManager->getRepository(PokemonLocation::class)->findBy(['isApproved' => false], ['createdAt' => 'DESC']);
+        $pendingMovesets = $this->entityManager->getRepository(Moveset::class)->findBy(['suggestedDefault' => true], ['createdAt' => 'DESC']);
         $variations = $this->variationRepository->findBy([], ['id' => 'ASC']);
         $evolutionRules = $this->entityManager->getRepository(EvolutionRule::class)->findBy([], ['basePokemon' => 'ASC']);
         $pokemonList = $this->pokeApiService->getPokemonBasicList();
@@ -143,6 +148,7 @@ class AdminController extends AbstractController
             'pokemonSearch' => $pokemonSearch,
             'gameEncounters' => $gameEncounters,
             'pendingLocations' => $pendingLocations,
+            'pendingMovesets' => $pendingMovesets,
             'variations' => $variations,
             'evolutionRules' => $evolutionRules,
             'pokemonList' => $pokemonList,
@@ -787,5 +793,186 @@ class AdminController extends AbstractController
         ];
         
         return $map[$name] ?? $name;
+    }
+
+    #[Route('/admin/moveset/{id}/approve', name: 'app_admin_moveset_approve', methods: ['POST'])]
+    public function approveMoveset(int $id): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $moveset = $this->entityManager->getRepository(Moveset::class)->find($id);
+        if (!$moveset) {
+            $this->addFlash('error', 'Moveset não encontrado.');
+            return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'movesets']);
+        }
+
+        $moveset->setIsDefault(true);
+        $moveset->setSuggestedDefault(false);
+
+        // Limpa a flag padrão dos outros movesets do mesmo pokemon e tipo
+        $others = $this->entityManager->getRepository(Moveset::class)->findBy([
+            'pokemonName' => $moveset->getPokemonName(),
+            'type' => $moveset->getType()
+        ]);
+        foreach ($others as $other) {
+            if ($other->getId() !== $moveset->getId()) {
+                $other->setIsDefault(false);
+            }
+        }
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Sugestão aprovada! Moveset definido como padrão oficial.');
+        return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'movesets']);
+    }
+
+    #[Route('/admin/moveset/{id}/reject', name: 'app_admin_moveset_reject', methods: ['POST'])]
+    public function rejectMoveset(int $id): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $moveset = $this->entityManager->getRepository(Moveset::class)->find($id);
+        if (!$moveset) {
+            $this->addFlash('error', 'Moveset não encontrado.');
+            return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'movesets']);
+        }
+
+        $moveset->setSuggestedDefault(false);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Sugestão de padrão rejeitada. O moveset continuará disponível como secundário.');
+        return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'movesets']);
+    }
+
+    #[Route('/admin/moveset/{id}/default', name: 'app_admin_moveset_default', methods: ['POST'])]
+    public function setDefaultMoveset(int $id, Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $moveset = $this->entityManager->getRepository(Moveset::class)->find($id);
+        if (!$moveset) {
+            $this->addFlash('error', 'Moveset não encontrado.');
+            return $this->redirectToRoute('app_admin_pokemon');
+        }
+
+        // Seta isDefault = true para esse moveset
+        $moveset->setIsDefault(true);
+
+        // Seta isDefault = false para os outros movesets do mesmo pokemon e tipo
+        $others = $this->entityManager->getRepository(Moveset::class)->findBy([
+            'pokemonName' => $moveset->getPokemonName(),
+            'type' => $moveset->getType()
+        ]);
+        foreach ($others as $other) {
+            if ($other->getId() !== $moveset->getId()) {
+                $other->setIsDefault(false);
+            }
+        }
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Moveset definido como padrão oficial com sucesso!');
+        
+        $referer = $request->headers->get('referer');
+        if ($referer) {
+            return $this->redirect($referer);
+        }
+        return $this->redirectToRoute('app_pokemon_detail', ['name' => $moveset->getPokemonName()]);
+    }
+
+    #[Route('/admin/moveset/{id}/remove-default', name: 'app_admin_moveset_remove_default', methods: ['POST'])]
+    public function removeDefaultMoveset(int $id, Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $moveset = $this->entityManager->getRepository(Moveset::class)->find($id);
+        if (!$moveset) {
+            $this->addFlash('error', 'Moveset não encontrado.');
+            return $this->redirectToRoute('app_admin_pokemon');
+        }
+
+        $moveset->setIsDefault(false);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Moveset não é mais o padrão oficial.');
+
+        $referer = $request->headers->get('referer');
+        if ($referer) {
+            return $this->redirect($referer);
+        }
+        return $this->redirectToRoute('app_pokemon_detail', ['name' => $moveset->getPokemonName()]);
+    }
+
+    private function addSuggestionVote(string $pokemonName, string $type, string $value): void
+    {
+        $repo = $this->entityManager->getRepository(\App\Entity\PokemonSuggestion::class);
+        $suggestion = $repo->findOneBy([
+            'pokemonName' => $pokemonName,
+            'type' => $type,
+            'value' => $value,
+        ]);
+
+        if (!$suggestion) {
+            $suggestion = new \App\Entity\PokemonSuggestion();
+            $suggestion->setPokemonName($pokemonName);
+            $suggestion->setType($type);
+            $suggestion->setValue($value);
+            $suggestion->setVotes(0);
+            $this->entityManager->persist($suggestion);
+        }
+
+        $suggestion->incrementVotes(1);
+    }
+
+    #[Route('/admin/moveset/bulk', name: 'app_admin_moveset_bulk', methods: ['POST'])]
+    public function bulkMovesets(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $ids = $request->request->all('ids');
+        $action = $request->request->get('action');
+
+        if (empty($ids) || !is_array($ids)) {
+            $this->addFlash('error', 'Nenhum moveset selecionado.');
+            return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'movesets']);
+        }
+
+        $repo = $this->entityManager->getRepository(Moveset::class);
+        $count = 0;
+
+        foreach ($ids as $id) {
+            $moveset = $repo->find((int)$id);
+            if ($moveset) {
+                if ($action === 'approve') {
+                    $moveset->setIsDefault(true);
+                    $moveset->setSuggestedDefault(false);
+
+                    // Clear other default movesets of the same type and pokemon
+                    $others = $repo->findBy([
+                        'pokemonName' => $moveset->getPokemonName(),
+                        'type' => $moveset->getType()
+                    ]);
+                    foreach ($others as $other) {
+                        if ($other->getId() !== $moveset->getId()) {
+                            $other->setIsDefault(false);
+                        }
+                    }
+                } elseif ($action === 'delete') {
+                    // "Rejeitar" sets suggestedDefault to false instead of removing the moveset
+                    $moveset->setSuggestedDefault(false);
+                }
+                $count++;
+            }
+        }
+
+        $this->entityManager->flush();
+
+        if ($action === 'approve') {
+            $this->addFlash('success', sprintf('%d sugestões de moveset aprovadas e definidas como padrão!', $count));
+        } else {
+            $this->addFlash('success', sprintf('%d sugestões de moveset padrão rejeitadas (permanecem visíveis como secundários).', $count));
+        }
+
+        return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'movesets']);
     }
 }

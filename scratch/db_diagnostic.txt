@@ -1,0 +1,15 @@
+=== CARD TEMPLATES ===
+ID: 1 | Name: Eevee One | Image: 'Eevee-one.png' | isDefault: NO
+ID: 2 | Name: Alola Starter | Image: 'alola-starter.png' | isDefault: NO
+ID: 3 | Name: Ashs | Image: 'ashs.png' | isDefault: YES
+ID: 4 | Name: Eevee Grove | Image: 'eevee-grove.png' | isDefault: NO
+ID: 5 | Name: Eevelution | Image: 'eevelution.png' | isDefault: NO
+ID: 6 | Name: Johto Starter | Image: 'johto-starter.png' | isDefault: NO
+ID: 7 | Name: Kalos Starter | Image: 'kalos-starter.png' | isDefault: NO
+ID: 8 | Name: Kanto Starter | Image: 'kanto-starter.png' | isDefault: NO
+ID: 9 | Name: Lost Pokemon | Image: 'lost-pokemon.png' | isDefault: NO
+ID: 10 | Name: Paldea Starter | Image: 'paldea-starter.png' | isDefault: NO
+ID: 11 | Name: Shiny Rayquaza | Image: 'shiny-rayquaza.png' | isDefault: NO
+
+=== USER ===
+Username: ezrel | CardTemplate: NULL

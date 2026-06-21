@@ -32,10 +32,32 @@
 					{% endif %}
 				</span>
 
+				{% if m2.isDefault %}
+					<span class="badge bg-success" style="background-color: #10b981; color: #fff; display: inline-flex; align-items: center; gap: 4px; font-weight: bold; height: 22px;">
+						<i class="fa-solid fa-star"></i> Padrão Oficial
+					</span>
+				{% endif %}
+
 				<span>&bull;
 					{{ m2.createdAt|date('d/m/Y') }}</span>
 
 				<div style="margin-left: auto; display: inline-flex; gap: 8px; align-items: center;">
+					{% if is_granted('ROLE_ADMIN') %}
+						{% if m2.isDefault %}
+							<form method="post" action="{{ path('app_admin_moveset_remove_default', {'id': m2.id}) }}" style="display: inline; margin: 0;">
+								<button type="submit" class="btn btn-sm btn-outline-danger mt-1" title="Remover Padrão" style="padding: 6px 10px; border-radius: 20px; font-size: 0.85rem; height: 32px; border: 1px solid #ef4444; color: #ef4444; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 32px;">
+									<i class="fa-solid fa-star-half-stroke"></i>
+								</button>
+							</form>
+						{% else %}
+							<form method="post" action="{{ path('app_admin_moveset_default', {'id': m2.id}) }}" style="display: inline; margin: 0;">
+								<button type="submit" class="btn btn-sm btn-outline-success mt-1" title="Tornar Padrão Oficial" style="padding: 6px 10px; border-radius: 20px; font-size: 0.85rem; height: 32px; border: 1px solid #10b981; color: #10b981; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 32px;">
+									<i class="fa-solid fa-star"></i>
+								</button>
+							</form>
+						{% endif %}
+					{% endif %}
+
 					<button class="btn btn-sm btn-outline-secondary share-btn mt-1" onclick="openShareModal('{{ m2.id }}')" title="Compartilhar Moveset" style="padding: 6px 10px; border-radius: 20px; font-size: 0.85rem; height: 32px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
 						<i class="fa-solid fa-share-nodes"></i>
 					</button>

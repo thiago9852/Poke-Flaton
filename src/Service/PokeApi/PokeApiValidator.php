@@ -5,6 +5,7 @@ namespace App\Service\PokeApi;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\PokemonVariation;
 use App\Repository\PokemonVariationRepository;
+use App\Config\PokemonConfig;
 
 class PokeApiValidator
 {
@@ -12,7 +13,9 @@ class PokeApiValidator
     private array $allowedExtraIds;
     private array $excludedIds;
     private array $megaEvolutions;
-    private array $variations = [];
+    private EntityManagerInterface $entityManager;
+    private PokemonVariationRepository $variationRepository;
+    private ?array $variations = null;
 
     public function __construct(
         array $allowedGenerations,
@@ -26,58 +29,100 @@ class PokeApiValidator
         $this->allowedExtraIds = $allowedExtraIds;
         $this->excludedIds = $excludedIds;
         $this->megaEvolutions = $megaEvolutions;
+        $this->entityManager = $entityManager;
+        $this->variationRepository = $variationRepository;
+    }
 
-        // Auto-criação da tabela e carga inicial (seed)
-        try {
-            $connection = $entityManager->getConnection();
-            $schemaManager = $connection->createSchemaManager();
-            if (!$schemaManager->tablesExist(['pokemon_variation'])) {
-                $connection->executeStatement('
-                    CREATE TABLE pokemon_variation (
-                        id INT PRIMARY KEY,
-                        base_id INT NOT NULL,
-                        name VARCHAR(100) NOT NULL
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-                ');
-            }
-
-            $dbVariations = $variationRepository->findAll();
-            if (empty($dbVariations)) {
-                $defaultVariations = [
-                    10114 => ['base_id' => 103, 'name' => 'exeggutor-alola'],
-                    10115 => ['base_id' => 115, 'name' => 'marowak-alola'],
-                    10250 => ['base_id' => 128, 'name' => 'tauros-paldea-combat-breed'],
-                    10251 => ['base_id' => 128, 'name' => 'tauros-paldea-blaze-breed'],
-                    10252 => ['base_id' => 128, 'name' => 'tauros-paldea-aqua-breed'],
-                    10233 => ['base_id' => 157, 'name' => 'typhlosion-hisui'],
-                    10235 => ['base_id' => 215, 'name' => 'sneasel-hisui'],
-                    10184 => ['base_id' => 849, 'name' => 'toxtricity-low-key'],
-                    10004 => ['base_id' => 413, 'name' => 'wormadam-sandy'],
-                    10005 => ['base_id' => 413, 'name' => 'wormadam-trash'],
-                    10016 => ['base_id' => 550, 'name' => 'basculin-blue-striped'],
-                    10247 => ['base_id' => 550, 'name' => 'basculin-white-striped'],
-                ];
-
-                foreach ($defaultVariations as $id => $data) {
-                    $v = new PokemonVariation();
-                    $v->setId($id);
-                    $v->setBaseId($data['base_id']);
-                    $v->setName($data['name']);
-                    $entityManager->persist($v);
+    /**
+     * Garante o carregamento sob demanda das variações (Lazy Loading) com fallback robusto
+     */
+    private function getVariationsList(): array
+    {
+        if ($this->variations === null) {
+            $this->initializeDatabaseAndVariations();
+            $this->variations = [];
+            try {
+                $dbVariations = $this->variationRepository->findAll();
+                foreach ($dbVariations as $var) {
+                    $id = $var->getId();
+                    // Se for um ID padrão, só aceita se estiver descomentado/definido em DEFAULT_VARIATIONS
+                    if (in_array($id, PokemonConfig::ALL_DEFAULT_IDS)) {
+                        if (!isset(PokemonConfig::DEFAULT_VARIATIONS[$id])) {
+                            continue; // Ignora pois foi comentado/removido do código
+                        }
+                    }
+                    $this->variations[$id] = [
+                        'base_id' => $var->getBaseId(),
+                        'name' => $var->getName()
+                    ];
                 }
-                $entityManager->flush();
-
-                $dbVariations = $variationRepository->findAll();
+            } catch (\Exception $e) {
+                // Fallback para a configuração padrão em caso de tabela inexistente ou erro de conexão
+                foreach (PokemonConfig::DEFAULT_VARIATIONS as $id => $data) {
+                    $this->variations[$id] = [
+                        'base_id' => $data['base_id'],
+                        'name' => $data['name']
+                    ];
+                }
             }
+        }
+        return $this->variations;
+    }
 
-            foreach ($dbVariations as $var) {
-                $this->variations[$var->getId()] = [
-                    'base_id' => $var->getBaseId(),
-                    'name' => $var->getName()
-                ];
+    /**
+     * Inicializa a tabela pokemon_variation a partir das configurações.
+     * Sincroniza inserindo novas variações, atualizando existentes, e deletando as que foram removidas/comentadas no código.
+     */
+    public function initializeDatabaseAndVariations(): void
+    {
+        try {
+            $connection = $this->entityManager->getConnection();
+            
+            // Conta quantas das variações padrão ativas estão realmente no banco
+            $currentKeys = array_keys(PokemonConfig::DEFAULT_VARIATIONS);
+            if (empty($currentKeys)) {
+                return;
+            }
+            
+            $dbCount = (int) $connection->fetchOne(
+                'SELECT COUNT(*) FROM pokemon_variation WHERE id IN (' . implode(',', array_map('intval', $currentKeys)) . ')'
+            );
+            
+            // Conta se há alguma variação desativada (que deveria ser deletada) ainda no banco
+            $idsToDelete = array_diff(PokemonConfig::ALL_DEFAULT_IDS, $currentKeys);
+            $deleteCount = 0;
+            if (!empty($idsToDelete)) {
+                $deleteCount = (int) $connection->fetchOne(
+                    'SELECT COUNT(*) FROM pokemon_variation WHERE id IN (' . implode(',', array_map('intval', $idsToDelete)) . ')'
+                );
+            }
+            
+            // Só executa a sincronização se houver diferença (falta alguma ativa ou há alguma desativada)
+            if ($dbCount !== count($currentKeys) || $deleteCount > 0) {
+                if (!empty($idsToDelete)) {
+                    $connection->executeStatement(
+                        'DELETE FROM pokemon_variation WHERE id IN (' . implode(',', array_map('intval', $idsToDelete)) . ')'
+                    );
+                }
+                
+                foreach (PokemonConfig::DEFAULT_VARIATIONS as $id => $data) {
+                    $exists = $connection->fetchOne('SELECT 1 FROM pokemon_variation WHERE id = ?', [$id]);
+                    if ($exists) {
+                        $connection->update('pokemon_variation', [
+                            'base_id' => $data['base_id'],
+                            'name' => $data['name']
+                        ], ['id' => $id]);
+                    } else {
+                        $connection->insert('pokemon_variation', [
+                            'id' => $id,
+                            'base_id' => $data['base_id'],
+                            'name' => $data['name']
+                        ]);
+                    }
+                }
             }
         } catch (\Exception $e) {
-            // Em caso de falha de conexão ou migração inicial, mantém a lista limpa ou loga silenciosamente
+            // Silencioso se der erro (ex: tabela ainda não criada)
         }
     }
 
@@ -88,7 +133,7 @@ class PokeApiValidator
 
     public function getVariations(): array
     {
-        return $this->variations;
+        return $this->getVariationsList();
     }
 
     public function getAllowedGenerations(): array
@@ -115,8 +160,9 @@ class PokeApiValidator
         if ($id < 10000) {
             return $id;
         }
-        if (isset($this->variations[$id])) {
-            return $this->variations[$id]['base_id'];
+        $variations = $this->getVariationsList();
+        if (isset($variations[$id])) {
+            return $variations[$id]['base_id'];
         }
         foreach ($this->megaEvolutions as $baseId => $megas) {
             foreach ($megas as $mega) {

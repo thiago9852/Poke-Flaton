@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\TrainerProfileService;
 
 class PokemonController extends AbstractController
 {
@@ -243,8 +244,10 @@ class PokemonController extends AbstractController
         string $name,
         MovesetRepository $movesetRepository,
         PokemonAccessRepository $pokemonAccessRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        TrainerProfileService $trainerProfileService
     ): Response {
+        $trainerProfileService->initializeMovesetColumns();
 
         try {
             $pokemon = $this->pokeApiService->getPokemonDetails($name);
@@ -308,7 +311,10 @@ class PokemonController extends AbstractController
         }
 
         // Buscar movesets cadastrados no banco
-        $movesets = $movesetRepository->findBy(['pokemonName' => $pokemon['name']], ['votes' => 'DESC']);
+        $movesets = $movesetRepository->findBy(
+            ['pokemonName' => $pokemon['name']],
+            ['isDefault' => 'DESC', 'votes' => 'DESC']
+        );
 
         // Buscar detalhes de cada golpe, habilidade e nature contidos nos movesets
         $moveDetails = [];
