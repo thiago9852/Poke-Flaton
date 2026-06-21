@@ -587,7 +587,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: -16px;
+    margin-top: 16px;
     margin-bottom: 24px;
     position: relative;
     z-index: 5;
