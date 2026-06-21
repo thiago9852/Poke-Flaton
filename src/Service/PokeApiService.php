@@ -67,6 +67,11 @@ class PokeApiService
         return $this->pokemonFetcher->getPokemonBasicList();
     }
 
+    public function clearBasicListCache(): void
+    {
+        $this->pokemonFetcher->clearBasicListCache();
+    }
+
     public function getPokemonGameList(): array
     {
         return $this->pokemonFetcher->getPokemonGameList();

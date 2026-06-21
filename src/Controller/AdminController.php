@@ -468,6 +468,7 @@ class AdminController extends AbstractController
                 $variation->setName(strtolower($variation->getName()));
                 $this->entityManager->persist($variation);
                 $this->entityManager->flush();
+                $this->pokeApiService->clearBasicListCache();
                 $this->addFlash('success', sprintf('Variação "%s" (ID: %d) adicionada com sucesso!', $variation->getName(), $variation->getId()));
             }
         } else {
@@ -491,6 +492,7 @@ class AdminController extends AbstractController
         $name = $variation->getName();
         $this->entityManager->remove($variation);
         $this->entityManager->flush();
+        $this->pokeApiService->clearBasicListCache();
 
         $this->addFlash('success', "Variação \"$name\" removida com sucesso!");
         return $this->redirectToRoute('app_admin_pokemon', ['_fragment' => 'variations-section']);
@@ -760,6 +762,11 @@ class AdminController extends AbstractController
         }
 
         $this->entityManager->flush();
+
+        if ($resource === 'variations') {
+            $this->pokeApiService->clearBasicListCache();
+        }
+
         return $count;
     }
 

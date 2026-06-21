@@ -461,6 +461,8 @@ class PokeApiPokemonFetcher
             $data = $response->toArray();
 
             $list = [];
+            $existingIds = [];
+
             foreach ($data['results'] as $pokemon) {
                 $parts = explode('/', rtrim($pokemon['url'], '/'));
                 $id = (int) end($parts);
@@ -480,9 +482,41 @@ class PokeApiPokemonFetcher
                     'types' => [], // vazio por padrão para velocidade
                     'dex_id' => $this->validator->getBaseSpeciesId($id)
                 ];
+                $existingIds[$id] = true;
             }
+
+            // Adicionar variações cadastradas no banco de dados que não foram incluídas pela PokeAPI list
+            $variations = $this->validator->getVariations();
+            foreach ($variations as $varId => $varData) {
+                if (!isset($existingIds[$varId])) {
+                    if (!$this->validator->isPokemonAllowed($varId)) {
+                        continue;
+                    }
+                    $list[] = [
+                        'id' => $varId,
+                        'name' => self::resolveNameAlias($varData['name']),
+                        'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $varId),
+                        'types' => [],
+                        'dex_id' => $this->validator->getBaseSpeciesId($varId)
+                    ];
+                    $existingIds[$varId] = true;
+                }
+            }
+
             return $list;
         });
+    }
+
+    /**
+     * Limpar caches da lista básica de Pokémon para refletir alterações em variações
+     */
+    public function clearBasicListCache(): void
+    {
+        $this->cache->delete('pokemon_basic_list_configured_v7');
+        $types = ['normal', 'fire', 'water', 'grass', 'electric', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'];
+        foreach ($types as $type) {
+            $this->cache->delete('pokemon_basic_list_type_v4_' . $type);
+        }
     }
 
     /**
