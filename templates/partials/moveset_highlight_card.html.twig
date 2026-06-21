@@ -1,6 +1,6 @@
 <div class="moveset-card card moveset-highlight" style="padding: 20px;">
     <!-- Ações (topo) -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
         <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 0.9em; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
                 {% if m.author and m.author != 'Anônimo' %}
@@ -17,23 +17,23 @@
                 <span style="color: var(--text-muted); font-weight: normal;">&bull; {{ m.createdAt|date('d/m/Y') }}</span>
                 {% if m.isDefault %}
                     <span class="badge bg-success" style="background-color: #10b981; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; display: inline-flex; align-items: center; gap: 4px; font-weight: bold; margin-left: 6px; height: 22px;">
-                        <i class="fa-solid fa-star"></i> Padrão Oficial
+                        <i class="fa-solid fa-star"></i> Padrão
                     </span>
                 {% endif %}
             </span>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
             {% if is_granted('ROLE_ADMIN') %}
                 {% if m.isDefault %}
                     <form method="post" action="{{ path('app_admin_moveset_remove_default', {'id': m.id}) }}" style="display: inline; margin: 0;">
                         <button type="submit" class="btn btn-sm btn-outline-danger" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; border: 1px solid #ef4444; color: #ef4444; background: transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="fa-solid fa-star-half-stroke"></i> Remover Padrão
+                            <i class="fa-solid fa-star-half-stroke"></i> Remover
                         </button>
                     </form>
                 {% else %}
                     <form method="post" action="{{ path('app_admin_moveset_default', {'id': m.id}) }}" style="display: inline; margin: 0;">
                         <button type="submit" class="btn btn-sm btn-outline-success" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; border: 1px solid #10b981; color: #10b981; background: transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="fa-solid fa-star"></i> Definir como Padrão
+                            <i class="fa-solid fa-star"></i> Definir
                         </button>
                     </form>
                 {% endif %}

@@ -44,14 +44,7 @@ class PokeApiValidator
             try {
                 $dbVariations = $this->variationRepository->findAll();
                 foreach ($dbVariations as $var) {
-                    $id = $var->getId();
-                    // Se for um ID padrão, só aceita se estiver descomentado/definido em DEFAULT_VARIATIONS
-                    if (in_array($id, PokemonConfig::ALL_DEFAULT_IDS)) {
-                        if (!isset(PokemonConfig::DEFAULT_VARIATIONS[$id])) {
-                            continue; // Ignora pois foi comentado/removido do código
-                        }
-                    }
-                    $this->variations[$id] = [
+                    $this->variations[$var->getId()] = [
                         'base_id' => $var->getBaseId(),
                         'name' => $var->getName()
                     ];
@@ -71,55 +64,30 @@ class PokeApiValidator
 
     /**
      * Inicializa a tabela pokemon_variation a partir das configurações.
-     * Sincroniza inserindo novas variações, atualizando existentes, e deletando as que foram removidas/comentadas no código.
+     * Insere as variações padrão iniciais caso a tabela esteja vazia, ou força a sincronização se $force for true.
      */
-    public function initializeDatabaseAndVariations(): void
+    public function initializeDatabaseAndVariations(bool $force = false): void
     {
         try {
             $connection = $this->entityManager->getConnection();
             
-            // Conta quantas das variações padrão ativas estão realmente no banco
-            $currentKeys = array_keys(PokemonConfig::DEFAULT_VARIATIONS);
-            if (empty($currentKeys)) {
-                return;
-            }
-            
-            $dbCount = (int) $connection->fetchOne(
-                'SELECT COUNT(*) FROM pokemon_variation WHERE id IN (' . implode(',', array_map('intval', $currentKeys)) . ')'
-            );
-            
-            // Conta se há alguma variação desativada (que deveria ser deletada) ainda no banco
-            $idsToDelete = array_diff(PokemonConfig::ALL_DEFAULT_IDS, $currentKeys);
-            $deleteCount = 0;
-            if (!empty($idsToDelete)) {
-                $deleteCount = (int) $connection->fetchOne(
-                    'SELECT COUNT(*) FROM pokemon_variation WHERE id IN (' . implode(',', array_map('intval', $idsToDelete)) . ')'
-                );
-            }
-            
-            // Só executa a sincronização se houver diferença (falta alguma ativa ou há alguma desativada)
-            if ($dbCount !== count($currentKeys) || $deleteCount > 0) {
-                if (!empty($idsToDelete)) {
-                    $connection->executeStatement(
-                        'DELETE FROM pokemon_variation WHERE id IN (' . implode(',', array_map('intval', $idsToDelete)) . ')'
-                    );
+            if (!$force) {
+                // Só inicializa se a tabela estiver completamente vazia
+                $count = (int) $connection->fetchOne('SELECT COUNT(*) FROM pokemon_variation');
+                if ($count > 0) {
+                    return;
                 }
-                
-                foreach (PokemonConfig::DEFAULT_VARIATIONS as $id => $data) {
-                    $exists = $connection->fetchOne('SELECT 1 FROM pokemon_variation WHERE id = ?', [$id]);
-                    if ($exists) {
-                        $connection->update('pokemon_variation', [
-                            'base_id' => $data['base_id'],
-                            'name' => $data['name']
-                        ], ['id' => $id]);
-                    } else {
-                        $connection->insert('pokemon_variation', [
-                            'id' => $id,
-                            'base_id' => $data['base_id'],
-                            'name' => $data['name']
-                        ]);
-                    }
-                }
+            } else {
+                // Limpa a tabela para forçar sincronização total
+                $connection->executeStatement('DELETE FROM pokemon_variation');
+            }
+
+            foreach (PokemonConfig::DEFAULT_VARIATIONS as $id => $data) {
+                $connection->insert('pokemon_variation', [
+                    'id' => $id,
+                    'base_id' => $data['base_id'],
+                    'name' => $data['name']
+                ]);
             }
         } catch (\Exception $e) {
             // Silencioso se der erro (ex: tabela ainda não criada)

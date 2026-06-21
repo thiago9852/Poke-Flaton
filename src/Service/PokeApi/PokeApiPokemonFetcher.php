@@ -704,7 +704,7 @@ class PokeApiPokemonFetcher
     {
         $canonicalName = self::resolveNameAlias($pokemonName);
         $cacheSuffix = $currentPokemon ? '_' . $currentPokemon['id'] : '';
-        return $this->cache->get('evolution_chain_v7_for_' . $canonicalName . $cacheSuffix, function (ItemInterface $item) use ($canonicalName, $currentPokemon) {
+        return $this->cache->get('evolution_chain_v12_for_' . $canonicalName . $cacheSuffix, function (ItemInterface $item) use ($canonicalName, $currentPokemon) {
             $item->expiresAfter(86400 * 30); // 30 dias
             try {
                 $apiName = self::getSpeciesName($canonicalName);
@@ -750,8 +750,21 @@ class PokeApiPokemonFetcher
                 }
 
                 // 6. Pega nodo e o grupo
+                $targetSuffix = null;
+                if ($targetNode) {
+                    $targetSuffix = $this->getFormSuffix($targetNode->name);
+                }
+
+                $hasDirectRoot = false;
+                foreach ($rootNodes as $rn) {
+                    if ($rn->isTarget || $rn->isAncestor || $rn->isDescendant) {
+                        $hasDirectRoot = true;
+                        break;
+                    }
+                }
+
                 $stages = [];
-                $this->collectKeptNodes($rootNodes, $stages);
+                $this->collectKeptNodes($rootNodes, $stages, $targetSuffix, $hasDirectRoot);
                 
                 ksort($stages);
                 return $stages;
@@ -793,7 +806,13 @@ class PokeApiPokemonFetcher
                     return true;
                 }
             } else {
-                // base_form is null/empty. This evolves from the default parent variety.
+                
+                $childSuffix = $this->getFormSuffix($childVarietyName);
+                $parentSuffix = $this->getFormSuffix($parentVarietyName);
+                if ($childSuffix === $parentSuffix) {
+                    return true;
+                }
+
                 $parentIsDefault = false;
                 foreach ($parentVarietiesInfo as $pv) {
                     if ($pv['name'] === $parentVarietyName && $pv['is_default']) {
@@ -802,11 +821,15 @@ class PokeApiPokemonFetcher
                     }
                 }
 
-                if ($parentIsDefault) {
-                    // Disambiguate when base_form is null by checking suffixes (aligning standard with standard, regional with regional)
-                    $childSuffix = $this->getFormSuffix($childVarietyName);
-                    $parentSuffix = $this->getFormSuffix($parentVarietyName);
-                    if ($childSuffix === $parentSuffix) {
+                if ($parentIsDefault && $childSuffix !== null) {
+                    $parentHasChildSuffix = false;
+                    foreach ($parentVarietiesInfo as $pv) {
+                        if ($this->getFormSuffix($pv['name']) === $childSuffix) {
+                            $parentHasChildSuffix = true;
+                            break;
+                        }
+                    }
+                    if (!$parentHasChildSuffix) {
                         return true;
                     }
                 }
@@ -844,7 +867,7 @@ class PokeApiPokemonFetcher
                 continue;
             }
 
-            if ($this->validator->isPokemonAllowed($vId)) {
+            if ($this->validator->isPokemonAllowed($vId) || $this->validator->isPokemonAllowed($speciesId)) {
                 $varietiesInfo[] = [
                     'name' => self::resolveNameAlias($vName),
                     'id' => $vId,
@@ -973,7 +996,7 @@ class PokeApiPokemonFetcher
         }
     }
 
-    private function collectKeptNodes(array $nodes, array &$stages)
+    private function collectKeptNodes(array $nodes, array &$stages, ?string $targetSuffix = null, bool $hasDirectRoot = false)
     {
         foreach ($nodes as $node) {
             $isParentAncestorOrTarget = false;
@@ -983,7 +1006,24 @@ class PokeApiPokemonFetcher
                 }
             }
 
-            $keep = $node->isTarget || $node->isAncestor || $node->isDescendant || $isParentAncestorOrTarget;
+        
+            $keep = $node->isTarget || $node->isAncestor || $node->isDescendant;
+
+            if (!$keep && $isParentAncestorOrTarget) {
+                $nodeSuffix = $this->getFormSuffix($node->name);
+                if ($nodeSuffix === $targetSuffix) {
+                    $keep = true;
+                }
+            }
+            
+            if (!$keep && $node->parent === null) {
+                if (!$hasDirectRoot) {
+                    $nodeSuffix = $this->getFormSuffix($node->name);
+                    if ($nodeSuffix === $targetSuffix) {
+                        $keep = true;
+                    }
+                }
+            }
 
             if ($keep) {
                 if (!isset($stages[$node->stage])) {
@@ -1008,7 +1048,7 @@ class PokeApiPokemonFetcher
                 }
             }
 
-            $this->collectKeptNodes($node->children, $stages);
+            $this->collectKeptNodes($node->children, $stages, $targetSuffix, $hasDirectRoot);
         }
     }
 
