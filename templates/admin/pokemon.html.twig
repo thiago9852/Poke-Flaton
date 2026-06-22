@@ -398,7 +398,7 @@
 						O <strong>ID Base</strong> é o número do Pokémon original (ex: 412 para Burmy). O <strong>nome</strong> deve seguir o slug da API (ex: <code>burmy-trash</code>).
 					</p>
 					<form method="post" action="{{ path('app_admin_variation_add') }}">
-						<div class="title-form-grid" style="grid-template-columns: 1fr 1fr 2fr;">
+						<div class="title-form-grid admin-grid-3">
 							<div>
 								<label class="title-form-label">ID da Variação (PokéAPI) *</label>
 								<input type="number" name="variation_id" class="form-input" placeholder="Ex: 10003" min="1" required id="var-id-input">
@@ -548,7 +548,7 @@
 					</datalist>
 
 					<form method="post" action="{{ path('app_admin_evolution_rule_add') }}">
-						<div class="title-form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+						<div class="title-form-grid admin-grid-4">
 							<div>
 								<label class="title-form-label">Pokémon Base (Nome) *</label>
 								<input type="text" name="base_pokemon" class="form-input" list="evolution-pokemon-list" placeholder="Ex: kirlia" required autocomplete="off">
