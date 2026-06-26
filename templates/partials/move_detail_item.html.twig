@@ -14,14 +14,14 @@
             {% set learnMethod = (moveMeta is iterable and moveMeta.learn_method is defined) ? moveMeta.learn_method : 'base' %}
             
             <span class="badge {{ learnMethod == 'TM' ? 'bg-info' : 'bg-secondary' }}">
-                {{ learnMethod == 'TM' ? 'TM' : 'Lvl' }}
+                {{ learnMethod == 'TM' ? 'TM' : 'Lvl'|trans }}
             </span>
             
             {% if md %}
                 <span class="type-badge-sm type-badge-{{ md.type }}" 
                     style="display: inline-flex; align-items: center; padding-right: 6px; font-size: 0.8em; border-radius: 4px;"
                 >
-                    <img src="{{ md.type_icon }}" class="move-type-icon-md" style="margin-right: 4px;"> {{ md.type|capitalize }}
+                    <img src="{{ md.type_icon }}" class="move-type-icon-md" style="margin-right: 4px;"> {{ md.type|capitalize|trans }}
                 </span>
             {% endif %}
         </div>
@@ -33,11 +33,11 @@
         >
             <span>
                 {% if md.category == 'physical' %}
-                    <i class="fa-solid fa-hand-fist"></i> Físico
+                    <i class="fa-solid fa-hand-fist"></i> {{ 'Físico'|trans }}
                 {% elseif md.category == 'special' %}
-                    <i class="fa-solid fa-sparkles"></i> Especial
+                    <i class="fa-solid fa-sparkles"></i> {{ 'Especial'|trans }}
                 {% else %}
-                    <i class="fa-solid fa-shield"></i> Status
+                    <i class="fa-solid fa-shield"></i> {{ 'Status'|trans }}
                 {% endif %}
             </span>
             

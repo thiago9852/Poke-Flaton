@@ -1,42 +1,42 @@
 <template class="js-tooltip-template">
 	<div class="tooltip-row">
-		<span class="tooltip-label">Como conseguir:</span>
+		<span class="tooltip-label">{{ 'Como conseguir:'|trans }}</span>
 	</div>
 	<div class="tooltip-row" style="margin-left: 8px;">
 		<span class="tooltip-label" style="display: flex; align-items: center; gap: 4px;">
 			<span style="width: 8px; height: 8px; border-radius: 50%; background: #b45309; display: inline-block;"></span>
-			Bronze:
+			{{ 'Bronze:'|trans }}
 		</span>
 		<span class="tooltip-value">{{ medal.milestones.bronze }}</span>
 	</div>
 	<div class="tooltip-row" style="margin-left: 8px;">
 		<span class="tooltip-label" style="display: flex; align-items: center; gap: 4px;">
 			<span style="width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>
-			Prata:
+			{{ 'Prata:'|trans }}
 		</span>
 		<span class="tooltip-value">{{ medal.milestones.silver }}</span>
 	</div>
 	<div class="tooltip-row" style="margin-left: 8px;">
 		<span class="tooltip-label" style="display: flex; align-items: center; gap: 4px;">
 			<span style="width: 8px; height: 8px; border-radius: 50%; background: #eab308; display: inline-block;"></span>
-			Ouro:
+			{{ 'Ouro:'|trans }}
 		</span>
 		<span class="tooltip-value">{{ medal.milestones.gold }}</span>
 	</div>
 	<div class="tooltip-row tooltip-desc-row" style="margin-top: 8px; padding-top: 8px; border-top: 1px dotted #334155;">
-		<span class="tooltip-label" style="margin-bottom: 4px; display: block; font-weight: 700; color: var(--color-primary);">Recompensas:</span>
+		<span class="tooltip-label" style="margin-bottom: 4px; display: block; font-weight: 700; color: var(--color-primary);">{{ 'Recompensas:'|trans }}</span>
 		{% set hasRewards = false %}
 		{% for tier, tierRewards in medal.rewards %}
 			{% if tierRewards is not empty %}
 				{% set hasRewards = true %}
 				<div style="font-size: 0.8rem; margin-bottom: 2px;">
-					<strong style="color: #fff;">{{ tier|capitalize }}:</strong>
+					<strong style="color: #fff;">{{ tier|trans|capitalize }}:</strong>
 					<span style="color: #cbd5e1;">{{ tierRewards|join(', ') }}</span>
 				</div>
 			{% endif %}
 		{% endfor %}
 		{% if not hasRewards %}
-			<div style="font-size: 0.8rem; color: #64748b; font-style: italic;">Sem recompensas para esta medalha</div>
+			<div style="font-size: 0.8rem; color: #64748b; font-style: italic;">{{ 'Sem recompensas para esta medalha'|trans }}</div>
 		{% endif %}
 	</div>
 </template>

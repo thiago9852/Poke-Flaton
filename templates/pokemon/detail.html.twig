@@ -72,11 +72,11 @@
 			<div class="movesets-header-container">
 				<h2 class="section-column-title" style="margin: 0;">
 					<i class="fa-solid fa-shield-halved"></i>
-					Melhores Movesets
+					{{ 'Melhores Movesets'|trans }}
 				</h2>
 				<a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-primary btn-icon">
 					<i class="fa-solid fa-plus"></i>
-					Criar Moveset
+					{{ 'Criar Moveset'|trans }}
 				</a>
 			</div>
 
@@ -84,15 +84,15 @@
 			<div class="tabs-container">
 				<button class="tab-btn active" onclick="switchTab(event, 'tab-padrao')">
 					<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/poke-ball.png" style="width: 20px;">
-					PADRÃO
+					{{ 'PADRÃO'|trans }}
 				</button>
 				<button class="tab-btn" onclick="switchTab(event, 'tab-pvp')">
 					<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png" style="width: 20px;">
-					PvP
+					{{ 'PvP'|trans }}
 				</button>
 				<button class="tab-btn" onclick="switchTab(event, 'tab-dg')">
 					<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/escape-rope.png" style="width: 20px;">
-					DG
+					{{ 'DG'|trans }}
 				</button>
 			</div>
 
@@ -110,10 +110,10 @@
 
 						{% if defaultMoveset is null %}
 							<div class="empty-moveset card" style="text-align: center; padding: 40px;">
-								<h4>Nenhum moveset padrão oficial definido para esta categoria</h4>
-								<p class="text-muted" style="font-size: 0.9rem; margin-top: 5px;">Sugira um moveset abaixo para que o administrador possa defini-lo como padrão.</p>
+								<h4>{{ 'Nenhum moveset padrão oficial definido para esta categoria'|trans }}</h4>
+								<p class="text-muted" style="font-size: 0.9rem; margin-top: 5px;">{{ 'Sugira um moveset abaixo para que o administrador possa defini-lo como padrão.'|trans }}</p>
 								<a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-secondary" style="margin-top: 10px;">
-									Criar / Sugerir Moveset
+									{{ 'Criar / Sugerir Moveset'|trans }}
 								</a>
 							</div>
 						{% else %}
@@ -136,10 +136,10 @@
 
 			<!-- Outros Movesets Sugeridos -->
 			<div class="all-movesets-container mt-5 mb-4">
-				<h4 class="mb-3">Outros Movesets Sugeridos ({{ movesets|length }})</h4>
+				<h4 class="mb-3">{{ 'Outros Movesets Sugeridos'|trans }} ({{ movesets|length }})</h4>
 
 				{% if movesets is empty %}
-					<p class="text-muted">Nenhum moveset sugerido ainda.</p>
+					<p class="text-muted">{{ 'Nenhum moveset sugerido ainda.'|trans }}</p>
 				{% else %}
 					<div class="moveset-list-column" style="display: flex; flex-direction: column; gap: 15px;">
 						{% for m2 in movesets %}
@@ -185,7 +185,7 @@
 		<div class="share-modal-card">
 			<div class="share-modal-header">
 				<h3 class="share-modal-title">
-					<i class="fa-solid fa-share-nodes"></i> Compartilhar Moveset
+					<i class="fa-solid fa-share-nodes"></i> {{ 'Compartilhar Moveset'|trans }}
 				</h3>
 				<button class="share-modal-close-btn" onclick="closeShareModal()">
 					<i class="fa-solid fa-xmark"></i>
@@ -196,7 +196,7 @@
 				<!-- Loader Spinner -->
 				<div id="share-modal-loader" class="share-modal-loader">
 					<div class="share-modal-spinner"></div>
-					<div class="share-modal-loader-text">Gerando imagem em alta resolução...</div>
+					<div class="share-modal-loader-text">{{ 'Gerando imagem em alta resolução...'|trans }}</div>
 				</div>
 				
 				<!-- Imagem Preview -->
@@ -206,9 +206,9 @@
 			</div>
 			
 			<div class="share-modal-footer">
-				<button class="btn btn-secondary" onclick="closeShareModal()">Fechar</button>
+				<button class="btn btn-secondary" onclick="closeShareModal()">{{ 'Fechar'|trans }}</button>
 				<button id="share-modal-download-btn" class="btn btn-primary">
-					<i class="fa-solid fa-download"></i> Baixar PNG
+					<i class="fa-solid fa-download"></i> {{ 'Baixar PNG'|trans }}
 				</button>
 			</div>
 		</div>

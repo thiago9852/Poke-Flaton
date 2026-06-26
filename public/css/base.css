@@ -362,11 +362,11 @@ a {
         padding: 12px 16px;
     }
 
-    .nav-user-dropdown {
+    .nav-user-dropdown, .nav-lang-dropdown {
         width: 100%;
     }
 
-    .nav-user-btn {
+    .nav-user-btn, .nav-lang-btn {
         width: 100%;
         justify-content: space-between;
         padding: 12px 16px;
@@ -381,3 +381,39 @@ a {
         border: 1px solid var(--border-color);
     }
 }
+
+/* Seletor de Idiomas (Navbar Dropdown) */
+.nav-lang-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.nav-lang-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    color: var(--text-secondary);
+    transition: var(--transition-smooth);
+}
+
+.nav-lang-btn:hover {
+    color: var(--text-primary);
+}
+
+.nav-lang-dropdown.open .nav-dropdown-menu {
+    display: block;
+}
+
+.nav-lang-dropdown.open .nav-dropdown-caret {
+    transform: rotate(180deg);
+}
+
+.active-lang {
+    color: var(--color-primary) !important;
+    font-weight: 600;
+}

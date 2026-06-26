@@ -1,5 +1,5 @@
 <div class="card pokemon-stats-card">
-    <h2 class="card-title"> Status Base</h2>
+    <h2 class="card-title"> {{ 'Status Base'|trans }}</h2>
     
     <div class="stats-list">
         {% set max_stat = 150 %}
@@ -8,11 +8,11 @@
             <div class="stat-row">
                 <span class="stat-name">
                     {% if statName == 'hp' %}HP
-                    {% elseif statName == 'attack' %}Ataque
-                    {% elseif statName == 'defense' %}Defesa
-                    {% elseif statName == 'special-attack' %}Ataque Esp.
-                    {% elseif statName == 'special-defense' %}Defesa Esp.
-                    {% elseif statName == 'speed' %}Velocidade
+                    {% elseif statName == 'attack' %}{{ 'Ataque'|trans }}
+                    {% elseif statName == 'defense' %}{{ 'Defesa'|trans }}
+                    {% elseif statName == 'special-attack' %}{{ 'Ataque Esp.'|trans }}
+                    {% elseif statName == 'special-defense' %}{{ 'Defesa Esp.'|trans }}
+                    {% elseif statName == 'speed' %}{{ 'Velocidade'|trans }}
                     {% else %}{{ statName|capitalize }}
                     {% endif %}
                 </span>

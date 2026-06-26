@@ -15,6 +15,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 class TrainerProfileService
 {
     private EntityManagerInterface $entityManager;
@@ -25,6 +27,7 @@ class TrainerProfileService
     private CardTemplateRepository $cardTemplateRepository;
     private string $projectDir;
     private HttpClientInterface $httpClient;
+    private TranslatorInterface $translator;
     private ?array $cachedLikesRanking = null;
     private ?array $cachedMedalsRanking = null;
     private bool $titlesInitialized = false;
@@ -40,7 +43,8 @@ class TrainerProfileService
         TitleRepository $titleRepository,
         CardTemplateRepository $cardTemplateRepository,
         #[Autowire('%kernel.project_dir%')] string $projectDir,
-        HttpClientInterface $httpClient
+        HttpClientInterface $httpClient,
+        TranslatorInterface $translator
     ) {
         $this->entityManager = $entityManager;
         $this->pokeApiService = $pokeApiService;
@@ -50,6 +54,7 @@ class TrainerProfileService
         $this->cardTemplateRepository = $cardTemplateRepository;
         $this->projectDir = $projectDir;
         $this->httpClient = $httpClient;
+        $this->translator = $translator;
     }
 
     /**
@@ -508,9 +513,9 @@ class TrainerProfileService
 
             $avatarStatuses[] = [
                 'filename' => $filename,
-                'name' => str_replace(['.png', '-', '_'], ['', ' ', ' '], $shortName),
+                'name' => $this->translator->trans(ucwords(str_replace(['.png', '-', '_'], ['', ' ', ' '], $shortName))),
                 'isLocked' => $isLocked,
-                'requirement' => $requirement,
+                'requirement' => $this->translator->trans($requirement),
                 'isSelected' => $isSelected,
                 'reqMedal' => $avatar['req_medal'],
                 'reqGoldCount' => $avatar['req_gold_count'],
@@ -545,14 +550,14 @@ class TrainerProfileService
             $filename = $avatar['filename'];
             $shortName = str_starts_with($filename, 'trainer:') ? substr($filename, 8) : (str_starts_with($filename, 'pkm:') ? substr($filename, 4) : $filename);
             $name = str_replace(['.png', '-', '_'], ['', ' ', ' '], $shortName);
-            $rewards[$tier][] = "Avatar: " . ucwords($name);
+            $rewards[$tier][] = $this->translator->trans('Avatar: %name%', ['%name%' => ucwords($name)]);
         }
 
         // Check DB titles
         foreach ($titles as $title) {
             if ($title->getReqMedal() === $medalName) {
                 $tier = $title->getReqTier() ?? 'bronze';
-                $rewards[$tier][] = "Título: \"" . $title->getName() . "\"";
+                $rewards[$tier][] = $this->translator->trans('Título: "%title%"', ['%title%' => $this->translator->trans($title->getName())]);
             }
         }
 
@@ -618,11 +623,11 @@ class TrainerProfileService
 
             $titleStatuses[] = [
                 'id' => $title->getId(),
-                'name' => $title->getName(),
+                'name' => $this->translator->trans($title->getName()),
                 'ribbon' => $ribbon,
                 'ribbonUrl' => $ribbonUrl,
                 'isLocked' => $isLocked,
-                'requirement' => $title->getRequirement(),
+                'requirement' => $this->translator->trans($title->getRequirement()),
                 'isSelected' => ($selectedTitle === $title->getName()) || ($selectedTitle === null && $title->isDefault()),
                 'reqMedal' => $title->getReqMedal(),
                 'reqGoldCount' => $title->getReqGoldCount(),
@@ -654,8 +659,8 @@ class TrainerProfileService
     ): array {
         $baseUrl = 'https://raw.githubusercontent.com/KovuTheHusky/pokemon-medals/main/';
         $name = $medal->value;
-        $title = $medal->getTitle();
-        $description = $medal->getDescription();
+        $title = $this->translator->trans($medal->getTitle());
+        $description = $this->translator->trans($medal->getDescription());
         $icon = $medal->getIcon();
         
         $milestones = $medal->getMilestones();
@@ -682,35 +687,39 @@ class TrainerProfileService
             $nextTarget  = $bronze;
             $percent     = 0;
             if ($regionalLocked) {
-                $description = 'Esta medalha está bloqueada pois sua região de registro é ' . ucfirst($user->getRegional()) . '.';
+                $description = $this->translator->trans('Esta medalha está bloqueada pois sua região de registro é %region%.', ['%region%' => ucfirst($user->getRegional())]);
             } else {
-                $description = 'Esta medalha está atualmente bloqueada.';
+                $description = $this->translator->trans('Esta medalha está atualmente bloqueada.');
             }
         } elseif (($name === 'acclaimed' || $name === 'popular') && $includeRanking) {
             // Overrides para (Curtidas) e Popular (Medalhas) baseados nas colocações de ranking
             $ranks = $user ? $this->getUserRankingPositions($user) : ['likes' => 999, 'medals' => 999];
             $pos = ($name === 'acclaimed') ? $ranks['likes'] : $ranks['medals'];
             
+            $rankingType = $name === 'acclaimed' ? $this->translator->trans('curtidas') : $this->translator->trans('medalhas');
             if ($pos === 1) {
                 $tier = 'gold';
                 $nextTarget = null;
                 $percent = 100;
-                $description = 'Você é o 1º colocado no ranking de ' . ($name === 'acclaimed' ? 'curtidas' : 'medalhas') . '!';
+                $description = $this->translator->trans('Você é o 1º colocado no ranking de %ranking_type%!', ['%ranking_type%' => $rankingType]);
             } elseif ($pos === 2) {
                 $tier = 'silver';
                 $nextTarget = 1;
                 $percent = 100;
-                $description = 'Você é o 2º colocado no ranking de ' . ($name === 'acclaimed' ? 'curtidas' : 'medalhas') . '!';
+                $description = $this->translator->trans('Você é o 2º colocado no ranking de %ranking_type%!', ['%ranking_type%' => $rankingType]);
             } elseif ($pos === 3) {
                 $tier = 'bronze';
                 $nextTarget = 2;
                 $percent = 100;
-                $description = 'Você é o 3º colocado no ranking de ' . ($name === 'acclaimed' ? 'curtidas' : 'medalhas') . '!';
+                $description = $this->translator->trans('Você é o 3º colocado no ranking de %ranking_type%!', ['%ranking_type%' => $rankingType]);
             } else {
                 $tier = 'locked';
                 $nextTarget = 3;
                 $percent = 0;
-                $description = 'Disponível apenas para o Top 3 no ranking de ' . ($name === 'acclaimed' ? 'curtidas' : 'medalhas') . ' (Sua posição atual: ' . $pos . 'º).';
+                $description = $this->translator->trans('Disponível apenas para o Top 3 no ranking de %ranking_type% (Sua posição atual: %pos%º).', [
+                    '%ranking_type%' => $rankingType,
+                    '%pos%' => $pos
+                ]);
             }
         } elseif (($name === 'acclaimed' || $name === 'popular') && !$includeRanking) {
             // Se includeRanking é falso, tranca temporariamente para evitar recursão no cálculo do ranking base
@@ -825,11 +834,11 @@ class TrainerProfileService
 
             $templateStatuses[] = [
                 'id' => $template->getId(),
-                'name' => $template->getName(),
+                'name' => $this->translator->trans($template->getName()),
                 'image' => $template->getImage(),
                 'imageUrl' => $imageUrl,
                 'isLocked' => $isLocked,
-                'requirement' => $template->getRequirement(),
+                'requirement' => $this->translator->trans($template->getRequirement()),
                 'isSelected' => $selectedTemplate !== null && $selectedTemplate !== '' && $selectedTemplate === $template->getImage(),
                 'reqMedal' => $template->getReqMedal(),
                 'reqGoldCount' => $template->getReqGoldCount(),
@@ -925,9 +934,9 @@ class TrainerProfileService
 
             $avatarStatuses[] = [
                 'filename' => $filename,
-                'name' => str_replace(['.png', '-', '_'], ['', ' ', ' '], $shortName),
+                'name' => $this->translator->trans(ucwords(str_replace(['.png', '-', '_'], ['', ' ', ' '], $shortName))),
                 'isLocked' => $isLocked,
-                'requirement' => $requirement,
+                'requirement' => $this->translator->trans($requirement),
                 'isSelected' => $isSelected,
                 'reqMedal' => $avatar['req_medal'],
                 'reqGoldCount' => $avatar['req_gold_count']

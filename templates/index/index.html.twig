@@ -13,15 +13,15 @@
 {% block body %}
 	<section class="landing-hero">
 		<div class="landing-hero-glow"></div>
-		<h1 class="hero-title">Encontre os Melhores
+		<h1 class="hero-title">{{ 'Encontre os Melhores'|trans }}
 			<span class="highlight">Movesets</span>
 		</h1>
-		<p class="hero-subtitle">Crie, compartilhe e explore as melhores combinações de golpes, natures, habilidades e localizações para seus Pokémon.</p>
+		<p class="hero-subtitle">{{ 'Crie, compartilhe e explore as melhores combinações de golpes, natures, habilidades e localizações para seus Pokémon.'|trans }}</p>
 
 		<div class="landing-search-container">
 			<form action="{{ path('app_pokemon_index') }}" method="GET" class="search-form">
 				<div class="search-box" style="position: relative;">
-					<input type="text" id="global-search-input" name="q" placeholder="Buscar Pokémon por nome ou número..." class="search-input" required autocomplete="off">
+					<input type="text" id="global-search-input" name="q" placeholder="{{ 'Buscar Pokémon por nome ou número...'|trans }}" class="search-input" required autocomplete="off">
 					<i class="fa-solid fa-magnifying-glass search-icon"></i>
 					<div id="search-autocomplete-results" class="autocomplete-dropdown"></div>
 				</div>
@@ -36,8 +36,8 @@
 			<div class="feature-icon-wrapper">
 				<i class="fa-solid fa-shield-halved"></i>
 			</div>
-			<h3 class="feature-title">Movesets</h3>
-			<p class="feature-desc">Crie e explore as melhores combinações de golpes paras os Pokémons.</p>
+			<h3 class="feature-title">{{ 'Movesets'|trans }}</h3>
+			<p class="feature-desc">{{ 'Crie e explore as melhores combinações de golpes para os Pokémon.'|trans }}</p>
 		</div>
 
 		<div class="feature-card">
@@ -45,8 +45,8 @@
 			<div class="feature-icon-wrapper">
 				<i class="fa-solid fa-bag-shopping"></i>
 			</div>
-			<h3 class="feature-title">Builds Completas</h3>
-			<p class="feature-desc">Sugira a combinação ideal de Held Item, Nature recomendada e Habilidade para potencializar seu Pokémon.</p>
+			<h3 class="feature-title">{{ 'Builds Completas'|trans }}</h3>
+			<p class="feature-desc">{{ 'Sugira a combinação ideal de Held Item, Nature recomendada e Habilidade para potencializar seu Pokémon.'|trans }}</p>
 		</div>
 
 		<div class="feature-card">
@@ -54,8 +54,8 @@
 			<div class="feature-icon-wrapper">
 				<i class="fa-solid fa-location-dot"></i>
 			</div>
-			<h3 class="feature-title">Localizações</h3>
-			<p class="feature-desc">Cadastre e encontre onde achar seus Pokémon favoritos.</p>
+			<h3 class="feature-title">{{ 'Localizações'|trans }}</h3>
+			<p class="feature-desc">{{ 'Cadastre e encontre onde achar seus Pokémon favoritos.'|trans }}</p>
 		</div>
 	</section>
 
@@ -63,7 +63,7 @@
 	<section class="generations-section">
 		<h2 class="generations-title">
 			<i class="fa-solid fa-gamepad" style="color: var(--color-primary); text-shadow: 0 0 10px rgba(139, 92, 246, 0.4);"></i>
-			Gerações
+			{{ 'Gerações'|trans }}
 		</h2>
 		<div class="generations-grid">
 			{% for gen in generations %}
@@ -81,12 +81,12 @@
 	<!-- Pokémons em Alta -->
 	<section class="trending-section">
 		<h2 class="trending-title">
-			<i class="fa-solid fa-fire text-danger" style="color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.4);"></i> Popular Pokémon
+			<i class="fa-solid fa-fire text-danger" style="color: #ff4757; text-shadow: 0 0 10px rgba(255, 71, 87, 0.4);"></i> {{ 'Popular Pokémon'|trans }}
 		</h2>
 
 		{% if trendingPokemons is empty %}
 			<div class="empty-state card" style="text-align: center; padding: 40px; background-color: rgba(255, 255, 255, 0.02);">
-				<p style="color: var(--text-muted); margin: 0;">Nenhum Pokémon visitado ainda. Comece a explorar clicando na barra de busca acima!</p>
+				<p style="color: var(--text-muted); margin: 0;">{{ 'Nenhum Pokémon visitado ainda. Comece a explorar clicando na barra de busca acima!'|trans }}</p>
 			</div>
 		{% else %}
 			<div class="pokemon-grid">
@@ -101,7 +101,7 @@
 						<h3 class="pokemon-name">{{ pokemon.name|abbr_pokemon_name }}</h3>
 						<div class="pokemon-types">
 							{% for type in pokemon.types %}
-								<span class="type-badge type-badge-{{ type }}">{{ type|capitalize }}</span>
+								<span class="type-badge type-badge-{{ type }}">{{ type|capitalize|trans }}</span>
 							{% endfor %}
 						</div>
 					</a>
@@ -110,6 +110,33 @@
 			</div>
 		{% endif %}
 		
+	</section>
+
+	<!-- Sobre o Site & Sobre os Dados -->
+	<section class="about-section">
+		<div class="about-grid">
+			<div class="about-card">
+				<div class="about-card-glow color-primary-glow"></div>
+				<div class="about-icon-wrapper">
+					<i class="fa-solid fa-circle-info"></i>
+				</div>
+				<h2 class="about-title">{{ 'Sobre o Site'|trans }}</h2>
+				<p class="about-desc">
+					{{ 'O <strong>PokeFlaton</strong> é um portal completo criado para treinadores de Pokémon de todos os níveis. Nosso objetivo é fornecer uma plataforma amigável e intuitiva onde você pode explorar, criar e compartilhar os melhores <strong>movesets</strong>, combinações de itens, natures e habilidades recomendadas para cada Pokémon, ajudando você a montar a equipe perfeita para suas batalhas.'|trans|raw }}
+				</p>
+			</div>
+
+			<div class="about-card">
+				<div class="about-card-glow color-secondary-glow"></div>
+				<div class="about-icon-wrapper secondary-icon">
+					<i class="fa-solid fa-database"></i>
+				</div>
+				<h2 class="about-title">{{ 'Sobre os Dados'|trans }}</h2>
+				<p class="about-desc">
+					{{ 'Todas as informações exibidas no site incluindo nomes, tipos, status, habilidades, movimentos e imagens dos Pokémon são integradas de forma dinâmica e automatizada utilizando a <strong>PokeAPI</strong>, a API de dados pública mais robusta sobre o universo Pokémon. Dessa forma, garantimos dados confiáveis e sempre sincronizados com os jogos da franquia.'|trans|raw }}
+				</p>
+			</div>
+		</div>
 	</section>
 
 {% endblock %}

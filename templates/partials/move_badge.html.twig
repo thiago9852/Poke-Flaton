@@ -13,30 +13,30 @@
         <template class="js-tooltip-template">
             
             <div class="tooltip-row">
-                <span class="tooltip-label">Tipo</span>
+                <span class="tooltip-label">{{ 'Tipo'|trans }}</span>
                 <span class="tooltip-value">
                     <img src="{{ md.type_icon }}" class="move-type-icon" 
                         style="width:14px; height:14px; vertical-align:middle; margin-right:4px;"
                     >
-                    {{ md.type|capitalize }}
+                    {{ md.type|capitalize|trans }}
                 </span>
             </div>
 
             <div class="tooltip-row">
-                <span class="tooltip-label">Poder</span>
+                <span class="tooltip-label">{{ 'Poder'|trans }}</span>
                 <span class="tooltip-value">{{ md.power|default('---') }}</span>
             </div>
 
             <div class="tooltip-row">
-                <span class="tooltip-label">Categoria</span>
+                <span class="tooltip-label">{{ 'Categoria'|trans }}</span>
                 <span class="tooltip-value">
 
                     {% if md.category == 'physical' %}
-                        <i class="fa-solid fa-hand-fist" style="font-size:0.75rem"></i> Físico
+                        <i class="fa-solid fa-hand-fist" style="font-size:0.75rem"></i> {{ 'Físico'|trans }}
                     {% elseif md.category == 'special' %}
-                        <i class="fa-solid fa-bolt" style="font-size:0.75rem"></i> Especial
+                        <i class="fa-solid fa-bolt" style="font-size:0.75rem"></i> {{ 'Especial'|trans }}
                     {% else %}
-                        <i class="fa-solid fa-circle-dot" style="font-size:0.75rem"></i> Status
+                        <i class="fa-solid fa-circle-dot" style="font-size:0.75rem"></i> {{ 'Status'|trans }}
                     {% endif %}
                     
                 </span>
@@ -44,7 +44,7 @@
 
             {% if md.accuracy is defined and md.accuracy %}
                 <div class="tooltip-row">
-                    <span class="tooltip-label">Precisão</span>
+                    <span class="tooltip-label">{{ 'Precisão'|trans }}</span>
                     <span class="tooltip-value">{{ md.accuracy }}%</span>
                 </div>
             {% endif %}
@@ -52,22 +52,22 @@
             {% set lm = learnMethod ?? md.learn_method ?? null %}
             {% if lm %}
                 <div class="tooltip-row">
-                    <span class="tooltip-label">Método</span>
+                    <span class="tooltip-label">{{ 'Método'|trans }}</span>
                     <span class="tooltip-value">
                         {% if lm == 'level-up' or lm == 'base' or lm == 'both' %}
-                            Nível
+                            {{ 'Nível'|trans }}
                         {% elseif lm == 'machine' or lm == 'TM' %}
                             TM
                         {% else %}
-                            {{ lm|capitalize }}
+                            {{ lm|capitalize|trans }}
                         {% endif %}
                     </span>
                 </div>
             {% endif %}
 
             <div class="tooltip-row tooltip-desc-row">
-                <span class="tooltip-label">Descrição</span>
-                <span class="tooltip-value">{{ md.description|default('Nenhuma descrição disponível.') }}</span>
+                <span class="tooltip-label">{{ 'Descrição'|trans }}</span>
+                <span class="tooltip-value">{{ md.description|default('Nenhuma descrição disponível.'|trans) }}</span>
             </div>
 
         </template>

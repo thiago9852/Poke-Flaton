@@ -1,7 +1,7 @@
 if (!window.globalLoadingInitialized) {
     window.globalLoadingInitialized = true;
 
-    // Global loading object
+    // Objeto global loading
     window.Loader = {
         show: function () {
             var loader = document.getElementById('global-loader');
@@ -17,28 +17,65 @@ if (!window.globalLoadingInitialized) {
         }
     };
 
-    // User dropdown click handler with delegation
+    // Dropdowns selecionar Linguagem
     document.addEventListener('click', function (e) {
-        var btn = e.target.closest('#userDropdownBtn');
-        if (btn) {
+        // User Dropdown
+        var userBtn = e.target.closest('#userDropdownBtn');
+        if (userBtn) {
             e.stopPropagation();
-            var dropdown = document.getElementById('userDropdown');
-            if (dropdown) {
-                var isOpen = dropdown.classList.toggle('open');
-                btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            var userDropdown = document.getElementById('userDropdown');
+            if (userDropdown) {
+                var isOpen = userDropdown.classList.toggle('open');
+                userBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                
+                // Fechar dropdown se tiver aberto
+                var langDropdown = document.getElementById('langDropdown');
+                var langBtn = document.getElementById('langDropdownBtn');
+                if (langDropdown && langBtn) {
+                    langDropdown.classList.remove('open');
+                    langBtn.setAttribute('aria-expanded', 'false');
+                }
             }
             return;
         }
 
-        var dropdown = document.getElementById('userDropdown');
-        var dropdownBtn = document.getElementById('userDropdownBtn');
-        if (dropdown && dropdownBtn && !dropdown.contains(e.target) && !dropdownBtn.contains(e.target)) {
-            dropdown.classList.remove('open');
-            dropdownBtn.setAttribute('aria-expanded', 'false');
+        // Lang Dropdown
+        var langBtn = e.target.closest('#langDropdownBtn');
+        if (langBtn) {
+            e.stopPropagation();
+            var langDropdown = document.getElementById('langDropdown');
+            if (langDropdown) {
+                var isOpen = langDropdown.classList.toggle('open');
+                langBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                
+                // Fecha dropdown se tiver aberto
+                var userDropdown = document.getElementById('userDropdown');
+                var userBtnRef = document.getElementById('userDropdownBtn');
+                if (userDropdown && userBtnRef) {
+                    userDropdown.classList.remove('open');
+                    userBtnRef.setAttribute('aria-expanded', 'false');
+                }
+            }
+            return;
+        }
+
+        // Clicar fora fecha ambos os dropdowns
+        var userDropdown = document.getElementById('userDropdown');
+        var userBtnRef = document.getElementById('userDropdownBtn');
+        if (userDropdown && userBtnRef && !userDropdown.contains(e.target) && !userBtnRef.contains(e.target)) {
+            userDropdown.classList.remove('open');
+            userBtnRef.setAttribute('aria-expanded', 'false');
+        }
+
+        var langDropdown = document.getElementById('langDropdown');
+        var langBtnRef = document.getElementById('langDropdownBtn');
+        if (langDropdown && langBtnRef && !langDropdown.contains(e.target) && !langBtnRef.contains(e.target)) {
+            langDropdown.classList.remove('open');
+            langBtnRef.setAttribute('aria-expanded', 'false');
         }
     });
 
-    // Mobile nav toggle handler with delegation
+    // Mobile nav toggle
     document.addEventListener('click', function (e) {
         var navToggle = e.target.closest('#navToggle');
         if (navToggle) {
@@ -109,7 +146,7 @@ if (!window.globalLoadingInitialized) {
         window.Loader.show();
     });
 
-    // Hide loader on Turbo load, submit end, fetch response, or error to prevent getting stuck
+    // oader no Turbo load, submit end, fetch response, or error para previnir struck
     document.addEventListener('turbo:load', function () {
         window.Loader.hide();
     });

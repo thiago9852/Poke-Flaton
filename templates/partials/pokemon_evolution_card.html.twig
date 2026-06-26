@@ -1,8 +1,8 @@
 <div class="card pokemon-evolution-card">
-    <h2 class="card-title"> Linha Evolutiva</h2>
+    <h2 class="card-title"> {{ 'Linha Evolutiva'|trans }}</h2>
     
     {% if evolutionChain is empty %}
-        <p class="no-drops-text" style="color: var(--text-secondary); font-style: italic; font-size: 0.95rem; margin: 10px 0;">Este Pokémon não possui evolução cadastrada.</p>
+        <p class="no-drops-text" style="color: var(--text-secondary); font-style: italic; font-size: 0.95rem; margin: 10px 0;">{{ 'Este Pokémon não possui evolução cadastrada.'|trans }}</p>
     {% else %}
         <div class="evolution-stages-container">
             {% for stageIndex, stageNodes in evolutionChain %}
@@ -13,7 +13,7 @@
                         {% for node in stageNodes %}
                             <div class="evolution-arrow-item">
                                 {% if node.evolution_gender is defined and node.evolution_gender is not empty %}
-                                    <div class="evolution-method-gender {{ node.evolution_gender }}" title="Apenas {{ node.evolution_gender == 'male' ? 'Macho' : 'Fêmea' }}">
+                                    <div class="evolution-method-gender {{ node.evolution_gender }}" title="{{ (node.evolution_gender == 'male' ? 'Apenas Macho' : 'Apenas Fêmea')|trans }}">
                                         {% if node.evolution_gender == 'male' %}
                                             <i class="fa-solid fa-mars"></i>
                                         {% else %}
@@ -22,7 +22,7 @@
                                     </div>
                                 {% endif %}
                                 <span class="evolution-method">
-                                    {{ node.evolution_method|default('Nível/Stone') }}
+                                    {{ node.evolution_method|default('Nível/Stone'|trans) }}
                                 </span>
                                 <i class="fa-solid fa-chevron-right"></i>
                             </div>

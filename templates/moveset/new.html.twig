@@ -14,7 +14,7 @@
 	<div class="back-link-container">
 		<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="back-link">
 			<i class="fa-solid fa-arrow-left"></i>
-			Voltar para
+			{{ 'Voltar para'|trans }}
 			{{ pokemon.name|capitalize }}
 		</a>
 	</div>
@@ -28,7 +28,7 @@
 					{% for error in errors %}
 						<li>
 							<i class="fa-solid fa-circle-exclamation"></i>
-							{{ error }}</li>
+							{{ error|trans }}</li>
 					{% endfor %}
 				</ul>
 			</div>
@@ -49,7 +49,7 @@
 				<h2 class="summary-name">{{ pokemon.name|capitalize }}</h2>
 				<div class="summary-types">
 					{% for type in pokemon.types %}
-						<span class="type-badge type-badge-{{ type }}">{{ type|capitalize }}</span>
+						<span class="type-badge type-badge-{{ type }}">{{ type|capitalize|trans }}</span>
 					{% endfor %}
 				</div>
 
@@ -76,18 +76,18 @@
 
 			<!-- Campos de Build -->
 			<div class="moveset-build-fields card">
-				<h1 class="form-page-title">Criar Novo Moveset</h1>
+				<h1 class="form-page-title">{{ 'Criar Novo Moveset'|trans }}</h1>
 
 				<!-- Tipo de Moveset -->
 				<div class="form-group">
-					<label class="form-label">Tipo de Moveset</label>
+					<label class="form-label">{{ 'Tipo de Moveset'|trans }}</label>
 					<div class="radio-group-cards">
 
 						<label class="radio-card">
 							<input type="radio" name="type" value="padrao" checked>
 							<div class="radio-card-content">
-								<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/poke-ball.png" alt="Poke Ball" class="radio-card-sprite" title="Padrão">
-								<span class="title">Padrão</span>
+								<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/poke-ball.png" alt="Poke Ball" class="radio-card-sprite" title="{{ 'Padrão'|trans }}">
+								<span class="title">{{ 'Padrão'|trans }}</span>
 							</div>
 						</label>
 
@@ -103,7 +103,7 @@
 							<input type="radio" name="type" value="dg">
 							<div class="radio-card-content">
 								<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/escape-rope.png" alt="Escape Rope" class="radio-card-sprite" title="Dungeon">
-								<span class="title">Dungeon</span>
+								<span class="title">{{ 'Dungeon'|trans }}</span>
 							</div>
 						</label>
 
@@ -114,9 +114,9 @@
 				<div class="form-row">
 
 					<div class="form-group half-width">
-						<label for="ability" class="form-label">Habilidade (Opcional)</label>
+						<label for="ability" class="form-label">{{ 'Habilidade (Opcional)'|trans }}</label>
 						<select name="ability" id="ability" class="form-select">
-							<option value="">-- Escolha a Habilidade --</option>
+							<option value="">{{ '-- Escolha a Habilidade --'|trans }}</option>
 							{% for ab in pokemon.abilities %}
 								<option value="{{ ab }}">{{ ab|replace({'-': ' '})|title }}</option>
 							{% endfor %}
@@ -124,17 +124,17 @@
 					</div>
 
 					<div class="form-group half-width">
-						<label for="nature" class="form-label">Nature</label>
+						<label for="nature" class="form-label">{{ 'Nature'|trans }}</label>
 						<select name="nature" id="nature" class="form-select" required>
-							<option value="">-- Selecione a Nature --</option>
+							<option value="">{{ '-- Selecione a Nature --'|trans }}</option>
 
 							{% for n in natures %}
 								<option value="{{ n.name }}">
-									{{ n.name|capitalize }}
+									{{ n.name|capitalize|trans }}
 									{% if n.increased != 'none' or n.decreased != 'none' %}
-										(+{{ n.increased|replace({'-': ' '})|title }}, -{{ n.decreased|replace({'-': ' '})|title }})
+										(+{{ (n.increased|replace({'-': ' '})|title)|trans }}, -{{ (n.decreased|replace({'-': ' '})|title)|trans }})
 									{% else %}
-										(Neutra)
+										({{ 'Neutra'|trans }})
 									{% endif %}
 								</option>
 							{% endfor %}
@@ -143,8 +143,8 @@
 					</div>
 
 					<div class="form-group half-width">
-						<label for="heldItemInput" class="form-label">Item Segurado (Opcional)</label>
-						<input type="text" id="heldItemInput" name="heldItem" list="items-list" class="form-input" placeholder="Digite para buscar..." autocomplete="off">
+						<label for="heldItemInput" class="form-label">{{ 'Item Segurado (Opcional)'|trans }}</label>
+						<input type="text" id="heldItemInput" name="heldItem" list="items-list" class="form-input" placeholder="{{ 'Digite para buscar...'|trans }}" autocomplete="off">
 						<datalist id="items-list">
 							{% for item in items %}
 								<option value="{{ item.name }}">{{ item.name|replace({'-': ' '})|title }}</option>
@@ -161,7 +161,7 @@
 		<div class="moveset-moves-fullwidth card">
 			<div class="moves-fullwidth-header">
 				<span class="form-label">
-					Movimentos Selecionados
+					{{ 'Movimentos Selecionados'|trans }}
 					<span class="slots-counter" id="slots-counter">(0 /
 						{{ maxMoves }})</span>
 				</span>
@@ -185,13 +185,13 @@
 			<!-- Pesquisa + Filtros -->
 			<div class="search-filter-row">
 				<div class="search-box">
-					<input type="text" id="available-moves-search" class="search-input" placeholder="Buscar golpe por nome...">
+					<input type="text" id="available-moves-search" class="search-input" placeholder="{{ 'Buscar golpe por nome...'|trans }}">
 					<i class="fa-solid fa-magnifying-glass search-icon"></i>
 				</div>
 				<div class="filter-buttons">
 					<button type="button" class="btn-filter active" data-filter="all">
 						<i class="fa-solid fa-layer-group"></i>
-						Todos</button>
+						{{ 'Todos'|trans }}</button>
 					<button type="button" class="btn-filter" data-filter="lvl">
 						<i class="fa-solid fa-circle-chevron-up"></i>
 						Lvl</button>
@@ -216,7 +216,7 @@
 						{% set isLocked = true %}
 					{% endif %}
 
-					<div class="available-move-card {% if isLocked %}move-locked{% endif %}" data-move-name="{{ moveName }}" data-learn-method="{{ learnMethod }}" data-locked="{% if isLocked %}true{% else %}false{% endif %}" onclick="{% if isLocked %}alert('Você precisa desbloquear a {{ moveName|replace({'-': ' '})|title }} (TM) no seu Trainer Card para poder usá-la!');{% else %}addMoveToFirstEmptySlot('{{ moveName }}'){% endif %}" onmouseenter="showMoveTooltip(event, '{{ moveName }}')" onmouseleave="hideMoveTooltip()">
+					<div class="available-move-card {% if isLocked %}move-locked{% endif %}" data-move-name="{{ moveName }}" data-learn-method="{{ learnMethod }}" data-locked="{% if isLocked %}true{% else %}false{% endif %}" onclick="{% if isLocked %}alert('{{ 'Você precisa desbloquear a'|trans }} {{ moveName|replace({'-': ' '})|title }} (TM) {{ 'no seu Trainer Card para poder usá-la!'|trans }}');{% else %}addMoveToFirstEmptySlot('{{ moveName }}'){% endif %}" onmouseenter="showMoveTooltip(event, '{{ moveName }}')" onmouseleave="hideMoveTooltip()">
 						<span class="move-name">
 							{% if isLocked %}
 								<i class="fa-solid fa-lock" style="color: #ef4444; margin-right: 6px;" title="TM Bloqueada"></i>
@@ -245,14 +245,14 @@
 		<!-- Ações abaixo dos moves -->
 		<div class="moveset-bottom-section card">
 			<div class="form-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-				<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="btn btn-secondary">Cancelar</a>
+				<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="btn btn-secondary">{{ 'Cancelar'|trans }}</a>
 				<button type="submit" name="action" value="save" class="btn btn-secondary" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-secondary);">
 					<i class="fa-solid fa-floppy-disk"></i>
-					Salvar
+					{{ 'Salvar'|trans }}
 				</button>
 				<button type="submit" name="action" value="suggest" class="btn btn-primary">
 					<i class="fa-solid fa-star"></i>
-					Salvar e Sugerir
+					{{ 'Salvar e Sugerir'|trans }}
 				</button>
 			</div>
 		</div>
@@ -260,7 +260,7 @@
 	</form>
 
 	<!-- Container Oculto para passar dados do Twig para o JS externo -->
-	<div id="moveset-app-data" data-max-moves="{{ maxMoves }}" style="display: none;"></div>
+	<div id="moveset-app-data" data-max-moves="{{ maxMoves }}" data-locale="{{ app.request.locale }}" style="display: none;"></div>
 
 	<script src="{{ asset('js/create-moves.js') }}"></script>
 {% endblock %}

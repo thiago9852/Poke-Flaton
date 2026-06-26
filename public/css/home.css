@@ -265,3 +265,96 @@
 .generation-card:hover .gen-count {
     color: var(--text-primary);
 }
+
+/* Seção Sobre */
+.about-section {
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.about-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 35px 30px;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+}
+
+.about-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+.about-card-glow {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    filter: blur(50px);
+    opacity: 0.04;
+    top: -40px;
+    right: -40px;
+    pointer-events: none;
+    transition: var(--transition-smooth);
+}
+
+.about-card:hover .about-card-glow {
+    opacity: 0.1;
+    transform: scale(1.3);
+}
+
+.color-primary-glow {
+    background-color: var(--color-primary);
+}
+
+.color-secondary-glow {
+    background-color: var(--color-secondary);
+}
+
+.about-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: rgba(139, 92, 246, 0.1);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+    text-shadow: 0 0 12px var(--color-primary-glow);
+}
+
+.about-icon-wrapper.secondary-icon {
+    background-color: rgba(6, 182, 212, 0.1);
+    color: var(--color-secondary);
+    text-shadow: 0 0 12px var(--color-secondary-glow);
+}
+
+.about-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.about-desc {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+.about-desc strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}

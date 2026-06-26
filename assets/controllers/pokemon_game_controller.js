@@ -7,12 +7,72 @@ function formatLocalDateYMD(date) {
     return `${year}-${month}-${day}`;
 }
 
+const MESSAGES = {
+    pt_BR: {
+        noPokemonFound: 'Nenhum Pokémon encontrado.',
+        invalidPokemon: 'Pokémon inválido ou não disponível nesta geração!',
+        alreadyGuessed: 'Você já tentou este Pokémon!',
+        reqError: 'Erro na requisição.',
+        connError: 'Erro de conexão com o servidor.',
+        finalDetailsError: 'Erro ao carregar detalhes finais.',
+        solved: 'Resolvido!',
+        win: 'Você Venceu!',
+        lose: 'Fim de Jogo!',
+        guesses: 'Palpites',
+        copied: 'Resultado copiado para a área de transferência!',
+        copyFailed: 'Falha ao copiar automaticamente.',
+        confirmGiveUp: 'Tem certeza que deseja desistir desta rodada?',
+        shareDaily: 'Qual é o Pokémon do Dia?',
+        shareGuessed: 'Adivinhei em',
+        shareAttempts: 'tentativas',
+        shareAttempt: 'tentativa',
+        shareGiveUp: 'Resultado: Desistiu',
+        shareSecret: 'Pokémon Secreto',
+        sharePlayNow: 'Jogue agora',
+        typeTranslations: {
+            normal: 'Normal', fire: 'Fogo', water: 'Água', grass: 'Planta', electric: 'Elétrico', ice: 'Gelo', fighting: 'Lutador', poison: 'Veneno', ground: 'Terra', flying: 'Voador', psychic: 'Psíquico', bug: 'Inseto', rock: 'Pedra', ghost: 'Fantasma', dragon: 'Dragão', dark: 'Sombrio', steel: 'Aço', fairy: 'Fada'
+        }
+    },
+    en: {
+        noPokemonFound: 'No Pokémon found.',
+        invalidPokemon: 'Invalid Pokémon or not available in this generation!',
+        alreadyGuessed: 'You already guessed this Pokémon!',
+        reqError: 'Request error.',
+        connError: 'Connection error with the server.',
+        finalDetailsError: 'Error loading final details.',
+        solved: 'Solved!',
+        win: 'You Won!',
+        lose: 'Game Over!',
+        guesses: 'Guesses',
+        copied: 'Result copied to clipboard!',
+        copyFailed: 'Failed to copy automatically.',
+        confirmGiveUp: 'Are you sure you want to give up this round?',
+        shareDaily: 'Who\'s that Daily Pokémon?',
+        shareGuessed: 'Guessed in',
+        shareAttempts: 'attempts',
+        shareAttempt: 'attempt',
+        shareGiveUp: 'Result: Gave up',
+        shareSecret: 'Secret Pokémon',
+        sharePlayNow: 'Play now',
+        typeTranslations: {
+            normal: 'Normal', fire: 'Fire', water: 'Water', grass: 'Grass', electric: 'Electric', ice: 'Ice', fighting: 'Fighting', poison: 'Poison', ground: 'Ground', flying: 'Flying', psychic: 'Psychic', bug: 'Bug', rock: 'Rock', ghost: 'Ghost', dragon: 'Dragon', dark: 'Dark', steel: 'Steel', fairy: 'Fairy'
+        }
+    }
+};
+
 export default class extends Controller {
     static values = {
         mode: String,
         pokemonList: Array,
         guessUrl: String,
-        revealUrl: String
+        revealUrl: String,
+        locale: { type: String, default: 'pt_BR' }
+    }
+
+    t(key) {
+        const locale = this.hasLocaleValue ? this.localeValue : 'pt_BR';
+        const msgs = MESSAGES[locale] || MESSAGES.pt_BR;
+        return msgs[key] !== undefined ? msgs[key] : key;
     }
 
     static targets = [
@@ -155,7 +215,8 @@ export default class extends Controller {
     renderAutocomplete() {
         this.gameAutocompleteTarget.innerHTML = '';
         if (this.filteredList.length === 0) {
-            this.gameAutocompleteTarget.innerHTML = '<div style="padding: 12px; color: var(--text-muted); font-size: 0.9rem;">Nenhum Pokémon encontrado.</div>';
+            const noFoundMsg = this.t('noPokemonFound');
+            this.gameAutocompleteTarget.innerHTML = `<div style="padding: 12px; color: var(--text-muted); font-size: 0.9rem;">${noFoundMsg}</div>`;
             this.gameAutocompleteTarget.style.display = 'flex';
             return;
         }
@@ -208,14 +269,14 @@ export default class extends Controller {
         // Valida se o Pokémon está na lista permitida
         const matchedPokemon = this.pokemonListValue.find(p => p.display_name.toLowerCase() === guessVal || p.name === guessVal);
         if (!matchedPokemon) {
-            this.showToast('Pokémon inválido ou não disponível nesta geração!');
+            this.showToast(this.t('invalidPokemon'));
             return;
         }
 
         // Verifica se já palpitou esse
         const alreadyGuessed = this.gameState.guesses.some(g => g.name.toLowerCase() === matchedPokemon.name.toLowerCase());
         if (alreadyGuessed) {
-            this.showToast('Você já tentou este Pokémon!');
+            this.showToast(this.t('alreadyGuessed'));
             return;
         }
 
@@ -236,7 +297,7 @@ export default class extends Controller {
 
             if (!response.ok) {
                 const errData = await response.json();
-                throw new Error(errData.error || 'Erro na requisição.');
+                throw new Error(errData.error || this.t('reqError'));
             }
 
             const data = await response.json();
@@ -271,7 +332,7 @@ export default class extends Controller {
             }
 
         } catch (err) {
-            this.showToast(err.message || 'Erro de conexão com o servidor.');
+            this.showToast(err.message || this.t('connError'));
             this.enableInputs();
         }
     }
@@ -301,26 +362,7 @@ export default class extends Controller {
             row.classList.add('animate-row');
         }
 
-        const typeTranslations = {
-            normal: 'Normal',
-            fire: 'Fogo',
-            water: 'Água',
-            grass: 'Planta',
-            electric: 'Elétrico',
-            ice: 'Gelo',
-            fighting: 'Lutador',
-            poison: 'Veneno',
-            ground: 'Terra',
-            flying: 'Voador',
-            psychic: 'Psíquico',
-            bug: 'Inseto',
-            rock: 'Pedra',
-            ghost: 'Fantasma',
-            dragon: 'Dragão',
-            dark: 'Sombrio',
-            steel: 'Aço',
-            fairy: 'Fada'
-        };
+        const typeTranslations = this.t('typeTranslations');
 
         const typeIds = {
             normal: 1,
@@ -451,7 +493,7 @@ export default class extends Controller {
             this.showEndModal(this.gameState.isWon, data);
             this.renderSolvedPokemon(this.gameState.isWon, data);
         } catch (e) {
-            this.showToast('Erro ao carregar detalhes finais.');
+            this.showToast(this.t('finalDetailsError'));
         }
     }
 
@@ -462,7 +504,7 @@ export default class extends Controller {
             this.solvedPokemonContainerTarget.innerHTML = `
                 <img src="${secret.sprite}" alt="${secret.name}" class="solved-pokemon-art">
                 <div class="solved-pokemon-info">
-                    <span class="solved-pokemon-label">Resolvido!</span>
+                    <span class="solved-pokemon-label">${this.t('solved')}</span>
                     <span class="solved-pokemon-name">${secret.name}</span>
                     <span class="solved-pokemon-number">#${secret.id}</span>
                 </div>
@@ -475,7 +517,7 @@ export default class extends Controller {
     }
 
     showEndModal(isWon, secret) {
-        this.modalTitleTarget.textContent = isWon ? 'Você Venceu!' : 'Fim de Jogo!';
+        this.modalTitleTarget.textContent = isWon ? this.t('win') : this.t('lose');
         this.modalTitleTarget.className = `modal-title ${isWon ? 'win' : 'lose'}`;
         
         this.modalArtworkTarget.src = secret.sprite;
@@ -519,7 +561,7 @@ export default class extends Controller {
     }
 
     updateAttemptsCounter() {
-        this.attemptsCounterTarget.textContent = `Palpites: ${this.gameState.guesses.length}`;
+        this.attemptsCounterTarget.textContent = `${this.t('guesses')}: ${this.gameState.guesses.length}`;
     }
 
     disableInputs() {
@@ -598,24 +640,25 @@ export default class extends Controller {
         const totalGuesses = this.gameState.guesses.length;
         const secret = this.gameState.revealedDetails;
         
-        let shareText = `PokeFlaton - Pokémon do Dia (${this.todayStr.split('-').reverse().join('/')}) \n`;
+        let shareText = `PokeFlaton - ${this.t('shareDaily')} (${this.todayStr.split('-').reverse().join('/')}) \n`;
         
         if (this.gameState.isWon) {
-            shareText += `Adivinhei em: ${totalGuesses} ${totalGuesses === 1 ? 'tentativa' : 'tentativas'}! \n`;
+            const guessWord = totalGuesses === 1 ? this.t('shareAttempt') : this.t('shareAttempts');
+            shareText += `${this.t('shareGuessed')} ${totalGuesses} ${guessWord}! \n`;
         } else {
-            shareText += `Resultado: Desistiu \n`;
+            shareText += `${this.t('shareGiveUp')} \n`;
         }
         
         if (secret) {
-            shareText += `Pokémon Secreto: #${secret.id} ${secret.name}\n`;
+            shareText += `${this.t('shareSecret')}: #${secret.id} ${secret.name}\n`;
         }
         
-        shareText += `\nJogue agora: ${window.location.href}`;
+        shareText += `\n${this.t('sharePlayNow')}: ${window.location.href}`;
         
         navigator.clipboard.writeText(shareText).then(() => {
-            this.showToastNotification('Resultado copiado para a área de transferência!');
+            this.showToastNotification(this.t('copied'));
         }).catch(() => {
-            this.showToastNotification('Falha ao copiar automaticamente.');
+            this.showToastNotification(this.t('copyFailed'));
         });
     }
 
@@ -630,7 +673,7 @@ export default class extends Controller {
     // Desistir
     async giveUp() {
         if (this.gameState.isFinished) return;
-        if (!confirm('Tem certeza que deseja desistir desta rodada?')) return;
+        if (!confirm(this.t('confirmGiveUp'))) return;
 
         this.disableInputs();
         this.gameState.isFinished = true;

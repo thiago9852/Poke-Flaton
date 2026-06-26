@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Perfil de
+{% block title %}{{ 'Perfil de'|trans }}
 	{{ targetUser.username }}
 	| PokeFlaton
 {% endblock %}
@@ -23,15 +23,15 @@
 		<div class="profile-tabs">
 			<button class="tab-btn active" onclick="switchTab(event, 'trainer-card-tab')">
 				<i class="fa-solid fa-address-card"></i>
-				Trainer Card
+				{{ 'Trainer Card'|trans }}
 			</button>
 			<button class="tab-btn" onclick="switchTab(event, 'pokedex-tab')">
 				<i class="fa-solid fa-square-poll-horizontal"></i>
-				Pokedéx (<span id="pokedex-count-badge">{{ caughtCount }}</span>)
+				{{ 'Pokédex'|trans }} (<span id="pokedex-count-badge">{{ caughtCount }}</span>)
 			</button>
 			<button class="tab-btn" onclick="switchTab(event, 'medals-tab')">
 				<i class="fa-solid fa-medal"></i>
-				Medalhas
+				{{ 'Medalhas'|trans }}
 			</button>
 		</div>
 
@@ -61,7 +61,7 @@
 								<h2 class="banner-username">{{ targetUser.username }}</h2>
 								<span class="banner-join-date">
 									<i class="fa-solid fa-calendar-days"></i>
-									Membro desde
+									{{ 'Membro desde'|trans }}
 									{{ targetUser.createdAt|date('d/m/Y') }}
 								</span>
 							</div>
@@ -75,13 +75,13 @@
 									<i class="fa-solid fa-crown"></i>
 								{% endif %}
 								
-								<span class="achievement-label">{{ selectedTitle|default('Treinador Novato') }}</span>
+								<span class="achievement-label">{{ selectedTitle|default('Treinador Novato')|trans }}</span>
 							{% endset %}
 
 							{% set titleContent %}
 								<div class="tooltip-row tooltip-desc-row">
-									<span class="tooltip-label">Como conseguir:</span>
-									<span class="tooltip-value">{{ selectedTitleRequirement }}</span>
+									<span class="tooltip-label">{{ 'Como conseguir:'|trans }}</span>
+									<span class="tooltip-value">{{ selectedTitleRequirement|trans }}</span>
 								</div>
 							{% endset %}
 
@@ -89,7 +89,7 @@
 								'tag': 'div',
 								'class': 'banner-achievement-title',
 								'style': 'cursor: pointer;',
-								'title': selectedTitle|default('Treinador Novato'),
+								'title': selectedTitle|default('Treinador Novato')|trans,
 								'label': titleLabel,
 								'content': titleContent
 							} %}
@@ -99,31 +99,31 @@
 						<div class="banner-medal-showcase">
 							<span class="showcase-title">
 								<i class="fa-solid fa-medal"></i>
-								Medalhas em Destaque
+								{{ 'Medalhas em Destaque'|trans }}
 							</span>
 
 							<div class="showcase-slots">
 								{% for i in 0..3 %}
 									{% set showcaseMedal = targetUser.showcaseMedals[i] | default(null) %}
+									{% set foundMedal = null %}
+									{% if showcaseMedal %}
+										{% for m in activityMedals|merge(catchMedals)|merge(regionalMedals)|merge(typeMedals) %}
+											{% if m.name == showcaseMedal and m.tier != 'locked' and m.enabled %}
+												{% set foundMedal = m %}
+											{% endif %}
+										{% endfor %}
+									{% endif %}
 
-									<div class="showcase-slot {% if showcaseMedal %}filled{% else %}empty{% endif %}" data-slot="{{ i }}" style="cursor: default;" title="{% if showcaseMedal %}{{ showcaseMedal }}{% else %}Sem medalha destacada{% endif %}">
+									<div class="showcase-slot {% if showcaseMedal %}filled{% else %}empty{% endif %}" data-slot="{{ i }}" style="cursor: default;" title="{% if foundMedal %}{{ foundMedal.title|trans }}{% elseif showcaseMedal %}{{ showcaseMedal|trans }}{% else %}{{ 'Sem medalha destacada'|trans }}{% endif %}">
 										{% if showcaseMedal %}
-											{% set foundMedal = null %}
-											
-											{% for m in activityMedals|merge(catchMedals)|merge(regionalMedals)|merge(typeMedals) %}
-												{% if m.name == showcaseMedal and m.tier != 'locked' and m.enabled %}
-													{% set foundMedal = m %}
-												{% endif %}
-											{% endfor %}
-
 											{% if foundMedal and foundMedal.badgeImg %}
-												<img src="{{ foundMedal.badgeImg }}" alt="{{ foundMedal.title }}" class="showcase-medal-img">
-												<span class="showcase-medal-name">{{ foundMedal.title }}</span>
+												<img src="{{ foundMedal.badgeImg }}" alt="{{ foundMedal.title|trans }}" class="showcase-medal-img">
+												<span class="showcase-medal-name">{{ foundMedal.title|trans }}</span>
 											{% elseif foundMedal %}
 												<div class="showcase-medal-icon">
 													<i class="fa-solid {{ foundMedal.icon }}"></i>
 												</div>
-												<span class="showcase-medal-name">{{ foundMedal.title }}</span>
+												<span class="showcase-medal-name">{{ foundMedal.title|trans }}</span>
 											{% else %}
 												<div class="showcase-slot-empty"></div>
 											{% endif %}
@@ -146,7 +146,7 @@
 								<span class="banner-stat-value" id="card-votes-count">{{ totalVotes }}</span>
 								<span class="banner-stat-label">
 									<i class="fa-solid fa-heart"></i>
-									Curtidas
+									{{ 'Curtidas'|trans }}
 								</span>
 							</div>
 
@@ -155,7 +155,7 @@
 								<span class="banner-stat-value">{{ createdCount }}</span>
 								<span class="banner-stat-label">
 									<i class="fa-solid fa-flask"></i>
-									Movesets
+									{{ 'Movesets'|trans }}
 								</span>
 							</div>
 
@@ -164,7 +164,7 @@
 								<span class="banner-stat-value">{{ followingCount }}</span>
 								<span class="banner-stat-label">
 									<i class="fa-solid fa-user-plus"></i>
-									Seguindo
+									{{ 'Seguindo'|trans }}
 								</span>
 							</div>
 
@@ -173,7 +173,7 @@
 								<span class="banner-stat-value" id="followers-count-display">{{ followersCount }}</span>
 								<span class="banner-stat-label">
 									<i class="fa-solid fa-users"></i>
-									Seguidores
+									{{ 'Seguidores'|trans }}
 								</span>
 							</div>
 						</div>
@@ -188,22 +188,22 @@
 									<button id="follow-btn" class="btn {% if isFollowing %}btn-secondary{% else %}btn-primary{% endif %} btn-block" onclick="toggleFollowTrainer('{{ targetUser.username }}')">
 										<i class="fa-solid {% if isFollowing %}fa-user-minus{% else %}fa-user-plus{% endif %}"></i>
 										<span class="btn-text">
-											{% if isFollowing %}Deixar de Seguir{% else %}Seguir Treinador
+											{% if isFollowing %}{{ 'Deixar de Seguir'|trans }}{% else %}{{ 'Seguir Treinador'|trans }}
 											{% endif %}
 										</span>
 									</button>
 								{% else %}
 									<div class="profile-self-notice" style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px 18px; font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
 										<i class="fa-solid fa-circle-info" style="color: var(--color-secondary);"></i>
-										<span>Seu perfil público</span>
+										<span>{{ 'Seu perfil público'|trans }}</span>
 									</div>
 								{% endif %}
 
 							{% else %}
 								<div class="follow-prompt" style="font-size: 0.85rem; color: var(--text-muted);">
-									<span>Faça
-										<a href="{{ path('app_login') }}" style="color: var(--color-secondary); font-weight: 600;">login</a>
-										para seguir.
+									<span>{{ 'Faça'|trans }}
+										<a href="{{ path('app_login') }}" style="color: var(--color-secondary); font-weight: 600;">{{ 'login'|trans }}</a>
+										{{ 'para seguir.'|trans }}
 									</span>
 								</div>
 							{% endif %}
@@ -216,7 +216,7 @@
 				<div class="banner-footer-strip">
 					<div class="footer-ball-icon"></div>
 					<span class="region-text">
-						REGIÃO DE
+						{{ 'REGIÃO DE'|trans }}
 						{{ targetUser.regional|upper }}
 					</span>
 				</div>
@@ -225,14 +225,14 @@
 			<!-- Mochila de TMs -->
 			<div class="technical-machine-section trainer-section-collapsible">
 				<div class="trainer-section-header" onclick="toggleCategorySection('tms-content-section', 'tms-chevron')">
-					<h2 class="trainer-card-title">Mochila de TMs</h2>
+					<h2 class="trainer-card-title">{{ 'Mochila de TMs'|trans }}</h2>
 					<i class="fa-solid fa-chevron-down trainer-section-chevron" id="tms-chevron"></i>
 				</div>
 
 				<div id="tms-content-section" class="trainer-section-content">
 					<div class="tms-container card">
 						<div class="tms-header">
-							<p>Cassetes de golpes técnicos (TMs) desbloqueados por este treinador.</p>
+							<p>{{ 'Cassetes de golpes técnicos (TMs) desbloqueados por este treinador.'|trans }}</p>
 						</div>
 
 						{% set unlockedTmsList = [] %}
@@ -246,7 +246,7 @@
 						{% if unlockedTmsList is empty %}
 							<div style="text-align: center; padding: 30px; color: var(--text-secondary);">
 								<i class="fa-solid fa-circle-info" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 12px; display: block;"></i>
-								Este treinador ainda não desbloqueou nenhuma TM.
+								{{ 'Este treinador ainda não desbloqueou nenhuma TM.'|trans }}
 							</div>
 						{% else %}
 							<div class="tms-grid">
@@ -279,15 +279,14 @@
 		<div id="pokedex-tab" class="tab-content">
 			<div class="pokedex-list-container card">
 				<div class="tms-header">
-					<h2>Pokedéx de
-						{{ targetUser.username }}</h2>
-					<p>Confira todos os Pokémons capturados por este treinador na sua jornada!</p>
+					<h2>{{ 'Pokédex de %username%'|trans({'%username%': targetUser.username}) }}</h2>
+					<p>{{ 'Confira todos os Pokémons capturados por este treinador na sua jornada!'|trans }}</p>
 				</div>
 
 				{% if caughtDetails is empty %}
 					<div class="empty-pokedex-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
 						<i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
-						<h3>Nenhum Pokémon capturado ainda!</h3>
+						<h3>{{ 'Nenhum Pokémon capturado ainda!'|trans }}</h3>
 					</div>
 				{% else %}
 					<div class="pokedex-caught-grid">
@@ -305,7 +304,7 @@
 									</a>
 									<div class="poke-badges-container">
 										{% for type in poke.types %}
-											<span class="type-badge-sm type-badge-pd type-badge-{{ type }}">{{ type|capitalize }}</span>
+											<span class="type-badge-sm type-badge-pd type-badge-{{ type }}">{{ type|capitalize|trans }}</span>
 										{% endfor %}
 									</div>
 								</div>
@@ -322,9 +321,8 @@
 		<div id="medals-tab" class="tab-content">
 			<div class="medals-layout-container">
 				<div class="medals-title-header">
-					<h2>Conquistas do Treinador -
-						{{ targetUser.username }}</h2>
-					<p>Progresso e conquistas deste treinador.</p>
+					<h2>{{ 'Conquistas do Treinador - %username%'|trans({'%username%': targetUser.username}) }}</h2>
+					<p>{{ 'Progresso e conquistas deste treinador.'|trans }}</p>
 				</div>
 
 				<!-- Categoria 1: Conquistas de Atividade e Comunidade -->
@@ -332,7 +330,7 @@
 					<div class="trainer-section-header" onclick="toggleCategorySection('medal-activity-section', 'medal-activity-chevron')">
 						<h3 class="medals-category-title">
 							<i class="fa-solid fa-trophy"></i>
-							Conquistas de Atividade e Comunidade
+							{{ 'Conquistas de Atividade e Comunidade'|trans }}
 						</h3>
 						<i class="fa-solid fa-chevron-down trainer-section-chevron" id="medal-activity-chevron"></i>
 					</div>
@@ -342,7 +340,7 @@
 						<div class="medals-grid">
 							{% for medal in activityMedals %}
 
-								<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}" data-tooltip-title="{{ medal.title }}" onmouseenter="showTemplateTooltip(event)" onmouseleave="hideGenericTooltip()">
+								<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}" data-tooltip-title="{{ medal.title|trans }}" onmouseenter="showTemplateTooltip(event)" onmouseleave="hideGenericTooltip()">
 									<div class="medal-badge-wrapper">
 
 										{% if not medal.enabled %}
@@ -351,7 +349,7 @@
 											</div>
 										{% else %}
 											{% if medal.badgeImg %}
-												<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
+												<img src="{{ medal.badgeImg }}" alt="{{ medal.title|trans }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
 											{% else %}
 												<div class="medal-badge">
 													<i class="fa-solid {{ medal.icon }}"></i>
@@ -361,9 +359,9 @@
 									</div>
 
 									<div class="medal-info">
-										<h4 class="medal-title">{{ medal.title }}</h4>
+										<h4 class="medal-title">{{ medal.title|trans }}</h4>
 										<p class="medal-desc">
-											{{ medal.description }}
+											{{ medal.description|trans }}
 										</p>
 
 										{% if medal.enabled %}
@@ -378,7 +376,7 @@
 														<span class="progress-separator">/</span>
 														<span class="progress-target">{{ medal.nextTarget }}</span>
 													{% else %}
-														<span class="progress-max">(Máximo)</span>
+														<span class="progress-max">{{ '(Máximo)'|trans }}</span>
 													{% endif %}
 												</div>
 											</div>
@@ -404,7 +402,7 @@
 											<div class="medal-status-admin-locked">
 												<span class="badge-status-locked">
 													<i class="fa-solid fa-lock"></i>
-													EM BREVE
+													{{ 'EM BREVE'|trans }}
 												</span>
 											</div>
 										{% endif %}
@@ -425,7 +423,7 @@
 					<div class="trainer-section-header" onclick="toggleCategorySection('medal-encyclopedia-section', 'medal-encyclopedia-chevron')">
 						<h3 class="medals-category-title">
 							<i class="fa-solid fa-book-open"></i>
-							Enciclopédia Pokémon
+							{{ 'Enciclopédia Pokémon'|trans }}
 						</h3>
 						<i class="fa-solid fa-chevron-down trainer-section-chevron" id="medal-encyclopedia-chevron"></i>
 					</div>
@@ -434,14 +432,14 @@
 						<div class="medals-section-category">
 
 							<div class="medals-title-header">
-								<h4>Explorador</h4>
-								<p class="text-muted">Conquistas gerais por metas de exploração.</p>
+								<h4>{{ 'Explorador'|trans }}</h4>
+								<p class="text-muted">{{ 'Conquistas gerais por metas de exploração.'|trans }}</p>
 							</div>
 
 							<div class="medals-grid">
 								{% for medal in catchMedals %}
 
-									<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}" data-tooltip-title="{{ medal.title }}" onmouseenter="showTemplateTooltip(event)" onmouseleave="hideGenericTooltip()">
+									<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}" data-tooltip-title="{{ medal.title|trans }}" onmouseenter="showTemplateTooltip(event)" onmouseleave="hideGenericTooltip()">
 										<div class="medal-badge-wrapper">
 
 											{% if not medal.enabled %}
@@ -450,7 +448,7 @@
 												</div>
 											{% else %}
 												{% if medal.badgeImg %}
-													<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
+													<img src="{{ medal.badgeImg }}" alt="{{ medal.title|trans }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
 												{% else %}
 													<div class="medal-badge">
 														<i class="fa-solid {{ medal.icon }}"></i>
@@ -460,9 +458,9 @@
 										</div>
 
 										<div class="medal-info">
-											<h4 class="medal-title">{{ medal.title }}</h4>
+											<h4 class="medal-title">{{ medal.title|trans }}</h4>
 											<p class="medal-desc">
-												{{ medal.description }}
+												{{ medal.description|trans }}
 											</p>
 
 											{% if medal.enabled %}
@@ -477,7 +475,7 @@
 															<span class="progress-separator">/</span>
 															<span class="progress-target">{{ medal.nextTarget }}</span>
 														{% else %}
-															<span class="progress-max">(Máximo)</span>
+															<span class="progress-max">{{ '(Máximo)'|trans }}</span>
 														{% endif %}
 													</div>
 												</div>
@@ -503,7 +501,7 @@
 												<div class="medal-status-admin-locked">
 													<span class="badge-status-locked">
 														<i class="fa-solid fa-lock"></i>
-														EM BREVE
+														{{ 'EM BREVE'|trans }}
 													</span>
 												</div>
 											{% endif %}
@@ -518,15 +516,15 @@
 
 						<div class="medals-section-category" style="margin-top: 30px;">
 							<div class="medals-title-header">
-								<h4>Capturas de Tipos</h4>
-								<p class="text-muted">Suba de nível capturando diferentes espécies de cada tipo.</p>
+								<h4>{{ 'Capturas de Tipos'|trans }}</h4>
+								<p class="text-muted">{{ 'Suba de nível capturando diferentes espécies de cada tipo.'|trans }}</p>
 							</div>
 
 							<div class="medals-grid types-medals-grid">
 								{% for medal in typeMedals %}
 									{% set typeKey = medal.name|replace({'type_': ''}) %}
 
-									<div class="medal-card card medal-tier-{{ medal.tier }} medal-type-card border-type-{{ typeKey }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}" data-tooltip-title="{{ medal.title }}" onmouseenter="showTemplateTooltip(event)" onmouseleave="hideGenericTooltip()">
+									<div class="medal-card card medal-tier-{{ medal.tier }} medal-type-card border-type-{{ typeKey }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}" data-tooltip-title="{{ medal.title|trans }}" onmouseenter="showTemplateTooltip(event)" onmouseleave="hideGenericTooltip()">
 										<div class="medal-badge-wrapper">
 
 											{% if not medal.enabled %}
@@ -535,7 +533,7 @@
 												</div>
 											{% else %}
 												{% if medal.badgeImg %}
-													<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
+													<img src="{{ medal.badgeImg }}" alt="{{ medal.title|trans }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
 												{% else %}
 													<div class="medal-badge type-color-badge-{{ typeKey }}">
 														<i class="fa-solid {{ medal.icon }}"></i>
@@ -545,10 +543,10 @@
 										</div>
 
 										<div class="medal-info">
-											<h4 class="medal-title">{{ medal.title }}</h4>
-											<span class="type-badge-sm type-badge-pd type-badge-{{ typeKey }}" style="display: inline-block; margin-bottom: 8px;">{{ typeKey|capitalize }}</span>
+											<h4 class="medal-title">{{ medal.title|trans }}</h4>
+											<span class="type-badge-sm type-badge-pd type-badge-{{ typeKey }}" style="display: inline-block; margin-bottom: 8px;">{{ typeKey|capitalize|trans }}</span>
 											<p class="medal-desc">
-												{{ medal.description }}
+												{{ medal.description|trans }}
 											</p>
 
 											{% if medal.enabled %}
@@ -563,7 +561,7 @@
 															<span class="progress-separator">/</span>
 															<span class="progress-target">{{ medal.nextTarget }}</span>
 														{% else %}
-															<span class="progress-max">(Máximo)</span>
+															<span class="progress-max">{{ '(Máximo)'|trans }}</span>
 														{% endif %}
 													</div>
 												</div>
@@ -589,7 +587,7 @@
 												<div class="medal-status-admin-locked">
 													<span class="badge-status-locked">
 														<i class="fa-solid fa-lock"></i>
-														EM BREVE
+														{{ 'EM BREVE'|trans }}
 													</span>
 												</div>
 											{% endif %}
@@ -611,7 +609,7 @@
 					<div class="trainer-section-header" onclick="toggleCategorySection('medal-regional-section', 'medal-regional-chevron')">
 						<h3 class="medals-category-title">
 							<i class="fa-solid fa-map-location-dot"></i>
-							Medalhas de Pokédex Regional
+							{{ 'Medalhas de Pokédex Regional'|trans }}
 						</h3>
 						<i class="fa-solid fa-chevron-down trainer-section-chevron" id="medal-regional-chevron"></i>
 					</div>
@@ -620,7 +618,7 @@
 						<div class="medals-grid">
 							{% for medal in regionalMedals %}
 
-								<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}" data-tooltip-title="{{ medal.title }}" onmouseenter="showTemplateTooltip(event)" onmouseleave="hideGenericTooltip()">
+								<div class="medal-card card medal-tier-{{ medal.tier }} {% if not medal.enabled %}medal-admin-locked{% endif %}" id="medal-card-{{ medal.name }}" data-tooltip-title="{{ medal.title|trans }}" onmouseenter="showTemplateTooltip(event)" onmouseleave="hideGenericTooltip()">
 									<div class="medal-badge-wrapper">
 										{% if not medal.enabled %}
 											<div class="medal-badge medal-badge-admin-locked">
@@ -628,7 +626,7 @@
 											</div>
 										{% else %}
 											{% if medal.badgeImg %}
-												<img src="{{ medal.badgeImg }}" alt="{{ medal.title }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
+												<img src="{{ medal.badgeImg }}" alt="{{ medal.title|trans }}" class="medal-badge-img {% if medal.tier == 'locked' %}medal-badge-locked{% endif %}" loading="lazy">
 											{% else %}
 												<div class="medal-badge">
 													<i class="fa-solid {{ medal.icon }}"></i>
@@ -638,9 +636,9 @@
 									</div>
 
 									<div class="medal-info">
-										<h4 class="medal-title">{{ medal.title }}</h4>
+										<h4 class="medal-title">{{ medal.title|trans }}</h4>
 										<p class="medal-desc">
-											{{ medal.description }}
+											{{ medal.description|trans }}
 										</p>
 
 										{% if medal.enabled %}
@@ -654,7 +652,7 @@
 														<span class="progress-separator">/</span>
 														<span class="progress-target">{{ medal.nextTarget }}</span>
 													{% else %}
-														<span class="progress-max">(Máximo)</span>
+														<span class="progress-max">{{ '(Máximo)'|trans }}</span>
 													{% endif %}
 												</div>
 											</div>
@@ -680,7 +678,7 @@
 											<div class="medal-status-admin-locked">
 												<span class="badge-status-locked">
 													<i class="fa-solid fa-lock"></i>
-													EM BREVE
+													{{ 'EM BREVE'|trans }}
 												</span>
 											</div>
 										{% endif %}
@@ -701,13 +699,13 @@
 					<div class="trainer-section-header" onclick="toggleCategorySection('medal-vivillon-section', 'medal-vivillon-chevron')">
 						<h3 class="medals-category-title">
 							<i class="fa-solid fa-leaf"></i>
-							Vivillon's Patterns
+							{{ "Vivillon's Patterns"|trans }}
 						</h3>
 						<i class="fa-solid fa-chevron-down trainer-section-chevron" id="medal-vivillon-chevron"></i>
 					</div>
 
 					<div id="medal-vivillon-section" class="trainer-section-content">
-						<p class="text-muted mb-4" style="margin-top: -5px; font-size: 0.9rem;">Cada padrão de Vivillon é exclusivo de uma região real do mundo. Colecione todos os 20!</p>
+						<p class="text-muted mb-4" style="margin-top: -5px; font-size: 0.9rem;">{{ 'Cada padrão de Vivillon é exclusivo de uma região real do mundo. Colecione todos os 20!'|trans }}</p>
 						<div class="vivillon-patterns-grid">
 
 							{% for pattern in vivillonMedals %}
@@ -732,13 +730,13 @@
 										{% if not pattern.enabled %}
 											<span class="vivillon-status vivillon-status-admin">
 												<i class="fa-solid fa-lock"></i>
-												Em Breve</span>
+												{{ 'Em Breve'|trans }}</span>
 										{% elseif pattern.unlocked %}
 											<span class="vivillon-status vivillon-status-unlocked">
 												<i class="fa-solid fa-check"></i>
-												Coletado</span>
+												{{ 'Coletado'|trans }}</span>
 										{% else %}
-											<span class="vivillon-status vivillon-status-locked">Por coletar</span>
+											<span class="vivillon-status vivillon-status-locked">{{ 'Por coletar'|trans }}</span>
 										{% endif %}
 									</div>
 									

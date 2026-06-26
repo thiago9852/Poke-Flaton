@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}PokeFlaton - Pokémons
+{% block title %}PokeFlaton - {{ 'Pokémons'|trans }}
 {% endblock %}
 
 {% block stylesheets %}
@@ -15,30 +15,30 @@
 
 		<form action="{{ path('app_pokemon_index') }}" method="GET" class="search-form">
 			<div class="search-box">
-				<input type="text" name="q" value="{{ search }}" placeholder="Buscar por nome ou número..." class="search-input" autocomplete="off">
+				<input type="text" name="q" value="{{ search }}" placeholder="{{ 'Buscar por nome ou número...'|trans }}" class="search-input" autocomplete="off">
 				<i class="fa-solid fa-magnifying-glass search-icon"></i>
 			</div>
 
 			<div class="sort-box">
-				<select name="sort" class="sort-select" aria-label="Ordenar pokémons" onchange="this.form.submit()">
-					<option value="" {% if not sort %}selected{% endif %}>Ordenar por:</option>
-					<option value="number_asc" {% if sort == 'number_asc' %}selected{% endif %}>Nº (001 → 999)</option>
-					<option value="number_desc" {% if sort == 'number_desc' %}selected{% endif %}>Nº (999 → 001)</option>
-					<option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Nome (A → Z)</option>
-					<option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Nome (Z → A)</option>
+				<select name="sort" class="sort-select" aria-label="{{ 'Ordenar pokémons'|trans }}" onchange="this.form.submit()">
+					<option value="" {% if not sort %}selected{% endif %}>{{ 'Ordenar por:'|trans }}</option>
+					<option value="number_asc" {% if sort == 'number_asc' %}selected{% endif %}>{{ 'Nº (001 → 999)'|trans }}</option>
+					<option value="number_desc" {% if sort == 'number_desc' %}selected{% endif %}>{{ 'Nº (999 → 001)'|trans }}</option>
+					<option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>{{ 'Nome (A → Z)'|trans }}</option>
+					<option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>{{ 'Nome (Z → A)'|trans }}</option>
 				</select>
 			</div>
 
 			<div class="sort-box">
-				<select name="gen" class="sort-select" aria-label="Filtrar por geração" onchange="this.form.submit()">
-					<option value="" {% if not selectedGen %}selected{% endif %}>Todas Gerações</option>
+				<select name="gen" class="sort-select" aria-label="{{ 'Filtrar por geração'|trans }}" onchange="this.form.submit()">
+					<option value="" {% if not selectedGen %}selected{% endif %}>{{ 'Todas Gerações'|trans }}</option>
 					{% for g in allowedGenerations %}
-						<option value="{{ g }}" {% if selectedGen == g %}selected{% endif %}>Geração {{ g }}</option>
+						<option value="{{ g }}" {% if selectedGen == g %}selected{% endif %}>{{ 'Geração'|trans }} {{ g }}</option>
 					{% endfor %}
 				</select>
 			</div>
 
-			<a href="{{ path('app_pokemon_index') }}" class="btn btn-secondary btn-clear-filters" title="Limpar todos os filtros">
+			<a href="{{ path('app_pokemon_index') }}" class="btn btn-secondary btn-clear-filters" title="{{ 'Limpar todos os filtros'|trans }}">
 				<i class="fa-solid fa-filter-circle-xmark"></i>
 			</a>
 		</form>
@@ -46,12 +46,12 @@
 		<div class="type-filter-container">
 			<span class="filter-label">
 				<i class="fa-solid fa-sliders"></i>
-				Filtrar por tipo:
+				{{ 'Filtrar por tipo:'|trans }}
 			</span>
 			<div class="type-badges-list">
 				{% for type in allTypes %}
 					<a href="{{ path('app_pokemon_index', { q: search, type: selectedType == type.value ? '' : type.value, gen: selectedGen, sort: sort }) }}" class="type-badge-link type-badge-{{ type.value }}{{ selectedType == type.value ? ' active' : '' }}">
-						{{ type.value|capitalize }}
+						{{ type.value|capitalize|trans }}
 					</a>
 				{% endfor %}
 			</div>
@@ -63,8 +63,8 @@
 		{% if pokemons is empty %}
 			<div class="empty-state card" style="text-align: center; padding: 60px 20px; background-color: rgba(255, 255, 255, 0.02);">
 				<i class="fa-solid fa-magnifying-glass" style="font-size: 3.5rem; color: var(--text-muted); margin-bottom: 20px; display: block;"></i>
-				<h3 style="color: var(--text-secondary); margin-bottom: 8px;">Nenhum Pokémon encontrado.</h3>
-				<p style="color: var(--text-muted);">Tente buscar com outro termo ou limpar os filtros atuais.</p>
+				<h3 style="color: var(--text-secondary); margin-bottom: 8px;">{{ 'Nenhum Pokémon encontrado.'|trans }}</h3>
+				<p style="color: var(--text-muted);">{{ 'Tente buscar com outro termo ou limpar os filtros atuais.'|trans }}</p>
 			</div>
 		{% else %}
 			<div class="pokemon-grid">
@@ -80,7 +80,7 @@
 						<div class="pokemon-types">
 
 							{% for type in pokemon.types %}
-								<span class="type-badge type-badge-{{ type }}">{{ type|capitalize }}</span>
+								<span class="type-badge type-badge-{{ type }}">{{ type|capitalize|trans }}</span>
 							{% endfor %}
 
 						</div>
@@ -97,27 +97,27 @@
 				{% if currentPage > 1 %}
 					<a href="{{ path('app_pokemon_index', { page: currentPage - 1, q: search, type: selectedType, gen: selectedGen, sort: sort }) }}" class="btn btn-secondary btn-sm">
 						<i class="fa-solid fa-chevron-left"></i>
-						Anterior
+						{{ 'Anterior'|trans }}
 					</a>
 				{% else %}
 					<span class="btn btn-secondary btn-sm disabled">
 						<i class="fa-solid fa-chevron-left"></i>
-						Anterior</span>
+						{{ 'Anterior'|trans }}</span>
 				{% endif %}
 
-				<span class="page-info">Página
+				<span class="page-info">{{ 'Página'|trans }}
 					<strong>{{ currentPage }}</strong>
-					de
+					{{ 'de'|trans }}
 					<strong>{{ lastPage }}</strong>
 				</span>
 
 				{% if currentPage < lastPage %}
 					<a href="{{ path('app_pokemon_index', { page: currentPage + 1, q: search, type: selectedType, gen: selectedGen, sort: sort }) }}" class="btn btn-secondary btn-sm">
-						Próxima
+						{{ 'Próxima'|trans }}
 						<i class="fa-solid fa-chevron-right"></i>
 					</a>
 				{% else %}
-					<span class="btn btn-secondary btn-sm disabled">Próxima
+					<span class="btn btn-secondary btn-sm disabled">{{ 'Próxima'|trans }}
 						<i class="fa-solid fa-chevron-right"></i>
 					</span>
 				{% endif %}

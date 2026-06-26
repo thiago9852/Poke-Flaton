@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ title }} | PokeFlaton{% endblock %}
+{% block title %}{{ title|trans }} | PokeFlaton{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -15,6 +15,7 @@
     data-pokemon-game-pokemon-list-value="{{ pokemonListJson }}"
     data-pokemon-game-guess-url-value="{{ path('api_game_guess') }}"
     data-pokemon-game-reveal-url-value="{{ path('api_game_reveal') }}"
+    data-pokemon-game-locale-value="{{ app.request.locale }}"
 >
 <div class="game-container">
     
@@ -24,7 +25,7 @@
             
             <header class="game-hero">
                 <div class="game-hero-content">
-                    <h1 class="game-title"> Qual é o Pokémon do Dia?</h1>
+                    <h1 class="game-title"> {{ 'Qual é o Pokémon do Dia?'|trans }}</h1>
                 </div>
             </header>
 
@@ -35,7 +36,7 @@
                         <input 
                             type="text" 
                             id="guessInput" 
-                            placeholder="Digite o nome de um Pokémon..." 
+                            placeholder="{{ 'Digite o nome de um Pokémon...'|trans }}" 
                             class="guess-input"
                             data-pokemon-game-target="guessInput"
                             data-action="input->pokemon-game#onInput keydown->pokemon-game#onKeydown"
@@ -45,8 +46,8 @@
                 </form>
 
                 <div class="game-actions">
-                    <button class="btn-giveup" id="btnGiveUp" data-pokemon-game-target="btnGiveUp" data-action="click->pokemon-game#giveUp">Desistir</button>
-                    <div class="attempts-counter" id="attemptsCounter" data-pokemon-game-target="attemptsCounter">Palpites: 0</div>
+                    <button class="btn-giveup" id="btnGiveUp" data-pokemon-game-target="btnGiveUp" data-action="click->pokemon-game#giveUp">{{ 'Desistir'|trans }}</button>
+                    <div class="attempts-counter" id="attemptsCounter" data-pokemon-game-target="attemptsCounter">{{ 'Palpites'|trans }}: 0</div>
                 </div>
             </div>
 
@@ -66,16 +67,16 @@
 
             <!-- Ranking Mensal -->
             <section class="game-ranking-section">
-                <h2 class="ranking-section-title"><i class="fa-solid fa-trophy"></i> Top 5 do Mês</h2>
-                <p class="ranking-section-subtitle">Os treinadores que adivinharam o Pokémon do dia com o menor número de tentativas este mês.</p>
+                <h2 class="ranking-section-title"><i class="fa-solid fa-trophy"></i> {{ 'Top 5 do Mês'|trans }}</h2>
+                <p class="ranking-section-subtitle">{{ 'Os treinadores que adivinharam o Pokémon do dia com o menor número de tentativas este mês.'|trans }}</p>
                 
                 <div class="ranking-table-container">
                     <table class="ranking-table">
                         <thead>
                             <tr>
                                 <th class="rank-col">#</th>
-                                <th class="trainer-col">Treinador</th>
-                                <th class="attempts-col">Tentativas</th>
+                                <th class="trainer-col">{{ 'Treinador'|trans }}</th>
+                                <th class="attempts-col">{{ 'Tentativas'|trans }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -94,13 +95,13 @@
                                     </td>
                                     <td class="trainer-info">
                                         <img src="{{ score.avatar ? avatar_url(score.avatar) : asset('image/Pokeball.png') }}" class="ranking-avatar" alt="Avatar">
-                                        <span class="trainer-name">{{ score.username }}</span>
+                                        <span class="trainer-name">{{ score.username|trans }}</span>
                                     </td>
-                                    <td class="attempts-val"><strong>{{ score.attempts }} </strong> {{ score.attempts == 1 ? 'tentativa' : 'tentativas' }}</td>
+                                    <td class="attempts-val"><strong>{{ score.attempts }} </strong> {{ (score.attempts == 1 ? 'tentativa' : 'tentativas')|trans }}</td>
                                 </tr>
                             {% else %}
                                 <tr>
-                                    <td colspan="4" class="no-ranking">Ainda não há pontuações registradas para este mês. Seja o primeiro!</td>
+                                    <td colspan="4" class="no-ranking">{{ 'Ainda não há pontuações registradas para este mês. Seja o primeiro!'|trans }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -115,7 +116,7 @@
 <div class="game-modal-overlay" id="gameModalOverlay" data-pokemon-game-target="gameModalOverlay" data-action="click->pokemon-game#closeModal">
     <div class="game-modal">
         <button class="modal-close" id="modalCloseBtn" data-action="click->pokemon-game#closeModal"><i class="fa-solid fa-xmark"></i></button>
-        <h2 class="modal-title" id="modalTitle" data-pokemon-game-target="modalTitle">Você Ganhou!</h2>
+        <h2 class="modal-title" id="modalTitle" data-pokemon-game-target="modalTitle">{{ 'Você Ganhou!'|trans }}</h2>
         
         <div class="modal-artwork-container">
             <div class="modal-artwork-glow"></div>
@@ -127,28 +128,28 @@
             <h3 class="modal-pkm-name" id="modalPkmName" data-pokemon-game-target="modalPkmName">Pikachu</h3>
         </div>
         <div class="modal-pkm-types" id="modalPkmTypes" data-pokemon-game-target="modalPkmTypes"></div>
-        <p class="modal-pkm-desc" id="modalPkmDesc" data-pokemon-game-target="modalPkmDesc">"Carrega eletricidade em suas bochechas..."</p>
-
+        <p class="modal-pkm-desc" id="modalPkmDesc" data-pokemon-game-target="modalPkmDesc"></p>
+ 
         <!-- Estatísticas da Partida -->
         <div class="modal-stats">
             <div class="stat-item">
                 <span class="stat-val" id="statAttempts" data-pokemon-game-target="statAttempts">4</span>
-                <span class="stat-label">Tentativas</span>
+                <span class="stat-label">{{ 'Tentativas'|trans }}</span>
             </div>
             <div class="stat-item">
                 <span class="stat-val" id="statStreak" data-pokemon-game-target="statStreak">1</span>
-                <span class="stat-label">Seq. Diária</span>
+                <span class="stat-label">{{ 'Seq. Diária'|trans }}</span>
             </div>
             <div class="stat-item">
                 <span class="stat-val" id="statMaxStreak" data-pokemon-game-target="statMaxStreak">1</span>
-                <span class="stat-label">Melhor Seq.</span>
+                <span class="stat-label">{{ 'Melhor Seq.'|trans }}</span>
             </div>
         </div>
 
         <!-- Ações do Modal -->
         <div class="modal-actions">
             <button class="btn-share" id="btnShare" data-pokemon-game-target="btnShare" data-action="click->pokemon-game#share">
-                <i class="fa-solid fa-share-nodes"></i> Compartilhar
+                <i class="fa-solid fa-share-nodes"></i> {{ 'Compartilhar'|trans }}
             </button>
         </div>
     </div>

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Cadastrar-se | PokeFlaton
+{% block title %}{{ 'Cadastrar-se'|trans }} | PokeFlaton
 {% endblock %}
 
 {% block stylesheets %}
@@ -14,8 +14,8 @@
 			<div class="detail-glow register-glow"></div>
 			<div class="auth-header">
 				<img src="{{ asset('image/PokeFlaton-pokeball.png') }}" alt="PokeFlaton" class="auth-logo">
-				<h1 class="auth-title">Crie sua Conta</h1>
-				<p class="auth-subtitle">Registre-se para desbloquear seu Trainer Card e começar a jornada!</p>
+				<h1 class="auth-title">{{ 'Crie sua Conta'|trans }}</h1>
+				<p class="auth-subtitle">{{ 'Registre-se para desbloquear seu Trainer Card e começar a jornada!'|trans }}</p>
 			</div>
 
 			{% if errors is not empty %}
@@ -24,7 +24,7 @@
 						{% for error in errors %}
 							<li>
 								<i class="fa-solid fa-circle-exclamation"></i>
-								{{ error }}</li>
+								{{ error|trans }}</li>
 						{% endfor %}
 					</ul>
 				</div>
@@ -33,50 +33,50 @@
 			{{ form_start(form, {'attr': {'class': 'auth-form', 'id': 'register-form'}}) }}
 				<div class="form-row">
 					<div class="form-group half-width">
-						<label for="{{ form.username.vars.id }}" class="form-label">Nome de Usuário
+						<label for="{{ form.username.vars.id }}" class="form-label">{{ 'Nome de Usuário'|trans }}
 							<span class="form-required">*</span>
 						</label>
 						<div class="input-icon-wrapper">
 							<i class="fa-solid fa-user input-icon"></i>
-							{{ form_widget(form.username, {'attr': {'class': 'form-input', 'placeholder': 'Entre 3 e 30 caracteres...'}}) }}
+							{{ form_widget(form.username, {'attr': {'class': 'form-input', 'placeholder': 'Entre 3 e 30 caracteres...'|trans}}) }}
 						</div>
 					</div>
 
 					<div class="form-group half-width">
-						<label for="{{ form.apelido.vars.id }}" class="form-label">Apelido
-							<span class="form-hint">(opcional)</span>
+						<label for="{{ form.apelido.vars.id }}" class="form-label">{{ 'Apelido'|trans }}
+							<span class="form-hint">{{ '(opcional)'|trans }}</span>
 						</label>
 						<div class="input-icon-wrapper">
 							<i class="fa-solid fa-user input-icon"></i>
-							{{ form_widget(form.apelido, {'attr': {'class': 'form-input', 'placeholder': 'Como quer ser chamado...'}}) }}
+							{{ form_widget(form.apelido, {'attr': {'class': 'form-input', 'placeholder': 'Como quer ser chamado...'|trans}}) }}
 						</div>
 					</div>
 				</div>
 
 				<div class="form-row">
 					<div class="form-group half-width">
-						<label for="{{ form.password.first.vars.id }}" class="form-label">Senha
+						<label for="{{ form.password.first.vars.id }}" class="form-label">{{ 'Senha'|trans }}
 							<span class="form-required">*</span>
 						</label>
 						<div class="input-icon-wrapper">
 							<i class="fa-solid fa-lock input-icon"></i>
-							{{ form_widget(form.password.first, {'attr': {'class': 'form-input', 'placeholder': 'Mínimo 6 caracteres...'}}) }}
+							{{ form_widget(form.password.first, {'attr': {'class': 'form-input', 'placeholder': 'Mínimo 6 caracteres...'|trans}}) }}
 						</div>
 					</div>
 
 					<div class="form-group half-width">
-						<label for="{{ form.password.second.vars.id }}" class="form-label">Confirmar Senha
+						<label for="{{ form.password.second.vars.id }}" class="form-label">{{ 'Confirmar Senha'|trans }}
 							<span class="form-required">*</span>
 						</label>
 						<div class="input-icon-wrapper">
 							<i class="fa-solid fa-lock input-icon"></i>
-							{{ form_widget(form.password.second, {'attr': {'class': 'form-input', 'placeholder': 'Digite a senha novamente...'}}) }}
+							{{ form_widget(form.password.second, {'attr': {'class': 'form-input', 'placeholder': 'Digite a senha novamente...'|trans}}) }}
 						</div>
 					</div>
 				</div>
 
 				<div class="form-group">
-					<label for="{{ form.regional.vars.id }}" class="form-label">Sua Região
+					<label for="{{ form.regional.vars.id }}" class="form-label">{{ 'Sua Região'|trans }}
 						<span class="form-required">*</span>
 					</label>
 					<div class="input-icon-wrapper">
@@ -86,14 +86,14 @@
 
 				<button type="submit" class="btn btn-primary btn-block">
 					<i class="fa-solid fa-user-plus"></i>
-					Registrar-se
+					{{ 'Registrar-se'|trans }}
 				</button>
 			{{ form_end(form) }}
 
 
 			<div class="auth-footer">
-				<p>Já possui uma conta?
-					<a href="{{ path('app_login') }}" class="auth-link">Faça login aqui</a>
+				<p>{{ 'Já possui uma conta?'|trans }}
+					<a href="{{ path('app_login') }}" class="auth-link">{{ 'Faça login aqui'|trans }}</a>
 				</p>
 			</div>
 		</div>

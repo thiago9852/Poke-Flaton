@@ -9,16 +9,55 @@ const TYPE_IDS = {
 
 const cacheKeyPrefix = 'poke_move_type_';
 
+const MESSAGES = {
+    pt_BR: {
+        minMovesAlert: 'Por favor, selecione pelo menos 4 movimentos para salvar o moveset.',
+        maxMovesAlert: 'Você já selecionou o limite máximo de {max} movimentos.',
+        typeLabel: 'Tipo',
+        powerLabel: 'Poder',
+        categoryLabel: 'Categoria',
+        descriptionLabel: 'Descrição',
+        physicalLabel: 'Físico',
+        specialLabel: 'Especial',
+        statusLabel: 'Status',
+        noDescription: 'Nenhuma descrição disponível.',
+        removeMoveTitle: 'Remover golpe',
+        typeTranslations: {
+            normal: 'Normal', fire: 'Fogo', water: 'Água', grass: 'Grama', electric: 'Elétrico', ice: 'Gelo', fighting: 'Lutador', poison: 'Venenoso', ground: 'Terra', flying: 'Voador', psychic: 'Psíquico', bug: 'Inseto', rock: 'Pedra', ghost: 'Fantasma', dragon: 'Dragão', dark: 'Sombrio', steel: 'Aço', fairy: 'Fada'
+        }
+    },
+    en: {
+        minMovesAlert: 'Please select at least 4 moves to save the moveset.',
+        maxMovesAlert: 'You have already selected the maximum limit of {max} moves.',
+        typeLabel: 'Type',
+        powerLabel: 'Power',
+        categoryLabel: 'Category',
+        descriptionLabel: 'Description',
+        physicalLabel: 'Physical',
+        specialLabel: 'Special',
+        statusLabel: 'Status',
+        noDescription: 'No description available.',
+        removeMoveTitle: 'Remove move',
+        typeTranslations: {
+            normal: 'Normal', fire: 'Fire', water: 'Water', grass: 'Grass', electric: 'Electric', ice: 'Ice', fighting: 'Fighting', poison: 'Poison', ground: 'Ground', flying: 'Flying', psychic: 'Psychic', bug: 'Bug', rock: 'Rock', ghost: 'Ghost', dragon: 'Dragon', dark: 'Dark', steel: 'Steel', fairy: 'Fairy'
+        }
+    }
+};
+
 let MAX_MOVES = 4;
 let selectedMoves = [];
 let currentFilter = 'all';
 let searchQuery = '';
+let locale = 'pt_BR';
 
     // Resgatar os dados passados pelo Twig e inicializar
     const appData = document.getElementById('moveset-app-data');
     if (appData) {
         if (appData.dataset.maxMoves) {
             MAX_MOVES = parseInt(appData.dataset.maxMoves, 10);
+        }
+        if (appData.dataset.locale) {
+            locale = appData.dataset.locale;
         }
 
         selectedMoves = Array(MAX_MOVES).fill(null);
@@ -34,7 +73,7 @@ let searchQuery = '';
                 const activeMovesCount = selectedMoves.filter(m => m !== null).length;
                 if (activeMovesCount < 4) {
                     e.preventDefault();
-                    alert(`Por favor, selecione pelo menos 4 movimentos para salvar o moveset.`);
+                    alert(t('minMovesAlert'));
                 }
             });
         }
@@ -58,6 +97,17 @@ let searchQuery = '';
             });
         });
     }
+
+function t(key) {
+    const msgs = MESSAGES[locale] || MESSAGES.pt_BR;
+    return msgs[key] !== undefined ? msgs[key] : key;
+}
+
+function translateType(type) {
+    const msgs = MESSAGES[locale] || MESSAGES.pt_BR;
+    const typeLower = type.toLowerCase();
+    return msgs.typeTranslations[typeLower] || (type.charAt(0).toUpperCase() + type.slice(1));
+}
 
 function formatMoveName(name) {
     return name.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -118,35 +168,35 @@ function updateMoveCardType(card, type) {
     if (badgeSpan) {
         badgeSpan.className = `type-badge-sm type-badge-pr type-badge-${type}`;
         const typeIconUrl = getTypeIconUrl(type);
-        badgeSpan.innerHTML = `<img src="${typeIconUrl}" alt="${type}" class="move-type-icon" style="width:17px; height:17px;"> ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+        badgeSpan.innerHTML = `<img src="${typeIconUrl}" alt="${type}" class="move-type-icon" style="width:17px; height:17px;"> ${translateType(type)}`;
     }
 }
 
 window.showMoveTooltip = async function (event, moveName) {
     const title = formatMoveName(moveName);
     let loadingBody = `
-        <div class="tooltip-row"><span class="tooltip-label">Tipo</span><span class="tooltip-value"><span style="opacity:.5">...</span></span></div>
-        <div class="tooltip-row"><span class="tooltip-label">Poder</span><span class="tooltip-value">...</span></div>
-        <div class="tooltip-row"><span class="tooltip-label">Categoria</span><span class="tooltip-value">...</span></div>
-        <div class="tooltip-row tooltip-desc-row"><span class="tooltip-label">Descrição</span><span class="tooltip-value">...</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">${t('typeLabel')}</span><span class="tooltip-value"><span style="opacity:.5">...</span></span></div>
+        <div class="tooltip-row"><span class="tooltip-label">${t('powerLabel')}</span><span class="tooltip-value">...</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">${t('categoryLabel')}</span><span class="tooltip-value">...</span></div>
+        <div class="tooltip-row tooltip-desc-row"><span class="tooltip-label">${t('descriptionLabel')}</span><span class="tooltip-value">...</span></div>
     `;
     showGenericTooltip(event, title, loadingBody);
 
     const moveData = await getMoveData(moveName);
     const typeIconUrl = getTypeIconUrl(moveData.type);
-    const typeName = moveData.type.charAt(0).toUpperCase() + moveData.type.slice(1);
+    const typeName = translateType(moveData.type);
     const categoryMap = {
-        'physical': { label: 'Físico', icon: 'fa-hand-fist' },
-        'special': { label: 'Especial', icon: 'fa-bolt' },
-        'status': { label: 'Status', icon: 'fa-circle-dot' }
+        'physical': { label: t('physicalLabel'), icon: 'fa-hand-fist' },
+        'special': { label: t('specialLabel'), icon: 'fa-bolt' },
+        'status': { label: t('statusLabel'), icon: 'fa-circle-dot' }
     };
     const cat = categoryMap[moveData.category] || categoryMap['status'];
 
     let finalBody = `
-        <div class="tooltip-row"><span class="tooltip-label">Tipo</span><span class="tooltip-value"><img src="${typeIconUrl}" class="move-type-icon" style="width:14px;height:14px"> ${typeName}</span></div>
-        <div class="tooltip-row"><span class="tooltip-label">Poder</span><span class="tooltip-value">${moveData.power}</span></div>
-        <div class="tooltip-row"><span class="tooltip-label">Categoria</span><span class="tooltip-value"><i class="fa-solid ${cat.icon}" style="font-size:0.75rem"></i> ${cat.label}</span></div>
-        <div class="tooltip-row tooltip-desc-row"><span class="tooltip-label">Descrição</span><span class="tooltip-value">${moveData.description || 'Nenhuma descrição disponível.'}</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">${t('typeLabel')}</span><span class="tooltip-value"><img src="${typeIconUrl}" class="move-type-icon" style="width:14px;height:14px"> ${typeName}</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">${t('powerLabel')}</span><span class="tooltip-value">${moveData.power}</span></div>
+        <div class="tooltip-row"><span class="tooltip-label">${t('categoryLabel')}</span><span class="tooltip-value"><i class="fa-solid ${cat.icon}" style="font-size:0.75rem"></i> ${cat.label}</span></div>
+        <div class="tooltip-row tooltip-desc-row"><span class="tooltip-label">${t('descriptionLabel')}</span><span class="tooltip-value">${moveData.description || t('noDescription')}</span></div>
     `;
     showGenericTooltip(event, title, finalBody);
 };
@@ -199,7 +249,7 @@ function updateUI() {
                     <span class="learn-method-badge ${learnClass}">${learnLabel}</span>
                     <span class="type-badge-sm type-badge-${type}"><img src="${getTypeIconUrl(type)}" alt="${type}" class="move-type-icon"></span>
                 </div>
-                <button type="button" class="remove-slot-btn" onclick="removeMoveFromSlot(${i})" title="Remover golpe"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" class="remove-slot-btn" onclick="removeMoveFromSlot(${i})" title="${t('removeMoveTitle')}"><i class="fa-solid fa-xmark"></i></button>
             `;
         }
         slotsContainer.appendChild(card);
@@ -215,7 +265,7 @@ function updateUI() {
 window.addMoveToFirstEmptySlot = function (moveName) {
     if (selectedMoves.includes(moveName)) return;
     const emptyIndex = selectedMoves.indexOf(null);
-    if (emptyIndex === -1) return alert(`Você já selecionou o limite máximo de ${MAX_MOVES} movimentos.`);
+    if (emptyIndex === -1) return alert(t('maxMovesAlert').replace('{max}', MAX_MOVES));
     selectedMoves[emptyIndex] = moveName;
     updateUI();
 };

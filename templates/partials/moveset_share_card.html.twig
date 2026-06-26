@@ -9,9 +9,9 @@
         <div class="share-category-section">
             <span class="share-category-badge">
                 {% if m.type == 'padrao' %}
-                    PADRÃO
+                    {{ 'PADRÃO'|trans }}
                 {% else %}
-                    {{ m.type|upper }}
+                    {{ m.type|upper|trans }}
                 {% endif %}
             </span>
         </div>
@@ -29,7 +29,7 @@
                         <div class="share-build-box" style="flex: 1.1; padding: 6px 8px; gap: 6px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; min-width: 0;">
                             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/{{ m.heldItem }}.png" style="width: 22px; height: 22px; object-fit: contain; flex-shrink: 0;" alt="{{ m.heldItem }}">
                             <div style="display: flex; flex-direction: column; line-height: 1.1; min-width: 0; flex-grow: 1;">
-                                <span style="font-size: 0.55rem; color: #8b8b9a; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px;">Item</span>
+                                <span style="font-size: 0.55rem; color: #8b8b9a; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px;">{{ 'Item'|trans }}</span>
                                 <span style="font-size: 0.75rem; color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ m.heldItem|replace({'-': ' '})|title }}">{{ m.heldItem|replace({'-': ' '})|title }}</span>
                             </div>
                         </div>
@@ -37,16 +37,16 @@
 
                     <div class="share-build-box" style="flex: 0.9; padding: 6px 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; min-width: 0;">
                         <div style="display: flex; flex-direction: column; line-height: 1.1; min-width: 0; flex-grow: 1;">
-                            <span style="font-size: 0.55rem; color: #8b8b9a; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px;">Nature</span>
+                            <span style="font-size: 0.55rem; color: #8b8b9a; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px;">{{ 'Nature'|trans }}</span>
                             {% set displayNature = mostUsedNature|default(m.nature) %}
                             <span style="font-size: 0.75rem; color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 {%- if displayNature -%}
-                                    {{ displayNature|capitalize }}
+                                    {{ displayNature|capitalize|trans }}
                                     {%- if mostUsedNaturePercent is defined and mostUsedNaturePercent > 0 -%}
                                         &nbsp;({{ mostUsedNaturePercent }}%)
                                     {%- endif -%}
                                 {%- else -%}
-                                    Sem dados
+                                    {{ 'Sem dados'|trans }}
                                 {%- endif -%}
                             </span>
                         </div>
@@ -56,7 +56,7 @@
                 {% if m.ability %}
                     <div class="share-build-box" style="padding: 6px 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                         <div style="display: flex; flex-direction: column; line-height: 1.1; min-width: 0; flex-grow: 1;">
-                            <span style="font-size: 0.55rem; color: #8b8b9a; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px;">Habilidade</span>
+                            <span style="font-size: 0.55rem; color: #8b8b9a; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px;">{{ 'Habilidade'|trans }}</span>
                             <span style="font-size: 0.75rem; color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ m.ability|replace({'-': ' '})|title }}</span>
                         </div>
                     </div>
@@ -79,7 +79,7 @@
 
                 <div class="share-pokemon-types">
                     {% for type in pokemon.types %}
-                        <span class="type-badge type-badge-{{ type }} no-tooltip" style="font-size: 0.65rem; padding: 2px 8px; border-radius: 4px;">{{ type|capitalize }}</span>
+                        <span class="type-badge type-badge-{{ type }} no-tooltip" style="font-size: 0.65rem; padding: 2px 8px; border-radius: 4px;">{{ type|capitalize|trans }}</span>
                     {% endfor %}
                 </div>
             </div>
@@ -88,7 +88,7 @@
         <!-- Coluna 2: Detalhes do Build e Golpes -->
         <div class="share-column share-column-build" style="justify-content: center; gap: 8px;">
             <div class="share-moves-section" style="width: 100%;">
-                <span class="share-section-title">Golpes Recomendados</span>
+                <span class="share-section-title">{{ 'Golpes recomendados'|trans }}</span>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
                     {% for moveName in m.moves %}
@@ -108,18 +108,18 @@
                                     
                                     <span>
                                         {% if md.category == 'physical' %}
-                                            <i class="fa-solid fa-hand-fist"></i> Físico
+                                            <i class="fa-solid fa-hand-fist"></i> {{ 'Físico'|trans }}
                                         {% elseif md.category == 'special' %}
-                                            <i class="fa-solid fa-sparkles"></i> Especial
+                                            <i class="fa-solid fa-sparkles"></i> {{ 'Especial'|trans }}
                                         {% else %}
-                                            <i class="fa-solid fa-shield"></i> Status
+                                            <i class="fa-solid fa-shield"></i> {{ 'Status'|trans }}
                                         {% endif %}
                                     </span>
 
                                     {% if md.power > 0 %}
                                         <span><i class="fa-solid fa-fire"></i> {{ md.power }}</span>
                                     {% endif %}
-                                    <span>{{ learnMethod == 'TM' ? 'TM' : 'LVL' }}</span>
+                                    <span>{{ learnMethod == 'TM' ? 'TM' : 'Lvl'|trans }}</span>
 
                                 </div>
                             </div>
@@ -145,7 +145,7 @@
     <div class="share-card-footer">
         <div class="share-footer-left">
             <i class="fa-solid fa-circle-user"></i>
-            <span>Criado por <strong>{{ m.author|default('Anônimo') }}</strong> em {{ m.createdAt|date('d/m/Y') }}</span>
+            <span>{{ 'Criado por <strong>%author%</strong> em %date%'|trans({'%author%': m.author|default('Anônimo'|trans), '%date%': m.createdAt|date('d/m/Y')})|raw }}</span>
         </div>
         <div class="share-footer-right">
             <span>PokeFlaton &copy; {{ 'now'|date('Y') }}</span>

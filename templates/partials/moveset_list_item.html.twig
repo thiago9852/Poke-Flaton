@@ -12,21 +12,21 @@
 							{{ m2.author }}
 						</a>
 					{% else %}
-						<img src="{{ asset('image/Pokeball.png') }}" style="width: 20px; height: 20px; object-fit: contain;" alt="Anônimo">
-						{{ m2.author|default('Anônimo') }}
+						<img src="{{ asset('image/Pokeball.png') }}" style="width: 20px; height: 20px; object-fit: contain;" alt="{{ 'Anônimo'|trans }}">
+						{{ m2.author|default('Anônimo'|trans) }}
 					{% endif %}
 				</span>
 
 				<span class="badge bg-primary" style="display: inline-flex; align-items: center; gap: 4px;">
 					{% if m2.type == 'padrao' %}
 						<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/poke-ball.png" style="width: 14px;">
-						PADRÃO
+						{{ 'PADRÃO'|trans }}
 					{% elseif m2.type == 'pvp' %}
 						<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png" style="width: 14px;">
-						PvP
+						{{ 'PvP'|trans }}
 					{% elseif m2.type == 'dg' %}
 						<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/escape-rope.png" style="width: 14px;">
-						DG
+						{{ 'DG'|trans }}
 					{% else %}
 						{{ m2.type|capitalize }}
 					{% endif %}
@@ -34,7 +34,7 @@
 
 				{% if m2.isDefault %}
 					<span class="badge bg-success" style="background-color: #10b981; color: #fff; padding: 2px 8px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px; font-weight: bold; height: 22px;">
-						<i class="fa-solid fa-star"></i> Padrão
+						<i class="fa-solid fa-star"></i> {{ 'Padrão'|trans }}
 					</span>
 				{% endif %}
 
@@ -45,25 +45,25 @@
 					{% if is_granted('ROLE_ADMIN') %}
 						{% if m2.isDefault %}
 							<form method="post" action="{{ path('app_admin_moveset_remove_default', {'id': m2.id}) }}" style="display: inline; margin: 0;">
-								<button type="submit" class="btn btn-sm btn-outline-danger mt-1" title="Remover Padrão" style="padding: 6px 10px; border-radius: 20px; font-size: 0.85rem; height: 32px; border: 1px solid #ef4444; color: #ef4444; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 32px;">
+								<button type="submit" class="btn btn-sm btn-outline-danger mt-1" title="{{ 'Remover Padrão'|trans }}" style="padding: 6px 10px; border-radius: 20px; font-size: 0.85rem; height: 32px; border: 1px solid #ef4444; color: #ef4444; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 32px;">
 									<i class="fa-solid fa-star-half-stroke"></i>
 								</button>
 							</form>
 						{% else %}
 							<form method="post" action="{{ path('app_admin_moveset_default', {'id': m2.id}) }}" style="display: inline; margin: 0;">
-								<button type="submit" class="btn btn-sm btn-outline-success mt-1" title="Tornar Padrão Oficial" style="padding: 6px 10px; border-radius: 20px; font-size: 0.85rem; height: 32px; border: 1px solid #10b981; color: #10b981; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 32px;">
+								<button type="submit" class="btn btn-sm btn-outline-success mt-1" title="{{ 'Tornar Padrão Oficial'|trans }}" style="padding: 6px 10px; border-radius: 20px; font-size: 0.85rem; height: 32px; border: 1px solid #10b981; color: #10b981; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 32px;">
 									<i class="fa-solid fa-star"></i>
 								</button>
 							</form>
 						{% endif %}
 					{% endif %}
 
-					<button class="btn btn-sm btn-outline-secondary share-btn mt-1" onclick="openShareModal('{{ m2.id }}')" title="Compartilhar Moveset" style="padding: 6px 10px; border-radius: 20px; font-size: 0.85rem; height: 32px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+					<button class="btn btn-sm btn-outline-secondary share-btn mt-1" onclick="openShareModal('{{ m2.id }}')" title="{{ 'Compartilhar Moveset'|trans }}" style="padding: 6px 10px; border-radius: 20px; font-size: 0.85rem; height: 32px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
 						<i class="fa-solid fa-share-nodes"></i>
 					</button>
 
-					<button class="upvote-btn btn btn-sm btn-outline-primary mt-1" data-id="{{ m2.id }}" title="Curtir" style="margin: 0; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; height: 32px; display: inline-flex; align-items: center; gap: 6px;">
-						Gostei
+					<button class="upvote-btn btn btn-sm btn-outline-primary mt-1" data-id="{{ m2.id }}" title="{{ 'Curtir'|trans }}" style="margin: 0; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; height: 32px; display: inline-flex; align-items: center; gap: 6px;">
+						{{ 'Gostei'|trans }}
 						<i class="fa-regular fa-thumbs-up"></i>
 						<span class="vote-count">{{ m2.votes }}</span>
 					</button>
@@ -75,8 +75,8 @@
 				{% if m2.nature and naturesMap is defined and naturesMap[m2.nature] is defined %}
 					<div style="display: inline-flex; align-items: center; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 10px; font-size: 0.9em; height: 28px;">
 						{% include 'partials/tooltip_trigger.html.twig' with {
-                            'title': 'Nature: ' ~ naturesMap[m2.nature].name|capitalize,
-                            'content': '+' ~ naturesMap[m2.nature].increased|capitalize ~ ' / -' ~ naturesMap[m2.nature].decreased|capitalize,
+                            'title': ('Nature: ' ~ naturesMap[m2.nature].name|capitalize),
+                            'content': ('+' ~ naturesMap[m2.nature].increased|capitalize ~ ' / -' ~ naturesMap[m2.nature].decreased|capitalize),
                             'label': naturesMap[m2.nature].name|capitalize
                         } %}
 					</div>
@@ -87,8 +87,8 @@
 						<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/{{ m2.heldItem }}.png" style="width: 24px; height: 24px;" alt="{{ m2.heldItem }}">
 
 						{% include 'partials/tooltip_trigger.html.twig' with {
-                            'title': 'Item: ' ~ m2.heldItem|replace({'-': ' '})|title,
-                            'content': itemDetails[m2.heldItem].description|default('Item recomendado.'),
+                            'title': ('Item: ' ~ m2.heldItem|replace({'-': ' '})|title),
+                            'content': itemDetails[m2.heldItem].description|default('Item recomendado.'|trans),
                             'label': m2.heldItem|replace({'-': ' '})|title
                         } %}
 					</div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ app.request.locale|replace({'_': '-'}) }}">
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,15 +47,15 @@
 
 				<nav class="app-nav" id="appNav">
 					<a href="{{ path('app_home') }}" class="nav-link">
-						Início</a>
+						{{ 'Início'|trans }}</a>
 					<a href="{{ path('app_pokemon_index') }}" class="nav-link">
-						Moveset</a>
+						{{ 'Moveset'|trans }}</a>
 					<a href="{{ path('app_pokedex') }}" class="nav-link">
-						Pokédex</a>
+						{{ 'Pokédex'|trans }}</a>
 					<a href="{{ path('app_game_daily') }}" class="nav-link">
-						Pokémon do Dia</a>
+						{{ 'Pokémon do Dia'|trans }}</a>
 					<a href="{{ path('app_trainer_ranking') }}" class="nav-link">
-						Trainers</a>
+						{{ 'Trainers'|trans }}</a>
 
 					{% if app.user %}
 						<div class="nav-user-dropdown" id="userDropdown">
@@ -69,14 +69,14 @@
 							<ul class="nav-dropdown-menu" role="menu">
 								<li role="menuitem">
 									<a href="{{ path('app_trainer_card') }}" class="nav-dropdown-item">
-										Trainer Card</a>
+										{{ 'Trainer Card'|trans }}</a>
 								</li>
 								<li class="nav-dropdown-divider" role="separator"></li>
 
 								{% if is_granted('ROLE_ADMIN') %}
 									<li role="menuitem">
 										<a href="{{ path('app_admin') }}" class="nav-dropdown-item">
-											Admin</a>
+											{{ 'Admin'|trans }}</a>
 									</li>
 									<li class="nav-dropdown-divider" role="separator"></li>
 								{% endif %}
@@ -84,7 +84,7 @@
 								<li role="menuitem">
 									<a href="{{ path('app_logout') }}" class="nav-dropdown-item nav-dropdown-item--danger">
 										<i class="fa-solid fa-right-from-bracket"></i>
-										Sair</a>
+										{{ 'Sair'|trans }}</a>
 								</li>
 							</ul>
 
@@ -92,10 +92,35 @@
 					{% else %}
 						<a href="{{ path('app_login') }}" class="nav-link">
 							<i class="fa-solid fa-right-to-bracket"></i>
-							Entrar</a>
+							{{ 'Entrar'|trans }}</a>
 					{% endif %}
 
-					<span class="color: #fff;"><i class="fa-solid fa-bell"></i></span>
+					<span style="color: #fff; align-content: center;"><i class="fa-solid fa-bell"></i></span>
+
+					<div class="nav-lang-dropdown" id="langDropdown">
+						<button class="nav-link nav-lang-btn" id="langDropdownBtn" aria-expanded="false" aria-haspopup="true">
+							<i class="fa-solid fa-earth-americas"></i>
+							<i class="fa-solid fa-chevron-down nav-dropdown-caret"></i>
+						</button>
+						<ul class="nav-dropdown-menu" role="menu" style="min-width: 130px;">
+							<li role="menuitem">
+								<a href="{{ path('app_change_locale', { locale: 'pt_BR' }) }}" class="nav-dropdown-item {% if app.request.locale != 'en' %}active-lang{% endif %}" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+									<span>Português</span>
+									{% if app.request.locale != 'en' %}
+										<i class="fa-solid fa-check" style="font-size: 0.8rem; color: var(--color-primary);"></i>
+									{% endif %}
+								</a>
+							</li>
+							<li role="menuitem">
+								<a href="{{ path('app_change_locale', { locale: 'en' }) }}" class="nav-dropdown-item {% if app.request.locale == 'en' %}active-lang{% endif %}" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+									<span>English</span>
+									{% if app.request.locale == 'en' %}
+										<i class="fa-solid fa-check" style="font-size: 0.8rem; color: var(--color-primary);"></i>
+									{% endif %}
+								</a>
+							</li>
+						</ul>
+					</div>
 				</nav>
 			</div>
 		</header>
@@ -106,7 +131,7 @@
 				{% for label, messages in app.flashes %}
 					{% for message in messages %}
 						<div class="alert alert-{{ label }}">
-							{{ message }}
+							{{ message|trans }}
 						</div>
 					{% endfor %}
 				{% endfor %}
@@ -123,10 +148,11 @@
 			<div class="container footer-container">
 				<p>&copy;
 					{{ 'now'|date('Y') }}
-					PokeFlaton. Desenvolvido para entusiastas de Pokémon.</p>
-				<p class="api-attribution">Dados fornecidos por
+					{{ 'PokeFlaton. Pokémon e todos os nomes relacionados são marcas registradas da Nintendo, Game Freak e The Pokémon Company.'|trans }}</p>
+				<p class="api-attribution">
+					{{ 'Dados fornecidos por'|trans }}
 					<a href="https://pokeapi.co/" target="_blank">PokeAPI</a>
-					e Sprites por
+					{{ 'e Sprites por'|trans }}
 					<a href="https://github.com/PokeAPI/sprites" target="_blank">PokeAPI/sprites</a>.</p>
 			</div>
 		</footer>
@@ -137,8 +163,8 @@
 		<!-- Global Loading Overlay -->
 		<div id="global-loader" class="global-loader-overlay">
 			<div class="global-loader-content">
-				<img src="{{ asset('image/Pokeball.png') }}" alt="Carregando..." class="global-loader-pokeball">
-				<div class="global-loader-text">Carregando...</div>
+				<img src="{{ asset('image/Pokeball.png') }}" alt="{{ 'Carregando...'|trans }}" class="global-loader-pokeball">
+				<div class="global-loader-text">{{ 'Carregando...'|trans }}</div>
 			</div>
 		</div>
 

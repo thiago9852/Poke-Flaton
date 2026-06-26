@@ -3,9 +3,9 @@
 {% if rankedUsers is empty %}
 	<div class="empty-ranking card">
 		<i class="fa-solid fa-user-slash"></i>
-		<h3>Nenhum treinador encontrado.</h3>
-		<p class="text-muted">Tente realizar a busca utilizando outro termo ou limpe os filtros.</p>
-		<a href="{{ path('app_trainer_ranking') }}" class="btn btn-secondary mt-3">Limpar Busca</a>
+		<h3>{{ 'Nenhum treinador encontrado.'|trans }}</h3>
+		<p class="text-muted">{{ 'Tente realizar a busca utilizando outro termo ou limpe os filtros.'|trans }}</p>
+		<a href="{{ path('app_trainer_ranking') }}" class="btn btn-secondary mt-3">{{ 'Limpar Busca'|trans }}</a>
 	</div>
 {% else %}
 	<!-- Top 3 de Treinadores (Exibido apenas se nenhuma busca estiver ativa) -->
@@ -35,28 +35,28 @@
 						<i class="fa-solid fa-medal"></i>
 						<div>
 							<span class="stat-value">{{ second.totalMedals }}</span>
-							<span class="stat-label">Medalhas</span>
+							<span class="stat-label">{{ 'Medalhas'|trans }}</span>
 						</div>
 					</div>
 					<div class="top3-stat-item">
 						<i class="fa-solid fa-flask"></i>
 						<div>
 							<span class="stat-value">{{ second.created }}</span>
-							<span class="stat-label">Movesets</span>
+							<span class="stat-label">{{ 'Movesets'|trans }}</span>
 						</div>
 					</div>
 					<div class="top3-stat-item">
 						<i class="fa-solid fa-users"></i>
 						<div>
 							<span class="stat-value">{{ second.followers }}</span>
-							<span class="stat-label">Seguidores</span>
+							<span class="stat-label">{{ 'Seguidores'|trans }}</span>
 						</div>
 					</div>
 					<div class="top3-stat-item">
 						<i class="fa-solid fa-heart"></i>
 						<div>
 							<span class="stat-value">{{ second.votes }}</span>
-							<span class="stat-label">Curtidas</span>
+							<span class="stat-label">{{ 'Curtidas'|trans }}</span>
 						</div>
 					</div>
 				</div>
@@ -66,7 +66,7 @@
 						{% if second_title_ribbon %}
 							<img src="{{ second_title_ribbon }}" alt="Ribbon" style="width: 20px; height: 20px; object-fit: contain; image-rendering: pixelated;">
 						{% endif %}
-						<span>{{ second_title }}</span>
+						<span>{{ second_title|trans }}</span>
 					</div>
 				</div>
 			</div>
@@ -94,28 +94,28 @@
 						<i class="fa-solid fa-medal"></i>
 						<div>
 							<span class="stat-value">{{ first.totalMedals }}</span>
-							<span class="stat-label">Medalhas</span>
+							<span class="stat-label">{{ 'Medalhas'|trans }}</span>
 						</div>
 					</div>
 					<div class="top3-stat-item">
 						<i class="fa-solid fa-flask"></i>
 						<div>
 							<span class="stat-value">{{ first.created }}</span>
-							<span class="stat-label">Movesets</span>
+							<span class="stat-label">{{ 'Movesets'|trans }}</span>
 						</div>
 					</div>
 					<div class="top3-stat-item">
 						<i class="fa-solid fa-users"></i>
 						<div>
 							<span class="stat-value">{{ first.followers }}</span>
-							<span class="stat-label">Seguidores</span>
+							<span class="stat-label">{{ 'Seguidores'|trans }}</span>
 						</div>
 					</div>
 					<div class="top3-stat-item">
 						<i class="fa-solid fa-heart"></i>
 						<div>
 							<span class="stat-value">{{ first.votes }}</span>
-							<span class="stat-label">Curtidas</span>
+							<span class="stat-label">{{ 'Curtidas'|trans }}</span>
 						</div>
 					</div>
 				</div>
@@ -125,7 +125,7 @@
 						{% if first_title_ribbon %}
 							<img src="{{ first_title_ribbon }}" alt="Ribbon" style="width: 20px; height: 20px; object-fit: contain; image-rendering: pixelated;">
 						{% endif %}
-						<span>{{ first_title }}</span>
+						<span>{{ first_title|trans }}</span>
 					</div>
 				</div>
 			</div>
@@ -153,28 +153,28 @@
 						<i class="fa-solid fa-medal"></i>
 						<div>
 							<span class="stat-value">{{ third.totalMedals }}</span>
-							<span class="stat-label">Medalhas</span>
+							<span class="stat-label">{{ 'Medalhas'|trans }}</span>
 						</div>
 					</div>
 					<div class="top3-stat-item">
 						<i class="fa-solid fa-flask"></i>
 						<div>
 							<span class="stat-value">{{ third.created }}</span>
-							<span class="stat-label">Movesets</span>
+							<span class="stat-label">{{ 'Movesets'|trans }}</span>
 						</div>
 					</div>
 					<div class="top3-stat-item">
 						<i class="fa-solid fa-users"></i>
 						<div>
 							<span class="stat-value">{{ third.followers }}</span>
-							<span class="stat-label">Seguidores</span>
+							<span class="stat-label">{{ 'Seguidores'|trans }}</span>
 						</div>
 					</div>
 					<div class="top3-stat-item">
 						<i class="fa-solid fa-heart"></i>
 						<div>
 							<span class="stat-value">{{ third.votes }}</span>
-							<span class="stat-label">Curtidas</span>
+							<span class="stat-label">{{ 'Curtidas'|trans }}</span>
 						</div>
 					</div>
 				</div>
@@ -184,7 +184,7 @@
 						{% if third_title_ribbon %}
 							<img src="{{ third_title_ribbon }}" alt="Ribbon" style="width: 20px; height: 20px; object-fit: contain; image-rendering: pixelated;">
 						{% endif %}
-						<span>{{ third_title }}</span>
+						<span>{{ third_title|trans }}</span>
 					</div>
 				</div>
 			</div>
@@ -196,15 +196,15 @@
 		<table class="leaderboard-table">
 			<thead>
 				<tr style="border-bottom: 1px solid var(--border-color); text-align: left; font-size: 0.85rem; color: var(--text-muted);">
-					<th class="leaderboard-cell" style="text-align: center; width: 60px;">Posição</th>
-					<th class="leaderboard-cell">Treinador</th>
+					<th class="leaderboard-cell" style="text-align: center; width: 60px;">{{ 'Posição'|trans }}</th>
+					<th class="leaderboard-cell">{{ 'Treinador'|trans }}</th>
 					{% if sort == 'likes' %}
-						<th class="leaderboard-cell" style="text-align: center;">Curtidas</th>
+						<th class="leaderboard-cell" style="text-align: center;">{{ 'Curtidas'|trans }}</th>
 					{% else %}
-						<th class="leaderboard-cell" style="text-align: center;">Medalhas</th>
+						<th class="leaderboard-cell" style="text-align: center;">{{ 'Medalhas'|trans }}</th>
 					{% endif %}
-					<th class="leaderboard-cell" style="text-align: center;">Movesets</th>
-					<th class="leaderboard-cell" style="text-align: center;">Seguidores</th>
+					<th class="leaderboard-cell" style="text-align: center;">{{ 'Movesets'|trans }}</th>
+					<th class="leaderboard-cell" style="text-align: center;">{{ 'Seguidores'|trans }}</th>
 				</tr>
 			</thead>
 
@@ -227,22 +227,22 @@
 											{% if first_title_ribbon %}
 												<img src="{{ first_title_ribbon }}" alt="Ribbon" style="width: 16px; height: 16px; object-fit: contain; image-rendering: pixelated;">
 											{% endif %}
-											{{ first_title }}
+											{{ first_title|trans }}
 										{% elseif index == 1 %}
 											{% if second_title_ribbon %}
 												<img src="{{ second_title_ribbon }}" alt="Ribbon" style="width: 16px; height: 16px; object-fit: contain; image-rendering: pixelated;">
 											{% endif %}
-											{{ second_title }}
+											{{ second_title|trans }}
 										{% elseif index == 2 %}
 											{% if third_title_ribbon %}
 												<img src="{{ third_title_ribbon }}" alt="Ribbon" style="width: 16px; height: 16px; object-fit: contain; image-rendering: pixelated;">
 											{% endif %}
-											{{ third_title }}
+											{{ third_title|trans }}
 										{% else %}
 											{% if row.titleRibbon %}
 												<img src="{{ row.titleRibbon }}" alt="Ribbon" style="width: 16px; height: 16px; object-fit: contain; image-rendering: pixelated;">
 											{% endif %}
-											{{ row.title }}
+											{{ row.title|trans }}
 										{% endif %}
 									</span>
 								</div>
@@ -257,9 +257,9 @@
 						{% else %}
 							<td class="leaderboard-cell cell-stats">
 								<div class="medals-breakdown">
-									<span class="medal-dot-count" title="Ouro"><span class="dot gold"></span> {{ row.gold }}</span>
-									<span class="medal-dot-count" title="Prata"><span class="dot silver"></span> {{ row.silver }}</span>
-									<span class="medal-dot-count" title="Bronze"><span class="dot bronze"></span> {{ row.bronze }}</span>
+									<span class="medal-dot-count" title="{{ 'Ouro'|trans }}"><span class="dot gold"></span> {{ row.gold }}</span>
+									<span class="medal-dot-count" title="{{ 'Prata'|trans }}"><span class="dot silver"></span> {{ row.silver }}</span>
+									<span class="medal-dot-count" title="{{ 'Bronze'|trans }}"><span class="dot bronze"></span> {{ row.bronze }}</span>
 								</div>
 							</td>
 						{% endif %}
