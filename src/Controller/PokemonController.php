@@ -1,0 +1,757 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\PokemonAccess;
+use App\Entity\PokemonLocation;
+use App\Enum\TypeEnum;
+use App\Repository\MovesetRepository;
+use App\Repository\PokemonAccessRepository;
+use App\Service\PokeApiService;
+use App\Service\TrainerProfileService;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+class PokemonController extends AbstractController
+{
+    public function __construct(private readonly PokeApiService $pokeApiService)
+    {
+    }
+
+    #[Route('/', name: 'app_home')]
+    public function home(PokemonAccessRepository $pokemonAccessRepository, MovesetRepository $movesetRepository): Response
+    {
+        $trending = $pokemonAccessRepository->findTrending(8);
+        $trendingPokemons = [];
+
+        if ($trending !== []) {
+            $names = array_map(fn ($t) => $t->getPokemonName(), $trending);
+            $details = $this->pokeApiService->getPokemonDetailsBatchByNames($names);
+
+            foreach ($trending as $access) {
+                $nameLower = strtolower($access->getPokemonName());
+                if (isset($details[$nameLower])) {
+                    $p = $details[$nameLower];
+                    $trendingPokemons[] = [
+                        'id' => $p['id'],
+                        'name' => $p['name'],
+                        'dex_id' => $p['species_id'],
+                        'sprite' => $p['sprite_official'],
+                        'types' => $p['types'],
+                        'views' => $access->getViews(),
+                    ];
+                }
+            }
+        }
+
+        // Pokémon mais visto (primeiro do trending)
+        $mostViewedPokemon = $trendingPokemons[0] ?? null;
+
+        // Último moveset criado
+        $lastMoveset = $movesetRepository->findOneBy(
+            ['isApproved' => true],
+            ['createdAt' => 'DESC']
+        );
+        if (!$lastMoveset) {
+            $lastMoveset = $movesetRepository->findOneBy([], ['createdAt' => 'DESC']);
+        }
+        $lastMovesetData = null;
+        if ($lastMoveset) {
+            try {
+                $pDetails = $this->pokeApiService->getPokemonDetails(strtolower($lastMoveset->getPokemonName()));
+                $lastMovesetData = [
+                    'id' => $lastMoveset->getId(),
+                    'pokemonName' => $lastMoveset->getPokemonName(),
+                    'name' => $lastMoveset->getType(),
+                    'sprite' => $pDetails['sprite_official'] ?? ($pDetails['sprite'] ?? ''),
+                    'creator' => $lastMoveset->getAuthor() ?: 'Visitante',
+                    'createdAt' => $lastMoveset->getCreatedAt()->format('d/m/Y H:i'),
+                ];
+            } catch (\Exception) {
+                // ignore
+            }
+        }
+
+        // Metadados das gerações de pokémon
+        $allGenerationsMetadata = [
+            1 => ['number' => 1, 'games' => 'Red & Blue', 'region' => 'Kanto'],
+            2 => ['number' => 2, 'games' => 'Gold & Silver', 'region' => 'Johto'],
+            3 => ['number' => 3, 'games' => 'Ruby & Sapphire', 'region' => 'Hoenn'],
+            4 => ['number' => 4, 'games' => 'Diamond & Pearl', 'region' => 'Sinnoh'],
+            5 => ['number' => 5, 'games' => 'Black & White', 'region' => 'Unova'],
+            6 => ['number' => 6, 'games' => 'X & Y', 'region' => 'Kalos'],
+            7 => ['number' => 7, 'games' => 'Sun & Moon', 'region' => 'Alola'],
+            8 => ['number' => 8, 'games' => 'Sword & Shield', 'region' => 'Galar'],
+            9 => ['number' => 9, 'games' => 'Scarlet & Violet', 'region' => 'Paldea'],
+        ];
+
+        $allowedGens = $this->pokeApiService->getAllowedGenerations();
+        $basicList = $this->pokeApiService->getPokemonBasicList();
+
+        $genCounts = [];
+        foreach ($basicList as $p) {
+            $gen = PokeApiService::getGenerationById($p['dex_id'] ?? $p['id']);
+            if ($gen > 0) {
+                $genCounts[$gen] = ($genCounts[$gen] ?? 0) + 1;
+            }
+        }
+
+        $generations = [];
+        foreach ($allowedGens as $genNum) {
+            if (isset($allGenerationsMetadata[$genNum])) {
+                $meta = $allGenerationsMetadata[$genNum];
+                $meta['count'] = $genCounts[$genNum] ?? 0;
+                $generations[] = $meta;
+            }
+        }
+
+        $movesetCounts = $movesetRepository->getMovesetCountsGroupedByPokemon();
+
+        $typeDetails = [];
+        foreach (TypeEnum::cases() as $typeCase) {
+            $typeDetails[$typeCase->value] = $this->pokeApiService->getTypeDetails($typeCase->value);
+        }
+
+        return $this->render('index/index.html.twig', [
+            'trendingPokemons' => $trendingPokemons,
+            'generations' => $generations,
+            'movesetCounts' => $movesetCounts,
+            'typeDetails' => $typeDetails,
+            'lastMovesetData' => $lastMovesetData,
+            'mostViewedPokemon' => $mostViewedPokemon,
+        ]);
+    }
+
+    #[Route('/pokemons', name: 'app_pokemon_index')]
+    public function index(Request $request, MovesetRepository $movesetRepository): Response
+    {
+        $search = $request->query->get('q');
+        $typeFilter = $request->query->get('type');
+        $genFilter = $request->query->get('gen');
+        $sort = $request->query->get('sort', '');
+
+        $page = max(1, $request->query->getInt('page', 1));
+        $limit = 24;
+        $offset = ($page - 1) * $limit;
+
+        // Pega a lista base inicial baseada no filtro de tipo
+        if (!empty($typeFilter)) {
+            $basicList = $this->pokeApiService->getPokemonBasicListByType($typeFilter);
+        } else {
+            $basicList = $this->pokeApiService->getPokemonBasicList();
+        }
+
+        // Filtra pela geração se especificado
+        if (!empty($genFilter)) {
+            $genInt = (int) $genFilter;
+            $basicList = array_filter($basicList, fn ($p) => PokeApiService::getGenerationById($p['dex_id'] ?? $p['id']) === $genInt);
+        }
+
+        // Filtra pelo termo de busca
+        if (!empty($search)) {
+            $searchLower = strtolower(trim($search));
+            $basicList = array_filter($basicList, fn ($p) => str_contains($p['name'], $searchLower) || strval($p['id']) === $searchLower);
+        }
+
+        // Adiciona megas se não estiver filtrando por tipo
+        if (empty($typeFilter)) {
+            $finalList = [];
+            $megas = $this->pokeApiService->getMegaEvolutions();
+
+            // Coleta os IDs de todas as Megas para evitar duplicá-las quando percorrermos o basicList
+            $megaIds = [];
+            foreach ($megas as $baseId => $megasArr) {
+                foreach ($megasArr as $mega) {
+                    $megaIds[$mega['id']] = true;
+                }
+            }
+
+            foreach ($basicList as $p) {
+                if (isset($megaIds[$p['id']])) {
+                    continue;
+                }
+                $finalList[] = $p;
+                if (isset($megas[$p['id']])) {
+                    foreach ($megas[$p['id']] as $mega) {
+                        if ($this->pokeApiService->isPokemonAllowed($mega['id'])) {
+                            // Se houver um termo de busca, verifica se o mega corresponde
+                            if (!empty($search)) {
+                                $searchLower = strtolower(trim($search));
+                                if (!str_contains($mega['name'], $searchLower) && $searchLower !== 'mega') {
+                                    continue;
+                                }
+                            }
+                            $finalList[] = [
+                                'id' => $mega['id'],
+                                'name' => $mega['name'],
+                                'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'.$mega['id'].'.png',
+                                'types' => $mega['types'],
+                                'dex_id' => $p['id'],
+                            ];
+                        }
+                    }
+                }
+            }
+
+            // Se a busca contém 'mega', devemos garantir que também incluímos quaisquer megas permitidos correspondentes à consulta
+            // mesmo que sua forma base não tenha correspondido à consulta
+            if (!empty($search) && str_contains(strtolower($search), 'mega')) {
+                $searchLower = strtolower(trim($search));
+                foreach ($this->pokeApiService->getMegaEvolutions() as $baseId => $megasArr) {
+                    if (!empty($genFilter) && PokeApiService::getGenerationById($baseId) !== (int) $genFilter) {
+                        continue;
+                    }
+                    foreach ($megasArr as $mega) {
+                        if (!$this->pokeApiService->isPokemonAllowed($mega['id'])) {
+                            continue;
+                        }
+                        if (str_contains($mega['name'], $searchLower) || $searchLower === 'mega') {
+                            // Verifica se este mega já está na lista
+                            $exists = false;
+                            foreach ($finalList as $existing) {
+                                if ($existing['id'] === $mega['id']) {
+                                    $exists = true;
+                                    break;
+                                }
+                            }
+                            if (!$exists) {
+                                $finalList[] = [
+                                    'id' => $mega['id'],
+                                    'name' => $mega['name'],
+                                    'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'.$mega['id'].'.png',
+                                    'types' => $mega['types'],
+                                    'dex_id' => $baseId,
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+
+            $basicList = $finalList;
+        }
+
+        // Ordena a lista base
+        usort($basicList, function ($a, $b) use ($sort) {
+            $dexIdA = $a['dex_id'] ?? $a['id'];
+            $dexIdB = $b['dex_id'] ?? $b['id'];
+
+            switch ($sort) {
+                case 'number_desc':
+                    if ($dexIdA === $dexIdB) {
+                        return $b['id'] <=> $a['id'];
+                    }
+
+                    return $dexIdB <=> $dexIdA;
+
+                case 'name_asc':
+                    return strcasecmp($a['name'], $b['name']);
+
+                case 'name_desc':
+                    return strcasecmp($b['name'], $a['name']);
+
+                case 'number_asc':
+                default:
+                    if ($dexIdA === $dexIdB) {
+                        return $a['id'] <=> $b['id'];
+                    }
+
+                    return $dexIdA <=> $dexIdB;
+            }
+        });
+
+        // Pagina a lista base
+        $totalCount = count($basicList);
+        $pagedBasic = array_slice($basicList, $offset, $limit);
+
+        // Busca os detalhes dos pokémons na lista paginada
+        $pokemons = $this->pokeApiService->getPokemonDetailsBatch($pagedBasic);
+
+        $lastPage = (int) ceil($totalCount / $limit);
+
+        $movesetCounts = $movesetRepository->getMovesetCountsGroupedByPokemon();
+
+        $typeDetails = [];
+        foreach (TypeEnum::cases() as $typeCase) {
+            $typeDetails[$typeCase->value] = $this->pokeApiService->getTypeDetails($typeCase->value);
+        }
+
+        return $this->render('pokemon/index.html.twig', [
+            'pokemons' => $pokemons,
+            'currentPage' => $page,
+            'lastPage' => $lastPage,
+            'allTypes' => TypeEnum::cases(),
+            'selectedType' => $typeFilter,
+            'selectedGen' => $genFilter,
+            'allowedGenerations' => $this->pokeApiService->getAllowedGenerations(),
+            'search' => $search,
+            'sort' => $sort,
+            'movesetCounts' => $movesetCounts,
+            'typeDetails' => $typeDetails,
+        ]);
+    }
+
+    #[Route('/pokemon/{name}', name: 'app_pokemon_detail', methods: ['GET'])]
+    public function detail(
+        string $name,
+        MovesetRepository $movesetRepository,
+        PokemonAccessRepository $pokemonAccessRepository,
+        EntityManagerInterface $entityManager,
+        TrainerProfileService $trainerProfileService,
+    ): Response {
+        $trainerProfileService->initializeMovesetColumns();
+
+        try {
+            $pokemon = $this->pokeApiService->getPokemonDetails($name);
+            $isAllowed = $this->pokeApiService->isPokemonAllowed($pokemon['id']);
+            if (!$isAllowed && $pokemon['id'] >= 10000 && isset($pokemon['species_id'])) {
+                $isAllowed = $this->pokeApiService->isPokemonAllowed($pokemon['species_id']);
+            }
+            if (!$isAllowed) {
+                throw $this->createNotFoundException('Pokémon não encontrado.');
+            }
+        } catch (\Exception) {
+            throw $this->createNotFoundException('Pokémon não encontrado.');
+        }
+
+        // Incrementa ou cria o registro de acesso para este Pokémon
+        try {
+            $pokemonAccess = $pokemonAccessRepository->findOneBy(['pokemonName' => $pokemon['name']]);
+            if (!$pokemonAccess) {
+                $pokemonAccess = new PokemonAccess();
+                $pokemonAccess->setPokemonName($pokemon['name']);
+                $pokemonAccess->setPokemonId($pokemon['id']);
+                $pokemonAccess->setViews(0);
+            }
+            $pokemonAccess->incrementViews();
+            $pokemonAccess->setLastAccessedAt(new \DateTime());
+            $entityManager->persist($pokemonAccess);
+            $entityManager->flush();
+        } catch (\Exception) {
+            // Ignore
+        }
+
+        // Buscar a linha evolutiva completa
+        $evolutionChain = $this->pokeApiService->getPokemonEvolutionChain($pokemon['species_name'], $pokemon);
+
+        // Buscar Pokémon anterior com base na espécie
+        $prevPokemon = null;
+        for ($prevId = $pokemon['species_id'] - 1; $prevId >= 1; --$prevId) {
+            if (!$this->pokeApiService->isPokemonAllowed($prevId)) {
+                continue;
+            }
+            try {
+                $prevPokemon = $this->pokeApiService->getPokemonDetails(strval($prevId));
+                break;
+            } catch (\Exception) {
+                // ignore
+            }
+        }
+
+        // Buscar Pokémon próximo com base na espécie
+        $nextPokemon = null;
+        for ($nextId = $pokemon['species_id'] + 1; $nextId <= 1025; ++$nextId) {
+            if (!$this->pokeApiService->isPokemonAllowed($nextId)) {
+                continue;
+            }
+            try {
+                $nextPokemon = $this->pokeApiService->getPokemonDetails(strval($nextId));
+                break;
+            } catch (\Exception) {
+                // ignore
+            }
+        }
+
+        // Buscar movesets cadastrados no banco
+        $movesets = $movesetRepository->findBy(
+            ['pokemonName' => $pokemon['name']],
+            ['isDefault' => 'DESC', 'votes' => 'DESC']
+        );
+
+        // Buscar detalhes de cada golpe, habilidade e nature contidos nos movesets
+        $moveDetails = [];
+        $abilityDetails = [];
+
+        $allNatures = $this->pokeApiService->getNatures();
+        $naturesMap = [];
+        foreach ($allNatures as $n) {
+            $naturesMap[$n['name']] = $n;
+        }
+        $itemDetails = [];
+
+        foreach ($movesets as $moveset) {
+            foreach ($moveset->getMoves() as $moveName) {
+                if (!empty($moveName) && !isset($moveDetails[$moveName])) {
+                    $moveDetails[$moveName] = $this->pokeApiService->getMoveDetails($moveName);
+                }
+            }
+            $abilityName = $moveset->getAbility();
+            if (!empty($abilityName) && !isset($abilityDetails[$abilityName])) {
+                $abilityDetails[$abilityName] = $this->pokeApiService->getAbilityDetails($abilityName);
+            }
+            $itemName = $moveset->getHeldItem();
+            if (!empty($itemName) && !isset($itemDetails[$itemName])) {
+                $itemDetails[$itemName] = $this->pokeApiService->getItemDetails($itemName);
+            }
+        }
+
+        $typeDetails = [];
+        foreach ($pokemon['types'] as $type) {
+            $typeDetails[$type] = $this->pokeApiService->getTypeDetails($type);
+        }
+
+        // Calcular a nature mais recomendada por tipo de moveset (padrão, pvp, dg)
+        // Baseado na quantidade de movesets criados com cada nature
+        $recommendedNatures = ['padrao' => null, 'pvp' => null, 'dg' => null];
+        foreach (['padrao', 'pvp', 'dg'] as $tabType) {
+            $natureCounts = [];
+            foreach ($movesets as $m) {
+                if ($m->getType() === $tabType) {
+                    $n = $m->getNature();
+                    if (!empty($n)) {
+                        $natureCounts[$n] = ($natureCounts[$n] ?? 0) + 1;
+                    }
+                }
+            }
+            if ($natureCounts !== []) {
+                arsort($natureCounts); // Ordena mantendo a chave (nature), do maior para o menor
+                $recommendedNatures[$tabType] = array_key_first($natureCounts);
+            }
+        }
+
+        // Calcular a nature, item e habilidade mais usados no geral e suas porcentagens
+        $mostUsedNature = null;
+        $mostUsedNaturePercent = 0;
+        $mostUsedItem = null;
+        $mostUsedItemPercent = 0;
+        $mostUsedAbility = null;
+        $mostUsedAbilityPercent = 0;
+
+        $totalMovesets = count($movesets);
+        if ($totalMovesets > 0) {
+            $overallNatureCounts = [];
+            $overallItemCounts = [];
+            $overallAbilityCounts = [];
+
+            foreach ($movesets as $m) {
+                $n = $m->getNature();
+                if (!empty($n)) {
+                    $overallNatureCounts[$n] = ($overallNatureCounts[$n] ?? 0) + 1;
+                }
+
+                $i = $m->getHeldItem();
+                if (!empty($i)) {
+                    $overallItemCounts[$i] = ($overallItemCounts[$i] ?? 0) + 1;
+                }
+
+                $a = $m->getAbility();
+                if (!empty($a)) {
+                    $overallAbilityCounts[$a] = ($overallAbilityCounts[$a] ?? 0) + 1;
+                }
+            }
+
+            if ($overallNatureCounts !== []) {
+                arsort($overallNatureCounts);
+                $mostUsedNature = array_key_first($overallNatureCounts);
+                $mostUsedNaturePercent = (int) round(($overallNatureCounts[$mostUsedNature] / $totalMovesets) * 100);
+            }
+
+            if ($overallItemCounts !== []) {
+                arsort($overallItemCounts);
+                $mostUsedItem = array_key_first($overallItemCounts);
+                $mostUsedItemPercent = (int) round(($overallItemCounts[$mostUsedItem] / $totalMovesets) * 100);
+            }
+
+            if ($overallAbilityCounts !== []) {
+                arsort($overallAbilityCounts);
+                $mostUsedAbility = array_key_first($overallAbilityCounts);
+                $mostUsedAbilityPercent = (int) round(($overallAbilityCounts[$mostUsedAbility] / $totalMovesets) * 100);
+            }
+        }
+
+        // Carrega default base moves do JSON
+        $defaultBaseMoves = [];
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir').'/scratch/default_base_moves.json';
+        if (file_exists($defaultBaseMovesPath)) {
+            $defaultBaseMovesData = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+            $pokemonNameLower = strtolower($pokemon['name']);
+            if (isset($defaultBaseMovesData[$pokemonNameLower])) {
+                $defaultBaseMoves = $defaultBaseMovesData[$pokemonNameLower];
+                foreach ($defaultBaseMoves as $moveName) {
+                    $moveNameLower = strtolower(trim($moveName));
+                    if (!empty($moveNameLower) && !isset($moveDetails[$moveNameLower])) {
+                        $moveDetails[$moveNameLower] = $this->pokeApiService->getMoveDetails($moveNameLower);
+                    }
+                }
+            }
+        }
+
+        $locations = $entityManager->getRepository(PokemonLocation::class)->findBy(
+            ['pokemonName' => $pokemon['name']],
+            ['createdAt' => 'ASC']
+        );
+
+        return $this->render('pokemon/detail.html.twig', [
+            'pokemon' => $pokemon,
+            'evolutionChain' => $evolutionChain,
+            'prevPokemon' => $prevPokemon,
+            'nextPokemon' => $nextPokemon,
+            'movesets' => $movesets,
+            'moveDetails' => $moveDetails,
+            'abilityDetails' => $abilityDetails,
+            'itemDetails' => $itemDetails,
+            'naturesMap' => $naturesMap,
+            'typeDetails' => $typeDetails,
+            'recommendedNatures' => $recommendedNatures,
+            'locations' => $locations,
+            'mostUsedNature' => $mostUsedNature,
+            'mostUsedNaturePercent' => $mostUsedNaturePercent,
+            'mostUsedItem' => $mostUsedItem,
+            'mostUsedItemPercent' => $mostUsedItemPercent,
+            'mostUsedAbility' => $mostUsedAbility,
+            'mostUsedAbilityPercent' => $mostUsedAbilityPercent,
+            'defaultBaseMoves' => $defaultBaseMoves,
+        ]);
+    }
+
+    #[Route('/api/pokemon/search', name: 'api_pokemon_search', methods: ['GET'])]
+    public function searchAjax(Request $request): JsonResponse
+    {
+        $query = strtolower(trim($request->query->get('q', '')));
+        if (strlen($query) < 2) {
+            return new JsonResponse([]);
+        }
+
+        $allBasicList = $this->pokeApiService->getPokemonBasicList();
+
+        // Filtra instantaneamente a lista que já está em cache
+        $filtered = array_filter($allBasicList, fn ($p) => str_contains($p['name'], $query) || strval($p['id']) === $query);
+
+        // Adicionar megas se buscar por "mega"
+        if (str_contains($query, 'mega')) {
+            foreach ($this->pokeApiService->getMegaEvolutions() as $megas) {
+                foreach ($megas as $mega) {
+                    if (!$this->pokeApiService->isPokemonAllowed($mega['id'])) {
+                        continue;
+                    }
+                    if (str_contains($mega['name'], $query) || $query === 'mega') {
+                        $filtered[] = [
+                            'id' => $mega['id'],
+                            'name' => $mega['name'],
+                            'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'.$mega['id'].'.png',
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Limitar a 8 resultados para não estourar a tela do usuário
+        $filtered = array_slice($filtered, 0, 8);
+
+        $results = [];
+        foreach ($filtered as $item) {
+            $results[] = [
+                'id' => $item['id'],
+                'name' => ucfirst(str_replace('-', ' ', $item['name'])),
+                'sprite' => $item['sprite'],
+                'url' => $this->generateUrl('app_pokemon_detail', ['name' => $item['name']]),
+            ];
+        }
+
+        return new JsonResponse($results);
+    }
+
+    #[Route('/api/move/search', name: 'api_move_search', methods: ['GET'])]
+    public function searchMoveAjax(Request $request): JsonResponse
+    {
+        $query = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($request->query->get('q', '')))));
+        if (strlen($query) < 2) {
+            return new JsonResponse([]);
+        }
+
+        $allMovesMap = [];
+
+        // 1. Golpes de TMs
+        $tmsJsonPath = $this->getParameter('kernel.project_dir').'/scratch/tms.json';
+        if (file_exists($tmsJsonPath)) {
+            $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?: [];
+            foreach ($allTms as $tm) {
+                $slug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($tm['move']))));
+                $allMovesMap[$slug] = [
+                    'slug' => $slug,
+                    'name' => ucwords(str_replace('-', ' ', $slug)),
+                    'tm_code' => strtoupper($tm['item']),
+                ];
+            }
+        }
+
+        // 2. Golpes Base
+        $defaultBaseMoves = [];
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir').'/scratch/default_base_moves.json';
+        if (file_exists($defaultBaseMovesPath)) {
+            $rawBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+            foreach ($rawBaseMoves as $pkName => $moves) {
+                if (is_array($moves)) {
+                    $pkKey = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($pkName))));
+                    $defaultBaseMoves[$pkKey] = array_map(fn ($m) => preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m)))), $moves);
+
+                    foreach ($moves as $m) {
+                        $slug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m))));
+                        if (!isset($allMovesMap[$slug])) {
+                            $allMovesMap[$slug] = [
+                                'slug' => $slug,
+                                'name' => ucwords(str_replace('-', ' ', $slug)),
+                                'tm_code' => null,
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        // Filtra resultados por termo de busca
+        $results = [];
+        foreach ($allMovesMap as $slug => $data) {
+            if (str_contains($slug, $query) || str_contains(strtolower($data['name']), strtolower($query))) {
+                // Encontrar quais Pokémon aprendem este golpe como Base Move
+                $basePokemon = [];
+                foreach ($defaultBaseMoves as $pkSlug => $moves) {
+                    $idx = array_search($slug, $moves);
+                    if ($idx !== false) {
+                        $basePokemon[] = [
+                            'name' => $pkSlug,
+                            'display_name' => ucfirst(str_replace('-', ' ', $pkSlug)),
+                            'base_slot' => 'm'.($idx + 1),
+                        ];
+                    }
+                }
+
+                $results[] = [
+                    'slug' => $data['slug'],
+                    'name' => $data['name'],
+                    'tm_code' => $data['tm_code'],
+                    'base_pokemon' => $basePokemon,
+                    'base_pokemon_count' => count($basePokemon),
+                    'url' => $this->generateUrl('app_move_search', ['q' => $data['slug']]),
+                ];
+            }
+        }
+
+        // Limita a 8 resultados
+        $results = array_slice($results, 0, 8);
+
+        return new JsonResponse($results);
+    }
+
+    #[Route('/pokedex', name: 'app_pokedex')]
+    public function pokedex(Request $request): Response
+    {
+        return $this->redirectToRoute('app_home');
+    }
+
+    #[Route('/moves', name: 'app_move_search', methods: ['GET'])]
+    public function searchMoves(Request $request): Response
+    {
+        $search = $request->query->get('q', '');
+        $filter = $request->query->get('filter', 'base');
+        $results = [];
+        $moveDetails = null;
+        $allTms = [];
+        $tmsMap = [];
+
+        // Carrega TMs
+        $tmsJsonPath = $this->getParameter('kernel.project_dir').'/scratch/tms.json';
+        if (file_exists($tmsJsonPath)) {
+            $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?: [];
+            foreach ($allTms as $tm) {
+                $moveNormalized = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($tm['move']))));
+                $tmsMap[$moveNormalized] = $tm['item'];
+            }
+        }
+
+        // Carrega default base moves
+        $defaultBaseMoves = [];
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir').'/scratch/default_base_moves.json';
+        if (file_exists($defaultBaseMovesPath)) {
+            $rawBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+            foreach ($rawBaseMoves as $pkName => $moves) {
+                if (is_array($moves)) {
+                    $pkKey = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($pkName))));
+                    $defaultBaseMoves[$pkKey] = array_map(fn ($m) => preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m)))), $moves);
+                }
+            }
+        }
+
+        if (!empty($search)) {
+            $moveSlug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($search))));
+            try {
+                $moveDetails = $this->pokeApiService->getMoveDetailsWithLearnedBy($moveSlug);
+                if ($moveDetails && !empty($moveDetails['learned_by_pokemon'])) {
+                    $moveNameNorm = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($moveDetails['name']))));
+                    $tmCode = $tmsMap[$moveNameNorm] ?? null;
+
+                    foreach ($moveDetails['learned_by_pokemon'] as $p) {
+                        $pId = (int) $p['id'];
+                        if (!$this->pokeApiService->isPokemonAllowed($pId)) {
+                            continue;
+                        }
+
+                        $pNameLower = strtolower($p['name']);
+                        if (str_contains($pNameLower, '-mega')) {
+                            continue;
+                        }
+
+                        $pSlug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($p['name']))));
+                        $baseName = explode('-', $pSlug)[0];
+
+                        $isBaseMove = false;
+                        $baseSlotLabel = null;
+
+                        $matchedMoves = $defaultBaseMoves[$pSlug] ?? $defaultBaseMoves[$baseName] ?? null;
+                        if ($matchedMoves !== null) {
+                            $idx = array_search($moveNameNorm, $matchedMoves);
+                            if ($idx !== false) {
+                                $isBaseMove = true;
+                                $baseSlotLabel = 'm'.($idx + 1).' (move nº '.($idx + 1).')';
+                            }
+                        }
+
+                        // Filtragem server-side baseada na aba ativa
+                        if ($filter === 'base' && !$isBaseMove) {
+                            continue;
+                        }
+
+                        if ($filter === 'tm' && !$tmCode) {
+                            continue;
+                        }
+
+                        $results[] = [
+                            'id' => $pId,
+                            'name' => $p['name'],
+                            'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $pId),
+                            'is_base' => $isBaseMove,
+                            'base_slot' => $baseSlotLabel,
+                            'tm_code' => $tmCode,
+                        ];
+                    }
+
+                    // Ordena por ID do Pokémon
+                    usort($results, fn ($a, $b) => $a['id'] <=> $b['id']);
+                }
+            } catch (\Exception) {
+                $moveDetails = null;
+            }
+        }
+
+        return $this->render('pokemon/move_search.html.twig', [
+            'search' => $search,
+            'moveDetails' => $moveDetails,
+            'results' => $results,
+            'filter' => $filter,
+        ]);
+    }
+}
