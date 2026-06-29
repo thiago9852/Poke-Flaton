@@ -495,6 +495,23 @@
 }
 
 @media (max-width: 768px) {
+    .ranking-filters-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        padding: 16px;
+    }
+    .ranking-search-form {
+        max-width: none;
+    }
+    .ranking-sort-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .sort-tab-btn {
+        justify-content: center;
+    }
     .top3-showcase {
         grid-template-columns: 1fr;
         gap: 16px;

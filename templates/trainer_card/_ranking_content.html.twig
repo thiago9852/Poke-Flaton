@@ -22,7 +22,7 @@
 						</div>
 						<div class="top3-user-meta">
 							<a href="{{ path('app_trainer_profile', { username: second.user.username }) }}" class="top3-username" title="{{ second.user.username }}">{{ second.user.username }}</a>
-							<span class="top3-user-handle">@{{ second.user.username|lower }}</span>
+							<span class="top3-user-handle">@{{ second.user.apelido|lower }}</span>
 						</div>
 					</div>
 					<div class="top3-rank-icon">
@@ -81,7 +81,7 @@
 						</div>
 						<div class="top3-user-meta">
 							<a href="{{ path('app_trainer_profile', { username: first.user.username }) }}" class="top3-username" title="{{ first.user.username }}">{{ first.user.username }}</a>
-							<span class="top3-user-handle">@{{ first.user.username|lower }}</span>
+							<span class="top3-user-handle">@{{ first.user.apelido|lower }}</span>
 						</div>
 					</div>
 					<div class="top3-rank-icon">
@@ -140,7 +140,7 @@
 						</div>
 						<div class="top3-user-meta">
 							<a href="{{ path('app_trainer_profile', { username: third.user.username }) }}" class="top3-username" title="{{ third.user.username }}">{{ third.user.username }}</a>
-							<span class="top3-user-handle">@{{ third.user.username|lower }}</span>
+							<span class="top3-user-handle">@{{ third.user.apelido|lower }}</span>
 						</div>
 					</div>
 					<div class="top3-rank-icon">
@@ -221,7 +221,7 @@
 									<img src="{{ avatar_url(row.user.avatar) }}" alt="Avatar" class="leaderboard-avatar-img">
 								</div>
 								<div class="leaderboard-user-details">
-									<a href="{{ path('app_trainer_profile', { username: row.user.username }) }}" class="leaderboard-name-link">{{ row.user.username }}</a>
+									<a href="{{ path('app_trainer_profile', { username: row.user.username }) }}" class="leaderboard-name-link">{{ row.user.apelido }}</a>
 									<span class="leaderboard-title-label" style="display: flex; align-items: center; gap: 4px;">
 										{% if index == 0 %}
 											{% if first_title_ribbon %}

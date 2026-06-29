@@ -1,0 +1,604 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mini Mapa | PokeFlaton{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Custom Map CSS -->
+    <link rel="stylesheet" href="{{ asset('css/map.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="map-layout">
+    <!-- Sidebar -->
+    <div class="map-sidebar">
+        <h3 class="sidebar-title">
+            <i class="fa-solid fa-map-location-dot"></i>
+            {{ 'Mini Mapa Pokémon'|trans }}
+        </h3>
+
+        <!-- Seletor de Mapas -->
+        <div class="map-selector-group">
+            <label for="mapSelect">{{ 'Selecionar Mapa / Região'|trans }}</label>
+            <select id="mapSelect" class="map-select" onchange="location = this.value;">
+                {% if maps is empty %}
+                    <option value="">{{ 'Nenhum mapa cadastrado'|trans }}</option>
+                {% else %}
+                    <option value="{{ path('app_map') }}" {% if activeMap is null %}selected{% endif %}>
+                        {{ '-- Selecione uma Região --'|trans }}
+                    </option>
+                    {% for map in maps %}
+                        <option value="{{ path('app_map', { mapId: map.id }) }}" {% if activeMap and activeMap.id == map.id %}selected{% endif %}>
+                            {{ map.name }}
+                        </option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+        </div>
+
+        <div class="map-actions">
+            {% if activeMap %}
+                <button id="btnAddMode" class="btn btn-add-mode" onclick="toggleAddMode()">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>{{ 'Adicionar Pokémon'|trans }}</span>
+                </button>
+                <div id="addInstructions" class="action-instructions" style="display: none;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    {{ 'Clique em qualquer lugar na imagem do mapa para marcar um Pokémon.'|trans }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Barra de Busca de Pokémon no Mapa -->
+        {% if activeMap and activeMapPokemons is not empty %}
+            <div class="search-pokemon-card">
+                <h4>
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    {{ 'Filtrar Marcadores'|trans }}
+                </h4>
+                <div class="search-box-container">
+                    <input type="text" id="mapSearchInput" class="search-pokemon-input" placeholder="{{ 'Buscar Pokémon no mapa...'|trans }}" oninput="filterMapMarkers()">
+                    <i class="fa-solid fa-magnifying-glass search-icon-small"></i>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Marcadores Cadastrados Listagem -->
+        {% if activeMap %}
+        <div class="markers-list-section">
+            <h4 class="markers-list-title">{{ 'Pokémon no Mapa'|trans }}</h4>
+            <div id="markersList" class="markers-scroll-container">
+                {% if activeMapPokemons is empty %}
+                    <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 20px;">
+                        {{ 'Nenhum Pokémon marcado neste mapa ainda.'|trans }}
+                    </div>
+                {% else %}
+                    {% for mp in activeMapPokemons %}
+                        <div class="marker-list-item" onclick="focusOnMarker({{ mp.id }})" data-id="{{ mp.id }}" data-name="{{ mp.pokemonName|lower }}">
+                            <div class="marker-list-item-left">
+                                <img src="https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/4ea93c96af1c74c0f240315fac1b5f34361a710c/UICONS/pokemon/{{ mp.pokemonId }}.png" 
+                                     alt="{{ mp.pokemonName }}" 
+                                     class="marker-list-item-img"
+                                     onerror="this.onerror=null; this.src='{{ asset('image/Pokeball.png') }}';">
+                                <div class="marker-list-item-info">
+                                    <span class="marker-list-item-name">{{ mp.pokemonName|capitalize }}</span>
+                                    <span class="marker-list-item-coords">
+                                        X: {{ mp.longitude|number_format(0) }}, Y: {{ mp.latitude|number_format(0) }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Cadastro de Novo Mapa (Admin) -->
+        {% if is_granted('ROLE_ADMIN') %}
+            <div class="admin-map-card">
+                <h4>
+                    <i class="fa-solid fa-gears"></i>
+                    {{ 'Painel Administrativo'|trans }}
+                </h4>
+                
+                <form action="{{ path('app_admin_map_add') }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="form-group-admin">
+                        <label for="adminMapName">{{ 'Nome do Mapa / Região'|trans }}</label>
+                        <input type="text" id="adminMapName" name="name" class="form-control-admin" required placeholder="Ex: Kanto, Hoenn, Safari">
+                    </div>
+                    <div class="form-group-admin">
+                        <label for="adminMapImage">{{ 'Imagem do Mapa (JPG/PNG/WEBP)'|trans }}</label>
+                        <input type="file" id="adminMapImage" name="image" accept="image/*" class="form-control-admin" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        {{ 'Cadastrar Região'|trans }}
+                    </button>
+                </form>
+
+                {% if activeMap %}
+                    <form action="{{ path('app_admin_map_delete', { id: activeMap.id }) }}" method="POST" onsubmit="return confirm('{{ 'Tem certeza que deseja excluir o mapa atual e todos os seus marcadores?'|trans }}');" style="margin-top: 8px;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete-map-' ~ activeMap.id) }}">
+                        <button type="submit" class="btn btn-secondary btn-sm" style="width: 100%; background-color: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2);">
+                            <i class="fa-solid fa-trash-can"></i>
+                            {{ 'Excluir Mapa Atual'|trans }}
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Map container -->
+    <div id="map" class="map-container">
+        {% if activeMap is null %}
+            <div class="map-placeholder-overlay">
+                <div class="placeholder-content">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <h3>{{ 'Selecione uma Região'|trans }}</h3>
+                    <p>{{ 'Escolha uma região no menu lateral para visualizar o mapa e os Pokémons registrados.'|trans }}</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script>
+        // Dados do mapa e lista de Pokémon para autocomplete
+        const activeMap = {% if activeMap %}{{ { id: activeMap.id, name: activeMap.name, imagePath: activeMap.imagePath }|json_encode|raw }}{% else %}null{% endif %};
+        const pokemonBasicList = {{ pokemonList|json_encode|raw }};
+        const addPokemonUrl = "{{ path('app_map_pokemon_add') }}";
+        const csrfTokenAdd = "{{ csrf_token('add-map-pokemon') }}";
+        const isAdmin = {% if is_granted('ROLE_ADMIN') %}true{% else %}false{% endif %};
+        
+        let map;
+        let markers = {}; // Guardar os marcadores por ID
+        let addMode = false;
+        let activeTempMarker = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar mapa no sistema de coordenadas simples do Leaflet (L.CRS.Simple)
+            map = L.map('map', {
+                crs: L.CRS.Simple,
+                minZoom: -2,
+                maxZoom: 3,
+                zoomControl: true,
+                attributionControl: false
+            });
+
+            // Evitar que cliques dentro de qualquer popup propaguem para o mapa (o que fecharia o popup)
+            map.on('popupopen', function(e) {
+                const popupNode = e.popup.getElement();
+                if (popupNode) {
+                    L.DomEvent.disableClickPropagation(popupNode);
+                }
+            });
+
+            // Limites virtuais uniformes de 1000x1000 pixels
+            const bounds = [[0, 0], [1000, 1000]];
+
+            if (activeMap) {
+                // Carregar imagem customizada do mapa do jogo
+                const imageUrl = `/uploads/maps/${activeMap.imagePath}`;
+                L.imageOverlay(imageUrl, bounds).addTo(map);
+                
+                // Centralizar e confinar a visualização nos limites da imagem
+                map.fitBounds(bounds);
+                map.setMaxBounds(bounds);
+            } else {
+                // Foco padrão caso não haja mapa
+                map.setView([500, 500], 0);
+            }
+
+            // Carregar marcadores existentes
+            {% for mp in activeMapPokemons %}
+                addMarkerToMap({
+                    id: {{ mp.id }},
+                    pokemonId: {{ mp.pokemonId }},
+                    pokemonName: "{{ mp.pokemonName }}",
+                    latitude: {{ mp.latitude }}, // Y
+                    longitude: {{ mp.longitude }}, // X
+                    notes: "{{ mp.notes|escape('js') }}",
+                    username: "{{ mp.user ? mp.user.username : 'Anônimo' }}",
+                    createdAt: "{{ mp.createdAt|date('d/m/Y H:i') }}",
+                    csrfToken: "{{ csrf_token('delete-map-pokemon-' ~ mp.id) }}",
+                    canDelete: {% if is_granted('ROLE_ADMIN') %}true{% else %}false{% endif %}
+                });
+            {% endfor %}
+
+            // Clique no mapa para adicionar marcador
+            map.on('click', function(e) {
+                if (!addMode) return;
+                
+                const lat = e.latlng.lat; // Y
+                const lng = e.latlng.lng; // X
+                
+                // Impedir cliques fora da área de imagem (0 a 1000)
+                if (lat < 0 || lat > 1000 || lng < 0 || lng > 1000) return;
+
+                showAddPokemonPopup(lat, lng);
+            });
+        });
+
+        // Adiciona marcador ao mapa
+        function addMarkerToMap(data) {
+            const iconUrl = `https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/4ea93c96af1c74c0f240315fac1b5f34361a710c/UICONS/pokemon/${data.pokemonId}.png`;
+            
+            const customIcon = L.divIcon({
+                className: 'pokemon-map-icon',
+                html: `<img src="${iconUrl}" class="pokemon-map-icon-img" alt="${data.pokemonName}" onerror="this.onerror=null; this.src='{{ asset('image/Pokeball.png') }}';">`,
+                iconSize: [44, 44],
+                iconAnchor: [22, 22],
+                popupAnchor: [0, -20]
+            });
+
+            const marker = L.marker([data.latitude, data.longitude], { icon: customIcon }).addTo(map);
+
+            const movesetUrl = `/pokemon/${data.pokemonName.toLowerCase()}`;
+            let popupContent = `
+                <div class="map-popup-container">
+                    <div class="map-popup-header">
+                        <img src="${iconUrl}" class="map-popup-img" alt="${data.pokemonName}" onerror="this.onerror=null; this.src='{{ asset('image/Pokeball.png') }}';">
+                        <div>
+                            <div class="map-popup-title">${capitalizeFirstLetter(data.pokemonName)}</div>
+                            <a href="${movesetUrl}" class="map-popup-link" target="_blank">
+                                Ver Movesets
+                            </a>
+                        </div>
+                    </div>
+                    <div class="map-popup-body">
+                        ${data.notes ? `<div class="map-popup-notes">"${data.notes}"</div>` : `<span style="color: var(--text-muted); font-style: italic;">Sem observações.</span>`}
+                    </div>
+                    <div class="map-popup-footer">
+                        <div>
+                            <i class="fa-solid fa-user"></i> ${data.username}<br>
+                            <i class="fa-solid fa-clock"></i> ${data.createdAt}
+                        </div>
+            `;
+
+            if (data.canDelete) {
+                popupContent += `
+                    <button class="btn-popup-delete" onclick="deleteMarker(${data.id}, '${data.csrfToken}')">
+                        <i class="fa-solid fa-trash-can"></i> Excluir
+                    </button>
+                `;
+            }
+
+            popupContent += `
+                    </div>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+            markers[data.id] = marker;
+        }
+
+        // Deleta o marcador
+        function deleteMarker(id, token) {
+            if (!confirm("Deseja realmente excluir esta marcação?")) return;
+
+            const formData = new FormData();
+            formData.append('_token', token);
+
+            fetch(`/map/pokemon/${id}/delete`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (markers[id]) {
+                        map.removeLayer(markers[id]);
+                        delete markers[id];
+                    }
+                    const item = document.querySelector(`.marker-list-item[data-id="${id}"]`);
+                    if (item) {
+                        item.remove();
+                    }
+                    const list = document.getElementById('markersList');
+                    if (list.children.length === 0) {
+                        list.innerHTML = `
+                            <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 20px;">
+                                Nenhum Pokémon marcado neste mapa ainda.
+                            </div>
+                        `;
+                    }
+                } else {
+                    alert(data.error || "Erro ao deletar marcador.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro de comunicação com o servidor.");
+            });
+        }
+
+        // Alterna modo de inserção
+        function toggleAddMode() {
+            addMode = !addMode;
+            const btn = document.getElementById('btnAddMode');
+            const instructions = document.getElementById('addInstructions');
+            const mapContainer = document.getElementById('map');
+
+            if (addMode) {
+                btn.classList.add('active');
+                btn.innerHTML = `<i class="fa-solid fa-xmark"></i> <span>Cancelar</span>`;
+                instructions.style.display = 'block';
+                mapContainer.style.cursor = 'crosshair';
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = `<i class="fa-solid fa-circle-plus"></i> <span>Adicionar Pokémon</span>`;
+                instructions.style.display = 'none';
+                mapContainer.style.cursor = '';
+                if (activeTempMarker) {
+                    map.removeLayer(activeTempMarker);
+                    activeTempMarker = null;
+                }
+            }
+        }
+
+        // Abre popup para busca e inserção
+        function showAddPokemonPopup(lat, lng) {
+            if (activeTempMarker) {
+                map.removeLayer(activeTempMarker);
+            }
+
+            activeTempMarker = L.marker([lat, lng]).addTo(map);
+
+            const formHtml = `
+                <div class="map-inserter-form">
+                    <h4><i class="fa-solid fa-location-crosshairs"></i> Marcar Pokémon</h4>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="popupSearchInput" class="map-popup-input" placeholder="Buscar Pokémon..." autocomplete="off" oninput="handlePopupAutocomplete(this)">
+                        <div id="popupAutocompleteList" class="autocomplete-dropdown"></div>
+                    </div>
+                    <div id="popupSelectedPreview" class="preview-selected-pokemon" style="display: none;"></div>
+                    <input type="hidden" id="popupSelectedId" value="">
+                    <input type="hidden" id="popupSelectedName" value="">
+                    
+                    <div class="form-group-admin" style="margin-top: 4px;">
+                        <input type="text" id="popupNotes" class="map-popup-input" placeholder="Observações (opcional, ex: No matinho, Caverna)...">
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="savePokemonMarker(${lat}, ${lng})" style="width:100%; margin-top: 4px;">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Ponto
+                    </button>
+                </div>
+            `;
+
+            activeTempMarker.bindPopup(formHtml, { minWidth: 260 }).openPopup();
+
+            activeTempMarker.on('popupclose', function() {
+                if (addMode) {
+                    toggleAddMode();
+                }
+            });
+        }
+
+        function handlePopupAutocomplete(input) {
+            const query = input.value.trim().toLowerCase();
+            const listContainer = document.getElementById('popupAutocompleteList');
+            
+            listContainer.innerHTML = '';
+            listContainer.style.display = 'none';
+            
+            if (query.length < 2) return;
+
+            const filtered = pokemonBasicList.filter(p => p.name.toLowerCase().includes(query)).slice(0, 5);
+
+            if (filtered.length > 0) {
+                listContainer.style.display = 'flex';
+                filtered.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.style.padding = '6px 10px';
+                    item.style.fontSize = '0.8rem';
+                    
+                    const iconUrl = `https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/4ea93c96af1c74c0f240315fac1b5f34361a710c/UICONS/pokemon/${p.id}.png`;
+                    
+                    item.innerHTML = `
+                        <img src="${iconUrl}" style="width: 24px; height: 24px; object-fit: contain;" onerror="this.onerror=null; this.src='{{ asset('image/Pokeball.png') }}';">
+                        <div class="autocomplete-item-info">
+                            <span class="poke-name" style="font-size:0.85rem;">${capitalizeFirstLetter(p.name)}</span>
+                        </div>
+                    `;
+                    item.onmousedown = function(e) {
+                        if (e) e.stopPropagation();
+                    };
+                    item.onclick = function(e) {
+                        if (e) e.stopPropagation();
+                        selectPokemonForMarker(p.id, p.name);
+                    };
+                    listContainer.appendChild(item);
+                });
+            }
+        }
+
+        function selectPokemonForMarker(id, name) {
+            document.getElementById('popupSelectedId').value = id;
+            document.getElementById('popupSelectedName').value = name;
+            
+            const dropdown = document.getElementById('popupAutocompleteList');
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'none';
+            
+            document.getElementById('popupSearchInput').style.display = 'none';
+
+            const preview = document.getElementById('popupSelectedPreview');
+            const iconUrl = `https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/4ea93c96af1c74c0f240315fac1b5f34361a710c/UICONS/pokemon/${id}.png`;
+            
+            preview.innerHTML = `
+                <img src="${iconUrl}" class="preview-img" alt="${name}" onerror="this.onerror=null; this.src='{{ asset('image/Pokeball.png') }}';">
+                <span class="preview-name">${capitalizeFirstLetter(name)}</span>
+                <button type="button" class="btn-popup-delete" id="btnPopupChange" style="margin-left: auto;">
+                    <i class="fa-solid fa-pen"></i> Alterar
+                </button>
+            `;
+            preview.style.display = 'flex';
+
+            const btnChange = document.getElementById('btnPopupChange');
+            if (btnChange) {
+                btnChange.onmousedown = function(e) {
+                    if (e) e.stopPropagation();
+                };
+                btnChange.onclick = function(e) {
+                    if (e) e.stopPropagation();
+                    resetSelectedPokemon();
+                };
+            }
+        }
+
+        function resetSelectedPokemon() {
+            document.getElementById('popupSelectedId').value = '';
+            document.getElementById('popupSelectedName').value = '';
+            document.getElementById('popupSelectedPreview').style.display = 'none';
+            
+            const searchInput = document.getElementById('popupSearchInput');
+            searchInput.value = '';
+            searchInput.style.display = 'block';
+            searchInput.focus();
+        }
+
+        function savePokemonMarker(lat, lng) {
+            const pokemonId = document.getElementById('popupSelectedId').value;
+            const pokemonName = document.getElementById('popupSelectedName').value;
+            const notes = document.getElementById('popupNotes').value;
+
+            if (!pokemonId || !pokemonName) {
+                alert("Por favor, selecione um Pokémon da lista de sugestões.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('mapId', activeMap ? activeMap.id : '');
+            formData.append('pokemonName', pokemonName);
+            formData.append('pokemonId', pokemonId);
+            formData.append('latitude', lat);
+            formData.append('longitude', lng);
+            formData.append('notes', notes);
+            formData.append('_token', csrfTokenAdd);
+
+            fetch(addPokemonUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (activeTempMarker) {
+                        map.removeLayer(activeTempMarker);
+                        activeTempMarker = null;
+                    }
+                    
+                    addMarkerToMap({
+                        id: data.pokemon.id,
+                        pokemonId: data.pokemon.pokemonId,
+                        pokemonName: data.pokemon.pokemonName,
+                        latitude: data.pokemon.latitude,
+                        longitude: data.pokemon.longitude,
+                        notes: data.pokemon.notes,
+                        username: data.pokemon.username,
+                        createdAt: data.pokemon.createdAt,
+                        csrfToken: "{{ csrf_token('delete-map-pokemon-ID') }}".replace('ID', data.pokemon.id),
+                        canDelete: isAdmin
+                    });
+
+                    appendMarkerToSidebarList(data.pokemon);
+                    toggleAddMode();
+                } else {
+                    alert(data.error || "Erro ao salvar marcador.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro ao salvar marcador.");
+            });
+        }
+
+        function appendMarkerToSidebarList(pokemon) {
+            const list = document.getElementById('markersList');
+            
+            if (list.querySelector('div[style*="text-align: center"]')) {
+                list.innerHTML = '';
+            }
+
+            const item = document.createElement('div');
+            item.className = 'marker-list-item';
+            item.setAttribute('onclick', `focusOnMarker(${pokemon.id})`);
+            item.setAttribute('data-id', pokemon.id);
+            item.setAttribute('data-name', pokemon.pokemonName.toLowerCase());
+            
+            const iconUrl = `https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/4ea93c96af1c74c0f240315fac1b5f34361a710c/UICONS/pokemon/${pokemon.pokemonId}.png`;
+
+            item.innerHTML = `
+                <div class="marker-list-item-left">
+                    <img src="${iconUrl}" alt="${pokemon.pokemonName}" class="marker-list-item-img" onerror="this.onerror=null; this.src='{{ asset('image/Pokeball.png') }}';">
+                    <div class="marker-list-item-info">
+                        <span class="marker-list-item-name">${pokemon.pokemonName}</span>
+                        <span class="marker-list-item-coords">
+                            X: ${pokemon.longitude.toFixed(0)}, Y: ${pokemon.latitude.toFixed(0)}
+                        </span>
+                    </div>
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.8rem;">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>
+            `;
+            
+            list.insertBefore(item, list.firstChild);
+        }
+
+        function focusOnMarker(id) {
+            const marker = markers[id];
+            if (marker) {
+                map.setView(marker.getLatLng(), Math.max(map.getZoom(), 1));
+                marker.openPopup();
+            }
+        }
+
+        function filterMapMarkers() {
+            const query = document.getElementById('mapSearchInput').value.trim().toLowerCase();
+            const sidebarItems = document.querySelectorAll('.marker-list-item');
+            
+            sidebarItems.forEach(item => {
+                const name = item.getAttribute('data-name');
+                if (name.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            Object.keys(markers).forEach(id => {
+                const marker = markers[id];
+                const item = document.querySelector(`.marker-list-item[data-id="${id}"]`);
+                const name = item ? item.getAttribute('data-name') : '';
+
+                const iconElement = marker.getElement();
+                if (iconElement) {
+                    if (name.includes(query)) {
+                        iconElement.classList.remove('filtered-out');
+                    } else {
+                        iconElement.classList.add('filtered-out');
+                    }
+                }
+            });
+        }
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+    </script>
+{% endblock %}

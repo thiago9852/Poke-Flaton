@@ -63,7 +63,7 @@
 								<div class="banner-avatar-badge">
 									<span class="banner-id-tag">#{{ "%05d"|format(user.id) }}</span>
 								</div>
-								<h2 class="banner-username">{{ user.username }}</h2>
+								<h2 class="banner-username">{{ user.apelido }}</h2>
 								<span class="banner-join-date">
 									<i class="fa-solid fa-calendar-days"></i>
 									{{ 'Membro desde'|trans }}
@@ -203,7 +203,6 @@
 				<!-- Rodapé -->
 				<div class="banner-footer-strip">
 					<div style="display: flex; gap: 8px; align-items: center;">
-						<div class="footer-ball-icon"></div>
 						<span class="region-text"> {{ 'REGIÃO DE'|trans }}
 							{{ user.regional|upper }}
 						</span>

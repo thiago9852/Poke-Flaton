@@ -58,7 +58,7 @@
 									<span class="banner-id-tag">#{{ "%05d"|format(targetUser.id) }}</span>
 								</div>
 
-								<h2 class="banner-username">{{ targetUser.username }}</h2>
+								<h2 class="banner-username">{{ targetUser.apelido }}</h2>
 								<span class="banner-join-date">
 									<i class="fa-solid fa-calendar-days"></i>
 									{{ 'Membro desde'|trans }}
@@ -214,7 +214,6 @@
 
 				<!-- Footer -->
 				<div class="banner-footer-strip">
-					<div class="footer-ball-icon"></div>
 					<span class="region-text">
 						{{ 'REGIÃO DE'|trans }}
 						{{ targetUser.regional|upper }}

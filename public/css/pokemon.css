@@ -414,6 +414,10 @@
 
 
 /* moveset list detalhe */
+.back-link-container {
+    margin-bottom: 6px;
+}
+
 .moveset-list-item {
     padding: 15px;
     background: rgba(255,255,255,0.05);
@@ -1146,6 +1150,11 @@
     border-color: var(--border-focus);
     box-shadow: 0 0 10px rgba(139, 92, 246, 0.25);
     background-color: rgba(255, 255, 255, 0.05);
+}
+
+.form-select option {
+    background-color: #1a1b26;
+    color: var(--text-primary);
 }
 
 .form-textarea {

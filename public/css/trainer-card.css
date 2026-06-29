@@ -158,7 +158,8 @@ select.form-input,
     cursor: pointer;
 }
 
-select.form-input option {
+select.form-input option,
+.form-select option {
     background-color: #1a1b26;
     color: var(--text-primary);
 }
@@ -385,6 +386,27 @@ select.form-input option {
     background: var(--color-primary);
     border-radius: 2px;
     box-shadow: 0 0 8px var(--color-primary);
+}
+
+@media (max-width: 768px) {
+    .profile-tabs {
+        gap: 4px;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .profile-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    .tab-btn {
+        flex: 1;
+        min-width: max-content;
+        justify-content: center;
+        padding: 10px 12px;
+        font-size: 0.85rem;
+        gap: 6px;
+    }
 }
 
 .tab-content {
@@ -1117,8 +1139,19 @@ select.form-input option {
     }
 
     .banner-footer-strip {
-        padding: 8px 20px;
+        padding: 12px 20px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .banner-footer-strip .banner-actions-section {
+        width: auto;
         justify-content: center;
+    }
+
+    .banner-footer-strip .banner-share-btn {
+        width: auto;
     }
 }
 
