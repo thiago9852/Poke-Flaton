@@ -127,6 +127,14 @@ class MovesetController extends AbstractController
             $unlockedTms = $this->getUser()->getUnlockedTms();
         }
 
+        $allTms = [];
+        if (strtolower($name) === 'smeargle') {
+            $tmsJsonPath = $this->getParameter('kernel.project_dir') . '/scratch/tms.json';
+            if (file_exists($tmsJsonPath)) {
+                $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?? [];
+            }
+        }
+
         return $this->render('moveset/new.html.twig', [
             'pokemon' => $pokemon,
             'natures' => $natures,
@@ -134,6 +142,7 @@ class MovesetController extends AbstractController
             'maxMoves' => $maxMoves,
             'errors' => $errors,
             'unlockedTms' => $unlockedTms,
+            'allTms' => $allTms,
         ]);
     }
 

@@ -205,14 +205,27 @@
 			<!-- Tooltip flutuante -->
 			{% include 'partials/tooltip.html.twig' %}
 
+			{% set movesList = pokemon.moves %}
+			{% if pokemon.name|lower == 'smeargle' and allTms is defined and allTms is not empty %}
+				{% set tmNames = [] %}
+				{% for mv in pokemon.moves %}
+					{% set tmNames = tmNames|merge([mv.name is defined ? mv.name : mv]) %}
+				{% endfor %}
+				{% for tm in allTms %}
+					{% if tm.move not in tmNames %}
+						{% set movesList = movesList|merge([{ 'name': tm.move, 'learn_method': 'TM' }]) %}
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+
 			<div class="available-moves-list" id="available-moves-list">
-				{% for move in pokemon.moves %}
+				{% for move in movesList %}
 
 					{% set moveName = move.name is defined ? move.name : move %}
 					{% set learnMethod = move.learn_method is defined ? move.learn_method : 'base' %}
 
 					{% set isLocked = false %}
-					{% if app.user and learnMethod == 'TM' and moveName not in unlockedTms %}
+					{% if app.user and learnMethod == 'TM' and moveName not in unlockedTms and pokemon.name|lower != 'smeargle' %}
 						{% set isLocked = true %}
 					{% endif %}
 
