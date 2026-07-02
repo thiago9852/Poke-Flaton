@@ -200,6 +200,17 @@ window.closeShareModal = function () {
             });
         }
 
+        // Evento para fechar modal de importação clicando fora no overlay
+        const importModal = document.getElementById('import-modal');
+        if (importModal && !importModal.dataset.initialized) {
+            importModal.dataset.initialized = 'true';
+            importModal.addEventListener('click', function (e) {
+                if (e.target === importModal) {
+                    closeImportModal();
+                }
+            });
+        }
+
         // Lógica de Curtir (Upvote) Moveset
         document.querySelectorAll('.upvote-btn').forEach(btn => {
             if (!btn.dataset.initialized) {
@@ -265,4 +276,73 @@ window.upvoteClickHandler = async function (e) {
     }
 };
 document.addEventListener('click', window.upvoteClickHandler);
+
+// JSON Export / Import
+window.exportMovesetJson = function (movesetObj) {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(movesetObj, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `moveset-${movesetObj.pokemonName.toLowerCase()}-${movesetObj.type}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+};
+
+window.openImportModal = function () {
+    const modal = document.getElementById('import-modal');
+    if (modal) {
+        modal.classList.add('active');
+        const fileInput = document.getElementById('import-file');
+        const textInput = document.getElementById('import-text');
+        if (fileInput) fileInput.value = '';
+        if (textInput) textInput.value = '';
+    }
+};
+
+window.closeImportModal = function () {
+    const modal = document.getElementById('import-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+};
+
+window.handleImportSubmit = function () {
+    const fileInput = document.getElementById('import-file');
+    const textInput = document.getElementById('import-text');
+    
+    if (fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            processImportedJson(e.target.result);
+        };
+        reader.onerror = function () {
+            alert('Erro ao ler arquivo JSON.');
+        };
+        reader.readAsText(file);
+    } else if (textInput && textInput.value.trim() !== '') {
+        processImportedJson(textInput.value);
+    } else {
+        alert('Por favor, carregue um arquivo .json ou cole o código JSON.');
+    }
+};
+
+function processImportedJson(jsonStr) {
+    try {
+        const parsed = JSON.parse(jsonStr);
+        if (!parsed.pokemonName) {
+            alert('JSON inválido: Nome do Pokémon não encontrado.');
+            return;
+        }
+        
+        sessionStorage.setItem('imported_moveset', JSON.stringify(parsed));
+        window.closeImportModal();
+        
+        // Redireciona para a página de novo moveset do respectivo Pokémon
+        window.location.href = `/pokemon/${parsed.pokemonName.toLowerCase()}/moveset/new`;
+    } catch (err) {
+        console.error(err);
+        alert('Erro ao processar JSON: Verifique a formatação do texto.');
+    }
+}
 })();

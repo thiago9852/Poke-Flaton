@@ -66,6 +66,23 @@ let locale = 'pt_BR';
         updateUI();
         loadAllMoveTypes();
 
+        // Verificar sessionStorage para moveset importado
+        const importedData = sessionStorage.getItem('imported_moveset');
+        if (importedData) {
+            try {
+                const parsed = JSON.parse(importedData);
+                sessionStorage.removeItem('imported_moveset');
+                
+                const currentPokeName = document.querySelector('.summary-name')?.textContent?.toLowerCase()?.trim() || '';
+                if (parsed.pokemonName && parsed.pokemonName.toLowerCase().trim() === currentPokeName) {
+                    // Espera carregar os tipos dos moves para aplicar melhor a interface
+                    setTimeout(() => { applyParsedMoveset(parsed); }, 300);
+                }
+            } catch (e) {
+                console.error('Erro ao ler sessionStorage de moveset importado:', e);
+            }
+        }
+
         // Validação ao enviar o formulário
         const formWrapper = document.querySelector('.moveset-form-wrapper');
         if (formWrapper) {
@@ -297,5 +314,150 @@ function updateCounter() {
     const count = selectedMoves.filter(m => m !== null).length;
     const counter = document.getElementById('slots-counter');
     if (counter) counter.textContent = `(${count} / ${MAX_MOVES})`;
+}
+
+function applyParsedMoveset(parsed) {
+    // 1. Tipo
+    if (parsed.type) {
+        const typeRadio = document.querySelector(`input[name="type"][value="${parsed.type}"]`);
+        if (typeRadio) typeRadio.checked = true;
+    }
+    
+    // 2. Habilidade
+    if (parsed.ability) {
+        const abilitySelect = document.getElementById('ability');
+        if (abilitySelect) {
+            const optVal = parsed.ability.toLowerCase().replace(/\s+/g, '-');
+            for (let option of abilitySelect.options) {
+                if (option.value.toLowerCase() === optVal || option.value.toLowerCase() === parsed.ability.toLowerCase()) {
+                    abilitySelect.value = option.value;
+                    break;
+                }
+            }
+        }
+    }
+    
+    // 3. Nature
+    if (parsed.nature) {
+        const natureSelect = document.getElementById('nature');
+        if (natureSelect) {
+            const optVal = parsed.nature.toLowerCase().trim();
+            for (let option of natureSelect.options) {
+                if (option.value.toLowerCase().trim() === optVal) {
+                    natureSelect.value = option.value;
+                    break;
+                }
+            }
+        }
+    }
+    
+    // 4. Item Segurado
+    if (parsed.heldItem) {
+        const itemInput = document.getElementById('heldItemInput');
+        if (itemInput) {
+            itemInput.value = parsed.heldItem.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+    }
+    
+    // 5. Golpes
+    if (parsed.moves && Array.isArray(parsed.moves)) {
+        selectedMoves = Array(MAX_MOVES).fill(null);
+        let moveCount = 0;
+        for (let mv of parsed.moves) {
+            if (moveCount >= MAX_MOVES) break;
+            const mvNormalized = mv.toLowerCase().trim().replace(/\s+/g, '-');
+            const availableCard = document.querySelector(`.available-move-card[data-move-name="${mvNormalized}"]`);
+            if (availableCard) {
+                const isLocked = availableCard.dataset.locked === 'true';
+                if (!isLocked) {
+                    selectedMoves[moveCount] = mvNormalized;
+                    moveCount++;
+                } else {
+                    console.warn(`Movimento ${mv} está bloqueado por falta de TM no Trainer Card.`);
+                }
+            }
+        }
+    }
+    
+    updateUI();
+}
+
+// Funções de Modal para a página de Criação
+window.openImportModal = function () {
+    const modal = document.getElementById('import-modal');
+    if (modal) {
+        modal.classList.add('active');
+        const fileInput = document.getElementById('import-file');
+        const textInput = document.getElementById('import-text');
+        if (fileInput) fileInput.value = '';
+        if (textInput) textInput.value = '';
+    }
+};
+
+window.closeImportModal = function () {
+    const modal = document.getElementById('import-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+};
+
+window.handleImportSubmit = function () {
+    const fileInput = document.getElementById('import-file');
+    const textInput = document.getElementById('import-text');
+    
+    if (fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            processImportedJson(e.target.result);
+        };
+        reader.onerror = function () {
+            alert('Erro ao ler arquivo JSON.');
+        };
+        reader.readAsText(file);
+    } else if (textInput && textInput.value.trim() !== '') {
+        processImportedJson(textInput.value);
+    } else {
+        alert('Por favor, carregue um arquivo .json ou cole o código JSON.');
+    }
+};
+
+function processImportedJson(jsonStr) {
+    try {
+        const parsed = JSON.parse(jsonStr);
+        if (!parsed.pokemonName) {
+            alert('JSON inválido: Nome do Pokémon não encontrado.');
+            return;
+        }
+        
+        const currentPokeName = document.querySelector('.summary-name')?.textContent?.toLowerCase()?.trim() || '';
+        const importedPokeName = parsed.pokemonName.toLowerCase().trim();
+        
+        if (importedPokeName !== currentPokeName) {
+            const confirmRedirect = confirm(`Este JSON é para o Pokémon "${parsed.pokemonName.toUpperCase()}", mas você está criando um moveset para "${currentPokeName.toUpperCase()}".\n\nDeseja ser redirecionado para a página de criação do ${parsed.pokemonName.toUpperCase()}?`);
+            if (confirmRedirect) {
+                sessionStorage.setItem('imported_moveset', JSON.stringify(parsed));
+                window.closeImportModal();
+                window.location.href = `/pokemon/${importedPokeName}/moveset/new`;
+            }
+        } else {
+            applyParsedMoveset(parsed);
+            window.closeImportModal();
+            alert('Moveset importado com sucesso!');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Erro ao processar JSON: Verifique a formatação do texto.');
+    }
+}
+
+// Fechar modal clicando fora no overlay
+const importModal = document.getElementById('import-modal');
+if (importModal) {
+    importModal.addEventListener('click', function (e) {
+        if (e.target === importModal) {
+            closeImportModal();
+        }
+    });
 }
 })();

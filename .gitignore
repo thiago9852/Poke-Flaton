@@ -21,6 +21,7 @@
 
 # Local Composer secrets
 /auth.json
+
 #/scratch/
 
 /discord-bot/

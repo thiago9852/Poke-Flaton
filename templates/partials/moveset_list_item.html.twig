@@ -62,6 +62,17 @@
 						<i class="fa-solid fa-share-nodes"></i>
 					</button>
 
+					<button class="btn btn-sm btn-outline-secondary export-btn mt-1" onclick="exportMovesetJson({{ {
+						pokemonName: m2.pokemonName,
+						type: m2.type,
+						ability: m2.ability,
+						nature: m2.nature,
+						heldItem: m2.heldItem,
+						moves: m2.moves
+					}|json_encode|escape('html_attr') }})" title="{{ 'Exportar Moveset (JSON)'|trans }}" style="padding: 6px 10px; border-radius: 20px; font-size: 0.85rem; height: 32px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+						<i class="fa-solid fa-file-export"></i>
+					</button>
+
 					<button class="upvote-btn btn btn-sm btn-outline-primary mt-1" data-id="{{ m2.id }}" title="{{ 'Curtir'|trans }}" style="margin: 0; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; height: 32px; display: inline-flex; align-items: center; gap: 6px;">
 						{{ 'Gostei'|trans }}
 						<i class="fa-regular fa-thumbs-up"></i>

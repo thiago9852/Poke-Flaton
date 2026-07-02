@@ -41,6 +41,16 @@
             <button class="btn btn-sm btn-outline-secondary share-btn" onclick="openShareModal('{{ m.id }}')" title="{{ 'Compartilhar Moveset'|trans }}" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer;">
                 <i class="fa-solid fa-share-nodes"></i> {{ 'Compartilhar'|trans }}
             </button>
+            <button class="btn btn-sm btn-outline-secondary export-btn" onclick="exportMovesetJson({{ {
+                pokemonName: m.pokemonName,
+                type: m.type,
+                ability: m.ability,
+                nature: m.nature,
+                heldItem: m.heldItem,
+                moves: m.moves
+            }|json_encode|escape('html_attr') }})" title="{{ 'Exportar Moveset (JSON)'|trans }}" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                <i class="fa-solid fa-file-export"></i> {{ 'Exportar'|trans }}
+            </button>
         </div>
     </div>
 
