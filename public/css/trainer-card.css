@@ -164,6 +164,53 @@ select.form-input option,
     color: var(--text-primary);
 }
 
+/* Lembrar-me Checkbox */
+.remember-me-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: -5px;
+    margin-bottom: 5px;
+}
+
+.remember-me-group input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    position: relative;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remember-me-group input[type="checkbox"]:checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.remember-me-group input[type="checkbox"]:checked::after {
+    content: "\f00c";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: #fff;
+    font-size: 0.75rem;
+}
+
+.remember-me-group input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
 /* Botões */
 .btn {
     display: inline-flex;

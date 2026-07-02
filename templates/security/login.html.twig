@@ -40,6 +40,11 @@
                 </div>
             </div>
 
+            <label class="remember-me-group">
+                <input type="checkbox" id="_remember_me" name="_remember_me" checked>
+                <span>{{ 'Permanecer conectado'|trans }}</span>
+            </label>
+
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
             <button type="submit" class="btn btn-primary btn-block">
