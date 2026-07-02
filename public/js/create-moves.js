@@ -104,6 +104,55 @@ let locale = 'pt_BR';
             });
         }
 
+        // Lógica para adicionar golpe personalizado (ex: Smeargle)
+        const customMoveBtn = document.getElementById('add-custom-move-btn');
+        const customMoveInput = document.getElementById('custom-move-input');
+        if (customMoveBtn && customMoveInput) {
+            customMoveBtn.addEventListener('click', async function () {
+                const moveRaw = customMoveInput.value;
+                if (!moveRaw || moveRaw.trim() === '') return;
+                
+                const moveName = moveRaw.trim().toLowerCase().replace(/\s+/g, '-');
+                if (selectedMoves.includes(moveName)) {
+                    alert('Este movimento já está selecionado.');
+                    return;
+                }
+                
+                customMoveBtn.disabled = true;
+                const originalText = customMoveBtn.innerHTML;
+                customMoveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando...';
+                
+                try {
+                    const moveData = await getMoveData(moveName);
+                    if (moveData && moveData.type) {
+                        const emptyIndex = selectedMoves.indexOf(null);
+                        if (emptyIndex === -1) {
+                            alert(t('maxMovesAlert').replace('{max}', MAX_MOVES));
+                        } else {
+                            selectedMoves[emptyIndex] = moveName;
+                            updateUI();
+                            customMoveInput.value = '';
+                        }
+                    } else {
+                        alert('Movimento não encontrado. Verifique a grafia em inglês (ex: Dragon Ascent, Spore, Sketch).');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert('Erro ao buscar movimento. Verifique sua conexão.');
+                } finally {
+                    customMoveBtn.disabled = false;
+                    customMoveBtn.innerHTML = originalText;
+                }
+            });
+            
+            customMoveInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    customMoveBtn.click();
+                }
+            });
+        }
+
         // Filtros por botões
         document.querySelectorAll('.btn-filter').forEach(btn => {
             btn.addEventListener('click', function () {

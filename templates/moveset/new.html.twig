@@ -201,6 +201,20 @@
 				</div>
 			</div>
 
+			{% if pokemon.name|lower == 'smeargle' %}
+				<!-- Adicionar golpe personalizado para Smeargle -->
+				<div class="custom-move-row" style="margin-top: 15px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+					<div class="search-box" style="flex: 1; min-width: 250px; position: relative; display: flex; align-items: center; margin: 0;">
+						<input type="text" id="custom-move-input" class="search-input" style="width: 100%; padding-left: 42px;" placeholder="{{ 'Digitar qualquer outro golpe em inglês (ex: Spore, V-create)...'|trans }}">
+						<i class="fa-solid fa-wand-magic-sparkles search-icon" style="position: absolute; left: 14px; color: var(--color-primary); font-size: 0.95rem;"></i>
+					</div>
+					<button type="button" class="btn btn-primary" id="add-custom-move-btn" style="padding: 12px 24px; height: 42px; display: inline-flex; align-items: center; gap: 8px;">
+						<i class="fa-solid fa-plus"></i>
+						{{ 'Adicionar'|trans }}
+					</button>
+				</div>
+			{% endif %}
+
 			<!-- Lista de Golpes Disponíveis -->
 			<!-- Tooltip flutuante -->
 			{% include 'partials/tooltip.html.twig' %}
