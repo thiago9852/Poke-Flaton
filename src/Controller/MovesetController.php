@@ -1,0 +1,228 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Moveset;
+use App\Entity\PokemonSuggestion;
+use App\Entity\User;
+use App\Repository\MovesetRepository;
+use App\Service\PokeApiService;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+class MovesetController extends AbstractController
+{
+    public function __construct(private readonly PokeApiService $pokeApiService, private readonly EntityManagerInterface $entityManager)
+    {
+    }
+
+    #[Route('/pokemon/{name}/moveset/new', name: 'app_moveset_new', methods: ['GET', 'POST'])]
+    public function new(string $name, Request $request): Response
+    {
+        try {
+            $pokemon = $this->pokeApiService->getPokemonDetails($name);
+            $isAllowed = $this->pokeApiService->isPokemonAllowed($pokemon['id']);
+            if (!$isAllowed && $pokemon['id'] >= 10000 && isset($pokemon['species_id'])) {
+                $isAllowed = $this->pokeApiService->isPokemonAllowed($pokemon['species_id']);
+            }
+            if (!$isAllowed) {
+                throw $this->createNotFoundException('Pokémon não encontrado.');
+            }
+        } catch (\Exception) {
+            throw $this->createNotFoundException('Pokémon não encontrado.');
+        }
+
+        // Carregar Natures e Itens para preencher os selects do formulário
+        $natures = $this->pokeApiService->getNatures();
+        $items = $this->pokeApiService->getItems();
+
+        // Calcular o limite de moves com base no estágio evolutivo e BST
+        $maxMoves = $this->pokeApiService->calculateMaxMoves($pokemon['species_name'], $pokemon['stats']);
+
+        $errors = [];
+
+        if ($request->isMethod('POST')) {
+            $type = $request->request->get('type');
+            $ability = $request->request->get('ability') ?: null;
+            $heldItem = $request->request->get('heldItem') ?: null;
+            $nature = $request->request->get('nature');
+
+            // Capturar até 10 golpes e filtrar vazios
+            $moves = [];
+            for ($i = 1; $i <= 10; ++$i) {
+                $moveVal = $request->request->get('move'.$i);
+                if (!empty($moveVal)) {
+                    $moves[] = $moveVal;
+                }
+            }
+
+            // Validações básicas
+            if (empty($type) || !in_array($type, ['padrao', 'pvp', 'dg'])) {
+                $errors[] = 'Tipo de moveset inválido.';
+            }
+            if (count($moves) < 4 || count($moves) > $maxMoves) {
+                $errors[] = sprintf('Você deve selecionar entre 4 e %d golpes.', $maxMoves);
+            }
+            if (empty($nature)) {
+                $errors[] = 'A Nature ideal deve ser selecionada.';
+            }
+
+            if (empty($errors)) {
+                $moveset = new Moveset();
+                $moveset->setPokemonName($pokemon['name']);
+                $moveset->setPokemonId($pokemon['id']);
+                $moveset->setType($type);
+                $moveset->setMoves($moves);
+                $moveset->setAbility($ability);
+                $moveset->setHeldItem($heldItem);
+                $moveset->setNature($nature);
+
+                if ($this->getUser()) {
+                    /** @var \App\Entity\User $currentUser */
+                    $currentUser = $this->getUser();
+                    $moveset->setAuthor($currentUser->getDisplayName());
+                } else {
+                    $moveset->setAuthor('Anônimo'); // Se não tiver sessão, ficará como anônimo
+                }
+
+                $moveset->setIsApproved(true);
+                $moveset->setIsDefault(false);
+
+                // Determina se o user determinou como padrão
+                $action = $request->request->get('action', 'save');
+                if ($action === 'suggest') {
+                    $moveset->setSuggestedDefault(true);
+                    $this->addFlash('success', 'Moveset criado e sugerido como padrão oficial para o administrador!');
+                } else {
+                    $moveset->setSuggestedDefault(false);
+                    $this->addFlash('success', 'Moveset criado com sucesso!');
+                }
+
+                $this->entityManager->persist($moveset);
+
+                // Add sugestão de votos imediatamente para calcular estatísticas
+                $this->addSuggestionVote($pokemon['name'], 'nature', $nature);
+                if ($ability) {
+                    $this->addSuggestionVote($pokemon['name'], 'ability', $ability);
+                }
+                if ($heldItem) {
+                    $this->addSuggestionVote($pokemon['name'], 'item', $heldItem);
+                }
+
+                $this->entityManager->flush();
+
+                return $this->redirectToRoute('app_pokemon_detail', ['name' => $pokemon['name']]);
+            }
+        }
+
+        $unlockedTms = [];
+        if ($this->getUser()) {
+            $unlockedTms = array_map(fn ($move) => preg_replace('/-+/', '-', str_replace(' ', '-', strtolower($move))), $this->getUser()->getUnlockedTms());
+        }
+
+        $allTms = [];
+        if (strtolower($name) === 'smeargle') {
+            $tmsJsonPath = $this->getParameter('kernel.project_dir').'/scratch/tms.json';
+            if (file_exists($tmsJsonPath)) {
+                $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?? [];
+            }
+        }
+
+        // Carrega default base moves
+        $defaultBaseMoves = [];
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir').'/scratch/default_base_moves.json';
+        if (file_exists($defaultBaseMovesPath)) {
+            $defaultBaseMovesData = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+            $pokemonNameLower = strtolower($pokemon['name']);
+            if (isset($defaultBaseMovesData[$pokemonNameLower])) {
+                $defaultBaseMoves = $defaultBaseMovesData[$pokemonNameLower];
+            }
+        }
+
+        return $this->render('moveset/new.html.twig', [
+            'pokemon' => $pokemon,
+            'natures' => $natures,
+            'items' => $items,
+            'maxMoves' => $maxMoves,
+            'errors' => $errors,
+            'unlockedTms' => $unlockedTms,
+            'allTms' => $allTms,
+            'defaultBaseMoves' => $defaultBaseMoves,
+        ]);
+    }
+
+    private function addSuggestionVote(string $pokemonName, string $type, string $value): void
+    {
+        $repo = $this->entityManager->getRepository(PokemonSuggestion::class);
+        $suggestion = $repo->findOneBy([
+            'pokemonName' => $pokemonName,
+            'type' => $type,
+            'value' => $value,
+        ]);
+
+        if (!$suggestion) {
+            $suggestion = new PokemonSuggestion();
+            $suggestion->setPokemonName($pokemonName);
+            $suggestion->setType($type);
+            $suggestion->setValue($value);
+            $suggestion->setVotes(0);
+            $this->entityManager->persist($suggestion);
+        }
+
+        $suggestion->incrementVotes(1);
+    }
+
+    #[Route('/moveset/{id}/vote', name: 'app_moveset_vote', methods: ['POST'])]
+    public function vote(int $id, MovesetRepository $movesetRepository): JsonResponse
+    {
+        $moveset = $movesetRepository->find($id);
+
+        if (!$moveset) {
+            return new JsonResponse(['error' => 'Moveset não encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $moveset->incrementVotes();
+        $this->entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'votes' => $moveset->getVotes(),
+        ]);
+    }
+
+    #[Route('/moveset/{id}/delete', name: 'app_moveset_delete', methods: ['POST'])]
+    public function delete(
+        int $id, Security $security,
+        MovesetRepository $movesetRepository,
+    ): JsonResponse {
+        $moveset = $movesetRepository->find($id);
+
+        if (!$moveset) {
+            return new JsonResponse(['error' => 'Moveset não encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+
+        /** @var User $user */
+        $user = $security->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'Acesso negado.'], Response::HTTP_FORBIDDEN);
+        }
+
+        // Permitir exclusão apenas se for o autor ou admin
+        if ($moveset->getAuthor() !== $user->getUsername() && !$this->isGranted('ROLE_ADMIN')) {
+            return new JsonResponse(['error' => 'Você não tem permissão para excluir este moveset.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $this->entityManager->remove($moveset);
+        $this->entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Moveset excluído com sucesso!',
+        ]);
+    }
+}
