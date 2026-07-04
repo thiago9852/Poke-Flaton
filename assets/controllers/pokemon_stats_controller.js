@@ -1,19 +1,45 @@
 import { Controller } from '@hotwired/stimulus';
 
+const MESSAGES = {
+    pt_BR: {
+        guesses: 'Palpites',
+        games: 'partidas',
+        winRate: 'Taxa de Acerto (%)',
+        totalGames: 'Partidas',
+        wins: 'Vitórias',
+        generation: 'Geração'
+    },
+    en: {
+        guesses: 'Guesses',
+        games: 'games',
+        winRate: 'Win Rate (%)',
+        totalGames: 'Games',
+        wins: 'Wins',
+        generation: 'Generation'
+    }
+};
+
 export default class extends Controller {
     static values = {
         topPokemons: Array,
         generations: Array,
         types: Array,
         genTopPokemons: Array,
-        successRates: Array
+        successRates: Array,
+        locale: { type: String, default: 'pt_BR' }
     };
+
+    t(key) {
+        const locale = this.hasLocaleValue ? this.localeValue : 'pt_BR';
+        const msgs = MESSAGES[locale] || MESSAGES.pt_BR;
+        return msgs[key] !== undefined ? msgs[key] : key;
+    }
 
     connect() {
         this.myCharts = {};
         this.loadChartJs()
-            .then((Chart) => {
-                this.renderCharts(Chart);
+            .then(({ Chart, ChartDataLabels }) => {
+                this.renderCharts(Chart, ChartDataLabels);
             })
             .catch((err) => {
                 console.error("Erro ao carregar Chart.js para as estatísticas:", err);
@@ -32,24 +58,35 @@ export default class extends Controller {
     }
 
     /**
-     * Carrega a biblioteca Chart.js dinamicamente se ela ainda não estiver disponível.
+     * Carrega a biblioteca Chart.js e seu plugin datalabels dinamicamente.
      */
     loadChartJs() {
         return new Promise((resolve, reject) => {
-            if (window.Chart) {
-                resolve(window.Chart);
+            if (window.Chart && window.ChartDataLabels) {
+                resolve({ Chart: window.Chart, ChartDataLabels: window.ChartDataLabels });
                 return;
             }
 
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-            script.onload = () => resolve(window.Chart);
-            script.onerror = (err) => reject(err);
-            document.head.appendChild(script);
+            const loadScript = (src) => {
+                return new Promise((res, rej) => {
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.onload = () => res();
+                    script.onerror = (err) => rej(err);
+                    document.head.appendChild(script);
+                });
+            };
+
+            loadScript('https://cdn.jsdelivr.net/npm/chart.js')
+                .then(() => loadScript('https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2'))
+                .then(() => {
+                    resolve({ Chart: window.Chart, ChartDataLabels: window.ChartDataLabels });
+                })
+                .catch((err) => reject(err));
         });
     }
 
-    renderCharts(Chart) {
+    renderCharts(Chart, ChartDataLabels) {
         const topPokemons = this.topPokemonsValue;
         const generations = this.generationsValue;
         const types = this.typesValue;
@@ -83,7 +120,7 @@ export default class extends Controller {
                 data: {
                     labels: topPokemons.map(p => p.name),
                     datasets: [{
-                        label: 'Palpites',
+                        label: this.t('guesses'),
                         data: topPokemons.map(p => p.plays),
                         backgroundColor: 'rgba(139, 92, 246, 0.45)',
                         borderColor: '#8b5cf6',
@@ -112,6 +149,7 @@ export default class extends Controller {
         if (ctxGen && generations.length > 0) {
             this.myCharts.generations = new Chart(ctxGen, {
                 type: 'doughnut',
+                plugins: [ChartDataLabels],
                 data: {
                     labels: generations.map(g => g.label),
                     datasets: [{
@@ -128,11 +166,25 @@ export default class extends Controller {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { 
-                            position: 'bottom', 
-                            labels: { color: textColor, boxWidth: 10, padding: 15 } 
-                        },
-                        tooltip: tooltipOptions
+                        legend: { display: false },
+                        tooltip: tooltipOptions,
+                        datalabels: {
+                            color: '#fff',
+                            anchor: 'end',
+                            align: 'center',
+                            offset: 0,
+                            font: {
+                                weight: 'bold',
+                                size: 10
+                            },
+                            textStrokeColor: 'rgba(12, 13, 18, 0.9)',
+                            textStrokeWidth: 2,
+                            formatter: (value, ctx) => {
+                                const label = ctx.chart.data.labels[ctx.dataIndex];
+                                const genNum = label.match(/\d+/);
+                                return genNum ? `Gen ${genNum[0]}` : label;
+                            }
+                        }
                     }
                 }
             });
@@ -156,6 +208,7 @@ export default class extends Controller {
 
             this.myCharts.types = new Chart(ctxTypes, {
                 type: 'doughnut',
+                plugins: [ChartDataLabels],
                 data: {
                     labels: types.map(t => t.label),
                     datasets: [{
@@ -169,11 +222,23 @@ export default class extends Controller {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { 
-                            position: 'bottom', 
-                            labels: { color: textColor, boxWidth: 10, padding: 15 } 
-                        },
-                        tooltip: tooltipOptions
+                        legend: { display: false },
+                        tooltip: tooltipOptions,
+                        datalabels: {
+                            color: '#fff',
+                            anchor: 'end',
+                            align: 'center',
+                            offset: 0,
+                            font: {
+                                weight: 'bold',
+                                size: 10
+                            },
+                            textStrokeColor: 'rgba(12, 13, 18, 0.9)',
+                            textStrokeWidth: 2,
+                            formatter: (value, ctx) => {
+                                return ctx.chart.data.labels[ctx.dataIndex];
+                            }
+                        }
                     }
                 }
             });
@@ -199,7 +264,7 @@ export default class extends Controller {
             this.myCharts.presence = new Chart(ctxPresence, {
                 type: 'bar',
                 data: {
-                    labels: ['Geração 1', 'Geração 2', 'Geração 3', 'Geração 4', 'Geração 5', 'Geração 6', 'Geração 7', 'Geração 8', 'Geração 9'],
+                    labels: Array.from({length: 9}, (_, i) => `${this.t('generation')} ${i + 1}`),
                     datasets: datasets
                 },
                 options: {
@@ -214,10 +279,10 @@ export default class extends Controller {
                         tooltip: {
                             ...tooltipOptions,
                             callbacks: {
-                                label: function(context) {
+                                label: (context) => {
                                     const item = context.raw;
                                     if (!item || item.y === 0) return null;
-                                    return `${item.name}: ${item.y} partidas`;
+                                    return `${item.name}: ${item.y} ${this.t('games')}`;
                                 }
                             }
                         }
@@ -226,28 +291,26 @@ export default class extends Controller {
             });
         }
 
-        // 5. Gráfico Histórico de Taxa de Acertos (Barras Verticais de Coluna)
+        // 5. Gráfico Histórico de Taxa de Acertos (Linha com Ponto)
         const ctxRate = document.getElementById('chart-success-rate');
         if (ctxRate && successRates.length > 0) {
             this.myCharts.successRate = new Chart(ctxRate, {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: successRates.map(r => r.date),
                     datasets: [{
-                        label: 'Taxa de Acerto (%)',
+                        label: this.t('winRate'),
                         data: successRates.map(r => r.rate),
-                        backgroundColor: successRates.map(r => {
-                            if (r.rate >= 80) return 'rgba(16, 185, 129, 0.45)';
-                            if (r.rate >= 50) return 'rgba(245, 158, 11, 0.45)';
-                            return 'rgba(239, 68, 68, 0.45)';
-                        }),
-                        borderColor: successRates.map(r => {
-                            if (r.rate >= 80) return '#10b981';
-                            if (r.rate >= 50) return '#f59e0b';
-                            return '#ef4444';
-                        }),
-                        borderWidth: 1.5,
-                        borderRadius: 4
+                        borderColor: '#10b981', // Linha verde bonita
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)', // Preenchimento suave abaixo da linha
+                        borderWidth: 3,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.3, // Curva suave na linha
+                        fill: true // Preenche a área abaixo da linha
                     }]
                 },
                 options: {
@@ -262,9 +325,9 @@ export default class extends Controller {
                         tooltip: {
                             ...tooltipOptions,
                             callbacks: {
-                                afterLabel: function(context) {
+                                afterLabel: (context) => {
                                     const item = successRates[context.dataIndex];
-                                    return `Partidas: ${item.total} | Vitórias: ${item.won}`;
+                                    return `${this.t('totalGames')}: ${item.total} | ${this.t('wins')}: ${item.won}`;
                                 }
                             }
                         }

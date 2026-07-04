@@ -469,12 +469,47 @@ a {
     .floating-game-btn {
         bottom: 20px;
         right: 20px;
-        padding: 8px 16px;
-        font-size: 0.85rem;
+        padding: 10px; /* Círculo perfeito no mobile */
+        border-radius: 50%;
+    }
+    
+    .floating-game-text {
+        display: none; /* Ocultar texto no mobile */
     }
     
     .floating-game-pokeball {
-        width: 20px;
-        height: 20px;
+        width: 28px;
+        height: 28px;
+        margin: 0;
     }
+}
+
+/* Global Back Button Styles */
+.stats-header-nav {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.btn-back-game {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+}
+
+.btn-back-game:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+    transform: translateX(-4px);
 }

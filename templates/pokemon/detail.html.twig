@@ -13,6 +13,13 @@
 {% block body %}
 	{% include 'partials/tooltip.html.twig' %}
 
+	<!-- Botão Voltar -->
+	<div class="stats-header-nav" style="margin-top: 15px;">
+		<a href="{{ path('app_pokemon_index') }}" class="btn-back-game">
+			<i class="fa-solid fa-arrow-left"></i> {{ 'Voltar'|trans }}
+		</a>
+	</div>
+
 	<!-- Pokémon Navigation Bar -->
 	<div class="pokemon-navigation-bar">
 		{% if prevPokemon %}

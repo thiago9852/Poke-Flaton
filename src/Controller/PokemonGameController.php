@@ -11,16 +11,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PokemonGameController extends AbstractController
 {
     private PokeApiService $pokeApiService;
     private EntityManagerInterface $entityManager;
+    private TranslatorInterface $translator;
 
-    public function __construct(PokeApiService $pokeApiService, EntityManagerInterface $entityManager)
+    public function __construct(PokeApiService $pokeApiService, EntityManagerInterface $entityManager, TranslatorInterface $translator)
     {
         $this->pokeApiService = $pokeApiService;
         $this->entityManager = $entityManager;
+        $this->translator = $translator;
     }
 
     #[Route('/pokemon-do-dia', name: 'app_game_daily')]
@@ -250,7 +253,10 @@ class PokemonGameController extends AbstractController
         $chartGenerations = [];
         foreach ($generationRanking as $gen) {
             $chartGenerations[] = [
-                'label' => 'Geração ' . $gen['generation'] . ' (' . $gen['region'] . ')',
+                'label' => $this->translator->trans('Geração %generation% (%region%)', [
+                    '%generation%' => $gen['generation'],
+                    '%region%' => $gen['region']
+                ]),
                 'value' => $gen['views']
             ];
         }
@@ -258,7 +264,7 @@ class PokemonGameController extends AbstractController
         $chartTypes = [];
         foreach (array_slice($typeRanking, 0, 10) as $t) {
             $chartTypes[] = [
-                'label' => ucfirst($t['type']),
+                'label' => $this->translator->trans(ucfirst($t['type'])),
                 'value' => $t['views']
             ];
         }
@@ -270,7 +276,7 @@ class PokemonGameController extends AbstractController
                 $pokemon = $genTopPokemons[$g][$i] ?? null;
                 if ($pokemon) {
                     $dataPoints[] = [
-                        'x' => 'Geração ' . $g,
+                        'x' => $this->translator->trans('Geração') . ' ' . $g,
                         'y' => $pokemon['plays'],
                         'name' => $pokemon['display_name']
                     ];
