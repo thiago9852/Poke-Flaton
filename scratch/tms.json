@@ -1,358 +1,150 @@
 [
-    {
-        "item": "tm01",
-        "move": "hone-claws"
-    },
-    {
-        "item": "tm02",
-        "move": "dragon-claw"
-    },
-    {
-        "item": "tm03",
-        "move": "psyshock"
-    },
-    {
-        "item": "tm04",
-        "move": "calm-mind"
-    },
-    {
-        "item": "tm05",
-        "move": "roar"
-    },
-    {
-        "item": "tm06",
-        "move": "toxic"
-    },
-    {
-        "item": "tm07",
-        "move": "hail"
-    },
-    {
-        "item": "tm08",
-        "move": "bulk-up"
-    },
-    {
-        "item": "tm09",
-        "move": "venoshock"
-    },
-    {
-        "item": "tm10",
-        "move": "hidden-power"
-    },
-    {
-        "item": "tm11",
-        "move": "sunny-day"
-    },
-    {
-        "item": "tm13",
-        "move": "ice-beam"
-    },
-    {
-        "item": "tm14",
-        "move": "blizzard"
-    },
-    {
-        "item": "tm15",
-        "move": "hyper-beam"
-    },
-    {
-        "item": "tm16",
-        "move": "light-screen"
-    },
-    {
-        "item": "tm17",
-        "move": "protect"
-    },
-    {
-        "item": "tm18",
-        "move": "rain-dance"
-    },
-    {
-        "item": "tm19",
-        "move": "telekinesis"
-    },
-    {
-        "item": "tm20",
-        "move": "safeguard"
-    },
-    {
-        "item": "tm21",
-        "move": "frustration"
-    },
-    {
-        "item": "tm22",
-        "move": "solar-beam"
-    },
-    {
-        "item": "tm23",
-        "move": "smack-down"
-    },
-    {
-        "item": "tm24",
-        "move": "thunderbolt"
-    },
-    {
-        "item": "tm25",
-        "move": "thunder"
-    },
-    {
-        "item": "tm26",
-        "move": "earthquake"
-    },
-    {
-        "item": "tm27",
-        "move": "return"
-    },
-    {
-        "item": "tm28",
-        "move": "dig"
-    },
-    {
-        "item": "tm29",
-        "move": "psychic"
-    },
-    {
-        "item": "tm30",
-        "move": "shadow-ball"
-    },
-    {
-        "item": "tm31",
-        "move": "brick-break"
-    },
-    {
-        "item": "tm32",
-        "move": "double-team"
-    },
-    {
-        "item": "tm33",
-        "move": "reflect"
-    },
-    {
-        "item": "tm35",
-        "move": "flamethrower"
-    },
-    {
-        "item": "tm36",
-        "move": "sludge-bomb"
-    },
-    {
-        "item": "tm37",
-        "move": "sandstorm"
-    },
-    {
-        "item": "tm38",
-        "move": "fire-blast"
-    },
-    {
-        "item": "tm39",
-        "move": "rock-tomb"
-    },
-    {
-        "item": "tm40",
-        "move": "aerial-ace"
-    },
-    {
-        "item": "tm41",
-        "move": "torment"
-    },
-    {
-        "item": "tm42",
-        "move": "facade"
-    },
-    {
-        "item": "tm43",
-        "move": "flame-charge"
-    },
-    {
-        "item": "tm44",
-        "move": "rest"
-    },
-    {
-        "item": "tm45",
-        "move": "attract"
-    },
-    {
-        "item": "tm46",
-        "move": "thief"
-    },
-    {
-        "item": "tm47",
-        "move": "low-sweep"
-    },
-    {
-        "item": "tm48",
-        "move": "round"
-    },
-    {
-        "item": "tm49",
-        "move": "echoed-voice"
-    },
-    {
-        "item": "tm50",
-        "move": "overheat"
-    },
-    {
-        "item": "tm51",
-        "move": "ally-switch"
-    },
-    {
-        "item": "tm52",
-        "move": "focus-blast"
-    },
-    {
-        "item": "tm53",
-        "move": "energy-ball"
-    },
-    {
-        "item": "tm54",
-        "move": "false-swipe"
-    },
-    {
-        "item": "tm55",
-        "move": "scald"
-    },
-    {
-        "item": "tm56",
-        "move": "fling"
-    },
-    {
-        "item": "tm57",
-        "move": "charge-beam"
-    },
-    {
-        "item": "tm58",
-        "move": "sky-drop"
-    },
-    {
-        "item": "tm59",
-        "move": "incinerate"
-    },
-    {
-        "item": "tm61",
-        "move": "will-o-wisp"
-    },
-    {
-        "item": "tm62",
-        "move": "acrobatics"
-    },
-    {
-        "item": "tm63",
-        "move": "embargo"
-    },
-    {
-        "item": "tm64",
-        "move": "explosion"
-    },
-    {
-        "item": "tm66",
-        "move": "payback"
-    },
-    {
-        "item": "tm67",
-        "move": "retaliate"
-    },
-    {
-        "item": "tm68",
-        "move": "giga-impact"
-    },
-    {
-        "item": "tm69",
-        "move": "rock-polish"
-    },
-    {
-        "item": "tm70",
-        "move": "flash"
-    },
-    {
-        "item": "tm71",
-        "move": "stone-edge"
-    },
-    {
-        "item": "tm73",
-        "move": "thunder-wave"
-    },
-    {
-        "item": "tm74",
-        "move": "gyro-ball"
-    },
-    {
-        "item": "tm75",
-        "move": "swords-dance"
-    },
-    {
-        "item": "tm76",
-        "move": "struggle-bug"
-    },
-    {
-        "item": "tm77",
-        "move": "psych-up"
-    },
-    {
-        "item": "tm78",
-        "move": "bulldoze"
-    },
-    {
-        "item": "tm80",
-        "move": "rock-slide"
-    },
-    {
-        "item": "tm81",
-        "move": "x-scissor"
-    },
-    {
-        "item": "tm82",
-        "move": "dragon-tail"
-    },
-    {
-        "item": "tm83",
-        "move": "work-up"
-    },
-    {
-        "item": "tm84",
-        "move": "poison-jab"
-    },
-    {
-        "item": "tm85",
-        "move": "dream-eater"
-    },
-    {
-        "item": "tm86",
-        "move": "grass-knot"
-    },
-    {
-        "item": "tm87",
-        "move": "swagger"
-    },
-    {
-        "item": "tm88",
-        "move": "pluck"
-    },
-    {
-        "item": "tm89",
-        "move": "u-turn"
-    },
-    {
-        "item": "tm90",
-        "move": "substitute"
-    },
-    {
-        "item": "tm91",
-        "move": "flash-cannon"
-    },
-    {
-        "item": "tm92",
-        "move": "trick-room"
-    },
-    {
-        "item": "tm93",
-        "move": "wild-charge"
-    },
-    {
-        "item": "tm94",
-        "move": "rock-smash"
-    },
-    {
-        "item": "tm95",
-        "move": "snarl"
-    }
+  { "item": "tm-01", "move": "Mega Punch", "source": "hitmonchan" },
+  { "item": "tm-02", "move": "Dragon Claw", "source": "Dragonite" },
+  { "item": "tm-03", "move": "Psyshock", "source": "Exeggutor" },
+  { "item": "tm-04", "move": "Calm Mind", "source": "Alakazam" },
+  { "item": "tm-06", "move": "Toxic", "source": "Muk" },
+  { "item": "tm-07", "move": "Hail", "source": "Walrein" },
+  { "item": "tm-08", "move": "Bulk Up", "source": "Machamp" },
+  { "item": "tm-09", "move": "Venoshock", "source": "Seviper" },
+  { "item": "tm-10", "move": "Hidden Power", "source": "Reuniclus" },
+  { "item": "tm-11", "move": "Sunny Day", "source": "Magmar" },
+  { "item": "tm-12", "move": "Solar Blade", "source": "Sceptile" },
+  { "item": "tm-13", "move": "Ice Beam", "source": "Cloyster" },
+  { "item": "tm-14", "move": "Blizzard", "source": "Regice" },
+  { "item": "tm-15", "move": "Hyper Beam", "source": "Snorlax" },
+  { "item": "tm-16", "move": "Light Screen", "source": "Girafarig" },
+  { "item": "tm-17", "move": "Protect", "source": "Bastiodon" },
+  { "item": "tm-18", "move": "Rain Dance", "source": "Ludicolo" },
+  { "item": "tm-19", "move": "Roost", "source": "Pidgeot" },
+  { "item": "tm-20", "move": "Safeguard", "source": "Shuckle" },
+  { "item": "tm-21", "move": "Frustration", "source": "Buneary" },
+  { "item": "tm-22", "move": "Solar Beam", "source": "Venusaur" },
+  { "item": "tm-23", "move": "Smack Down", "source": "Rhydon" },
+  { "item": "tm-24", "move": "Thunderbolt", "source": "Electabuzz" },
+  { "item": "tm-25", "move": "Thunder", "source": "Minun" },
+  { "item": "tm-26", "move": "Earthquake", "source": "Regirock" },
+  { "item": "tm-27", "move": "Return", "source": "Lopunny" },
+  { "item": "tm-28", "move": "Leech Life", "source": "Victreebel" },
+  { "item": "tm-29", "move": "Psychic", "source": "Hypno" },
+  { "item": "tm-30", "move": "Shadow Ball", "source": "Gengar" },
+  { "item": "tm-31", "move": "Brick Break", "source": "Hitmonlee" },
+  { "item": "tm-32", "move": "Swift", "source": "Eevee" },
+  { "item": "tm-33", "move": "Reflect", "source": "Wobbuffet" },
+  { "item": "tm-34", "move": "Sludge Wave", "source": "Garbodor" },
+  { "item": "tm-35", "move": "Flamethrower", "source": "Emboar" },
+  { "item": "tm-36", "move": "Sludge Bomb", "source": "Scolipede" },
+  { "item": "tm-37", "move": "Sandstorm", "source": "Boldore" },
+  { "item": "tm-38", "move": "Fire Blast", "source": "Heatmor" },
+  { "item": "tm-39", "move": "Rock Tomb", "source": "Gurdurr" },
+  { "item": "tm-40", "move": "Aerial Ace", "source": "Braviary" },
+  { "item": "tm-41", "move": "Torment", "source": "Krookodile" },
+  { "item": "tm-42", "move": "Facade", "source": "Scraggy" },
+  { "item": "tm-43", "move": "Flame Charge", "source": "Rapidash" },
+  { "item": "tm-44", "move": "Rest", "source": "Desconhecido" },
+  { "item": "tm-45", "move": "Knock Off", "source": "Evento Halloween" },
+  { "item": "tm-47", "move": "Low Sweep", "source": "Sawk" },
+  { "item": "tm-48", "move": "Round", "source": "Jigglypuff" },
+  { "item": "tm-49", "move": "Echoed Voice", "source": "Minccino" },
+  { "item": "tm-50", "move": "Overheat", "source": "Typhlosion" },
+  { "item": "tm-51", "move": "Steel Wing", "source": "Boss Dialga" },
+  { "item": "tm-52", "move": "Focus Blast", "source": "Cassino roleta" },
+  { "item": "tm-53", "move": "Energy Ball", "source": "Cradily" },
+  { "item": "tm-55", "move": "Scald", "source": "Kingdra" },
+  { "item": "tm-56", "move": "Bullet Seed", "source": "Cacturne" },
+  { "item": "tm-59", "move": "Brutal Swing", "source": "Drapion" },
+  { "item": "tm-61", "move": "Water Pulse", "source": "Pokemon da pesca" },
+  { "item": "tm-62", "move": "Acrobatics", "source": "Halloween" },
+  { "item": "tm-64", "move": "Explosion", "source": "Electrode" },
+  { "item": "tm-65", "move": "Shadow Claw", "source": "Sableye" },
+  { "item": "tm-66", "move": "Payback", "source": "Shiftry" },
+  { "item": "tm-67", "move": "Smart Strike", "source": "Donphan" },
+  { "item": "tm-68", "move": "Giga Impact", "source": "Tauros" },
+  { "item": "tm-69", "move": "Rock Polish", "source": "Golem" },
+  { "item": "tm-71", "move": "Stone Edge", "source": "Ursaring" },
+  { "item": "tm-72", "move": "Volt Switch", "source": "Emolga" },
+  { "item": "tm-73", "move": "Thunder Wave", "source": "Raichu" },
+  { "item": "tm-74", "move": "Gyro Ball", "source": "Hitmontop" },
+  { "item": "tm-78", "move": "Bulldoze", "source": "Hippowdon" },
+  { "item": "tm-80", "move": "Rock Slide", "source": "Sudowoodo" },
+  { "item": "tm-81", "move": "Throat Chop", "source": "Slaking" },
+  { "item": "tm-82", "move": "Aura Sphere", "source": "Craft" },
+  { "item": "tm-85", "move": "Dream Eater", "source": "Dia das crianças" },
+  { "item": "tm-86", "move": "Grass Knot", "source": "Shiny Celebi" },
+  { "item": "tm-88", "move": "Grassy Terrain", "source": "Bellossom" },
+  { "item": "tm-89", "move": "Misty Terrain", "source": "Passe Temporada 1" },
+  { "item": "tm-90", "move": "Electric Terrain", "source": "Luxray" },
+  { "item": "tm-91", "move": "Flash Cannon", "source": "Boss Heatran" },
+  { "item": "tm-92", "move": "Mystical Fire", "source": "Delphox" },
+  { "item": "tm-93", "move": "Wild Charge", "source": "Manectric" },
+  { "item": "tm-94", "move": "Surf", "source": "Lapras" },
+  { "item": "tm-95", "move": "Snarl", "source": "Mightyena" },
+  { "item": "tm-97", "move": "Dark Pulse", "source": "Tyranitar" },
+  { "item": "tm-98", "move": "Waterfall", "source": "Feraligatr" },
+  { "item": "tm-99", "move": "Dazzling Gleam", "source": "Clefable" },
+  { "item": "tm-100", "move": "Will-O-Wisp", "source": "Ho-oh" },
+  { "item": "tm-101", "move": "Charm", "source": "Dia das mães" },
+  { "item": "tm-102", "move": "Ancient Power", "source": "Ancients Fosséis" },
+  { "item": "tm-103", "move": "Psywave", "source": "Shiny Celebi" },
+  { "item": "tm-104", "move": "Assurance", "source": "Boss Darkrai" },
+  { "item": "tm-105", "move": "Confusion", "source": "Evento dia das crianças" },
+  { "item": "tm-106", "move": "Phantom Force", "source": "Evento Halloween" },
+  { "item": "tm-107", "move": "Hurricane", "source": "Boss Ho-oh" },
+  { "item": "tm-108", "move": "Dragon Breath", "source": "Boss Palkia" },
+  { "item": "tm-109", "move": "Outrage", "source": "Boss Giratina" },
+  { "item": "tm-110", "move": "Dragon Pulse", "source": "Boss Dialga" },
+  { "item": "tm-111", "move": "Hydro Pump", "source": "Boss Palkia" },
+  { "item": "tm-112", "move": "Hex", "source": "Boss Giratina" },
+  { "item": "tm-113", "move": "Iron Head", "source": "Boss Cobalion" },
+  { "item": "tm-114", "move": "Magical Leaf", "source": "Boss Virizion" },
+  { "item": "tm-115", "move": "Stealth Rock", "source": "Boss Terrakion" },
+  { "item": "tm-116", "move": "Metronome", "source": "Evento Aniversário" },
+  { "item": "tm-117", "move": "Incinerate", "source": "Boss Heatran" },
+  { "item": "tm-118", "move": "Zen Headbutt", "source": "Evento Páscoa" },
+  { "item": "tm-119", "move": "Dive", "source": "Boss Phione/Manaphy" },
+  { "item": "tm-120", "move": "Air Cutter", "source": "Boss Shaymin Sky" },
+  { "item": "tm-121", "move": "Hyper Voice", "source": "Evento dia das maes" },
+  { "item": "tm-122", "move": "Fire Spin", "source": "Evento São João" },
+  { "item": "tm-123", "move": "Liquidation", "source": "Evento São Joãos" },
+  { "item": "tm-124", "move": "Icy Wind", "source": "Passe Temporada 1" },
+  { "item": "tm-134", "move": "Reversal", "source": "Evento São João" },
+  { "item": "tm-136", "move": "Beat Up", "source": "Passe Temporada 2" },
+  { "item": "tm-159", "move": "Leaf Storm", "source": "Boss Shaymin/Sky" },
+  { "item": "tm-167", "move": "Close Combat", "source": "Hariyama" },
+  { "item": "tm-192", "move": "Focus Punch", "source": "Conkeldurr" },
+  { "item": "tm-198", "move": "Poltergeist", "source": "Passe Temporada 2" },
+  { "item": "tm-75", "move": "Swords Dance", "source": "Bisharp" },
+  { "item": "tm-127", "move": "Play Rough", "source": "Aromatisse" },
+  { "item": "tm-128", "move": "X-Scissor", "source": "Scizor" },
+  { "item": "tm-131", "move": "Giga Drain", "source": "Chesnaught" },
+  { "item": "tm-164", "move": "Brave Bird", "source": "Talonflame" },
+  { "item": "tm-60", "move": "Drain Punch", "source": "Pangoro" },
+  { "item": "tm-76", "move": "Rock Blast", "source": "Barbaracle" },
+  { "item": "tm-46", "move": "Avalanche", "source": "Avalugg" },
+  { "item": "tm-130", "move": "Electro Ball", "source": "Dedenne" },
+  { "item": "tm-129", "move": "Dragon Tail", "source": "Goodra" },
+  { "item": "tm-199", "move": "Lash Out", "source": "Malamar" },
+  { "item": "tm-05", "move": "Thunder Punch", "source": "Craft" },
+  { "item": "tm-84", "move": "Poison Jab", "source": "Craft" },
+  { "item": "tm-87", "move": "Draining Kiss", "source": "Craft" },
+  { "item": "tm-125", "move": "Disarming Voice", "source": "Craft" },
+  { "item": "tm-126", "move": "Psybeam", "source": "Craft" },
+  { "item": "tm-132", "move": "Metal Claw", "source": "Craft" },
+  { "item": "tm-133", "move": "Night Shade", "source": "Craft" },
+  { "item": "tm-135", "move": "Heat Wave", "source": "Craft" },
+  { "item": "tm-186", "move": "High Horsepower", "source": "Craft" },
+  { "item": "tm-206", "move": "Petal Blizzard", "source": "Craft" },
+  { "item": "tm-208", "move": "Whirlpool", "source": "Craft" },
+  { "item": "tm-143", "move": "Ice Fang", "source": "Piloswine" },
+  { "item": "tm-145", "move": "Water Pledge", "source": "Craft" },
+  { "item": "tm-146", "move": "Grass Pledge", "source": "Craft" },
+  { "item": "tm-142", "move": "Fly", "source": "Salamence" },
+  { "item": "tm-154", "move": "Hydro Cannon", "source": "Craft" },
+  { "item": "tm-169", "move": "Draco Meteor", "source": "Craft" },
+  { "item": "tm-209", "move": "Muddy Water", "source": "Craft" },
+  { "item": "tm-216", "move": "Feather Dance", "source": "Craft" },
+  { "item": "tm-221", "move": "Struggle Bug", "source": "Leavanny" },
+  { "item": "tm-222", "move": "Breaking Swipe", "source": "Craft" },
+  { "item": "tm-223", "move": "Metal Sound", "source": "Craft" },
+  { "item": "tm-227", "move": "Alluring Voice", "source": "Craft" }
 ]
