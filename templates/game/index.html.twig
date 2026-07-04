@@ -26,6 +26,14 @@
             <header class="game-hero">
                 <div class="game-hero-content">
                     <h1 class="game-title"> {{ 'Qual é o Pokémon do Dia?'|trans }}</h1>
+                    <div class="game-hero-actions">
+                        <a href="{{ path('app_game_daily_info') }}" class="btn-stats-link" data-turbo="false">
+                            <i class="fa-solid fa-chart-simple"></i> {{ 'Estatísticas'|trans }}
+                        </a>
+                        <a href="{{ path('app_pokedex') }}" class="btn-pokedex-link" data-turbo="false">
+                            <i class="fa-solid fa-book"></i> {{ 'Pokédex'|trans }}
+                        </a>
+                    </div>
                 </div>
             </header>
 
@@ -110,6 +118,8 @@
             </section>
         </aside>
     </div>
+
+
 </div>
 
 <!-- Modal de Fim de Jogo -->

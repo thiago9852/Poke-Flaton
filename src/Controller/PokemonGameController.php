@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\PokemonGameScore;
+use App\Entity\PokemonAccess;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\PokeApiService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,12 +33,286 @@ class PokemonGameController extends AbstractController
 
         $repo = $this->entityManager->getRepository(PokemonGameScore::class);
         $monthlyRanking = $repo->findMonthlyTop5($startOfMonth, $endOfMonth);
-        
+
         return $this->render('game/index.html.twig', [
             'mode' => 'daily',
             'title' => 'Pokémon do Dia',
             'pokemonListJson' => json_encode($allowedList),
             'monthlyRanking' => $monthlyRanking
+        ]);
+    }
+
+    #[Route('/pokemon-do-dia/info', name: 'app_game_daily_info')]
+    public function info(): Response
+    {
+        $allowedList = $this->getAllowedBasePokemonList();
+
+        // 1. Obter palpites digitados pelos usuários nos últimos 30 dias (PokemonAccess com prefixo 'guess-')
+        $accessRepo = $this->entityManager->getRepository(PokemonAccess::class);
+        $thirtyDaysAgo = new \DateTime('-30 days');
+
+        $allGuesses = $accessRepo->createQueryBuilder('a')
+            ->where('a.pokemonName LIKE :prefix')
+            ->andWhere('a.lastAccessedAt >= :thirtyDaysAgo')
+            ->setParameter('prefix', 'guess-%')
+            ->setParameter('thirtyDaysAgo', $thirtyDaysAgo)
+            ->orderBy('a.views', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        // --- 1. TOP 10 POKÉMONS MAIS LEMBRADOS (DIGITADOS) ---
+        $topGuesses = array_slice($allGuesses, 0, 10);
+        $topGuessesNames = array_map(fn($g) => substr($g->getPokemonName(), 6), $topGuesses);
+        $topGuessesDetails = [];
+        if (!empty($topGuessesNames)) {
+            $topGuessesDetails = $this->pokeApiService->getPokemonDetailsBatchByNames($topGuessesNames);
+        }
+
+        $topPokemons = [];
+        foreach ($topGuesses as $guess) {
+            $pName = substr($guess->getPokemonName(), 6);
+            $nameLower = strtolower($pName);
+            if (isset($topGuessesDetails[$nameLower])) {
+                $p = $topGuessesDetails[$nameLower];
+                $topPokemons[] = [
+                    'id' => $p['id'],
+                    'name' => $p['name'],
+                    'display_name' => $p['default_display_name'] ?? ucfirst(str_replace('-', ' ', $p['name'])),
+                    'sprite' => $p['sprite_official'],
+                    'plays' => $guess->getViews(), // número de vezes que foi digitado
+                    'wins' => 0,
+                    'types' => $p['types']
+                ];
+            }
+        }
+
+        // --- 2. GERAÇÕES DOS POKÉMONS DIGITADOS ---
+        $genViews = array_fill(1, 9, 0);
+        foreach ($allGuesses as $guess) {
+            $gen = PokeApiService::getGenerationById($guess->getPokemonId());
+            if ($gen >= 1 && $gen <= 9) {
+                $genViews[$gen] += $guess->getViews();
+            }
+        }
+        arsort($genViews);
+
+        $allGenerationsMetadata = [
+            1 => ['number' => 1, 'games' => 'Red & Blue', 'region' => 'Kanto'],
+            2 => ['number' => 2, 'games' => 'Gold & Silver', 'region' => 'Johto'],
+            3 => ['number' => 3, 'games' => 'Ruby & Sapphire', 'region' => 'Hoenn'],
+            4 => ['number' => 4, 'games' => 'Diamond & Pearl', 'region' => 'Sinnoh'],
+            5 => ['number' => 5, 'games' => 'Black & White', 'region' => 'Unova'],
+            6 => ['number' => 6, 'games' => 'X & Y', 'region' => 'Kalos'],
+            7 => ['number' => 7, 'games' => 'Sun & Moon', 'region' => 'Alola'],
+            8 => ['number' => 8, 'games' => 'Sword & Shield', 'region' => 'Galar'],
+            9 => ['number' => 9, 'games' => 'Scarlet & Violet', 'region' => 'Paldea']
+        ];
+
+        $generationRanking = [];
+        $maxGenViews = !empty($genViews) ? max($genViews) : 1;
+        foreach ($genViews as $genNumber => $views) {
+            if ($views > 0) {
+                $generationRanking[] = [
+                    'generation' => $genNumber,
+                    'views' => $views,
+                    'region' => $allGenerationsMetadata[$genNumber]['region'] ?? 'Desconhecida',
+                    'games' => $allGenerationsMetadata[$genNumber]['games'] ?? '',
+                    'percentage' => round(($views / $maxGenViews) * 100)
+                ];
+            }
+        }
+
+        // --- 3. TIPOS DOS POKÉMONS DIGITADOS ---
+        $guessNames30Days = array_map(fn($g) => substr($g->getPokemonName(), 6), $allGuesses);
+        $detailsMap30Days = [];
+        if (!empty($guessNames30Days)) {
+            $detailsMap30Days = $this->pokeApiService->getPokemonDetailsBatchByNames($guessNames30Days);
+        }
+
+        $typeViews = [];
+        foreach ($allGuesses as $guess) {
+            $pName = substr($guess->getPokemonName(), 6);
+            $nameLower = strtolower($pName);
+            if (isset($detailsMap30Days[$nameLower])) {
+                foreach ($detailsMap30Days[$nameLower]['types'] as $type) {
+                    $type = strtolower($type);
+                    if (!isset($typeViews[$type])) {
+                        $typeViews[$type] = 0;
+                    }
+                    $typeViews[$type] += $guess->getViews();
+                }
+            }
+        }
+        arsort($typeViews);
+
+        $typeRanking = [];
+        $maxTypeViews = !empty($typeViews) ? max($typeViews) : 1;
+        foreach ($typeViews as $type => $views) {
+            $typeRanking[] = [
+                'type' => $type,
+                'views' => $views,
+                'percentage' => round(($views / $maxTypeViews) * 100)
+            ];
+        }
+
+        // --- 4. POKÉMONS DO DIA COM MAIS PRESENÇA POR GERAÇÃO (A PARTIR DO HISTÓRICO DO JOGO) ---
+        $repo = $this->entityManager->getRepository(PokemonGameScore::class);
+        $allScores = $repo->findAll();
+        $basicList = $this->pokeApiService->getPokemonGameList();
+        usort($basicList, fn($a, $b) => $a['id'] <=> $b['id']);
+        $listCount = count($basicList);
+
+        $secretStats = []; // name => ['id' => x, 'name' => y, 'display_name' => z, 'plays' => cnt]
+        if ($listCount > 0) {
+            foreach ($allScores as $score) {
+                $user = $score->getUser();
+                if ($user) {
+                    $userSeed = 'user-' . $user->getUserIdentifier();
+                } else {
+                    $userToken = $score->getUserToken();
+                    $userSeed = 'anon-' . $userToken;
+                }
+
+                $dateStr = $score->getGameDate() ? $score->getGameDate()->format('Y-m-d') : null;
+                if (!$dateStr) {
+                    continue;
+                }
+
+                $hash = md5('pokeflaton-secret-daily-salt-' . $dateStr . '-' . $userSeed);
+                $seed = hexdec(substr($hash, 0, 8));
+                $targetIndex = $seed % $listCount;
+                $target = $basicList[$targetIndex];
+                $pName = $target['name'];
+
+                if (!isset($secretStats[$pName])) {
+                    $secretStats[$pName] = [
+                        'id' => $target['id'],
+                        'name' => $pName,
+                        'display_name' => $target['display_name'] ?? ucfirst(str_replace('-', ' ', $pName)),
+                        'plays' => 0
+                    ];
+                }
+                $secretStats[$pName]['plays']++;
+            }
+        }
+
+        $genTopPokemons = [];
+        for ($g = 1; $g <= 9; $g++) {
+            $genTopPokemons[$g] = [];
+        }
+        foreach ($secretStats as $stat) {
+            $gen = PokeApiService::getGenerationById($stat['id']);
+            if ($gen >= 1 && $gen <= 9) {
+                $genTopPokemons[$gen][] = $stat;
+            }
+        }
+
+        for ($g = 1; $g <= 9; $g++) {
+            uasort($genTopPokemons[$g], fn($a, $b) => $b['plays'] <=> $a['plays']);
+            $genTopPokemons[$g] = array_slice($genTopPokemons[$g], 0, 10);
+        }
+
+        // --- 5. TAXA DE ACERTO POR DIA ---
+        $dailySuccessRates = $repo->findDailySuccessRates(10);
+
+        // --- 6. CÁLCULO DE MÉDIAS GLOBAIS ---
+        $totalGames = (int) $repo->createQueryBuilder('s')
+            ->select('COUNT(s.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $totalWins = (int) $repo->createQueryBuilder('s')
+            ->select('COUNT(s.id)')
+            ->where('s.won = :won')
+            ->setParameter('won', true)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $avgAttemptsVal = $repo->createQueryBuilder('s')
+            ->select('AVG(s.attempts)')
+            ->where('s.won = :won')
+            ->setParameter('won', true)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $avgAttempts = $avgAttemptsVal !== null ? round((float) $avgAttemptsVal, 1) : 0;
+        $winRate = $totalGames > 0 ? round(($totalWins / $totalGames) * 100, 1) : 0;
+
+        // --- PREPARAR DADOS DE ESTATÍSTICA PARA OS GRÁFICOS (JSON) ---
+        $chartTopPokemons = [];
+        foreach (array_slice($topPokemons, 0, 10) as $stat) {
+            $chartTopPokemons[] = [
+                'name' => $stat['display_name'],
+                'plays' => $stat['plays']
+            ];
+        }
+
+        $chartGenerations = [];
+        foreach ($generationRanking as $gen) {
+            $chartGenerations[] = [
+                'label' => 'Geração ' . $gen['generation'] . ' (' . $gen['region'] . ')',
+                'value' => $gen['views']
+            ];
+        }
+
+        $chartTypes = [];
+        foreach (array_slice($typeRanking, 0, 10) as $t) {
+            $chartTypes[] = [
+                'label' => ucfirst($t['type']),
+                'value' => $t['views']
+            ];
+        }
+
+        $chartGenTopPokemons = [];
+        for ($i = 0; $i < 10; $i++) {
+            $dataPoints = [];
+            for ($g = 1; $g <= 9; $g++) {
+                $pokemon = $genTopPokemons[$g][$i] ?? null;
+                if ($pokemon) {
+                    $dataPoints[] = [
+                        'x' => 'Geração ' . $g,
+                        'y' => $pokemon['plays'],
+                        'name' => $pokemon['display_name']
+                    ];
+                } else {
+                    $dataPoints[] = [
+                        'x' => 'Geração ' . $g,
+                        'y' => 0,
+                        'name' => 'Nenhum'
+                    ];
+                }
+            }
+            $chartGenTopPokemons[] = [
+                'label' => 'Rank ' . ($i + 1),
+                'data' => $dataPoints
+            ];
+        }
+
+        $chartDailySuccessRates = [];
+        foreach (array_reverse($dailySuccessRates) as $day) {
+            $chartDailySuccessRates[] = [
+                'date' => date('d/m', strtotime($day['date'])),
+                'rate' => $day['rate'],
+                'total' => $day['total'],
+                'won' => $day['won']
+            ];
+        }
+
+        return $this->render('game/info.html.twig', [
+            'title' => 'Estatísticas Globais | Pokémon do Dia',
+            'totalGames' => $totalGames,
+            'winRate' => $winRate,
+            'avgAttempts' => $avgAttempts,
+            'topPokemons' => $topPokemons,
+            'generationRanking' => $generationRanking,
+            'typeRanking' => $typeRanking,
+            'dailySuccessRates' => $dailySuccessRates,
+            // JSON strings para os gráficos
+            'chartTopPokemonsJson' => json_encode($chartTopPokemons),
+            'chartGenerationsJson' => json_encode($chartGenerations),
+            'chartTypesJson' => json_encode($chartTypes),
+            'chartGenTopPokemonsJson' => json_encode($chartGenTopPokemons),
+            'chartDailySuccessRatesJson' => json_encode($chartDailySuccessRates)
         ]);
     }
 
@@ -67,6 +342,25 @@ class PokemonGameController extends AbstractController
             $guessPokemon = $this->pokeApiService->getPokemonDetails($guessName);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => 'Erro ao carregar detalhes do Pokémon.'], 500);
+        }
+
+        // Registrar o palpite em PokemonAccess com prefixo 'guess-'
+        try {
+            $accessRepo = $this->entityManager->getRepository(PokemonAccess::class);
+            $guessKey = 'guess-' . strtolower($guessPokemon['name']);
+            $pokemonAccess = $accessRepo->findOneBy(['pokemonName' => $guessKey]);
+            if (!$pokemonAccess) {
+                $pokemonAccess = new PokemonAccess();
+                $pokemonAccess->setPokemonName($guessKey);
+                $pokemonAccess->setPokemonId($guessPokemon['id']);
+                $pokemonAccess->setViews(0);
+            }
+            $pokemonAccess->incrementViews();
+            $pokemonAccess->setLastAccessedAt(new \DateTime());
+            $this->entityManager->persist($pokemonAccess);
+            $this->entityManager->flush();
+        } catch (\Exception $e) {
+            // Ignore database logging errors
         }
 
         // Comparações

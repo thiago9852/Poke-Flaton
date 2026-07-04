@@ -50,10 +50,6 @@
 						{{ 'Início'|trans }}</a>
 					<a href="{{ path('app_pokemon_index') }}" class="nav-link">
 						{{ 'Moveset'|trans }}</a>
-					<a href="{{ path('app_pokedex') }}" class="nav-link">
-						{{ 'Pokédex'|trans }}</a>
-					<a href="{{ path('app_game_daily') }}" class="nav-link">
-						{{ 'Pokémon do Dia'|trans }}</a>
 					<a href="{{ path('app_trainer_ranking') }}" class="nav-link">
 						{{ 'Trainers'|trans }}</a>
 					<a href="{{ path('app_map') }}" class="nav-link">
@@ -169,6 +165,12 @@
 				<div class="global-loader-text">{{ 'Carregando...'|trans }}</div>
 			</div>
 		</div>
+
+		<!-- Botão Flutuante Pokémon do Dia -->
+		<a href="{{ path('app_game_daily') }}" class="floating-game-btn" title="{{ 'Jogar Pokémon do Dia'|trans }}" data-turbo="false">
+			<img src="{{ asset('image/Pokeball.png') }}" class="floating-game-pokeball" alt="Pokeball">
+			<span class="floating-game-text">{{ 'Pokémon do Dia'|trans }}</span>
+		</a>
 
 	</body>
 </html>

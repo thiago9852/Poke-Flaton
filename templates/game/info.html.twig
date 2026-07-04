@@ -1,0 +1,145 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title|trans }} | PokeFlaton{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/pokemon-game.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="game-container stats-page-container"
+     data-controller="pokemon-stats"
+     data-pokemon-stats-top-pokemons-value="{{ chartTopPokemonsJson|e('html_attr') }}"
+     data-pokemon-stats-generations-value="{{ chartGenerationsJson|e('html_attr') }}"
+     data-pokemon-stats-types-value="{{ chartTypesJson|e('html_attr') }}"
+     data-pokemon-stats-gen-top-pokemons-value="{{ chartGenTopPokemonsJson|e('html_attr') }}"
+     data-pokemon-stats-success-rates-value="{{ chartDailySuccessRatesJson|e('html_attr') }}"
+>
+    <!-- Header de Ações / Retorno -->
+    <div class="stats-header-nav">
+        <a href="{{ path('app_game_daily') }}" class="btn-back-game">
+            <i class="fa-solid fa-arrow-left"></i> {{ 'Voltar ao Jogo'|trans }}
+        </a>
+    </div>
+
+    <!-- Título Principal -->
+    <header class="stats-page-hero">
+        <h1 class="stats-page-title">
+            {{ 'Estatísticas'|trans }}
+        </h1>
+        <p class="stats-page-subtitle">
+            {{ 'Dados coletados a partir dos palpites dos usuários nos últimos 30 dias e histórico de acertos do Pokémon do Dia.'|trans }}
+        </p>
+    </header>
+
+    <!-- Cards de Resumo Geral -->
+    <div class="stats-summary-grid">
+        <div class="summary-card">
+            <div class="summary-card-icon">
+                <i class="fa-solid fa-gamepad"></i>
+            </div>
+            <div class="summary-card-info">
+                <span class="summary-value">{{ totalGames }}</span>
+                <span class="summary-label">{{ 'Partidas Completas'|trans }}</span>
+            </div>
+            <div class="summary-card-glow"></div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-card-icon">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <div class="summary-card-info">
+                <span class="summary-value">{{ winRate }}%</span>
+                <span class="summary-label">{{ 'Taxa de Acerto'|trans }}</span>
+            </div>
+            <div class="summary-card-glow"></div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-card-icon">
+                <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <div class="summary-card-info">
+                <span class="summary-value">{{ avgAttempts }}</span>
+                <span class="summary-label">{{ 'Média de Tentativas'|trans }}</span>
+            </div>
+            <div class="summary-card-glow"></div>
+        </div>
+    </div>
+
+    <!-- Conteúdo do Dashboard de Gráficos -->
+    <div class="stats-dashboard-grid">
+        
+        <!-- Bloco 1: Top 10 Pokémon mais Lembrados (Largura Total) -->
+        <section class="stats-card full-width">
+            <h3 class="card-title">
+                <i class="fa-solid fa-fire"></i> {{ 'Top 10 Pokémon mais lembrados'|trans }} 
+                <span class="card-title-badge">{{ 'Últimos 30 dias'|trans }}</span>
+            </h3>
+            <p class="card-subtitle">{{ 'Os Pokémon que os treinadores mais digitam durante suas tentativas no jogo.'|trans }}</p>
+            <div class="chart-container-wrapper">
+                <canvas id="chart-top-pokemon"></canvas>
+            </div>
+            
+
+        </section>
+
+        <!-- Linha Dupla: Gerações e Tipos (Side-by-Side) -->
+        <div class="stats-double-row">
+            <!-- Bloco 2: Gerações -->
+            <section class="stats-card">
+                <h3 class="card-title">
+                    <i class="fa-solid fa-layer-group"></i> {{ 'Distribuição por Geração'|trans }}
+                    <span class="card-title-badge">{{ 'Últimos 30 dias'|trans }}</span>
+                </h3>
+                <div class="chart-pie-wrapper">
+                    <canvas id="chart-generations"></canvas>
+                </div>
+
+            </section>
+
+            <!-- Bloco 3: Tipos -->
+            <section class="stats-card">
+                <h3 class="card-title">
+                    <i class="fa-solid fa-tags"></i> {{ 'Distribuição por Tipo'|trans }}
+                    <span class="card-title-badge">{{ 'Últimos 30 dias'|trans }}</span>
+                </h3>
+                <div class="chart-pie-wrapper">
+                    <canvas id="chart-types"></canvas>
+                </div>
+
+            </section>
+        </div>
+
+        <!-- Bloco 4: Presença por Geração (Largura Total) -->
+        <section class="stats-card full-width">
+            <h3 class="card-title">
+                <i class="fa-solid fa-cubes"></i> {{ 'Pokémon do Dia por Geração'|trans }}
+                <span class="card-title-badge">{{ 'Histórico Geral'|trans }}</span>
+            </h3>
+            <p class="card-subtitle">{{ 'Os 10 Pokémon mais sorteados como o Pokémon do Dia em cada uma das gerações.'|trans }}</p>
+            <div class="chart-container-wrapper large">
+                <canvas id="chart-presence"></canvas>
+            </div>
+        </section>
+
+        <!-- Bloco 5: Taxa de Acerto por Dia (Largura Total) -->
+        <section class="stats-card full-width">
+            <h3 class="card-title">
+                <i class="fa-solid fa-chart-line"></i> {{ 'Histórico de Taxa de Acerto'|trans }}
+                <span class="card-title-badge">{{ 'Últimos 10 dias'|trans }}</span>
+            </h3>
+            <p class="card-subtitle">{{ 'Percentual diário de vitórias dos treinadores que concluíram a rodada.'|trans }}</p>
+            <div class="chart-container-wrapper">
+                <canvas id="chart-success-rate"></canvas>
+            </div>
+
+
+        </section>
+
+    </div>
+</div>
+{% endblock %}

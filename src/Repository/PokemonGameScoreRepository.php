@@ -51,4 +51,59 @@ class PokemonGameScoreRepository extends ServiceEntityRepository
 
         return $formatted;
     }
+
+    /**
+     * Retrieves the daily success rate of games played in the last N days.
+     * Calculates the win percentage based on the count of won games vs total games played.
+     */
+    public function findDailySuccessRates(int $days = 10): array
+    {
+        $qb = $this->createQueryBuilder('s')
+            ->select('s.gameDate, s.won, COUNT(s.id) as cnt')
+            ->groupBy('s.gameDate', 's.won')
+            ->orderBy('s.gameDate', 'DESC');
+            
+        $results = $qb->getQuery()->getResult();
+        
+        $dailyData = [];
+        foreach ($results as $row) {
+            $date = $row['gameDate'] instanceof \DateTimeInterface 
+                ? $row['gameDate']->format('Y-m-d') 
+                : (string) $row['gameDate'];
+            $won = (bool) $row['won'];
+            $count = (int) $row['cnt'];
+            
+            if (!isset($dailyData[$date])) {
+                $dailyData[$date] = [
+                    'date' => $date,
+                    'total' => 0,
+                    'won' => 0
+                ];
+            }
+            
+            $dailyData[$date]['total'] += $count;
+            if ($won) {
+                $dailyData[$date]['won'] += $count;
+            }
+        }
+        
+        $formatted = [];
+        foreach ($dailyData as $date => $data) {
+            $total = $data['total'];
+            $won = $data['won'];
+            $rate = $total > 0 ? round(($won / $total) * 100, 1) : 0;
+            
+            $formatted[] = [
+                'date' => $date,
+                'total' => $total,
+                'won' => $won,
+                'rate' => $rate
+            ];
+        }
+        
+        usort($formatted, fn($a, $b) => strcmp($b['date'], $a['date']));
+        
+        return array_slice($formatted, 0, $days);
+    }
 }
+
