@@ -1,8 +1,12 @@
-document.addEventListener('turbo:load', () => {
+function initTierList() {
     const configEl = document.getElementById('tierListConfig');
     if (!configEl) {
         return;
     }
+    if (configEl.dataset.initialized === 'true') {
+        return;
+    }
+    configEl.dataset.initialized = 'true';
 
     const pokemonTypes = JSON.parse(configEl.getAttribute('data-types-map') || '{}');
     const translations = {
@@ -762,4 +766,7 @@ document.addEventListener('turbo:load', () => {
 
     // Init
     initTiers();
-});
+}
+
+document.addEventListener('turbo:load', initTierList);
+initTierList();
