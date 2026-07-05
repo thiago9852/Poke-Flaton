@@ -1,8 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Buscar configurações e traduções passadas via DOM
+document.addEventListener('turbo:load', () => {
     const configEl = document.getElementById('tierListConfig');
     if (!configEl) {
-        console.error("Config element #tierListConfig not found.");
         return;
     }
 
@@ -30,9 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { label: 'S', color: '#ff7f7f', pokemons: [] },
         { label: 'A', color: '#ffbf7f', pokemons: [] },
         { label: 'B', color: '#ffdf7f', pokemons: [] },
-        { label: 'C', color: '#ffff7f', pokemons: [] },
-        { label: 'D', color: '#bfff7f', pokemons: [] },
-        { label: 'F', color: '#7fcdff', pokemons: [] }
+        { label: 'C', color: '#ffff7f', pokemons: [] }
     ];
 
     let tiers = [];
