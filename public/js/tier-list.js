@@ -745,11 +745,20 @@ document.addEventListener('turbo:load', () => {
         });
     }
 
-    document.getElementById('btnExport').addEventListener('click', exportAsImage);
-    document.getElementById('btnShare').addEventListener('click', shareLink);
-    document.getElementById('btnAddRow').addEventListener('click', addRow);
-    document.getElementById('btnResetTiers').addEventListener('click', resetTiers);
-    document.getElementById('btnClearAll').addEventListener('click', clearAll);
+    const btnExport = document.getElementById('btnExport');
+    if (btnExport) btnExport.addEventListener('click', exportAsImage);
+
+    const btnShare = document.getElementById('btnShare');
+    if (btnShare) btnShare.addEventListener('click', shareLink);
+
+    const btnAddRow = document.getElementById('btnAddRow');
+    if (btnAddRow) btnAddRow.addEventListener('click', addRow);
+
+    const btnResetTiers = document.getElementById('btnResetTiers');
+    if (btnResetTiers) btnResetTiers.addEventListener('click', resetTiers);
+
+    const btnClearAll = document.getElementById('btnClearAll');
+    if (btnClearAll) btnClearAll.addEventListener('click', clearAll);
 
     // Init
     initTiers();

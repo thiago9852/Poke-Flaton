@@ -104,8 +104,9 @@
 
 	<!-- Embedded capture script for read-only viewer -->
 	<script>
-		document.addEventListener('turbo:load', () => {
+		(() => {
 			const btnExport = document.getElementById('btnExport');
+			if (!btnExport) return;
 			const tierToast = document.getElementById('tierToast');
 			const toastMessage = document.getElementById('toastMessage');
 
@@ -164,6 +165,6 @@
 					showToast("{{ 'Falha ao gerar imagem da Tier List!'|trans }}");
 				});
 			});
-		});
+		})();
 	</script>
 {% endblock %}
