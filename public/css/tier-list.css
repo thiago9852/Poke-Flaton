@@ -46,6 +46,10 @@
     flex-wrap: wrap;
 }
 
+.form-inline-action {
+    display: inline-block;
+}
+
 .btn-tier {
     display: inline-flex;
     align-items: center;
@@ -680,6 +684,11 @@
         flex-direction: column;
     }
     
+    .form-inline-action {
+        display: block;
+        width: 100%;
+    }
+    
     .btn-tier {
         width: 100%;
         justify-content: center;
@@ -917,6 +926,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .viewer-details span {
@@ -929,6 +939,26 @@
     display: flex;
     gap: 8px;
     margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .viewer-meta-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 20px;
+        padding: 16px;
+    }
+
+    .viewer-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .viewer-separator {
+        display: none;
+    }
 }
 
 .tier-board-viewonly {
@@ -996,5 +1026,71 @@
 .gallery-empty-state i {
     font-size: 3rem;
     color: var(--text-muted);
+}
+
+/* --- Estilos do Banner de Exportação (Imagem Capturada) --- */
+.tier-board-wrapper {
+    background: #090a0f;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    width: 100%;
+}
+
+.export-only-header {
+    background: #090a0f;
+    border-bottom: 2px solid var(--border-color);
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Outfit', sans-serif;
+    color: #fff;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.export-logo {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px;
+}
+
+.export-meta {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.export-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0;
+    color: #fff;
+}
+
+.export-author {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.export-author strong {
+    color: #fff;
+}
+
+.export-only-footer {
+    background: #090a0f;
+    padding: 12px;
+    text-align: center;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border-color);
+    width: 100%;
+    box-sizing: border-box;
 }
 

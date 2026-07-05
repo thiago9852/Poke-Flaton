@@ -21,7 +21,7 @@
 						{{ 'Publicada por'|trans }}
 						<strong>{{ tierList.user ? tierList.user.username : 'Anônimo'|trans }}</strong>
 					</span>
-					<span>&bull;</span>
+					<span class="viewer-separator">&bull;</span>
 					<span>
 						<i class="fa-solid fa-calendar-days"></i>
 						{{ tierList.createdAt|date('d/m/Y H:i') }}
@@ -53,7 +53,7 @@
 					<span>{{ 'Exportar Imagem'|trans }}</span>
 				</button>
 				{% if canDelete %}
-					<form action="{{ path('app_tier_list_delete', { id: tierList.id }) }}" method="POST" style="display: inline;" onsubmit="return confirm('{{ 'Tem certeza de que deseja excluir permanentemente esta Tier List?'|trans }}');">
+					<form action="{{ path('app_tier_list_delete', { id: tierList.id }) }}" method="POST" class="form-inline-action" onsubmit="return confirm('{{ 'Tem certeza de que deseja excluir permanentemente esta Tier List?'|trans }}');">
 						<input type="hidden" name="_token" value="{{ csrf_token('delete-tier-list-' ~ tierList.id) }}">
 						<button type="submit" class="btn-tier btn-tier-danger" style="border: none;">
 							<i class="fa-solid fa-trash-can"></i>
@@ -68,29 +68,47 @@
 			</div>
 		</section>
 
-		<!-- Tier Board Read Only -->
-		<section class="tier-board tier-board-viewonly" id="tierBoard">
-			{% for tier in tierList.state %}
-				<div class="tier-row" style="border-bottom: 2px solid var(--border-color);">
-					<!-- Label (Contrast set via JS on page load) -->
-					<div class="tier-label-col" style="background-color: {{ tier.color }}; cursor: default;">
-						<span class="tier-label-text">{{ tier.label }}</span>
-					</div>
-
-					<!-- Content -->
-					<div class="tier-content-col">
-						{% for pokeId in tier.pokemons %}
-							{% if pokemonMap[pokeId] is defined %}
-								{% set p = pokemonMap[pokeId] %}
-								<div class="tier-pokemon-card" data-name="{{ p.name|capitalize }}" title="{{ p.name|capitalize }}">
-									<img src="{{ p.sprite }}" alt="{{ p.name }}">
-								</div>
-							{% endif %}
-						{% endfor %}
-					</div>
+		<!-- Wrapper para Exportação da Imagem -->
+		<div id="tierBoardWrapper" class="tier-board-wrapper">
+			<!-- Header de Exportação (invisível na UI) -->
+			<div id="exportHeader" class="export-only-header" style="display: none;">
+				<div class="export-meta">
+					<h2 class="export-title">{{ tierList.title }}</h2>
+					<span class="export-author">
+						{{ 'Publicada por'|trans }} <strong>{{ tierList.user ? tierList.user.username : 'Anônimo'|trans }}</strong>
+					</span>
 				</div>
-			{% endfor %}
-		</section>
+			</div>
+
+			<!-- Tier Board Read Only -->
+			<section class="tier-board tier-board-viewonly" id="tierBoard">
+				{% for tier in tierList.state %}
+					<div class="tier-row" style="border-bottom: 2px solid var(--border-color);">
+						<!-- Label (Contrast set via JS on page load) -->
+						<div class="tier-label-col" style="background-color: {{ tier.color }}; cursor: default;">
+							<span class="tier-label-text">{{ tier.label }}</span>
+						</div>
+
+						<!-- Content -->
+						<div class="tier-content-col">
+							{% for pokeId in tier.pokemons %}
+								{% if pokemonMap[pokeId] is defined %}
+									{% set p = pokemonMap[pokeId] %}
+									<div class="tier-pokemon-card" data-name="{{ p.name|capitalize }}" title="{{ p.name|capitalize }}">
+										<img src="{{ p.sprite }}" alt="{{ p.name }}">
+									</div>
+								{% endif %}
+							{% endfor %}
+						</div>
+					</div>
+				{% endfor %}
+			</section>
+
+			<!-- Footer de Exportação (invisível na UI) -->
+			<div id="exportFooter" class="export-only-footer" style="display: none;">
+				<span>pokeflaton.com</span>
+			</div>
+		</div>
 	</div>
 
 	<!-- Toast -->
@@ -148,19 +166,29 @@
 			btnExport.addEventListener('click', () => {
 				showToast("{{ 'Gerando imagem do tier list...'|trans }}");
 
-				const board = document.getElementById('tierBoard');
+				const board = document.getElementById('tierBoardWrapper');
+				const exportHeader = document.getElementById('exportHeader');
+				const exportFooter = document.getElementById('exportFooter');
+
+				if (exportHeader) exportHeader.style.display = 'flex';
+				if (exportFooter) exportFooter.style.display = 'block';
 				
 				html2canvas(board, {
 					useCORS: true,
 					backgroundColor: '#090a0f',
 					scale: 2
 				}).then(canvas => {
+					if (exportHeader) exportHeader.style.display = 'none';
+					if (exportFooter) exportFooter.style.display = 'none';
+
 					const link = document.createElement('a');
 					link.download = 'pokeflaton-tier-list.png';
 					link.href = canvas.toDataURL('image/png');
 					link.click();
 					showToast("{{ 'Download da imagem iniciado!'|trans }}");
 				}).catch(err => {
+					if (exportHeader) exportHeader.style.display = 'none';
+					if (exportFooter) exportFooter.style.display = 'none';
 					console.error("Erro ao exportar imagem:", err);
 					showToast("{{ 'Falha ao gerar imagem da Tier List!'|trans }}");
 				});

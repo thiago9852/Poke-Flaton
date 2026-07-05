@@ -718,17 +718,34 @@ function initTierList() {
         const actionsCols = document.querySelectorAll('.tier-actions-col');
         actionsCols.forEach(col => col.style.display = 'none');
 
+        // Dynamically update export title text if available from modal input
+        if (publishTitleInput && publishTitleInput.value.trim() !== '') {
+            const exportTitleText = document.getElementById('exportTitleText');
+            if (exportTitleText) {
+                exportTitleText.textContent = publishTitleInput.value.trim();
+            }
+        }
+
         const board = document.getElementById('tierBoard');
+        const wrapper = document.getElementById('tierBoardWrapper') || board;
+        const exportHeader = document.getElementById('exportHeader');
+        const exportFooter = document.getElementById('exportFooter');
+
+        if (exportHeader) exportHeader.style.display = 'flex';
+        if (exportFooter) exportFooter.style.display = 'block';
+
         const rows = board.querySelectorAll('.tier-row');
         rows.forEach(row => {
             row.style.borderBottom = '2px solid rgba(255, 255, 255, 0.08)';
         });
 
-        html2canvas(board, {
+        html2canvas(wrapper, {
             useCORS: true,
             backgroundColor: '#090a0f',
             scale: 2 
         }).then(canvas => {
+            if (exportHeader) exportHeader.style.display = 'none';
+            if (exportFooter) exportFooter.style.display = 'none';
             actionsCols.forEach(col => col.style.display = 'flex');
             rows.forEach(row => {
                 row.style.borderBottom = '';
@@ -740,6 +757,8 @@ function initTierList() {
             link.click();
             showToast(translations.exportSuccess);
         }).catch(err => {
+            if (exportHeader) exportHeader.style.display = 'none';
+            if (exportFooter) exportFooter.style.display = 'none';
             console.error("Erro ao exportar imagem:", err);
             actionsCols.forEach(col => col.style.display = 'flex');
             rows.forEach(row => {

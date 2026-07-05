@@ -78,17 +78,35 @@
 			<span>{{ 'Dica: Arraste os Pokémon para organizar ou clique neles para enviar ao tier ativo.'|trans }}</span>
 		</div>
 
-		<!-- Tier Grid -->
-		<section class="tier-board" id="tierBoard">
-			<!-- colunas renderizadas via JS -->
-		</section>
+		<!-- Wrapper para Exportação da Imagem -->
+		<div id="tierBoardWrapper" class="tier-board-wrapper">
+			<!-- Header de Exportação (invisível na UI) -->
+			<div id="exportHeader" class="export-only-header" style="display: none;">
+				<div class="export-meta">
+					<h2 class="export-title" id="exportTitleText">{{ 'Minha Tier List de Pokémon'|trans }}</h2>
+					<span class="export-author">
+						{{ 'Criado por:'|trans }} <strong id="exportAuthorText">{{ app.user ? app.user.username : 'Anônimo'|trans }}</strong>
+					</span>
+				</div>
+			</div>
+
+			<!-- Tier Grid -->
+			<section class="tier-board" id="tierBoard">
+				<!-- colunas renderizadas via JS -->
+			</section>
+
+			<!-- Footer de Exportação (invisível na UI) -->
+			<div id="exportFooter" class="export-only-footer" style="display: none;">
+				<span>pokeflaton.com</span>
+			</div>
+		</div>
 
 		<!-- Banco de Pokémon -->
 		<section class="pokemon-bank-container">
 			<div class="bank-header">
 				<h2>
 					<i class="fa-solid fa-boxes-stacked"></i>
-					<span>{{ 'Pokémon Disponíveis'|trans }}</span>
+					<span>{{ 'Pokémons'|trans }}</span>
 				</h2>
 				<span class="bank-count" id="bankCount">0 / 0</span>
 			</div>

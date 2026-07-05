@@ -722,64 +722,7 @@
     box-shadow: 0 6px 18px rgba(139, 92, 246, 0.45);
 }
 
-/* Responsividade */
-@media (max-width: 600px) {
-    .guess-capsule-row {
-        padding: 5px 8px;
-        border-radius: 30px;
-    }
 
-    .guess-pokemon-img {
-        width: 30px;
-        height: 30px;
-    }
-
-    .guess-pokemon-name {
-        font-size: 0.78rem;
-        max-width: 65px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .guess-indicators {
-        gap: 3px;
-    }
-
-    .indicator-circle {
-        width: 38px;
-        height: 38px;
-    }
-
-    .indicator-value {
-        font-size: 0.65rem;
-        line-height: 1;
-    }
-
-    .indicator-icon {
-        font-size: 0.7rem;
-    }
-
-    .indicator-label {
-        display: block !important;
-        font-size: 0.42rem !important;
-        margin-top: 1px !important;
-        letter-spacing: 0px !important;
-        line-height: 1 !important;
-        opacity: 0.85;
-    }
-
-    .indicator-arrow-badge {
-        width: 12px;
-        height: 12px;
-        top: -2px;
-        right: -2px;
-    }
-
-    .indicator-arrow-badge i {
-        font-size: 6px;
-    }
-}
 .game-hero {
     display: flex;
     justify-content: space-between;
@@ -1706,6 +1649,7 @@
     margin-bottom: 8px;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
 }
 
@@ -1728,6 +1672,20 @@
     font-size: 0.9rem;
     color: var(--text-secondary);
     margin-bottom: 25px;
+}
+
+.card-footer-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 15px;
+    width: 100%;
+}
+
+.card-footer-info .card-subtitle {
+    margin-bottom: 0 !important;
 }
 
 .chart-container-wrapper {
@@ -1797,13 +1755,86 @@
 
 @media (max-width: 768px) {
     .guesses-board-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 10px;
+        overflow-x: visible;
+        padding-bottom: 0;
     }
     
     .guesses-board {
-        min-width: 620px; /* Previne esmagamento das colunas no mobile */
+        min-width: 0;
+        width: 100%;
+    }
+
+    .guess-capsule-row {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px 16px;
+        border-radius: 16px;
+        gap: 12px;
+    }
+
+    .guess-pokemon-info {
+        justify-content: center;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        padding-bottom: 8px;
+        gap: 12px;
+    }
+
+    .guess-pokemon-img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .guess-pokemon-name {
+        font-size: 1rem;
+        max-width: none;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+    .guess-indicators {
+        justify-content: space-between;
+        gap: 4px;
+        width: 100%;
+    }
+
+    .indicator-circle {
+        width: 52px;
+        height: 52px;
+    }
+
+    .indicator-value {
+        font-size: 0.95rem;
+        line-height: 1;
+    }
+
+    .indicator-icon {
+        font-size: 0.85rem;
+    }
+
+    .indicator-label {
+        display: block !important;
+        font-size: 0.45rem !important;
+        margin-top: 1px !important;
+        letter-spacing: 0px !important;
+        line-height: 1 !important;
+        opacity: 0.85;
+    }
+
+    .indicator-arrow-badge {
+        width: 15px;
+        height: 15px;
+        top: -2px;
+        right: -2px;
+    }
+
+    .indicator-arrow-badge i {
+        font-size: 8px;
+    }
+
+    .type-sprite-img {
+        width: 24px;
+        height: 24px;
     }
 }
 
