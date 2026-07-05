@@ -124,7 +124,9 @@ class MovesetController extends AbstractController
 
         $unlockedTms = [];
         if ($this->getUser()) {
-            $unlockedTms = $this->getUser()->getUnlockedTms();
+            $unlockedTms = array_map(function($move) {
+                return preg_replace('/-+/', '-', str_replace(' ', '-', strtolower($move)));
+            }, $this->getUser()->getUnlockedTms());
         }
 
         $allTms = [];
