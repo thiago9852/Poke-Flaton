@@ -61,7 +61,7 @@
 		</div>
 
 		<!-- Ações -->
-		<div class="bulk-actions">
+		<div class="bulk-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
 			<button class="btn-bulk-enable" onclick="bulkAction('enable_all')">
 				<i class="fa-solid fa-check-double"></i>
 				Ativar Todas
@@ -70,6 +70,13 @@
 				<i class="fa-solid fa-ban"></i>
 				Bloquear Todas
 			</button>
+			<form action="{{ path('app_admin_clear_cache') }}" method="POST" style="display: inline-block; margin: 0;" onsubmit="return confirm('Tem certeza de que deseja limpar o cache de produção?');">
+				<input type="hidden" name="_token" value="{{ csrf_token('admin-clear-cache') }}">
+				<button type="submit" class="btn-bulk-disable" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; cursor: pointer;">
+					<i class="fa-solid fa-broom"></i>
+					Limpar Cache de Prod
+				</button>
+			</form>
 		</div>
 
 		<!-- Medalhas Categorias -->
