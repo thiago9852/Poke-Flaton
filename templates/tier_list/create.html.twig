@@ -1,0 +1,236 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{ 'Montar Tier List de Pokémon'|trans }} | PokeFlaton
+{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/tier-list.css') }}">
+{% endblock %}
+
+{% block body %}
+	<div class="tier-list-container">
+		<!-- Configurações e traduções repassadas para o arquivo JS estático -->
+		<div id="tierListConfig" style="display: none;"
+			data-types-map="{{ typesMap|json_encode }}"
+			data-trans-load-success="{{ 'Tier List carregada via link de compartilhamento!'|trans }}"
+			data-trans-move-up="{{ 'Mover para Cima'|trans }}"
+			data-trans-move-down="{{ 'Mover para Baixo'|trans }}"
+			data-trans-settings="{{ 'Configurações da Linha'|trans }}"
+			data-trans-delete="{{ 'Excluir Linha'|trans }}"
+			data-trans-confirm-delete-tier="{{ 'Tem certeza de que deseja excluir este tier? Os Pokémon serão devolvidos ao banco.'|trans }}"
+			data-trans-confirm-clear="{{ 'Tem certeza de que deseja devolver todos os Pokémon ao banco?'|trans }}"
+			data-trans-confirm-reset="{{ 'Tem certeza de que deseja resetar os tiers para a configuração padrão? Todos os Pokémon serão devolvidos ao banco.'|trans }}"
+			data-trans-share-success="{{ 'Link de compartilhamento copiado!'|trans }}"
+			data-trans-share-prompt="{{ 'Copie seu link de compartilhamento:'|trans }}"
+			data-trans-share-error="{{ 'Erro ao gerar link de compartilhamento!'|trans }}"
+			data-trans-export-generating="{{ 'Gerando imagem do tier list...'|trans }}"
+			data-trans-export-success="{{ 'Download da imagem iniciado!'|trans }}"
+			data-trans-export-error="{{ 'Falha ao gerar imagem da Tier List!'|trans }}"
+			{% if clonedTier is not null %}
+				data-clone-state="{{ clonedTier.state|json_encode }}"
+				data-clone-title="{{ clonedTier.title }}"
+				data-trans-clone-success="{{ 'Estrutura importada para clonagem!'|trans }}"
+			{% endif %}
+		></div>
+
+		<header class="tier-list-header">
+			<h1>{{ 'Montar Tier List de Pokémon'|trans }}</h1>
+			<p>{{ 'Selecione, ordene e publique sua classificação personalizada.'|trans }}</p>
+		</header>
+
+		<!-- Painel de Ferramentas -->
+		<section class="tier-list-actions">
+			<div class="action-buttons-group">
+				<button class="btn-tier btn-tier-export" id="btnPublishOpen" title="{{ 'Publicar na Comunidade'|trans }}">
+					<i class="fa-solid fa-cloud-arrow-up"></i>
+					<span>{{ 'Publicar'|trans }}</span>
+				</button>
+				<button class="btn-tier btn-tier-share" id="btnShare" title="{{ 'Copiar Link de Compartilhamento'|trans }}">
+					<i class="fa-solid fa-share-nodes"></i>
+					<span>{{ 'Compartilhar'|trans }}</span>
+				</button>
+				<button class="btn-tier btn-tier-secondary" id="btnExport" title="{{ 'Exportar Imagem'|trans }}">
+					<i class="fa-solid fa-download"></i>
+					<span>{{ 'Exportar'|trans }}</span>
+				</button>
+			</div>
+			<div class="action-buttons-group">
+				<button class="btn-tier btn-tier-secondary" id="btnAddRow" title="{{ 'Adicionar Linha'|trans }}">
+					<i class="fa-solid fa-plus"></i>
+					<span>{{ 'Adicionar Linha'|trans }}</span>
+				</button>
+				<button class="btn-tier btn-tier-secondary" id="btnResetTiers" title="{{ 'Resetar Tiers'|trans }}">
+					<i class="fa-solid fa-rotate-left"></i>
+					<span>{{ 'Resetar'|trans }}</span>
+				</button>
+				<button class="btn-tier btn-tier-danger" id="btnClearAll" title="{{ 'Limpar Tudo'|trans }}">
+					<i class="fa-solid fa-trash-can"></i>
+					<span>{{ 'Limpar Tudo'|trans }}</span>
+				</button>
+			</div>
+		</section>
+
+		<!-- Texto de Ajuda -->
+		<div class="tier-help-text">
+			<i class="fa-solid fa-circle-info"></i>
+			<span>{{ 'Dica: Arraste os Pokémon para organizar ou clique neles para enviar ao tier ativo.'|trans }}</span>
+		</div>
+
+		<!-- Tier Grid -->
+		<section class="tier-board" id="tierBoard">
+			<!-- colunas renderizadas via JS -->
+		</section>
+
+		<!-- Banco de Pokémon -->
+		<section class="pokemon-bank-container">
+			<div class="bank-header">
+				<h2>
+					<i class="fa-solid fa-boxes-stacked"></i>
+					<span>{{ 'Pokémon Disponíveis'|trans }}</span>
+				</h2>
+				<span class="bank-count" id="bankCount">0 / 0</span>
+			</div>
+
+			<!-- Filtros -->
+			<div class="bank-filters">
+				<div class="filter-input-wrapper">
+					<i class="fa-solid fa-magnifying-glass"></i>
+					<input type="text" id="searchPokemon" placeholder="{{ 'Pesquisar Pokémon...'|trans }}" autocomplete="off">
+				</div>
+
+				<select id="filterType">
+					<option value="">{{ 'Todos os Tipos'|trans }}</option>
+					{% for type in allTypes %}
+						<option value="{{ type.value }}">{{ type.name|trans }}</option>
+					{% endfor %}
+				</select>
+
+				<select id="filterGeneration">
+					<option value="">{{ 'Todas as Gerações'|trans }}</option>
+					{% for gen in allowedGenerations %}
+						<option value="{{ gen }}">Gen {{ gen }}</option>
+					{% endfor %}
+				</select>
+			</div>
+
+			<!-- Grid de Pokémon -->
+			<div class="bank-grid" id="pokemonBank">
+				{% for pokemon in pokemonList %}
+					<div class="tier-pokemon-card" 
+						 draggable="true" 
+						 id="pokemon-{{ pokemon.id }}" 
+						 data-id="{{ pokemon.id }}" 
+						 data-name="{{ pokemon.name|capitalize }}" 
+						 data-dex="{{ pokemon.dex_id ?? pokemon.id }}"
+						 title="{{ pokemon.name|capitalize }}">
+						<img src="{{ pokemon.sprite }}" alt="{{ pokemon.name }}" loading="lazy">
+					</div>
+				{% endfor %}
+			</div>
+		</section>
+	</div>
+
+	<!-- Modal de Configurações da Linha -->
+	<div class="tier-settings-modal" id="settingsModal">
+		<div class="tier-settings-content">
+			<div class="modal-header">
+				<h3>{{ 'Configurações da Linha'|trans }}</h3>
+				<button class="btn-action-icon" id="btnCloseModal" style="border:none; background:none;">
+					<i class="fa-solid fa-xmark" style="font-size: 1.2rem;"></i>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="rowLabelInput">{{ 'Nome do Tier'|trans }}</label>
+					<input type="text" id="rowLabelInput" maxlength="15" placeholder="Ex: S">
+				</div>
+				<div class="form-group">
+					<label>{{ 'Cor do Tier'|trans }}</label>
+					<div class="color-palette">
+						<div class="color-option" style="background-color: #ff7f7f;" data-color="#ff7f7f"></div>
+						<div class="color-option" style="background-color: #ffbf7f;" data-color="#ffbf7f"></div>
+						<div class="color-option" style="background-color: #ffdf7f;" data-color="#ffdf7f"></div>
+						<div class="color-option" style="background-color: #ffff7f;" data-color="#ffff7f"></div>
+						<div class="color-option" style="background-color: #bfff7f;" data-color="#bfff7f"></div>
+						<div class="color-option" style="background-color: #7fcdff;" data-color="#7fcdff"></div>
+						<div class="color-option" style="background-color: #ff7fff;" data-color="#ff7fff"></div>
+						<div class="color-option" style="background-color: #bf7fff;" data-color="#bf7fff"></div>
+						<div class="color-option" style="background-color: #3f51b5;" data-color="#3f51b5"></div>
+						<div class="color-option" style="background-color: #4caf50;" data-color="#4caf50"></div>
+						<div class="color-option" style="background-color: #ff5722;" data-color="#ff5722"></div>
+						<div class="color-option" style="background-color: #9e9e9e;" data-color="#9e9e9e"></div>
+					</div>
+					<div class="custom-color-picker">
+						<span style="font-size: 0.85rem; color: var(--text-secondary);">{{ 'Cor Personalizada'|trans }}:</span>
+						<input type="color" id="rowColorInput">
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" id="btnCancelSettings">{{ 'Fechar'|trans }}</button>
+				<button class="btn btn-primary" id="btnSaveSettings">{{ 'Salvar'|trans }}</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal de Publicação -->
+	<div class="tier-settings-modal" id="publishModal">
+		<div class="tier-settings-content">
+			<div class="modal-header">
+				<h3>{{ 'Publicar na Comunidade'|trans }}</h3>
+				<button class="btn-action-icon" id="btnPublishClose" style="border:none; background:none;">
+					<i class="fa-solid fa-xmark" style="font-size: 1.2rem;"></i>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="publishTitleInput">{{ 'Título da Tier List'|trans }}</label>
+					<input type="text" id="publishTitleInput" maxlength="80" placeholder="Ex: Melhores Pokémon para PVP Gen 1">
+				</div>
+				<div class="form-group">
+					<label>{{ 'Tags Recomendadas'|trans }}</label>
+					<div class="tag-selector-group">
+						<label class="tag-checkbox-label" data-tag="up">
+							<input type="checkbox" name="publishTags" value="up">
+							<i class="fa-solid fa-circle-arrow-up"></i>
+							<span>{{ 'Progressão'|trans }} (up)</span>
+						</label>
+						<label class="tag-checkbox-label" data-tag="pvp">
+							<input type="checkbox" name="publishTags" value="pvp">
+							<i class="fa-solid fa-trophy"></i>
+							<span>{{ 'Batalhas PVP'|trans }} (pvp)</span>
+						</label>
+						<label class="tag-checkbox-label" data-tag="dg">
+							<input type="checkbox" name="publishTags" value="dg">
+							<i class="fa-solid fa-shield-halved"></i>
+							<span>{{ 'Dungeons'|trans }} (dg)</span>
+						</label>
+						<label class="tag-checkbox-label" data-tag="fun">
+							<input type="checkbox" name="publishTags" value="fun">
+							<i class="fa-solid fa-star"></i>
+							<span>{{ 'Favoritos'|trans }} (fun)</span>
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" id="btnPublishCancel">{{ 'Fechar'|trans }}</button>
+				<button class="btn btn-primary" id="btnPublishSubmit">{{ 'Publicar'|trans }}</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Toast -->
+	<div class="tier-toast" id="tierToast">
+		<i class="fa-solid fa-circle-check"></i>
+		<span id="toastMessage">{{ 'Link copiado para a área de transferência!'|trans }}</span>
+	</div>
+
+	<!-- html2canvas dependência -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+	<!-- Javascript Logica da Tier List -->
+	<script type="module" src="{{ asset('js/tier-list.js') }}"></script>
+{% endblock %}

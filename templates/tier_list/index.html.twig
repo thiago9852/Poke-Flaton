@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{ 'Tier Lists da Comunidade'|trans }} | PokeFlaton
+{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/tier-list.css') }}">
+{% endblock %}
+
+{% block body %}
+	<div class="tier-list-container">
+		<header class="tier-list-header">
+			<h1>{{ 'Tier Lists da Comunidade'|trans }}</h1>
+			<p>{{ 'Explore, filtre e inspire-se nas classificações de Pokémon criadas pelos treinadores.'|trans }}</p>
+		</header>
+
+		<!-- Actions Bar -->
+		<section style="display: flex; justify-content: center; margin-bottom: 20px;">
+			<a href="{{ path('app_tier_list_create') }}" class="btn-tier btn-tier-export" style="text-decoration: none;">
+				<i class="fa-solid fa-circle-plus"></i>
+				<span>{{ 'Criar Nova Tier List'|trans }}</span>
+			</a>
+		</section>
+
+		<!-- Tag Filter Bar -->
+		<nav class="category-filter-bar">
+			<a href="{{ path('app_tier_list') }}" class="category-filter-item {% if selectedTag == '' %}active{% endif %}">
+				<i class="fa-solid fa-list"></i>
+				<span>{{ 'Todas'|trans }}</span>
+			</a>
+			<a href="{{ path('app_tier_list', { tag: 'up' }) }}" class="category-filter-item {% if selectedTag == 'up' %}active{% endif %}">
+				<i class="fa-solid fa-circle-arrow-up"></i>
+				<span>{{ 'Progressão (PVE)'|trans }}</span>
+			</a>
+			<a href="{{ path('app_tier_list', { tag: 'pvp' }) }}" class="category-filter-item {% if selectedTag == 'pvp' %}active{% endif %}">
+				<i class="fa-solid fa-trophy"></i>
+				<span>{{ 'Batalhas PVP'|trans }}</span>
+			</a>
+			<a href="{{ path('app_tier_list', { tag: 'dg' }) }}" class="category-filter-item {% if selectedTag == 'dg' %}active{% endif %}">
+				<i class="fa-solid fa-shield-halved"></i>
+				<span>{{ 'Dungeons / Bosses'|trans }}</span>
+			</a>
+			<a href="{{ path('app_tier_list', { tag: 'fun' }) }}" class="category-filter-item {% if selectedTag == 'fun' %}active{% endif %}">
+				<i class="fa-solid fa-star"></i>
+				<span>{{ 'Favoritos'|trans }}</span>
+			</a>
+		</nav>
+
+		<!-- Gallery Grid -->
+		<section class="gallery-grid">
+			{% for list in tierLists %}
+				{% set totalPokes = 0 %}
+				{% for row in list.state %}
+					{% set totalPokes = totalPokes + row.pokemons|length %}
+				{% endfor %}
+
+				<div class="tier-list-card" onclick="window.location.href='{{ path('app_tier_list_view', { id: list.id }) }}'">
+					<div class="card-top">
+						<h2 class="card-title">{{ list.title }}</h2>
+						<div class="card-meta">
+							<span>
+								<i class="fa-solid fa-user"></i>
+								{{ list.user ? list.user.username : 'Anônimo'|trans }}
+							</span>
+							<span>&bull;</span>
+							<span>
+								<i class="fa-solid fa-calendar-days"></i>
+								{{ list.createdAt|date('d/m/Y H:i') }}
+							</span>
+						</div>
+						<div class="card-tags">
+							{% for tag in list.tags %}
+								{% if tag == 'up' %}
+									<span class="tag-badge tag-badge-up"><i class="fa-solid fa-circle-arrow-up"></i> {{ 'PVE'|trans }}</span>
+								{% elseif tag == 'pvp' %}
+									<span class="tag-badge tag-badge-pvp"><i class="fa-solid fa-trophy"></i> {{ 'PVP'|trans }}</span>
+								{% elseif tag == 'dg' %}
+									<span class="tag-badge tag-badge-dg"><i class="fa-solid fa-shield-halved"></i> {{ 'Dungeons'|trans }}</span>
+								{% elseif tag == 'fun' %}
+									<span class="tag-badge tag-badge-fun"><i class="fa-solid fa-star"></i> {{ 'Fun'|trans }}</span>
+								{% endif %}
+							{% endfor %}
+						</div>
+					</div>
+
+					<div class="card-summary">
+						<i class="fa-solid fa-gamepad"></i>
+						<span>
+							{{ totalPokes }} {{ 'Pokémon'|trans }} &bull; {{ list.state|length }} {{ 'Categorias'|trans }}
+						</span>
+					</div>
+
+					<button class="card-footer-btn">
+						<i class="fa-solid fa-eye"></i>
+						<span>{{ 'Visualizar Tier List'|trans }}</span>
+					</button>
+				</div>
+			{% else %}
+				<div class="gallery-empty-state" style="grid-column: 1 / -1;">
+					<i class="fa-solid fa-cubes"></i>
+					<h3>{{ 'Nenhuma Tier List Encontrada'|trans }}</h3>
+					<p>{{ 'Seja o primeiro a publicar uma Tier List para a comunidade!'|trans }}</p>
+					<a href="{{ path('app_tier_list_create') }}" class="btn-tier btn-tier-export" style="text-decoration: none; margin-top: 10px;">
+						<i class="fa-solid fa-circle-plus"></i>
+						<span>{{ 'Criar Minha Tier List'|trans }}</span>
+					</a>
+				</div>
+			{% endfor %}
+		</section>
+	</div>
+{% endblock %}
