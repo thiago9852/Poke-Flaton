@@ -52,6 +52,15 @@
 					<i class="fa-solid fa-download"></i>
 					<span>{{ 'Exportar Imagem'|trans }}</span>
 				</button>
+				{% if canDelete %}
+					<form action="{{ path('app_tier_list_delete', { id: tierList.id }) }}" method="POST" style="display: inline;" onsubmit="return confirm('{{ 'Tem certeza de que deseja excluir permanentemente esta Tier List?'|trans }}');">
+						<input type="hidden" name="_token" value="{{ csrf_token('delete-tier-list-' ~ tierList.id) }}">
+						<button type="submit" class="btn-tier btn-tier-danger" style="border: none;">
+							<i class="fa-solid fa-trash-can"></i>
+							<span>{{ 'Excluir'|trans }}</span>
+						</button>
+					</form>
+				{% endif %}
 				<a href="{{ path('app_tier_list') }}" class="btn-tier btn-tier-secondary" style="text-decoration: none;">
 					<i class="fa-solid fa-arrow-left"></i>
 					<span>{{ 'Voltar'|trans }}</span>

@@ -157,9 +157,50 @@ class TierListController extends AbstractController
             $pokemonMap[$p['id']] = $p;
         }
 
+        // Permissão de exclusão (dono ou admin)
+        $user = $this->getUser();
+        $isOwner = $user && $tierList->getUser() && $user->getId() === $tierList->getUser()->getId();
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+        $canDelete = $isOwner || $isAdmin;
+
         return $this->render('tier_list/view.html.twig', [
             'tierList' => $tierList,
             'pokemonMap' => $pokemonMap,
+            'canDelete' => $canDelete,
         ]);
+    }
+
+    #[Route('/tier-list/{id}/excluir', name: 'app_tier_list_delete', methods: ['POST'])]
+    public function delete(int $id, Request $request): Response
+    {
+        $this->ensureTableExists();
+
+        $tierList = $this->entityManager->getRepository(TierList::class)->find($id);
+        if (!$tierList) {
+            throw $this->createNotFoundException('Tier List não encontrada.');
+        }
+
+        // Validar permissão (dono ou admin)
+        $user = $this->getUser();
+        $isOwner = $user && $tierList->getUser() && $user->getId() === $tierList->getUser()->getId();
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+
+        if (!$isOwner && !$isAdmin) {
+            throw $this->createAccessDeniedException('Você não tem permissão para excluir esta Tier List.');
+        }
+
+        // Validar token CSRF
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete-tier-list-' . $id, $token)) {
+            $this->addFlash('error', 'Token de segurança inválido.');
+            return $this->redirectToRoute('app_tier_list_view', ['id' => $id]);
+        }
+
+        $this->entityManager->remove($tierList);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Tier List excluída com sucesso!');
+
+        return $this->redirectToRoute('app_tier_list');
     }
 }
