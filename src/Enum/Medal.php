@@ -227,15 +227,15 @@ enum Medal: string
     public function getMilestones(): array
     {
         return match ($this) {
-            self::Creator => ['bronze' => 1, 'silver' => 5, 'gold' => 15],
+            self::Creator => ['bronze' => 5, 'silver' => 15, 'gold' => 35],
             self::Acclaimed => ['bronze' => 5, 'silver' => 25, 'gold' => 100],
-            self::Collector => ['bronze' => 10, 'silver' => 30, 'gold' => 60],
-            self::Friendship => ['bronze' => 2, 'silver' => 5, 'gold' => 15],
-            self::Popular => ['bronze' => 1, 'silver' => 3, 'gold' => 10],
-            self::GottaCatchAll => ['bronze' => 50, 'silver' => 150, 'gold' => 300],
+            self::Collector => ['bronze' => 30, 'silver' => 70, 'gold' => 200],
+            self::Friendship => ['bronze' => 10, 'silver' => 35, 'gold' => 100],
+            self::Popular => ['bronze' => 5, 'silver' => 15, 'gold' => 100],
+            self::GottaCatchAll => ['bronze' => 50, 'silver' => 350, 'gold' => 700],
 
-            self::Pokedex => ['bronze' => 5, 'silver' => 20, 'gold' => 50],
-            self::Fisherman => ['bronze' => 3, 'silver' => 10, 'gold' => 25],
+            self::Pokedex => ['bronze' => 20, 'silver' => 100, 'gold' => 300],
+            self::Fisherman => ['bronze' => 5, 'silver' => 15, 'gold' => 30],
             self::Vivillon => ['bronze' => 3, 'silver' => 8, 'gold' => 15],
             self::Pikachu => ['bronze' => 1, 'silver' => 2, 'gold' => 3],
             self::Youngster => ['bronze' => 1, 'silver' => 2, 'gold' => 3],
@@ -244,14 +244,14 @@ enum Medal: string
             self::Johto,
             self::Hoenn,
             self::Sinnoh,
-            self::Unova => ['bronze' => 3, 'silver' => 10, 'gold' => 30],
+            self::Unova => ['bronze' => 15, 'silver' => 45, 'gold' => 75],
 
             self::Kalos,
             self::Alola,
             self::Galar,
-            self::Paldea => ['bronze' => 3, 'silver' => 8, 'gold' => 20],
+            self::Paldea => ['bronze' => 15, 'silver' => 45, 'gold' => 75],
 
-            default => ['bronze' => 2, 'silver' => 5, 'gold' => 12],
+            default => ['bronze' => 5, 'silver' => 35, 'gold' => 60],
         };
     }
 

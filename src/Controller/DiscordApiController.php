@@ -9,6 +9,7 @@ use App\Service\PokeApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -400,5 +401,80 @@ class DiscordApiController extends AbstractController
             'damage_relations' => $typeDetails['damage_relations']
         ]);
     }
+
+    #[Route('/api/discord/tier-list', name: 'api_discord_tier_list_list', methods: ['GET'])]
+    public function listTierLists(Request $request): JsonResponse
+    {
+        $tagFilter = $request->query->get('tag', '');
+        $searchFilter = $request->query->get('search', '');
+
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('t')
+           ->from(\App\Entity\TierList::class, 't')
+           ->orderBy('t.createdAt', 'DESC')
+           ->setMaxResults(15);
+
+        if (!empty($tagFilter)) {
+            $qb->andWhere('t.tags LIKE :tag')
+               ->setParameter('tag', '%"' . $tagFilter . '"%');
+        }
+
+        if (!empty($searchFilter)) {
+            $qb->andWhere('t.title LIKE :search')
+               ->setParameter('search', '%' . $searchFilter . '%');
+        }
+
+        $tierLists = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($tierLists as $t) {
+            $data[] = [
+                'id' => $t->getId(),
+                'title' => $t->getTitle(),
+                'user' => $t->getUser() ? $t->getUser()->getUsername() : 'Anônimo',
+                'tags' => $t->getTags(),
+                'created_at' => $t->getCreatedAt()->format('Y-m-d H:i:s'),
+                'url' => $this->generateUrl('app_tier_list_view', ['id' => $t->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
+            ];
+        }
+
+        return new JsonResponse($data);
+    }
+
+    #[Route('/api/discord/tier-list/{idOrTitle}', name: 'api_discord_tier_list_show', methods: ['GET'])]
+    public function showTierList(string $idOrTitle): JsonResponse
+    {
+        $repo = $this->entityManager->getRepository(\App\Entity\TierList::class);
+
+        if (is_numeric($idOrTitle)) {
+            $tierList = $repo->find((int)$idOrTitle);
+        } else {
+            // Busca por título parcial
+            $qb = $this->entityManager->createQueryBuilder();
+            $qb->select('t')
+               ->from(\App\Entity\TierList::class, 't')
+               ->where('t.title LIKE :title')
+               ->setParameter('title', '%' . $idOrTitle . '%')
+               ->orderBy('t.createdAt', 'DESC')
+               ->setMaxResults(1);
+            $tierLists = $qb->getQuery()->getResult();
+            $tierList = !empty($tierLists) ? $tierLists[0] : null;
+        }
+
+        if (!$tierList) {
+            return new JsonResponse(['error' => 'Tier List não encontrada.'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse([
+            'id' => $tierList->getId(),
+            'title' => $tierList->getTitle(),
+            'user' => $tierList->getUser() ? $tierList->getUser()->getUsername() : 'Anônimo',
+            'tags' => $tierList->getTags(),
+            'created_at' => $tierList->getCreatedAt()->format('Y-m-d H:i:s'),
+            'url' => $this->generateUrl('app_tier_list_view', ['id' => $tierList->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+            'state' => $tierList->getState()
+        ]);
+    }
 }
+
 
