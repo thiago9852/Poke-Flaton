@@ -95,7 +95,6 @@
 					<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="pokemon-card">
 						<div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
 						<div class="pokemon-moveset-count-badge">
-							<i class="fa-solid fa-gamepad"></i>
 							<span>{{ movesetCounts[pokemon.name|lower]|default(0) }} {{ (movesetCounts[pokemon.name|lower]|default(0) == 1 ? 'Moveset' : 'Movesets')|trans }}</span>
 						</div>
 						<span class="pokemon-id">#{{ "%03d"|format(pokemon.dex_id|default(pokemon.id)) }}</span>
