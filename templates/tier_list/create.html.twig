@@ -140,9 +140,9 @@
 						 draggable="true" 
 						 id="pokemon-{{ pokemon.id }}" 
 						 data-id="{{ pokemon.id }}" 
-						 data-name="{{ pokemon.name|capitalize }}" 
+						 data-name="{{ pokemon.name|replace({'-mega': ' Mega', '-x': ' X', '-y': ' Y', '-z': ' Z', '-': ' '})|title }}" 
 						 data-dex="{{ pokemon.dex_id ?? pokemon.id }}"
-						 title="{{ pokemon.name|capitalize }}">
+						 title="{{ pokemon.name|replace({'-mega': ' Mega', '-x': ' X', '-y': ' Y', '-z': ' Z', '-': ' '})|title }}">
 						<img src="{{ pokemon.sprite }}" alt="{{ pokemon.name }}" loading="lazy">
 					</div>
 				{% endfor %}

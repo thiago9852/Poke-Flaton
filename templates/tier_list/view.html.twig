@@ -91,11 +91,22 @@
 
 						<!-- Content -->
 						<div class="tier-content-col">
-							{% for pokeId in tier.pokemons %}
+							{% for item in tier.pokemons %}
+								{% if item.id is defined %}
+									{% set pokeId = item.id %}
+									{% set desc = item.d %}
+								{% else %}
+									{% set pokeId = item %}
+									{% set desc = "" %}
+								{% endif %}
+
 								{% if pokemonMap[pokeId] is defined %}
 									{% set p = pokemonMap[pokeId] %}
-									<div class="tier-pokemon-card" data-name="{{ p.name|capitalize }}" title="{{ p.name|capitalize }}">
+									<div class="tier-pokemon-card" data-name="{{ p.name|replace({'-mega': ' Mega', '-x': ' X', '-y': ' Y', '-z': ' Z', '-': ' '})|title }}" title="{{ p.name|replace({'-mega': ' Mega', '-x': ' X', '-y': ' Y', '-z': ' Z', '-': ' '})|title }}" {% if desc %}data-description="{{ desc }}"{% endif %}>
 										<img src="{{ p.sprite }}" alt="{{ p.name }}">
+										{% if desc %}
+											<div class="desc-indicator"></div>
+										{% endif %}
 									</div>
 								{% endif %}
 							{% endfor %}

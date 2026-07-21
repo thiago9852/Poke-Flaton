@@ -1094,3 +1094,100 @@
     box-sizing: border-box;
 }
 
+/* --- Tooltips e Justificativas de Pokémon --- */
+.tier-pokemon-card {
+    position: relative;
+}
+
+.btn-edit-desc {
+    display: none;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(139, 92, 246, 0.9);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.6rem;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    z-index: 15;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    padding: 0;
+    line-height: 1;
+}
+
+.tier-pokemon-card:hover .btn-edit-desc {
+    display: flex;
+}
+
+.desc-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: #10b981;
+    border-radius: 50%;
+    width: 6px;
+    height: 6px;
+    z-index: 9;
+    box-shadow: 0 0 5px #10b981;
+    pointer-events: none;
+}
+
+/* Tooltip Premium em CSS Puro */
+.tier-pokemon-card[data-description]:not([data-description=""]):hover::after {
+    content: attr(data-description);
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(17, 19, 26, 0.95);
+    border: 1px solid var(--color-primary);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    white-space: normal;
+    width: 180px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    z-index: 100;
+    text-align: center;
+    line-height: 1.4;
+    pointer-events: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: normal;
+}
+
+.tier-pokemon-card[data-description]:not([data-description=""]):hover::before {
+    content: '';
+    position: absolute;
+    bottom: 105%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--color-primary);
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* Tooltip direcionado para baixo apenas no primeiro rank (S) para não sumir no topo */
+.tier-row:first-child .tier-pokemon-card[data-description]:not([data-description=""]):hover::after {
+    bottom: auto;
+    top: 115%;
+}
+
+.tier-row:first-child .tier-pokemon-card[data-description]:not([data-description=""]):hover::before {
+    bottom: auto;
+    top: 105%;
+    border-top-color: transparent;
+    border-bottom-color: var(--color-primary);
+}
+
+/* Ocultar edição e indicador na grade do banco */
+.bank-grid .btn-edit-desc, .bank-grid .desc-indicator {
+    display: none !important;
+}
+

@@ -165,7 +165,11 @@ function initTierList() {
         rows.forEach((row, idx) => {
             if (tiers[idx]) {
                 const cards = row.querySelector('.tier-content-col').querySelectorAll('.tier-pokemon-card');
-                tiers[idx].pokemons = Array.from(cards).map(card => parseInt(card.getAttribute('data-id')));
+                tiers[idx].pokemons = Array.from(cards).map(card => {
+                    const id = parseInt(card.getAttribute('data-id'));
+                    const desc = card.getAttribute('data-description') || "";
+                    return desc ? { id: id, d: desc } : id;
+                });
             }
         });
         localStorage.setItem('pokeflaton_tier_list', JSON.stringify(tiers));
@@ -211,9 +215,25 @@ function initTierList() {
             });
 
             // Adiciona os cards de pokémon salvos nesta coluna de conteúdo
-            tier.pokemons.forEach(pokeId => {
+            tier.pokemons.forEach(item => {
+                const isObject = typeof item === 'object' && item !== null;
+                const pokeId = isObject ? item.id : item;
+                const desc = isObject ? (item.d || "") : "";
+
                 const pCard = document.getElementById(`pokemon-${pokeId}`);
                 if (pCard) {
+                    if (desc) {
+                        pCard.setAttribute('data-description', desc);
+                        if (!pCard.querySelector('.desc-indicator')) {
+                            const ind = document.createElement('div');
+                            ind.className = 'desc-indicator';
+                            pCard.appendChild(ind);
+                        }
+                    } else {
+                        pCard.removeAttribute('data-description');
+                        const ind = pCard.querySelector('.desc-indicator');
+                        if (ind) ind.remove();
+                    }
                     contentCol.appendChild(pCard);
                 }
             });
@@ -338,6 +358,37 @@ function initTierList() {
     const bindDraggableCards = () => {
         const cards = document.querySelectorAll('.tier-pokemon-card');
         cards.forEach(card => {
+            // Adicionar botão de edição de justificativa se não existir
+            if (!card.querySelector('.btn-edit-desc')) {
+                const btnEdit = document.createElement('button');
+                btnEdit.className = 'btn-edit-desc';
+                btnEdit.innerHTML = '<i class="fa-solid fa-pencil"></i>';
+                btnEdit.title = "Adicionar/Editar justificativa";
+                
+                btnEdit.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Evita mover o card ao banco no clique
+                    const currentDesc = card.getAttribute('data-description') || "";
+                    const newDesc = prompt("Justificativa para este Pokémon:", currentDesc);
+                    if (newDesc !== null) {
+                        const trimmed = newDesc.trim();
+                        if (trimmed) {
+                            card.setAttribute('data-description', trimmed);
+                            if (!card.querySelector('.desc-indicator')) {
+                                const ind = document.createElement('div');
+                                ind.className = 'desc-indicator';
+                                card.appendChild(ind);
+                            }
+                        } else {
+                            card.removeAttribute('data-description');
+                            const ind = card.querySelector('.desc-indicator');
+                            if (ind) ind.remove();
+                        }
+                        saveToLocalStorage();
+                    }
+                });
+                card.appendChild(btnEdit);
+            }
+
             card.addEventListener('dragstart', () => {
                 card.classList.add('dragging');
             });
@@ -350,6 +401,10 @@ function initTierList() {
                 const isInsideTier = card.parentElement.classList.contains('tier-content-col');
                 if (isInsideTier) {
                     pokemonBank.appendChild(card);
+                    // Limpar justificativa ao voltar para o banco
+                    card.removeAttribute('data-description');
+                    const ind = card.querySelector('.desc-indicator');
+                    if (ind) ind.remove();
                 } else {
                     const activeContentCol = document.querySelectorAll('.tier-row')[activeRowIndex].querySelector('.tier-content-col');
                     activeContentCol.appendChild(card);
@@ -372,6 +427,10 @@ function initTierList() {
         const draggingCard = document.querySelector('.tier-pokemon-card.dragging');
         if (draggingCard) {
             pokemonBank.appendChild(draggingCard);
+            // Limpar justificativa ao voltar para o banco
+            draggingCard.removeAttribute('data-description');
+            const ind = draggingCard.querySelector('.desc-indicator');
+            if (ind) ind.remove();
             saveToLocalStorage();
             applyFilters();
         }

@@ -22,6 +22,7 @@ enum TypeEnum: string
     case Dragon = 'dragon';
     case Steel = 'steel';
     case Fairy = 'fairy';
+    case Dark = 'dark';
 
     public static function getCasesForModule(string $moduleName): array
     {
@@ -44,6 +45,7 @@ enum TypeEnum: string
                 self::Dragon,
                 self::Steel,
                 self::Fairy,
+                self::Dark,
             ],
         };
     }

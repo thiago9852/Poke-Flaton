@@ -455,7 +455,7 @@ class PokeApiPokemonFetcher
      */
     public function getPokemonBasicList(): array
     {
-        return $this->cache->get('pokemon_basic_list_configured_v7', function (ItemInterface $item) {
+        return $this->cache->get('pokemon_basic_list_configured_v8', function (ItemInterface $item) {
             $item->expiresAfter(86400 * 30); // 30 dias
             $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/pokemon?limit=2000');
             $data = $response->toArray();
@@ -463,12 +463,20 @@ class PokeApiPokemonFetcher
             $list = [];
             $existingIds = [];
 
+            // Obter todos os IDs de mega evolução configurados
+            $megaIds = [];
+            foreach ($this->validator->getMegaEvolutions() as $baseId => $megas) {
+                foreach ($megas as $mega) {
+                    $megaIds[$mega['id']] = $mega;
+                }
+            }
+
             foreach ($data['results'] as $pokemon) {
                 $parts = explode('/', rtrim($pokemon['url'], '/'));
                 $id = (int) end($parts);
 
-                // Ignorar variedades (IDs >= 10000) no basic list base, exceto se configurado em variações
-                if ($id >= 10000 && !isset($this->validator->getVariations()[$id])) {
+                // Ignorar variedades (IDs >= 10000) no basic list base, exceto se configurado em variações ou for mega evolução
+                if ($id >= 10000 && !isset($this->validator->getVariations()[$id]) && !isset($megaIds[$id])) {
                     continue;
                 }
 
@@ -512,10 +520,10 @@ class PokeApiPokemonFetcher
      */
     public function clearBasicListCache(): void
     {
-        $this->cache->delete('pokemon_basic_list_configured_v7');
+        $this->cache->delete('pokemon_basic_list_configured_v8');
         $types = ['normal', 'fire', 'water', 'grass', 'electric', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'];
         foreach ($types as $type) {
-            $this->cache->delete('pokemon_basic_list_type_v4_' . $type);
+            $this->cache->delete('pokemon_basic_list_type_v5_' . $type);
         }
     }
 
@@ -556,7 +564,7 @@ class PokeApiPokemonFetcher
      */
     public function getPokemonBasicListByType(string $type): array
     {
-        return $this->cache->get('pokemon_basic_list_type_v4_' . strtolower($type), function (ItemInterface $item) use ($type) {
+        return $this->cache->get('pokemon_basic_list_type_v5_' . strtolower($type), function (ItemInterface $item) use ($type) {
             $item->expiresAfter(86400 * 7); // Cache por 7 dias
 
             $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/type/' . strtolower($type));
