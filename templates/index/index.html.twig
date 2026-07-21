@@ -94,6 +94,10 @@
 
 					<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="pokemon-card">
 						<div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
+						<div class="pokemon-moveset-count-badge">
+							<i class="fa-solid fa-gamepad"></i>
+							<span>{{ movesetCounts[pokemon.name|lower]|default(0) }} {{ (movesetCounts[pokemon.name|lower]|default(0) == 1 ? 'Moveset' : 'Movesets')|trans }}</span>
+						</div>
 						<span class="pokemon-id">#{{ "%03d"|format(pokemon.dex_id|default(pokemon.id)) }}</span>
 						<div class="pokemon-sprite-container">
 							<img src="{{ pokemon.sprite }}" alt="{{ pokemon.name|capitalize }}" class="pokemon-image" loading="lazy">
@@ -101,7 +105,7 @@
 						<h3 class="pokemon-name">{{ pokemon.name|abbr_pokemon_name }}</h3>
 						<div class="pokemon-types">
 							{% for type in pokemon.types %}
-								<span class="type-badge type-badge-{{ type }}">{{ type|capitalize|trans }}</span>
+								{% include 'partials/type_badge.html.twig' with {'type': type, 'typeDetails': typeDetails} %}
 							{% endfor %}
 						</div>
 					</a>
@@ -139,6 +143,7 @@
 		</div>
 	</section>
 
+	{% include 'partials/tooltip.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}

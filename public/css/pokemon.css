@@ -2385,3 +2385,35 @@
     gap: 15px;
   }
 }
+
+/* Badge de contagem de movesets exibido no hover do card */
+.pokemon-moveset-count-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(139, 92, 246, 0.15);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #a78bfa;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.pokemon-card:hover .pokemon-moveset-count-badge {
+    opacity: 1;
+    transform: translateY(0);
+}
+

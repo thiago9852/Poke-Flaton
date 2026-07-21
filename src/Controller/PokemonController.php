@@ -25,7 +25,7 @@ class PokemonController extends AbstractController
     }
 
     #[Route('/', name: 'app_home')]
-    public function home(PokemonAccessRepository $pokemonAccessRepository): Response
+    public function home(PokemonAccessRepository $pokemonAccessRepository, MovesetRepository $movesetRepository): Response
     {
         $trending = $pokemonAccessRepository->findTrending(8);
         $trendingPokemons = [];
@@ -83,14 +83,23 @@ class PokemonController extends AbstractController
             }
         }
 
+        $movesetCounts = $movesetRepository->getMovesetCountsGroupedByPokemon();
+
+        $typeDetails = [];
+        foreach (TypeEnum::getCasesForModule('type') as $typeCase) {
+            $typeDetails[$typeCase->value] = $this->pokeApiService->getTypeDetails($typeCase->value);
+        }
+
         return $this->render('index/index.html.twig', [
             'trendingPokemons' => $trendingPokemons,
             'generations' => $generations,
+            'movesetCounts' => $movesetCounts,
+            'typeDetails' => $typeDetails,
         ]);
     }
 
     #[Route('/pokemons', name: 'app_pokemon_index')]
-    public function index(Request $request): Response
+    public function index(Request $request, MovesetRepository $movesetRepository): Response
     {
         $search = $request->query->get('q');
         $typeFilter = $request->query->get('type');
@@ -226,6 +235,13 @@ class PokemonController extends AbstractController
 
         $lastPage = (int) ceil($totalCount / $limit);
 
+        $movesetCounts = $movesetRepository->getMovesetCountsGroupedByPokemon();
+
+        $typeDetails = [];
+        foreach (TypeEnum::getCasesForModule('type') as $typeCase) {
+            $typeDetails[$typeCase->value] = $this->pokeApiService->getTypeDetails($typeCase->value);
+        }
+
         return $this->render('pokemon/index.html.twig', [
             'pokemons' => $pokemons,
             'currentPage' => $page,
@@ -236,6 +252,8 @@ class PokemonController extends AbstractController
             'allowedGenerations' => $this->pokeApiService->getAllowedGenerations(),
             'search' => $search,
             'sort' => $sort,
+            'movesetCounts' => $movesetCounts,
+            'typeDetails' => $typeDetails,
         ]);
     }
 
