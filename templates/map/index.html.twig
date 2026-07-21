@@ -158,9 +158,16 @@
     
     <script>
         // Dados do mapa e lista de Pokémon para autocomplete
-        const activeMap = {% if activeMap %}{{ { id: activeMap.id, name: activeMap.name, imagePath: activeMap.imagePath }|json_encode|raw }}{% else %}null{% endif %};
+        const activeMap = {% if activeMap %}{{ { 
+            id: activeMap.id, 
+            name: activeMap.name, 
+            imagePath: activeMap.imagePath,
+            imageUrl: asset('uploads/maps/' ~ activeMap.imagePath)
+        }|json_encode|raw }}{% else %}null{% endif %};
         const pokemonBasicList = {{ pokemonList|json_encode|raw }};
         const addPokemonUrl = "{{ path('app_map_pokemon_add') }}";
+        const deletePokemonUrlTemplate = "{{ path('app_map_pokemon_delete', { id: 'PLACEHOLDER' }) }}";
+        const pokemonDetailUrlTemplate = "{{ path('app_pokemon_detail', { name: 'PLACEHOLDER' }) }}";
         const csrfTokenAdd = "{{ csrf_token('add-map-pokemon') }}";
         const isAdmin = {% if is_granted('ROLE_ADMIN') %}true{% else %}false{% endif %};
         
@@ -192,7 +199,7 @@
 
             if (activeMap) {
                 // Carregar imagem customizada do mapa do jogo
-                const imageUrl = `/uploads/maps/${activeMap.imagePath}`;
+                const imageUrl = activeMap.imageUrl;
                 L.imageOverlay(imageUrl, bounds).addTo(map);
                 
                 // Centralizar e confinar a visualização nos limites da imagem
@@ -247,7 +254,7 @@
 
             const marker = L.marker([data.latitude, data.longitude], { icon: customIcon }).addTo(map);
 
-            const movesetUrl = `/pokemon/${data.pokemonName.toLowerCase()}`;
+            const movesetUrl = pokemonDetailUrlTemplate.replace('PLACEHOLDER', data.pokemonName.toLowerCase());
             let popupContent = `
                 <div class="map-popup-container">
                     <div class="map-popup-header">
@@ -293,7 +300,8 @@
             const formData = new FormData();
             formData.append('_token', token);
 
-            fetch(`/map/pokemon/${id}/delete`, {
+            const deleteUrl = deletePokemonUrlTemplate.replace('PLACEHOLDER', id);
+            fetch(deleteUrl, {
                 method: 'POST',
                 body: formData
             })
