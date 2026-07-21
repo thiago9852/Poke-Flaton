@@ -137,7 +137,19 @@ class PokemonController extends AbstractController
         if (empty($typeFilter)) {
             $finalList = [];
             $megas = $this->pokeApiService->getMegaEvolutions();
+            
+            // Coleta os IDs de todas as Megas para evitar duplicá-las quando percorrermos o basicList
+            $megaIds = [];
+            foreach ($megas as $baseId => $megasArr) {
+                foreach ($megasArr as $mega) {
+                    $megaIds[$mega['id']] = true;
+                }
+            }
+
             foreach ($basicList as $p) {
+                if (isset($megaIds[$p['id']])) {
+                    continue;
+                }
                 $finalList[] = $p;
                 if (isset($megas[$p['id']])) {
                     foreach ($megas[$p['id']] as $mega) {
