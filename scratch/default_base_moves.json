@@ -22,5 +22,41 @@
     "dragon-claw",
     "ember",
     "fire-blast"
+  ],
+  "venusaur": [
+    "magical-leaf",
+    "grassy-terrain",
+    "leaf-storm",  
+	  "power-whip",
+    "razor-leaf",
+    "petal-dance",
+    "solar-beam",
+    "poison-gas",
+    "petal-blizzard",  
+	  "synthesis"
+  ],
+  "blastoise": [
+    "life-dew",
+    "water-pulse",
+    "water-gun",  
+	  "hydro-pump",
+    "bite",
+    "rain-dance",
+    "muddy-water",
+    "water-sport",
+    "hydro-cannon",  
+	  "whirlpool"
+  ],
+  "tyranitar": [
+    "leer",
+    "fire-fang",
+    "rock-slide",  
+	  "giga-impact",
+    "dark-pulse",
+    "earthquake",
+    "stone-edge",
+    "sandstorm",
+    "dragon-dance",  
+	  "rock-polish"
   ]
 }
