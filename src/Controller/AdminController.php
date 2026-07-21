@@ -74,6 +74,7 @@ class AdminController extends AbstractController
     public function index(Request $request): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        return $this->redirectToRoute('app_admin_pokemon');
 
         // Garante a tabela de títulos, templates e avatares
         $this->trainerProfileService->initializeDatabaseAndTitles();
@@ -143,6 +144,13 @@ class AdminController extends AbstractController
 
         $stones = EvolutionStone::cases();
 
+        // Carrega default base moves
+        $defaultBaseMovesPath = $this->projectDir . '/scratch/default_base_moves.json';
+        $defaultBaseMoves = [];
+        if (file_exists($defaultBaseMovesPath)) {
+            $defaultBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+        }
+
         return $this->render('admin/pokemon.html.twig', [
             'activeTab' => $activeTab,
             'pokemonSearch' => $pokemonSearch,
@@ -154,7 +162,113 @@ class AdminController extends AbstractController
             'pokemonList' => $pokemonList,
             'pokemonByName' => $pokemonByName,
             'stones' => $stones,
+            'defaultBaseMoves' => $defaultBaseMoves,
         ]);
+    }
+
+    #[Route('/admin/default-base-moves/save', name: 'app_admin_default_base_moves_save', methods: ['POST'])]
+    public function saveDefaultBaseMoves(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $pokemonNameInput = strtolower(trim($request->request->get('pokemon', '')));
+        $movesInput = $request->request->get('moves', '');
+        $overwrite = $request->request->getBoolean('overwrite', false);
+
+        if (empty($pokemonNameInput)) {
+            $this->addFlash('error', 'Por favor, selecione um Pokémon.');
+            return $this->redirectToRoute('app_admin_pokemon', ['_fragment' => 'default-base-moves-section']);
+        }
+
+        // Processa golpes
+        $newMoves = [];
+        if (!empty($movesInput)) {
+            // Divide por vírgulas ou quebras de linha e limpa cada golpe
+            $rawMoves = preg_split('/[,\n]+/', $movesInput);
+            foreach ($rawMoves as $rawMove) {
+                $moveNormalized = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($rawMove))));
+                if (!empty($moveNormalized)) {
+                    $newMoves[] = $moveNormalized;
+                }
+            }
+        }
+
+        $defaultBaseMovesPath = $this->projectDir . '/scratch/default_base_moves.json';
+        $defaultBaseMoves = [];
+        if (file_exists($defaultBaseMovesPath)) {
+            $defaultBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+        }
+
+        if ($overwrite || !isset($defaultBaseMoves[$pokemonNameInput])) {
+            $defaultBaseMoves[$pokemonNameInput] = $newMoves;
+        } else {
+            // Mescla golpes sem duplicar
+            $defaultBaseMoves[$pokemonNameInput] = array_values(array_unique(array_merge($defaultBaseMoves[$pokemonNameInput], $newMoves)));
+        }
+
+        // Remove chaves vazias se não houver golpes configurados
+        if (empty($defaultBaseMoves[$pokemonNameInput])) {
+            unset($defaultBaseMoves[$pokemonNameInput]);
+        }
+
+        // Ordena por nome de pokemon
+        ksort($defaultBaseMoves);
+
+        file_put_contents(
+            $defaultBaseMovesPath,
+            json_encode($defaultBaseMoves, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        );
+
+        $this->addFlash('success', sprintf('Golpes base do Pokémon %s atualizados com sucesso!', ucfirst($pokemonNameInput)));
+        return $this->redirectToRoute('app_admin_pokemon', ['_fragment' => 'default-base-moves-section']);
+    }
+
+    #[Route('/admin/default-base-moves/delete', name: 'app_admin_default_base_moves_delete', methods: ['POST'])]
+    public function deleteDefaultBaseMoves(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $pokemonNameInput = strtolower(trim($request->request->get('pokemon', '')));
+        $moveToDelete = strtolower(trim($request->request->get('move', '')));
+
+        if (empty($pokemonNameInput)) {
+            $this->addFlash('error', 'Pokémon não especificado.');
+            return $this->redirectToRoute('app_admin_pokemon', ['_fragment' => 'default-base-moves-section']);
+        }
+
+        $defaultBaseMovesPath = $this->projectDir . '/scratch/default_base_moves.json';
+        if (file_exists($defaultBaseMovesPath)) {
+            $defaultBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+            
+            if (isset($defaultBaseMoves[$pokemonNameInput])) {
+                if (!empty($moveToDelete)) {
+                    // Remove apenas o golpe especificado
+                    $defaultBaseMoves[$pokemonNameInput] = array_values(array_filter(
+                        $defaultBaseMoves[$pokemonNameInput],
+                        fn($m) => strtolower(trim($m)) !== $moveToDelete
+                    ));
+
+                    // Se a lista de golpes ficou vazia, remove o pokemon
+                    if (empty($defaultBaseMoves[$pokemonNameInput])) {
+                        unset($defaultBaseMoves[$pokemonNameInput]);
+                    }
+                    $msg = sprintf('Golpe "%s" removido de %s.', $moveToDelete, ucfirst($pokemonNameInput));
+                } else {
+                    // Remove o pokemon inteiro
+                    unset($defaultBaseMoves[$pokemonNameInput]);
+                    $msg = sprintf('Todos os golpes base de %s foram removidos.', ucfirst($pokemonNameInput));
+                }
+
+                file_put_contents(
+                    $defaultBaseMovesPath,
+                    json_encode($defaultBaseMoves, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+                );
+
+                $this->addFlash('success', $msg);
+            }
+        }
+
+        return $this->redirectToRoute('app_admin_pokemon', ['_fragment' => 'default-base-moves-section']);
     }
 
     #[Route('/admin/medal/toggle', name: 'app_admin_medal_toggle', methods: ['POST'])]

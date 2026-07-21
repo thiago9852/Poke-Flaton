@@ -23,10 +23,10 @@
 
 		<!-- Tab Header -->
 		<div class="admin-tabs" style="margin-bottom: 30px;">
-			<a href="{{ path('app_admin') }}" class="admin-tab-btn">
+			{# <a href="{{ path('app_admin') }}" class="admin-tab-btn">
 				<i class="fa-solid fa-sliders"></i>
 				Personalização & Medalhas
-			</a>
+			</a> #}
 			<a href="{{ path('app_admin_pokemon') }}" class="admin-tab-btn active">
 				<i class="fa-solid fa-gamepad"></i>
 				Dados de Pokémon
@@ -706,6 +706,130 @@
 			</div>
 		</div>
 
+		<!-- Golpes Base Padrão -->
+		<div class="admin-category spaced" id="default-base-moves-section">
+			<div class="admin-category-header" onclick="toggleCategorySection('default-base-moves-content', 'default-base-moves-chevron')">
+				<h2>Golpes Base Padrão (default_base_moves.json)</h2>
+				<span class="admin-hero-badge">{{ defaultBaseMoves|length }} pokémons</span>
+				<i class="fa-solid fa-chevron-down admin-category-chevron" id="default-base-moves-chevron"></i>
+			</div>
+
+			<div id="default-base-moves-content" class="admin-category-content expanded">
+
+				<!-- Formulário de adição/edição -->
+				<div class="admin-card-container padded">
+					<h3 class="admin-section-title mb-15">
+						Adicionar ou Editar Golpes Base
+					</h3>
+					<p class="text-muted" style="font-size: 0.85rem; margin-bottom: 16px; color: var(--text-muted);">
+						Digite o nome do Pokémon e insira os golpes que ele deve possuir por padrão. Golpes múltiplos podem ser separados por vírgula (ex: <code>tackle, growl, vine-whip</code>).
+					</p>
+					
+					<form method="post" action="{{ path('app_admin_default_base_moves_save') }}">
+						<div class="title-form-grid admin-grid-3" style="grid-template-columns: 1fr 2fr auto;">
+							<div>
+								<label class="title-form-label">Pokémon *</label>
+								<input type="text" name="pokemon" class="form-input" list="evolution-pokemon-list" placeholder="Ex: bulbasaur" required autocomplete="off">
+							</div>
+							<div>
+								<label class="title-form-label">Golpes (Separados por vírgula) *</label>
+								<input type="text" name="moves" class="form-input" placeholder="Ex: tackle, growl, vine-whip, growth" required autocomplete="off">
+							</div>
+							<div style="display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 5px;">
+								<label class="title-form-checkbox-label" style="margin-bottom: 8px;">
+									<input type="checkbox" name="overwrite" value="1" class="admin-checkbox">
+									Sobrescrever existentes?
+								</label>
+							</div>
+						</div>
+						<div class="title-form-footer">
+							<span class="text-muted" style="font-size: 0.8rem; color: var(--text-muted);">
+								<i class="fa-solid fa-circle-info"></i>
+								Deixe "Sobrescrever" desmarcado para apenas adicionar novos golpes aos já cadastrados.
+							</span>
+							<button type="submit" class="btn btn-primary">
+								<i class="fa-solid fa-floppy-disk"></i>
+								Salvar Golpes
+							</button>
+						</div>
+					</form>
+				</div>
+
+				<!-- Barra de busca para filtrar na tabela -->
+				<div class="admin-card-container padded mb-15" style="margin-top: 15px;">
+					<input type="text" id="base-moves-search" onkeyup="filterBaseMoves()" placeholder="Buscar por Pokémon ou Golpe..." class="form-input" style="width: 100%;">
+				</div>
+
+				<!-- Tabela de golpes base existentes -->
+				<div class="admin-card-container overflow-hidden">
+					<table class="admin-table" id="base-moves-table">
+						<thead>
+							<tr>
+								<th style="width: 60px;">Sprite</th>
+								<th style="width: 200px;">Pokémon</th>
+								<th>Golpes Base Cadastrados</th>
+								<th class="text-right" style="width: 150px;">Ações</th>
+							</tr>
+						</thead>
+						<tbody id="base-moves-tbody">
+							{% for pkmName, moves in defaultBaseMoves %}
+								{% set pkm = pokemonByName[pkmName]|default(null) %}
+								{% set spriteUrl = pkm ? pkm.sprite : 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png' %}
+								
+								<tr class="base-moves-row" data-search="{{ pkmName }} {{ moves|join(' ') }}">
+									<td>
+										<img src="{{ spriteUrl }}" alt="{{ pkmName }}" style="width: 40px; height: 40px; object-fit: contain;" onerror="this.style.opacity='0.2'">
+									</td>
+									<td>
+										<strong>{{ pkmName|title }}</strong>
+										<br>
+										{% if pkm %}
+											<span class="text-muted" style="font-size: 0.75rem;">#{{ "%04d"|format(pkm.id) }}</span>
+										{% endif %}
+									</td>
+									<td>
+										<div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+											{% for m in moves %}
+												<span class="admin-hero-badge" style="background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 0.8rem; padding: 4px 8px; display: inline-flex; align-items: center; gap: 6px;">
+													{{ m|replace({'-': ' '})|title }}
+													<form method="post" action="{{ path('app_admin_default_base_moves_delete') }}" style="display: inline-block; margin: 0;">
+														<input type="hidden" name="pokemon" value="{{ pkmName }}">
+														<input type="hidden" name="move" value="{{ m }}">
+														<button type="submit" style="background: none; border: none; padding: 0; color: #fca5a5; cursor: pointer; display: inline-flex; align-items: center;" title="Remover este golpe">
+															<i class="fa-solid fa-circle-xmark" style="font-size: 0.85rem;"></i>
+														</button>
+													</form>
+												</span>
+											{% endfor %}
+										</div>
+									</td>
+									<td class="text-right">
+										<form method="post" action="{{ path('app_admin_default_base_moves_delete') }}" onsubmit="return confirm('Remover TODOS os golpes base de {{ pkmName|title }}?')">
+											<input type="hidden" name="pokemon" value="{{ pkmName }}">
+											<button type="submit" class="btn-admin-reject btn-sm" style="padding: 6px 12px; font-size: 0.8rem;">
+												<i class="fa-solid fa-trash-can"></i>
+												Remover Tudo
+											</button>
+										</form>
+									</td>
+								</tr>
+							{% else %}
+								<tr>
+									<td colspan="4">
+										<div class="admin-empty-placeholder">
+											<i class="fa-solid fa-circle-info info-icon"></i>
+											Nenhum Pokémon configurado em golpes base padrão.
+										</div>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+		</div>
+
 	</div>
 
 	<!-- Toast -->
@@ -786,6 +910,14 @@
 		window.filterEvolutionRules = function () {
 			const q = document.getElementById('evolution-search').value.toLowerCase().trim();
 			document.querySelectorAll('.evolution-row').forEach(row => {
+				row.style.display = row.dataset.search.toLowerCase().includes(q) ? '' : 'none';
+			});
+		};
+
+		// Filtro local de golpes base
+		window.filterBaseMoves = function () {
+			const q = document.getElementById('base-moves-search').value.toLowerCase().trim();
+			document.querySelectorAll('.base-moves-row').forEach(row => {
 				row.style.display = row.dataset.search.toLowerCase().includes(q) ? '' : 'none';
 			});
 		};

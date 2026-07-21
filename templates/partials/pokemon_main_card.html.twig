@@ -37,7 +37,7 @@
             {% for variety in pokemon.varieties %}
                 <a href="{{ path('app_pokemon_detail', { name: variety.name }) }}" 
                    class="variety-btn {{ pokemon.name == variety.name ? 'active type-bg-' ~ pokemon.types|first : '' }}">
-                    {{ variety.name|abbr_variety_name(pokemon.species_name) }}
+                    {{ variety.name|abbr_variety_name(pokemon.species_name)|trans }}
                 </a>
             {% endfor %}
         </div>
