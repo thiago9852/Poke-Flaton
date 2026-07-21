@@ -209,6 +209,72 @@ class PokeApiDetailsFetcher
     }
 
     /**
+     * Obter detalhes de um movimento incluindo quais Pokémon o aprendem
+     */
+    public function getMoveDetailsWithLearnedBy(string $moveName): array
+    {
+        return $this->cache->get('move_details_learned_' . $moveName, function (ItemInterface $item) use ($moveName) {
+            $item->expiresAfter(86400 * 30); // Cache por 30 dias
+            try {
+                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/move/' . $moveName);
+                $data = $response->toArray();
+
+                $description = '';
+                foreach ($data['effect_entries'] as $ee) {
+                    if ($ee['language']['name'] === 'en') {
+                        $description = $ee['short_effect'];
+                        break;
+                    }
+                }
+
+                $typeName = $data['type']['name'];
+                $typeId = self::TYPE_IDS[$typeName] ?? 1;
+                $typeIcon = sprintf(
+                    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-ix/scarlet-violet/small/%d.png',
+                    $typeId
+                );
+
+                $learnedBy = [];
+                foreach ($data['learned_by_pokemon'] as $p) {
+                    $parts = explode('/', rtrim($p['url'], '/'));
+                    $id = (int) end($parts);
+                    $learnedBy[] = [
+                        'name' => $p['name'],
+                        'id' => $id,
+                    ];
+                }
+
+                return [
+                    'name' => $data['name'],
+                    'type' => $typeName,
+                    'type_icon' => $typeIcon,
+                    'category' => $data['damage_class']['name'],
+                    'power' => $data['power'],
+                    'accuracy' => $data['accuracy'],
+                    'description' => $description ?: 'Sem descrição de efeito.',
+                    'learned_by_pokemon' => $learnedBy,
+                ];
+            } catch (\Exception $e) {
+                $typeId = self::TYPE_IDS['normal'] ?? 1;
+                $typeIcon = sprintf(
+                    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-ix/scarlet-violet/small/%d.png',
+                    $typeId
+                );
+                return [
+                    'name' => $moveName,
+                    'type' => 'normal',
+                    'type_icon' => $typeIcon,
+                    'category' => 'physical',
+                    'power' => null,
+                    'accuracy' => null,
+                    'description' => 'Golpe físico ou especial.',
+                    'learned_by_pokemon' => [],
+                ];
+            }
+        });
+    }
+
+    /**
      * Obter todas as natures
      */
     public function getNatures(): array

@@ -118,6 +118,13 @@ a {
     gap: 6px;
     padding: 8px 16px;
     border-radius: var(--radius-sm);
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    line-height: inherit;
+    text-decoration: none;
+    box-sizing: border-box;
 }
 
 .nav-link:hover {
@@ -512,4 +519,15 @@ a {
     border-color: var(--text-primary);
     color: var(--text-primary);
     transform: translateX(-4px);
+}
+
+/* Notificações e Idioma na Navbar */
+.nav-notification-text, .nav-lang-text {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .nav-notification-text, .nav-lang-text {
+        display: inline;
+    }
 }

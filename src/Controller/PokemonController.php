@@ -386,6 +386,23 @@ class PokemonController extends AbstractController
             }
         }
 
+        // Carrega default base moves do JSON
+        $defaultBaseMoves = [];
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
+        if (file_exists($defaultBaseMovesPath)) {
+            $defaultBaseMovesData = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+            $pokemonNameLower = strtolower($pokemon['name']);
+            if (isset($defaultBaseMovesData[$pokemonNameLower])) {
+                $defaultBaseMoves = $defaultBaseMovesData[$pokemonNameLower];
+                foreach ($defaultBaseMoves as $moveName) {
+                    $moveNameLower = strtolower(trim($moveName));
+                    if (!empty($moveNameLower) && !isset($moveDetails[$moveNameLower])) {
+                        $moveDetails[$moveNameLower] = $this->pokeApiService->getMoveDetails($moveNameLower);
+                    }
+                }
+            }
+        }
+
         $locations = $entityManager->getRepository(\App\Entity\PokemonLocation::class)->findBy(
             ['pokemonName' => $pokemon['name']],
             ['createdAt' => 'ASC']
@@ -406,6 +423,7 @@ class PokemonController extends AbstractController
             'locations' => $locations,
             'mostUsedNature' => $mostUsedNature,
             'mostUsedNaturePercent' => $mostUsedNaturePercent,
+            'defaultBaseMoves' => $defaultBaseMoves,
         ]);
     }
 
@@ -557,6 +575,82 @@ class PokemonController extends AbstractController
             'allGenerations' => $generationsInfo,
             'selectedGen' => $genFilter,
             'search' => $search
+        ]);
+    }
+
+    #[Route('/moves', name: 'app_move_search', methods: ['GET'])]
+    public function searchMoves(Request $request): Response
+    {
+        $search = $request->query->get('q', '');
+        $results = [];
+        $moveDetails = null;
+        $allTms = [];
+        $tmsMap = [];
+
+        // Carrega TMs
+        $tmsJsonPath = $this->getParameter('kernel.project_dir') . '/scratch/tms.json';
+        if (file_exists($tmsJsonPath)) {
+            $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?: [];
+            foreach ($allTms as $tm) {
+                $moveNormalized = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($tm['move']))));
+                $tmsMap[$moveNormalized] = $tm['item'];
+            }
+        }
+
+        // Carrega default base moves
+        $defaultBaseMoves = [];
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
+        if (file_exists($defaultBaseMovesPath)) {
+            $defaultBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+        }
+
+        if (!empty($search)) {
+            $moveSlug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($search))));
+            try {
+                $moveDetails = $this->pokeApiService->getMoveDetailsWithLearnedBy($moveSlug);
+                if ($moveDetails && !empty($moveDetails['learned_by_pokemon'])) {
+                    $tmCode = $tmsMap[strtolower($moveDetails['name'])] ?? null;
+
+                    foreach ($moveDetails['learned_by_pokemon'] as $p) {
+                        $pId = (int)$p['id'];
+                        if (!$this->pokeApiService->isPokemonAllowed($pId)) {
+                            continue;
+                        }
+
+                        $pNameLower = strtolower($p['name']);
+                        
+                        $isBaseMove = false;
+                        $baseSlotLabel = null;
+                        if (isset($defaultBaseMoves[$pNameLower]) && is_array($defaultBaseMoves[$pNameLower])) {
+                            $idx = array_search(strtolower($moveDetails['name']), array_map('strtolower', $defaultBaseMoves[$pNameLower]));
+                            if ($idx !== false) {
+                                $isBaseMove = true;
+                                $baseSlotLabel = 'm' . ($idx + 1) . ' (move nº ' . ($idx + 1) . ')';
+                            }
+                        }
+
+                        $results[] = [
+                            'id' => $pId,
+                            'name' => $p['name'],
+                            'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $pId),
+                            'is_base' => $isBaseMove,
+                            'base_slot' => $baseSlotLabel,
+                            'tm_code' => $tmCode,
+                        ];
+                    }
+
+                    // Ordena por ID do Pokémon
+                    usort($results, fn($a, $b) => $a['id'] <=> $b['id']);
+                }
+            } catch (\Exception $e) {
+                $moveDetails = null;
+            }
+        }
+
+        return $this->render('pokemon/move_search.html.twig', [
+            'search' => $search,
+            'moveDetails' => $moveDetails,
+            'results' => $results,
         ]);
     }
 }

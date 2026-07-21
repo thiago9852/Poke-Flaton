@@ -95,6 +95,29 @@ let locale = 'pt_BR';
             });
         }
 
+        // Lógica para preencher com os golpes padrão
+        const fillDefaultBtn = document.getElementById('btn-fill-default-moves');
+        if (fillDefaultBtn && appData.dataset.defaultMoves) {
+            fillDefaultBtn.addEventListener('click', function () {
+                try {
+                    const defaults = JSON.parse(appData.dataset.defaultMoves);
+                    if (Array.isArray(defaults) && defaults.length > 0) {
+                        // Limpa seleção atual
+                        selectedMoves = Array(MAX_MOVES).fill(null);
+                        // Preenche com os novos golpes padrão
+                        defaults.forEach((move, idx) => {
+                            if (idx < MAX_MOVES) {
+                                selectedMoves[idx] = move.toLowerCase().trim().replace(/\s+/g, '-');
+                            }
+                        });
+                        updateUI();
+                    }
+                } catch (e) {
+                    console.error('Erro ao preencher golpes padrão:', e);
+                }
+            });
+        }
+
         // Filtro de pesquisa
         const searchInput = document.getElementById('available-moves-search');
         if (searchInput) {
@@ -298,6 +321,7 @@ function updateUI() {
         if (hiddenInput) hiddenInput.value = moveName || '';
 
         const card = document.createElement('div');
+        card.setAttribute('data-index', i);
         if (!moveName) {
             card.className = 'selected-slot-card empty';
             card.innerHTML = `<span class="selected-slot-number">#${i + 1}</span>`;
@@ -308,6 +332,7 @@ function updateUI() {
             const learnLabel = learnMethod === 'TM' ? 'TM' : 'Lvl';
             const learnClass = learnMethod === 'TM' ? 'method-tm' : 'method-base';
             card.className = `selected-slot-card border-type-${type}`;
+            card.draggable = true;
             card.innerHTML = `
                 <span class="selected-slot-number">#${i + 1}</span>
                 <span class="selected-slot-name" title="${formatMoveName(moveName)}">${formatMoveName(moveName)}</span>
@@ -317,7 +342,37 @@ function updateUI() {
                 </div>
                 <button type="button" class="remove-slot-btn" onclick="removeMoveFromSlot(${i})" title="${t('removeMoveTitle')}"><i class="fa-solid fa-xmark"></i></button>
             `;
+
+            card.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', i);
+                card.classList.add('dragging');
+            });
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+                document.querySelectorAll('.selected-slot-card').forEach(c => c.classList.remove('drag-over'));
+            });
         }
+
+        card.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            card.classList.add('drag-over');
+        });
+        card.addEventListener('dragleave', () => {
+            card.classList.remove('drag-over');
+        });
+        card.addEventListener('drop', (e) => {
+            e.preventDefault();
+            card.classList.remove('drag-over');
+            const draggedIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+            const targetIdx = parseInt(card.getAttribute('data-index'), 10);
+            if (!isNaN(draggedIdx) && !isNaN(targetIdx) && draggedIdx !== targetIdx) {
+                const temp = selectedMoves[draggedIdx];
+                selectedMoves[draggedIdx] = selectedMoves[targetIdx];
+                selectedMoves[targetIdx] = temp;
+                updateUI();
+            }
+        });
+
         slotsContainer.appendChild(card);
     }
 

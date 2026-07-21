@@ -1,0 +1,26 @@
+{
+  "bulbasaur": [
+    "tackle",
+    "growl",
+    "vine-whip",
+    "growth"
+  ],
+  "charmander": [
+    "scratch",
+    "growl",
+    "ember",
+    "fire-spin"
+  ],
+  "squirtle": [
+    "tackle",
+    "tail-whip",
+    "water-gun",
+    "withdraw"
+  ],
+  "charizard": [
+    "air-slash",
+    "dragon-claw",
+    "ember",
+    "fire-blast"
+  ]
+}

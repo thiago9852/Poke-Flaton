@@ -121,28 +121,75 @@
 							{% endif %}
 						{% endfor %}
 
-						{% if defaultMoveset is null %}
-							<div class="empty-moveset card" style="text-align: center; padding: 40px;">
-								<h4>{{ 'Nenhum moveset padrão oficial definido para esta categoria'|trans }}</h4>
-								<p class="text-muted" style="font-size: 0.9rem; margin-top: 5px;">{{ 'Sugira um moveset abaixo para que o administrador possa defini-lo como padrão.'|trans }}</p>
-								<a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-secondary" style="margin-top: 10px;">
-									{{ 'Criar / Sugerir Moveset'|trans }}
-								</a>
+						{% if defaultBaseMoves is not empty %}
+							<div class="toggle-container" style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+								<button class="btn btn-sm btn-outline-primary toggle-moves-btn" onclick="toggleDefaultMoves('{{ tabType }}')" style="padding: 6px 12px; font-size: 0.85rem; border-radius: 20px; border: 1px solid var(--color-primary); color: #fff; background: transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit;">
+									<i class="fa-solid fa-sync"></i>
+									<span class="toggle-text">
+										{% if defaultMoveset is null %}
+											{{ 'Mostrar Opções de Criação'|trans }}
+										{% else %}
+											{{ 'Mostrar Golpes Padrão (Base)'|trans }}
+										{% endif %}
+									</span>
+								</button>
 							</div>
-						{% else %}
-							{% include 'partials/moveset_highlight_card.html.twig' with {
-                                'm': defaultMoveset,
-                                'moveDetails': moveDetails,
-                                'pokemon': pokemon,
-                                'itemDetails': itemDetails,
-                                'naturesMap': naturesMap,
-                                'abilityDetails': abilityDetails,
-                                'recommendedNature': recommendedNatures[tabType],
-                                'mostUsedNature': mostUsedNature,
-                                'mostUsedNaturePercent': mostUsedNaturePercent
-                            } %}
 						{% endif %}
 
+						<!-- Bloco do Moveset do Banco / Formulário de Sugestão -->
+						<div class="db-default-moveset-card {% if defaultMoveset is null %}empty-wrapper{% endif %}" id="db-default-{{ tabType }}" style="display: {{ (defaultMoveset is null and defaultBaseMoves is not empty) ? 'none' : 'block' }};">
+							{% if defaultMoveset is null %}
+								<div class="empty-moveset card" style="text-align: center; padding: 40px;">
+									<h4>{{ 'Nenhum moveset padrão oficial definido para esta categoria'|trans }}</h4>
+									<p class="text-muted" style="font-size: 0.9rem; margin-top: 5px;">{{ 'Sugira um moveset abaixo para que o administrador possa defini-lo como padrão.'|trans }}</p>
+									<a href="{{ path('app_moveset_new', { name: pokemon.name }) }}" class="btn btn-secondary" style="margin-top: 10px;">
+										{{ 'Criar / Sugerir Moveset'|trans }}
+									</a>
+								</div>
+							{% else %}
+								{% include 'partials/moveset_highlight_card.html.twig' with {
+									'm': defaultMoveset,
+									'moveDetails': moveDetails,
+									'pokemon': pokemon,
+									'itemDetails': itemDetails,
+									'naturesMap': naturesMap,
+									'abilityDetails': abilityDetails,
+									'recommendedNature': recommendedNatures[tabType],
+								} %}
+							{% endif %}
+						</div>
+
+						<!-- Bloco do Moveset de Golpes Base JSON -->
+						{% if defaultBaseMoves is not empty %}
+							<div class="json-base-moveset-card" id="json-base-{{ tabType }}" style="display: {{ (defaultMoveset is null) ? 'block' : 'none' }};">
+								<div class="moveset-card card moveset-highlight" style="padding: 20px;">
+									<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+										<div style="display: flex; align-items: center; gap: 8px;">
+											<h4 style="margin: 0; color: #fff; display: flex; align-items: center; gap: 8px; font-family: 'Outfit', sans-serif; font-weight: 800;">
+												<i class="fa-solid fa-list-ol" style="color: var(--color-primary);"></i>
+												{{ 'Golpes Base (Por Nível)'|trans }}
+											</h4>
+											<span class="badge" style="background-color: var(--color-primary); color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; display: inline-flex; align-items: center; gap: 4px; font-weight: bold; margin-left: 6px; height: 22px;">
+												{{ 'Padrão do Jogo'|trans }}
+											</span>
+										</div>
+									</div>
+									
+									<div class="moveset-grid" style="display: block;">
+										<div class="moveset-section-moves" style="width: 100%;">
+											<div class="moves-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">
+												{% for moveName in defaultBaseMoves %}
+													{% if moveName %}
+														{% set md = moveDetails[moveName|lower] ?? null %}
+														{% include 'partials/move_detail_item.html.twig' with {'moveName': moveName, 'md': md, 'pokemon': pokemon} %}
+													{% endif %}
+												{% endfor %}
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						{% endif %}
 					</div>
 				{% endfor %}
 			</div>
@@ -277,4 +324,25 @@
 	<div id="pokemon-detail-data" style="display: none;"></div>
 
 	<script src="{{ asset('js/detail.js') }}?v=1.0.1"></script>
+	<script>
+		function toggleDefaultMoves(tabType) {
+			const dbCard = document.getElementById('db-default-' + tabType);
+			const jsonCard = document.getElementById('json-base-' + tabType);
+			const btn = document.querySelector(`.toggle-moves-btn[onclick*="${tabType}"]`);
+			if (dbCard && jsonCard && btn) {
+				const isDbHidden = dbCard.style.display === 'none';
+				if (isDbHidden) {
+					dbCard.style.display = 'block';
+					jsonCard.style.display = 'none';
+					btn.querySelector('.toggle-text').textContent = '{{ "Mostrar Golpes Padrão (Base)"|trans }}';
+				} else {
+					dbCard.style.display = 'none';
+					jsonCard.style.display = 'block';
+					btn.querySelector('.toggle-text').textContent = dbCard.classList.contains('empty-wrapper') 
+						? '{{ "Mostrar Opções de Criação"|trans }}' 
+						: '{{ "Mostrar Moveset Recomendado"|trans }}';
+				}
+			}
+		}
+	</script>
 {% endblock %}

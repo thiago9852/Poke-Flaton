@@ -159,12 +159,17 @@
 
 		<!-- Largura Total: Seleção de Movimentos -->
 		<div class="moveset-moves-fullwidth card">
-			<div class="moves-fullwidth-header">
-				<span class="form-label">
+			<div class="moves-fullwidth-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+				<span class="form-label" style="margin: 0;">
 					{{ 'Movimentos Selecionados'|trans }}
 					<span class="slots-counter" id="slots-counter">(0 /
 						{{ maxMoves }})</span>
 				</span>
+				{% if defaultBaseMoves is not empty %}
+					<button type="button" class="btn btn-sm btn-outline-primary" id="btn-fill-default-moves" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--color-primary); background: transparent; color: #fff; font-family: inherit;">
+						<i class="fa-solid fa-wand-magic-sparkles"></i> {{ 'Usar Golpes Padrão (Base)'|trans }}
+					</button>
+				{% endif %}
 			</div>
 
 			<!-- Slots 5×2 -->
@@ -330,7 +335,7 @@
 	</div>
 
 	<!-- Container Oculto para passar dados do Twig para o JS externo -->
-	<div id="moveset-app-data" data-max-moves="{{ maxMoves }}" data-locale="{{ app.request.locale }}" style="display: none;"></div>
+	<div id="moveset-app-data" data-max-moves="{{ maxMoves }}" data-locale="{{ app.request.locale }}" data-default-moves="{{ defaultBaseMoves|json_encode }}" style="display: none;"></div>
 
 	<script src="{{ asset('js/create-moves.js') }}?v=1.0.1"></script>
 {% endblock %}

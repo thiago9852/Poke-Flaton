@@ -1414,6 +1414,22 @@
 .selected-slot-card:not(.empty) {
     background-color: rgba(255, 255, 255, 0.04);
     border-color: rgba(255, 255, 255, 0.1);
+    cursor: grab;
+}
+
+.selected-slot-card:not(.empty):active {
+    cursor: grabbing;
+}
+
+.selected-slot-card.dragging {
+    opacity: 0.4;
+    border-style: dashed;
+}
+
+.selected-slot-card.drag-over {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.4) !important;
+    background-color: rgba(139, 92, 246, 0.05) !important;
 }
 
 .selected-slot-card .selected-slot-number {

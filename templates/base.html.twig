@@ -50,8 +50,8 @@
 						{{ 'Início'|trans }}</a>
 					<a href="{{ path('app_pokemon_index') }}" class="nav-link">
 						{{ 'Moveset'|trans }}</a>
-					<a href="{{ path('app_trainer_ranking') }}" class="nav-link">
-						{{ 'Trainers'|trans }}</a>
+					<a href="{{ path('app_move_search') }}" class="nav-link">
+						{{ 'Buscar Golpes'|trans }}</a>
 					<a href="{{ path('app_tier_list') }}" class="nav-link">
 						{{ 'Tier List'|trans }}</a>
 					<a href="{{ path('app_map') }}" class="nav-link">
@@ -61,8 +61,10 @@
 						<div class="nav-user-dropdown" id="userDropdown">
 
 							<button class="nav-link nav-user-btn" id="userDropdownBtn" aria-expanded="false" aria-haspopup="true">
-								<img src="{{ avatar_url(app.user.avatar) }}" alt="Avatar" class="nav-user-avatar">
-								<span>{{ app.user.username }}</span>
+								<span style="display: flex; align-items: center; gap: 8px;">
+									<img src="{{ avatar_url(app.user.avatar) }}" alt="Avatar" class="nav-user-avatar">
+									<span>{{ app.user.username }}</span>
+								</span>
 								<i class="fa-solid fa-chevron-down nav-dropdown-caret"></i>
 							</button>
 
@@ -95,11 +97,15 @@
 							{{ 'Entrar'|trans }}</a>
 					{% endif %}
 
-					<span style="color: #fff; align-content: center;"><i class="fa-solid fa-bell"></i></span>
+					<a href="#" class="nav-link nav-notification-btn" title="{{ 'Notificações'|trans }}">
+						<i class="fa-solid fa-bell"></i>
+					</a>
 
 					<div class="nav-lang-dropdown" id="langDropdown">
 						<button class="nav-link nav-lang-btn" id="langDropdownBtn" aria-expanded="false" aria-haspopup="true">
-							<i class="fa-solid fa-earth-americas"></i>
+							<span style="display: flex; align-items: center; gap: 8px;">
+								<i class="fa-solid fa-earth-americas"></i>
+							</span>
 							<i class="fa-solid fa-chevron-down nav-dropdown-caret"></i>
 						</button>
 						<ul class="nav-dropdown-menu" role="menu" style="min-width: 130px;">

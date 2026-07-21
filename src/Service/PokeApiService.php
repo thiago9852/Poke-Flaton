@@ -107,6 +107,11 @@ class PokeApiService
         return $this->detailsFetcher->getMoveDetails($moveName);
     }
 
+    public function getMoveDetailsWithLearnedBy(string $moveName): array
+    {
+        return $this->detailsFetcher->getMoveDetailsWithLearnedBy($moveName);
+    }
+
     public function getAbilityDetails(string $abilityName): array
     {
         return $this->detailsFetcher->getAbilityDetails($abilityName);

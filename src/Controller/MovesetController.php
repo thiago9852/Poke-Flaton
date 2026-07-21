@@ -137,6 +137,17 @@ class MovesetController extends AbstractController
             }
         }
 
+        // Carrega default base moves
+        $defaultBaseMoves = [];
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
+        if (file_exists($defaultBaseMovesPath)) {
+            $defaultBaseMovesData = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+            $pokemonNameLower = strtolower($pokemon['name']);
+            if (isset($defaultBaseMovesData[$pokemonNameLower])) {
+                $defaultBaseMoves = $defaultBaseMovesData[$pokemonNameLower];
+            }
+        }
+
         return $this->render('moveset/new.html.twig', [
             'pokemon' => $pokemon,
             'natures' => $natures,
@@ -145,6 +156,7 @@ class MovesetController extends AbstractController
             'errors' => $errors,
             'unlockedTms' => $unlockedTms,
             'allTms' => $allTms,
+            'defaultBaseMoves' => $defaultBaseMoves,
         ]);
     }
 

@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Buscar Golpes'|trans }} | PokeFlaton{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/pokemon.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/moves.css') }}">
+{% endblock %}
+
+{% block body %}
+	<div class="move-search-container">
+		<div class="move-search-header">
+			<h1>{{ 'Procurar Golpes'|trans }}</h1>
+			<p class="text-muted">{{ 'Descubra quais Pokémon aprendem cada golpe por TM ou Nível (Move Base)'|trans }}</p>
+		</div>
+
+		<!-- Formulário de Busca -->
+		<form method="GET" action="{{ path('app_move_search') }}" class="move-search-bar">
+			<div class="move-search-input-wrapper">
+				<i class="fa-solid fa-magnifying-glass"></i>
+				<input type="text" name="q" value="{{ search }}" class="move-search-input" placeholder="{{ 'Digite o nome do golpe em inglês (ex: fire-blast, earthquake)...'|trans }}" required autocomplete="off">
+			</div>
+			<button type="submit" class="btn btn-primary" style="padding: 0 24px; height: 50px;">{{ 'Buscar'|trans }}</button>
+		</form>
+
+		{% if search is not empty %}
+			{% if moveDetails is null %}
+				<div class="card" style="text-align: center; padding: 40px; border: 1px solid var(--border-color);">
+					<i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; color: var(--color-secondary); margin-bottom: 15px;"></i>
+					<h3>{{ 'Nenhum golpe encontrado para'|trans }} "{{ search }}"</h3>
+					<p class="text-muted">{{ 'Por favor, verifique a ortografia do golpe em inglês.'|trans }}</p>
+				</div>
+			{% else %}
+				<!-- Card de Informações do Golpe -->
+				<div class="move-info-card">
+					{% set glowColorMap = {
+						'fire': '#f97316', 'water': '#3b82f6', 'grass': '#22c55e', 'electric': '#eab308',
+						'ice': '#06b6d4', 'fighting': '#b91c1c', 'poison': '#a855f7', 'ground': '#d97706',
+						'flying': '#818cf6', 'psychic': '#f472b6', 'bug': '#a3e635', 'rock': '#78350f',
+						'ghost': '#6366f1', 'dragon': '#7c3a25', 'steel': '#6b7280', 'dark': '#374151',
+						'fairy': '#f472b6', 'normal': '#a8a29e'
+					} %}
+					{% set typeGlowColor = glowColorMap[moveDetails.type|lower] ?? '#a8a29e' %}
+					<div class="detail-glow" style="background: radial-gradient(circle, {{ typeGlowColor }}15 0%, transparent 70%);"></div>
+
+					<div class="move-info-title-row">
+						<h2>{{ moveDetails.name|replace({'-': ' '})|title }}</h2>
+						<span class="type-badge type-badge-{{ moveDetails.type|lower }}" style="font-size: 0.95rem; padding: 6px 16px;">
+							<img src="{{ moveDetails.type_icon }}" style="width: 18px; height: 18px; margin-right: 6px;" alt="{{ moveDetails.type }}">
+							{{ moveDetails.type|capitalize|trans }}
+						</span>
+					</div>
+
+					<div class="move-stats-grid">
+						<div class="move-stat-box">
+							<span class="stat-label">{{ 'Categoria'|trans }}</span>
+							<span class="stat-value" style="font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px;">
+								{% if moveDetails.category == 'physical' %}
+									<i class="fa-solid fa-hand-fist" style="color: #ef4444;"></i> {{ 'Físico'|trans }}
+								{% elseif moveDetails.category == 'special' %}
+									<i class="fa-solid fa-bolt" style="color: #06b6d4;"></i> {{ 'Especial'|trans }}
+								{% else %}
+									<i class="fa-solid fa-circle-dot" style="color: var(--text-secondary);"></i> Status
+								{% endif %}
+							</span>
+						</div>
+						<div class="move-stat-box">
+							<span class="stat-label">{{ 'Poder'|trans }}</span>
+							<span class="stat-value">{{ moveDetails.power|default('—') }}</span>
+						</div>
+						<div class="move-stat-box">
+							<span class="stat-label">{{ 'Precisão'|trans }}</span>
+							<span class="stat-value">
+								{% if moveDetails.accuracy %}
+									{{ moveDetails.accuracy }}%
+								{% else %}
+									—
+								{% endif %}
+							</span>
+						</div>
+					</div>
+
+					<div class="move-desc-box">
+						<strong>{{ 'Efeito:'|trans }}</strong> {{ moveDetails.description|trans }}
+					</div>
+				</div>
+
+				<!-- Resultados de Pokémon -->
+				<div>
+					<h3 class="pokemon-results-title">
+						<i class="fa-solid fa-circle-check"></i>
+						{{ 'Pokémon que aprendem este golpe'|trans }}
+						<span class="slots-counter" style="margin-left: 5px; font-size: 0.9rem; font-weight: normal; color: var(--text-secondary);">({{ results|length }})</span>
+					</h3>
+
+					{% if results is empty %}
+						<div class="card" style="text-align: center; padding: 30px; border: 1px solid var(--border-color);">
+							<p class="text-muted">{{ 'Nenhum Pokémon permitido no site aprende este golpe no momento.'|trans }}</p>
+						</div>
+					{% else %}
+						<div class="results-grid">
+							{% for p in results %}
+								<a href="{{ path('app_pokemon_detail', { name: p.name }) }}" class="result-pokemon-card">
+									<img src="{{ p.sprite }}" alt="{{ p.name|capitalize }}" class="result-sprite" loading="lazy">
+									<div class="result-info">
+										<span class="result-name">{{ p.name|replace({'-mega': ' Mega', '-x': ' X', '-y': ' Y', '-z': ' Z', '-': ' '})|title }}</span>
+										<div class="result-badges">
+											{% if p.is_base %}
+												<span class="badge-base-slot">
+													<i class="fa-solid fa-circle-chevron-up"></i>
+													{{ p.base_slot }}
+												</span>
+											{% endif %}
+											{% if p.tm_code %}
+												<span class="badge-tm-slot">
+													<i class="fa-solid fa-compact-disc"></i>
+													{{ p.tm_code|upper }}
+												</span>
+											{% endif %}
+											{% if not p.is_base and not p.tm_code %}
+												<span class="badge-general-slot">{{ 'Nível (Geral)'|trans }}</span>
+											{% endif %}
+										</div>
+									</div>
+								</a>
+							{% endfor %}
+						</div>
+					{% endif %}
+				</div>
+			{% endif %}
+		{% endif %}
+	</div>
+{% endblock %}

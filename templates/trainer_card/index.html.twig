@@ -25,10 +25,12 @@
 				<i class="fa-solid fa-address-card"></i>
 				{{ 'Trainer Card'|trans }}
 			</button>
+			{# 
 			<button class="tab-btn" onclick="switchTab(event, 'medals-tab')">
 				<i class="fa-solid fa-medal"></i>
 				{{ 'Medalhas'|trans }}
 			</button>
+			#}
 			<button class="tab-btn" onclick="switchTab(event, 'comunidade-tab')">
 				<i class="fa-solid fa-user-group"></i>
 				{{ 'Comunidade'|trans }} (<span id="following-count-badge">{{ followingCount }}</span>)
@@ -338,6 +340,7 @@
 			</div>
 		</div>
 
+		{# 
 		<!-- Medals -->
 		<div id="medals-tab" class="tab-content">
 			<div class="medals-layout-container">
@@ -831,6 +834,7 @@
 				</div>
 			</div>
 		</div>
+		#}
 
 		<!-- Tab 4: Comunidade -->
 		<div id="comunidade-tab" class="tab-content">
