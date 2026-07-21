@@ -22,7 +22,7 @@
 		}
 
 		.move-search-bar {
-			max-width: 800px;
+			max-width: 100%;
 			margin: 0 auto;
 			display: flex;
 			gap: 10px;

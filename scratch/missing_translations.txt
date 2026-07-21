@@ -1,0 +1,148 @@
+Missing keys found (72):
+===================
+Key: "Buscar Golpes" (Used in: base.html.twig, move_search.html.twig)
+Key: "Mini Mapa" (Used in: base.html.twig)
+Key: "Jogar Pokémon do Dia" (Used in: base.html.twig)
+Key: "Dados dos últimos 30 dias" (Used in: info.html.twig)
+Key: "Dados do histórico geral" (Used in: info.html.twig)
+Key: "Dados dos últimos 10 dias" (Used in: info.html.twig)
+Key: "Mini Mapa Pokémon" (Used in: index.html.twig)
+Key: "Selecionar Mapa / Região" (Used in: index.html.twig)
+Key: "Nenhum mapa cadastrado" (Used in: index.html.twig)
+Key: "-- Selecione uma Região --" (Used in: index.html.twig)
+Key: "Adicionar Pokémon" (Used in: index.html.twig)
+Key: "Clique em qualquer lugar na imagem do mapa para marcar um Pokémon." (Used in: index.html.twig)
+Key: "Filtrar Marcadores" (Used in: index.html.twig)
+Key: "Buscar Pokémon no mapa..." (Used in: index.html.twig)
+Key: "Pokémon no Mapa" (Used in: index.html.twig)
+Key: "Nenhum Pokémon marcado neste mapa ainda." (Used in: index.html.twig)
+Key: "Painel Administrativo" (Used in: index.html.twig)
+Key: "Nome do Mapa / Região" (Used in: index.html.twig)
+Key: "Imagem do Mapa (JPG/PNG/WEBP)" (Used in: index.html.twig)
+Key: "Cadastrar Região" (Used in: index.html.twig)
+Key: "Tem certeza que deseja excluir o mapa atual e todos os seus marcadores?" (Used in: index.html.twig)
+Key: "Excluir Mapa Atual" (Used in: index.html.twig)
+Key: "Selecione uma Região" (Used in: index.html.twig)
+Key: "Escolha uma região no menu lateral para visualizar o mapa e os Pokémons registrados." (Used in: index.html.twig)
+Key: "Nature" (Used in: new.html.twig, moveset_highlight_card.html.twig, moveset_share_card.html.twig)
+Key: "Todos" (Used in: new.html.twig, pokedex.html.twig)
+Key: "Você precisa desbloquear a" (Used in: new.html.twig)
+Key: "no seu Trainer Card para poder usá-la!" (Used in: new.html.twig)
+Key: "Importar JSON" (Used in: new.html.twig)
+Key: "Salvar e Sugerir" (Used in: new.html.twig)
+Key: "OU" (Used in: new.html.twig, detail.html.twig)
+Key: "Exportar" (Used in: moveset_highlight_card.html.twig, create.html.twig)
+Key: "Remover Padrão" (Used in: moveset_list_item.html.twig)
+Key: "Tornar Padrão Oficial" (Used in: moveset_list_item.html.twig)
+Key: "Curtir" (Used in: moveset_list_item.html.twig)
+Key: "Gostei" (Used in: moveset_list_item.html.twig)
+Key: "Mostrar Opção Criação" (Used in: detail.html.twig)
+Key: "Mostrar Opção Padrão" (Used in: detail.html.twig)
+Key: "Nenhum moveset padrão oficial definido para esta categoria" (Used in: detail.html.twig)
+Key: "Sugira um moveset abaixo para que o administrador possa defini-lo como padrão." (Used in: detail.html.twig)
+Key: "Criar / Sugerir Moveset" (Used in: detail.html.twig)
+Key: "Pokémons" (Used in: index.html.twig, create.html.twig)
+Key: "Buscar por nome ou número..." (Used in: index.html.twig)
+Key: "Ordenar pokémons" (Used in: index.html.twig)
+Key: "Ordenar por:" (Used in: index.html.twig)
+Key: "Nº (001 → 999)" (Used in: index.html.twig)
+Key: "Nº (999 → 001)" (Used in: index.html.twig)
+Key: "Nome (A → Z)" (Used in: index.html.twig)
+Key: "Nome (Z → A)" (Used in: index.html.twig)
+Key: "Filtrar por geração" (Used in: index.html.twig)
+Key: "Todas Gerações" (Used in: index.html.twig)
+Key: "Limpar todos os filtros" (Used in: index.html.twig)
+Key: "Filtrar por tipo:" (Used in: index.html.twig)
+Key: "Nenhum Pokémon encontrado." (Used in: index.html.twig)
+Key: "Tente buscar com outro termo ou limpar os filtros atuais." (Used in: index.html.twig)
+Key: "Anterior" (Used in: index.html.twig)
+Key: "Página" (Used in: index.html.twig)
+Key: "de" (Used in: index.html.twig)
+Key: "Próxima" (Used in: index.html.twig)
+Key: "Progresso Geral" (Used in: pokedex.html.twig)
+Key: "Buscar por nome ou Nº..." (Used in: pokedex.html.twig)
+Key: "Nenhum Pokémon encontrado" (Used in: pokedex.html.twig)
+Key: "Tente ajustar os filtros ou o termo de busca." (Used in: pokedex.html.twig)
+Key: "Limpar Filtros" (Used in: pokedex.html.twig)
+Key: "Registrado na Pokédex" (Used in: pokedex.html.twig)
+Key: "Registrado" (Used in: pokedex.html.twig)
+Key: "Não Registrado" (Used in: pokedex.html.twig)
+Key: "Permanecer conectado" (Used in: login.html.twig)
+Key: "Resetar" (Used in: create.html.twig)
+Key: "(Máximo)" (Used in: index.html.twig, public.html.twig)
+Key: "Em Breve" (Used in: index.html.twig, public.html.twig)
+Key: "EM BREVE" (Used in: public.html.twig)
+
+YAML lines to add:
+"Buscar Golpes": "Buscar Golpes"
+"Mini Mapa": "Mini Mapa"
+"Jogar Pokémon do Dia": "Jogar Pokémon do Dia"
+"Dados dos últimos 30 dias": "Dados dos últimos 30 dias"
+"Dados do histórico geral": "Dados do histórico geral"
+"Dados dos últimos 10 dias": "Dados dos últimos 10 dias"
+"Mini Mapa Pokémon": "Mini Mapa Pokémon"
+"Selecionar Mapa / Região": "Selecionar Mapa / Região"
+"Nenhum mapa cadastrado": "Nenhum mapa cadastrado"
+"-- Selecione uma Região --": "-- Selecione uma Região --"
+"Adicionar Pokémon": "Adicionar Pokémon"
+"Clique em qualquer lugar na imagem do mapa para marcar um Pokémon.": "Clique em qualquer lugar na imagem do mapa para marcar um Pokémon."
+"Filtrar Marcadores": "Filtrar Marcadores"
+"Buscar Pokémon no mapa...": "Buscar Pokémon no mapa..."
+"Pokémon no Mapa": "Pokémon no Mapa"
+"Nenhum Pokémon marcado neste mapa ainda.": "Nenhum Pokémon marcado neste mapa ainda."
+"Painel Administrativo": "Painel Administrativo"
+"Nome do Mapa / Região": "Nome do Mapa / Região"
+"Imagem do Mapa (JPG/PNG/WEBP)": "Imagem do Mapa (JPG/PNG/WEBP)"
+"Cadastrar Região": "Cadastrar Região"
+"Tem certeza que deseja excluir o mapa atual e todos os seus marcadores?": "Tem certeza que deseja excluir o mapa atual e todos os seus marcadores?"
+"Excluir Mapa Atual": "Excluir Mapa Atual"
+"Selecione uma Região": "Selecione uma Região"
+"Escolha uma região no menu lateral para visualizar o mapa e os Pokémons registrados.": "Escolha uma região no menu lateral para visualizar o mapa e os Pokémons registrados."
+"Nature": "Nature"
+"Todos": "Todos"
+"Você precisa desbloquear a": "Você precisa desbloquear a"
+"no seu Trainer Card para poder usá-la!": "no seu Trainer Card para poder usá-la!"
+"Importar JSON": "Importar JSON"
+"Salvar e Sugerir": "Salvar e Sugerir"
+"OU": "OU"
+"Exportar": "Exportar"
+"Remover Padrão": "Remover Padrão"
+"Tornar Padrão Oficial": "Tornar Padrão Oficial"
+"Curtir": "Curtir"
+"Gostei": "Gostei"
+"Mostrar Opção Criação": "Mostrar Opção Criação"
+"Mostrar Opção Padrão": "Mostrar Opção Padrão"
+"Nenhum moveset padrão oficial definido para esta categoria": "Nenhum moveset padrão oficial definido para esta categoria"
+"Sugira um moveset abaixo para que o administrador possa defini-lo como padrão.": "Sugira um moveset abaixo para que o administrador possa defini-lo como padrão."
+"Criar / Sugerir Moveset": "Criar / Sugerir Moveset"
+"Pokémons": "Pokémons"
+"Buscar por nome ou número...": "Buscar por nome ou número..."
+"Ordenar pokémons": "Ordenar pokémons"
+"Ordenar por:": "Ordenar por:"
+"Nº (001 → 999)": "Nº (001 → 999)"
+"Nº (999 → 001)": "Nº (999 → 001)"
+"Nome (A → Z)": "Nome (A → Z)"
+"Nome (Z → A)": "Nome (Z → A)"
+"Filtrar por geração": "Filtrar por geração"
+"Todas Gerações": "Todas Gerações"
+"Limpar todos os filtros": "Limpar todos os filtros"
+"Filtrar por tipo:": "Filtrar por tipo:"
+"Nenhum Pokémon encontrado.": "Nenhum Pokémon encontrado."
+"Tente buscar com outro termo ou limpar os filtros atuais.": "Tente buscar com outro termo ou limpar os filtros atuais."
+"Anterior": "Anterior"
+"Página": "Página"
+"de": "de"
+"Próxima": "Próxima"
+"Progresso Geral": "Progresso Geral"
+"Buscar por nome ou Nº...": "Buscar por nome ou Nº..."
+"Nenhum Pokémon encontrado": "Nenhum Pokémon encontrado"
+"Tente ajustar os filtros ou o termo de busca.": "Tente ajustar os filtros ou o termo de busca."
+"Limpar Filtros": "Limpar Filtros"
+"Registrado na Pokédex": "Registrado na Pokédex"
+"Registrado": "Registrado"
+"Não Registrado": "Não Registrado"
+"Permanecer conectado": "Permanecer conectado"
+"Resetar": "Resetar"
+"(Máximo)": "(Máximo)"
+"Em Breve": "Em Breve"
+"EM BREVE": "EM BREVE"

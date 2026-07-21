@@ -261,7 +261,7 @@
 		{% set movesetsExpanded = (activeTab == 'movesets' or pendingMovesets|length > 0) %}
 		<div class="admin-category spaced" id="movesets-section">
 			<div class="admin-category-header" onclick="toggleCategorySection('movesets-content', 'movesets-chevron')">
-				<h2>Movesets Pendentes de Validação</h2>
+				<h2>Movesets Validação</h2>
 				<span class="admin-hero-badge">{{ pendingMovesets|length }} pendentes</span>
 				<i class="fa-solid fa-chevron-down admin-category-chevron {{ movesetsExpanded ? 'rotated' : 'expanded' }}" id="movesets-chevron"></i>
 			</div>
@@ -524,7 +524,7 @@
 		<!-- Associação de Evolução de Pokémon -->
 		<div class="admin-category spaced" id="evolution-rules-section">
 			<div class="admin-category-header" onclick="toggleCategorySection('evolution-rules-content', 'evolution-rules-chevron')">
-				<h2>Regras de Evolução de Pokémon</h2>
+				<h2>Regras de Evolução</h2>
 				<span class="admin-hero-badge">{{ evolutionRules|length }} regras</span>
 				<i class="fa-solid fa-chevron-down admin-category-chevron" id="evolution-rules-chevron"></i>
 			</div>
@@ -709,7 +709,7 @@
 		<!-- Golpes Base Padrão -->
 		<div class="admin-category spaced" id="default-base-moves-section">
 			<div class="admin-category-header" onclick="toggleCategorySection('default-base-moves-content', 'default-base-moves-chevron')">
-				<h2>Golpes Base Padrão (default_base_moves.json)</h2>
+				<h2>Golpes Base Padrão</h2>
 				<span class="admin-hero-badge">{{ defaultBaseMoves|length }} pokémons</span>
 				<i class="fa-solid fa-chevron-down admin-category-chevron" id="default-base-moves-chevron"></i>
 			</div>
