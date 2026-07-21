@@ -47,8 +47,8 @@
 
 					<div class="move-info-title-row">
 						<h2>{{ moveDetails.name|replace({'-': ' '})|title }}</h2>
-						<span class="type-badge type-badge-{{ moveDetails.type|lower }}" style="font-size: 0.95rem; padding: 6px 16px;">
-							<img src="{{ moveDetails.type_icon }}" style="width: 18px; height: 18px; margin-right: 6px;" alt="{{ moveDetails.type }}">
+						<span class="type-badge type-badge-{{ moveDetails.type|lower }}" style="font-size: 0.95rem; padding: 6px 16px; display: inline-flex; align-items: center; gap: 6px; vertical-align: middle;">
+							<img src="{{ moveDetails.type_icon }}" style="width: 18px; height: 18px;" alt="{{ moveDetails.type }}">
 							{{ moveDetails.type|capitalize|trans }}
 						</span>
 					</div>
@@ -56,7 +56,7 @@
 					<div class="move-stats-grid">
 						<div class="move-stat-box">
 							<span class="stat-label">{{ 'Categoria'|trans }}</span>
-							<span class="stat-value" style="font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px;">
+							<span class="stat-value" style="font-size: 1.05rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px; vertical-align: middle;">
 								{% if moveDetails.category == 'physical' %}
 									<i class="fa-solid fa-hand-fist" style="color: #ef4444;"></i> {{ 'Físico'|trans }}
 								{% elseif moveDetails.category == 'special' %}

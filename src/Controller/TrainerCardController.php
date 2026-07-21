@@ -141,6 +141,7 @@ class TrainerCardController extends AbstractController
             'followersCount' => $data['followersCount'],
             'caughtDetails' => $data['caughtDetails'],
             'userMovesets' => $data['userMovesets'],
+            'userTierLists' => $this->entityManager->getRepository(\App\Entity\TierList::class)->findBy(['user' => $user], ['createdAt' => 'DESC']),
             'followersList' => $data['followersList'],
         ]);
     }
@@ -625,6 +626,8 @@ class TrainerCardController extends AbstractController
             'followingCount' => $data['followingCount'],
             'followersCount' => $data['followersCount'],
             'caughtDetails' => $data['caughtDetails'],
+            'userMovesets' => $data['userMovesets'],
+            'userTierLists' => $this->entityManager->getRepository(\App\Entity\TierList::class)->findBy(['user' => $targetUser], ['createdAt' => 'DESC']),
         ]);
     }
 

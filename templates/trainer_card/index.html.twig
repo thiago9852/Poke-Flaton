@@ -338,6 +338,66 @@
 				</div>
 
 			</div>
+
+			<!-- Tier Lists Criadas -->
+			<div class="tierlist-list-section trainer-section-collapsible">
+				<div class="trainer-section-header" onclick="toggleCategorySection('tierlists-content-section', 'tierlists-chevron')">
+					<h2 class="trainer-card-title">{{ 'Lista de Tier Lists'|trans }}</h2>
+					<i class="fa-solid fa-chevron-down trainer-section-chevron" id="tierlists-chevron"></i>
+				</div>
+
+				<div id="tierlists-content-section" class="trainer-section-content">
+					<div class="movesets-list card">
+						<p class="section-subtitle">{{ 'Gerencie ou visualize as tier lists criadas para a comunidade.'|trans }}</p>
+
+						{% if userTierLists is empty %}
+							<div class="empty-movesets-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+								<i class="fa-solid fa-layer-group" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+								<h3>{{ 'Você ainda não criou nenhuma tier list!'|trans }}</h3>
+								<p>{{ 'Acesse a página de Tier List e monte sua própria classificação.'|trans }}</p>
+							</div>
+						{% else %}
+							<div class="movesets-grid">
+								{% for tl in userTierLists %}
+									<div class="user-moveset-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+										<div class="moveset-card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 12px;">
+											<div class="moveset-pokemon-info" style="gap: 10px;">
+												<i class="fa-solid fa-list-check" style="font-size: 1.5rem; color: var(--color-primary);"></i>
+												<div>
+													<a href="{{ path('app_tier_list_view', { id: tl.id }) }}" class="moveset-pokemon-name" style="font-size: 1.05rem; font-weight: 700; color: #fff;">{{ tl.title }}</a>
+													<span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 2px;">
+														<i class="fa-solid fa-calendar-day"></i> {{ tl.createdAt|date('d/m/Y') }}
+													</span>
+												</div>
+											</div>
+										</div>
+
+										{% if tl.tags is not empty %}
+											<div class="moveset-moves-list" style="margin-top: auto; padding-top: 0;">
+												<div class="moveset-moves-tags">
+													{% for tag in tl.tags %}
+														<span class="moveset-move-tag" style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); color: var(--color-secondary);">{{ tag }}</span>
+													{% endfor %}
+												</div>
+											</div>
+										{% endif %}
+
+										<div style="margin-top: 15px; display: flex; gap: 8px;">
+											<a href="{{ path('app_tier_list_view', { id: tl.id }) }}" class="btn btn-secondary btn-sm" style="flex: 1; text-align: center; justify-content: center; padding: 6px 12px; font-size: 0.8rem;">
+												<i class="fa-solid fa-eye"></i> {{ 'Visualizar'|trans }}
+											</a>
+											<a href="{{ path('app_tier_list_create', { clone: tl.id }) }}" class="btn btn-primary btn-sm" style="flex: 1; text-align: center; justify-content: center; padding: 6px 12px; font-size: 0.8rem;">
+												<i class="fa-solid fa-copy"></i> {{ 'Clonar'|trans }}
+											</a>
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
 		</div>
 
 		{# 
