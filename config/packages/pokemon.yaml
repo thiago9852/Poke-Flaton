@@ -189,4 +189,8 @@ parameters:
             - { id: 10301, name: 'zygarde-mega', types: ['dragon', 'ground'] }
         719:
             - { id: 10075, name: 'diancie-mega', types: ['rock', 'fairy'] }
+        
+        # Geração 9
+        998:
+            - { id: 10325, name: 'baxcalibur-mega', types: ['dragon', 'ice'] }
 
