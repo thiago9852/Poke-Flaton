@@ -17,10 +17,19 @@
 		</div>
 
 		<!-- Formulário de Busca -->
-		<form method="GET" action="{{ path('app_move_search') }}" class="move-search-bar">
+		<form method="GET" action="{{ path('app_move_search') }}" class="move-search-bar" style="position: relative;">
 			<div class="move-search-input-wrapper">
 				<i class="fa-solid fa-magnifying-glass"></i>
-				<input type="text" name="q" value="{{ search }}" class="move-search-input" placeholder="{{ 'Digite o nome do golpe em inglês (ex: fire-blast, earthquake)...'|trans }}" required autocomplete="off">
+				<input type="text"
+				       id="move-search-input"
+				       name="q"
+				       value="{{ search }}"
+				       class="move-search-input"
+				       placeholder="{{ 'Digite o nome do golpe em inglês (ex: fire-blast, earthquake)...'|trans }}"
+				       required
+				       autocomplete="off"
+				       data-autocomplete-url="{{ path('api_move_search') }}">
+				<div id="move-autocomplete-results" class="autocomplete-dropdown" style="display: none;"></div>
 			</div>
 			<button type="submit" class="btn btn-primary" style="padding: 0 24px; height: 50px;">{{ 'Buscar'|trans }}</button>
 		</form>
@@ -156,4 +165,9 @@
 			{% endif %}
 		{% endif %}
 	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="{{ asset('js/move-search.js') }}?v=1.0.5"></script>
 {% endblock %}

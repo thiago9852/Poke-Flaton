@@ -506,6 +506,69 @@ class PokemonController extends AbstractController
         return new JsonResponse($results);
     }
 
+    #[Route('/api/move/search', name: 'api_move_search', methods: ['GET'])]
+    public function searchMoveAjax(Request $request): JsonResponse
+    {
+        $query = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($request->query->get('q', '')))));
+        if (strlen($query) < 2) {
+            return new JsonResponse([]);
+        }
+
+        $allMovesMap = [];
+
+        // 1. Golpes de TMs
+        $tmsJsonPath = $this->getParameter('kernel.project_dir') . '/scratch/tms.json';
+        if (file_exists($tmsJsonPath)) {
+            $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?: [];
+            foreach ($allTms as $tm) {
+                $slug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($tm['move']))));
+                $allMovesMap[$slug] = [
+                    'slug' => $slug,
+                    'name' => ucwords(str_replace('-', ' ', $slug)),
+                    'tm_code' => strtoupper($tm['item']),
+                ];
+            }
+        }
+
+        // 2. Golpes Base
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
+        if (file_exists($defaultBaseMovesPath)) {
+            $rawBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+            foreach ($rawBaseMoves as $moves) {
+                if (is_array($moves)) {
+                    foreach ($moves as $m) {
+                        $slug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m))));
+                        if (!isset($allMovesMap[$slug])) {
+                            $allMovesMap[$slug] = [
+                                'slug' => $slug,
+                                'name' => ucwords(str_replace('-', ' ', $slug)),
+                                'tm_code' => null,
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        // Filtra resultados por termo de busca
+        $results = [];
+        foreach ($allMovesMap as $slug => $data) {
+            if (str_contains($slug, $query) || str_contains(strtolower($data['name']), strtolower($query))) {
+                $results[] = [
+                    'slug' => $data['slug'],
+                    'name' => $data['name'],
+                    'tm_code' => $data['tm_code'],
+                    'url' => $this->generateUrl('app_move_search', ['q' => $data['slug']]),
+                ];
+            }
+        }
+
+        // Limita a 8 resultados
+        $results = array_slice($results, 0, 8);
+
+        return new JsonResponse($results);
+    }
+
     #[Route('/pokedex', name: 'app_pokedex')]
     public function pokedex(Request $request): Response
     {
@@ -654,6 +717,11 @@ class PokemonController extends AbstractController
                     foreach ($moveDetails['learned_by_pokemon'] as $p) {
                         $pId = (int)$p['id'];
                         if (!$this->pokeApiService->isPokemonAllowed($pId)) {
+                            continue;
+                        }
+
+                        $pNameLower = strtolower($p['name']);
+                        if (str_contains($pNameLower, '-mega')) {
                             continue;
                         }
 

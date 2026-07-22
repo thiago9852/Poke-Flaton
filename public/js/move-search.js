@@ -1,80 +1,105 @@
 document.addEventListener('DOMContentLoaded', function () {
-	const filterButtons = document.querySelectorAll('.btn-filter-move');
-	const counter = document.getElementById('results-counter');
-	const noResultsBox = document.getElementById('no-filtered-results');
-	const noResultsText = document.getElementById('no-filtered-results-text');
-	const grid = document.getElementById('pokemon-results-grid');
+	// ==========================================
+	// AUTOCOMPLETE DA BUSCA DE GOLPES
+	// ==========================================
+	const moveInput = document.getElementById('move-search-input');
+	const autocompleteResults = document.getElementById('move-autocomplete-results');
 
-	if (!filterButtons.length) return;
+	if (moveInput && autocompleteResults) {
+		const apiUrl = moveInput.dataset.autocompleteUrl || '/api/move/search';
+		let timeoutId;
+		let selectedIndex = -1;
 
-	function applyFilter(filterType) {
-		const cards = document.querySelectorAll('.result-pokemon-card');
-		let visibleCount = 0;
+		moveInput.addEventListener('input', function () {
+			clearTimeout(timeoutId);
+			const query = this.value.trim();
+			selectedIndex = -1;
 
-		cards.forEach(card => {
-			const isBase = card.getAttribute('data-is-base') === 'true';
-			const hasTm = card.getAttribute('data-has-tm') === 'true';
-
-			const baseBadge = card.querySelector('[data-badge-type="base"]');
-			const tmBadge = card.querySelector('[data-badge-type="tm"]');
-
-			let show = false;
-			if (filterType === 'tm') {
-				show = hasTm;
-				if (tmBadge) tmBadge.style.display = 'inline-flex';
-				if (baseBadge) baseBadge.style.display = 'none';
-			} else {
-				show = isBase;
-				if (baseBadge) baseBadge.style.display = 'inline-flex';
-				if (tmBadge) tmBadge.style.display = 'none';
+			if (query.length < 2) {
+				autocompleteResults.style.display = 'none';
+				autocompleteResults.innerHTML = '';
+				return;
 			}
 
-			if (show) {
-				card.classList.remove('filtered-out');
-				visibleCount++;
-			} else {
-				card.classList.add('filtered-out');
-			}
-		});
+			timeoutId = setTimeout(async () => {
+				try {
+					const response = await fetch(`${apiUrl}?q=${encodeURIComponent(query)}`);
+					const data = await response.json();
 
-		if (counter) {
-			counter.textContent = '(' + visibleCount + ')';
-		}
+					autocompleteResults.innerHTML = '';
 
-		if (visibleCount === 0) {
-			if (grid) grid.style.display = 'none';
-			if (noResultsBox) {
-				noResultsBox.style.display = 'block';
-				if (filterType === 'tm') {
-					noResultsText.textContent = noResultsBox.dataset.msgTm || 'Nenhum Pokémon nesta busca aprende este golpe por TM.';
-				} else {
-					noResultsText.textContent = noResultsBox.dataset.msgBase || 'Nenhum Pokémon nesta busca aprende este golpe como Golpe Base (Base Move).';
+					if (Array.isArray(data) && data.length > 0) {
+						data.forEach((move, idx) => {
+							const a = document.createElement('a');
+							a.href = move.url;
+							a.className = 'autocomplete-item';
+							a.setAttribute('data-index', idx);
+							a.style.justifyContent = 'center';
+							a.innerHTML = `
+								<div class="autocomplete-item-info" style="text-align: center; width: 100%;">
+									<span class="poke-name" style="font-weight: 600;">${move.name}</span>
+								</div>
+							`;
+
+							a.addEventListener('click', function (e) {
+								e.preventDefault();
+								moveInput.value = move.slug;
+								autocompleteResults.style.display = 'none';
+								window.location.href = move.url;
+							});
+
+							autocompleteResults.appendChild(a);
+						});
+						autocompleteResults.style.display = 'flex';
+					} else {
+						autocompleteResults.innerHTML = '<div style="padding: 14px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">Nenhum golpe encontrado.</div>';
+						autocompleteResults.style.display = 'flex';
+					}
+				} catch (e) {
+					console.error("Erro ao buscar sugestões de golpes:", e);
 				}
-			}
-		} else {
-			if (grid) grid.style.display = 'grid';
-			if (noResultsBox) noResultsBox.style.display = 'none';
-		}
-	}
-
-	filterButtons.forEach(btn => {
-		btn.addEventListener('click', function () {
-			filterButtons.forEach(b => b.classList.remove('active'));
-			this.classList.add('active');
-			const filterType = this.getAttribute('data-filter');
-			applyFilter(filterType);
-
-			const url = new URL(window.location);
-			if (filterType === 'base') {
-				url.searchParams.delete('filter');
-			} else {
-				url.searchParams.set('filter', filterType);
-			}
-			window.history.replaceState({}, '', url);
+			}, 250);
 		});
-	});
 
-	const activeBtn = document.querySelector('.btn-filter-move.active');
-	const initialFilter = activeBtn ? activeBtn.getAttribute('data-filter') : 'base';
-	applyFilter(initialFilter);
+		moveInput.addEventListener('keydown', function (e) {
+			const items = autocompleteResults.querySelectorAll('.autocomplete-item');
+			if (!items.length || autocompleteResults.style.display === 'none') return;
+
+			if (e.key === 'ArrowDown') {
+				e.preventDefault();
+				selectedIndex = (selectedIndex + 1) % items.length;
+				updateActiveItem(items);
+			} else if (e.key === 'ArrowUp') {
+				e.preventDefault();
+				selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+				updateActiveItem(items);
+			} else if (e.key === 'Enter' && selectedIndex >= 0) {
+				e.preventDefault();
+				items[selectedIndex].click();
+			}
+		});
+
+		function updateActiveItem(items) {
+			items.forEach((item, idx) => {
+				if (idx === selectedIndex) {
+					item.classList.add('active');
+					item.scrollIntoView({ block: 'nearest' });
+				} else {
+					item.classList.remove('active');
+				}
+			});
+		}
+
+		moveInput.addEventListener('focus', function () {
+			if (this.value.trim().length >= 2 && autocompleteResults.children.length > 0) {
+				autocompleteResults.style.display = 'flex';
+			}
+		});
+
+		document.addEventListener('click', function (e) {
+			if (!moveInput.contains(e.target) && !autocompleteResults.contains(e.target)) {
+				autocompleteResults.style.display = 'none';
+			}
+		});
+	}
 });
