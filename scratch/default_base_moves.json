@@ -59,6 +59,7 @@
     "dragon-dance",  
 	  "rock-polish"
   ],
+
   "chespin": [
     "pin-missile",
     "drain-punch",
@@ -278,23 +279,33 @@
     "night-slash",
     "brutal-swing"
   ],
-  "furfrou": [
-    ""
-  ],
-  "espurr": [
-    ""
-  ],
-  "meowstic": [
-    ""
-  ],
   "honedge": [
-    ""
+    "pursuit",
+    "aerial-ace",
+    "fury-cutter",
+    "head-smash",
+    "iron-defense"
   ],
   "doublade": [
-    ""
+    "pursuit",
+    "aerial-ace",
+    "fury-cutter",
+    "head-smash",
+    "iron-defense",
+    "shock-wave",
+    "night-slash"
   ],
   "aegislash": [
-    ""
+    "pursuit",
+    "aerial-ace",
+    "fury-cutter",
+    "head-smash",
+    "iron-defense",
+    "shock-wave",
+    "night-slash",
+    "destiny-bond",
+    "swords-dance",
+    "kings-shield"
   ],
   "spritee": [
     "echoed-voice",
@@ -315,8 +326,25 @@
     "aromatherapy",
     "heal-pulse"
   ],
-  "swirlix": [],
-  "slurpuff": [],
+  "swirlix": [
+    "fairy-wind",
+    "aromatherapy",
+    "wish",
+    "draining-kiss",
+    "energy-ball"
+  ],
+  "slurpuff": [
+    "fairy-wind",
+    "aromatherapy",
+    "wish",
+    "draining-kiss",
+    "energy-ball",
+    "heal-bell",
+    "play-rough",
+    "light-screen",
+    "drain-punch",
+    "safeguard"
+  ],
   "flabebe": [
     "disarming-voice",
     "misty-terrain",
@@ -390,7 +418,18 @@
     "dragon-pulse",
     "aqua-tail"
   ],
-  "dragalge": [],
+  "dragalge": [
+    "acid",
+    "water-pulse",
+    "toxic",
+    "dragon-pulse",
+    "aqua-tail",
+    "sludge-bomb",
+    "hydro-pump",
+    "outrage",
+    "twister",
+    "acid-armor"
+  ],
   "clauncher": [
     "dark-pulse",
     "dragon-pulse",
@@ -398,14 +437,84 @@
     "aqua-jet",
     "water-pulse"
   ],
-  "clawitzer": [],
-  "helioptile": [],
-  "heliolisk": [],
+  "clawitzer": [
+    "dark-pulse",
+    "dragon-pulse",
+    "heal-pulse",
+    "aqua-jet",
+    "water-pulse",
+    "swords-dance",
+    "aura-sphere",
+    "muddy-water",
+    "crabhammer",
+    "aqua-tail"
+  ],
+  "furfrou": [
+    "tackle",
+    "last-resort",
+    "uproar",
+    "hyper-voice",
+    "charm",
+    "work-up",
+    "iron-tail",
+    "sucker-punch",
+    "bite",
+    "refresh"
+  ],
+  "espurr": [
+    "disarming-voice",
+    "mean-look",
+    "confusion",
+    "future-sight",
+    "psybeam"
+  ],
+  "meowstic": [
+    "disarming-voice",
+    "mean-look",
+    "confusion",
+    "future-sight",
+    "psybeam",
+    "sucker-punch",
+    "psyshock",
+    "psychic",
+    "misty-terrain",
+    "reflect"
+  ],
+  "helioptile": [
+    "bulldoze",
+    "discharge",
+    "thunder",
+    "thunderbolt",
+    "parabolic-charge"
+  ],
+  "heliolisk": [
+    "bulldoze",
+    "discharge",
+    "thunder",
+    "thunderbolt",
+    "parabolic-charge",
+    "dragon-rush",
+    "thunder-wave",
+    "thunder-shock",
+    "quick-attack",
+    "volt-switch"
+  ],
   "tyrunt": [],
   "tyrantrum": [],
   "amaura": [],
   "aurorus": [],
-  "sylveon": [],
+  "sylveon": [
+    "charm",
+    "misty-terrain",
+    "moonblast",
+    "last-resort",
+    "disarming-voice",
+    "fairy-wind",
+    "play-rough",
+    "magical-leaf",
+    "draining-kiss",
+    "heal-bell"
+  ],
   "hawlucha": [
     "assurance",
     "brick-break",
@@ -430,7 +539,18 @@
     "play-rough",
     "rest"
   ],
-  "carbink": [],
+  "carbink": [
+    "tackle",
+    "smack-down",
+    "ancient-power",
+    "rock-polish",
+    "light-screen",
+    "rock-slide",
+    "stealth-rock",
+    "moonblast",
+    "stone-edge",
+    "harden"
+  ],
   "goomy": [],
   "sliggoo": [],
   "goodra": [],
@@ -503,6 +623,23 @@
     "powder-snow",
     "recover"
   ],
-  "noibat": [],
-  "noivern": []
+  "noibat": [
+    "absorb",
+    "tackle",
+    "gust",
+    "wing-attack",
+    "whirlwind"
+  ],
+  "noivern": [
+    "hurricane",
+    "dragon-pulse",
+    "dragon-rush",
+    "tailwind",
+    "aerial-ace",
+    "agility",
+    "wing-attack",
+    "roost",
+    "whirlwind",
+    "dragon-dance"
+  ]
 }
