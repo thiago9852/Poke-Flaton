@@ -1,11 +1,10 @@
-<div class="move-detail-item" 
-    style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;"
->
-    
-    <div class="move-detail-header" 
-        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;"
-    >
-        <span class="move-name-text" style="font-weight: bold;">
+<div class="move-detail-item">
+    {% if moveIndex is defined and moveIndex %}
+        <span class="move-index-watermark">#{{ moveIndex }}</span>
+    {% endif %}
+
+    <div class="move-detail-header">
+        <span class="move-name-text">
             {{ moveName|replace({'-': ' '})|title }}
         </span>
         
@@ -28,9 +27,7 @@
     </div>
 
     {% if md %}
-        <div class="move-detail-stats" 
-            style="font-size: 0.85em; color: #aaa; display: flex; gap: 10px; margin-bottom: 5px;"
-        >
+        <div class="move-detail-stats">
             <span>
                 {% if md.category == 'physical' %}
                     <i class="fa-solid fa-hand-fist"></i> {{ 'Físico'|trans }}
@@ -50,7 +47,6 @@
             {% endif %}
         </div>
         
-        <p class="move-desc" style="font-size: 0.85em; margin: 0; color: #ddd;">{{ md.description }}</p>
+        <p class="move-desc" title="{{ md.description }}">{{ md.description }}</p>
     {% endif %}
-    
 </div>

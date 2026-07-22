@@ -178,7 +178,7 @@
 												{% for moveName in defaultBaseMoves %}
 													{% if moveName %}
 														{% set md = moveDetails[moveName|lower] ?? null %}
-														{% include 'partials/move_detail_item.html.twig' with {'moveName': moveName, 'md': md, 'pokemon': pokemon} %}
+														{% include 'partials/move_detail_item.html.twig' with {'moveName': moveName, 'md': md, 'pokemon': pokemon, 'moveIndex': loop.index} %}
 													{% endif %}
 												{% endfor %}
 											</div>
@@ -337,7 +337,7 @@
 					jsonCard.style.display = 'block';
 					btn.querySelector('.toggle-text').textContent = dbCard.classList.contains('empty-wrapper') 
 						? '{{ "Mostrar Opções de Criação"|trans }}' 
-						: '{{ "Mostrar Moveset Recomendado"|trans }}';
+						: '{{ "Mostrar Golpes Ideais"|trans }}';
 				}
 			}
 		}

@@ -64,7 +64,7 @@
                 {% for moveName in m.moves %}
                     {% if moveName %}
                         {% set md = moveDetails[moveName] ?? null %}
-                        {% include 'partials/move_detail_item.html.twig' with {'moveName': moveName, 'md': md, 'pokemon': pokemon} %}
+                        {% include 'partials/move_detail_item.html.twig' with {'moveName': moveName, 'md': md, 'pokemon': pokemon, 'moveIndex': loop.index} %}
                     {% endif %}
                 {% endfor %}
             </div>

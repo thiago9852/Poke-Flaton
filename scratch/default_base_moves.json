@@ -1,51 +1,126 @@
 {
   "bulbasaur": [
-    "tackle",
-    "growl",
-    "vine-whip",
-    "growth"
+    "magical-leaf",
+    "grassy-terrain",
+    "synthesis",
+    "power-whip",
+    "razor-leaf"
   ],
-  "charmander": [
-    "scratch",
-    "growl",
-    "ember",
-    "fire-spin"
-  ],
-  "squirtle": [
-    "tackle",
-    "tail-whip",
-    "water-gun",
-    "withdraw"
-  ],
-  "charizard": [
-    "air-slash",
-    "dragon-claw",
-    "ember",
-    "fire-blast"
+  "ivysaur": [
+    "magical-leaf",
+    "grassy-terrain",
+    "synthesis",
+    "power-whip",
+    "razor-leaf",
+    "petal-dance",
+    "solar-beam"
   ],
   "venusaur": [
     "magical-leaf",
     "grassy-terrain",
-    "leaf-storm",  
-	  "power-whip",
+    "leaf-storm",
+    "power-whip",
     "razor-leaf",
     "petal-dance",
     "solar-beam",
     "poison-gas",
-    "petal-blizzard",  
-	  "synthesis"
+    "petal-blizzard",
+    "synthesis"
+  ],
+  "charmander": [
+    "flamethrower",
+    "dragon-rush",
+    "heat-wave",
+    "inferno",
+    "flare-blitz"
+  ],
+  "charmeleon": [
+    "flamethrower",
+    "dragon-rush",
+    "heat-wave",
+    "dragon-rage",
+    "flare-blitz",
+    "inferno",
+    "fire-blast"
+  ],
+  "charizard": [
+    "air-slash",
+    "dragon-rush",
+    "heat-wave",
+    "dragon-rage",
+    "dragon-breath",
+    "inferno",
+    "fire-blast",
+    "flare-blitz",
+    "flamethrower",
+    "wing-attack"
+  ],
+  "squirtle": [
+    "life-dew",
+    "water-pulse",
+    "water-gun",
+    "hydro-pump",
+    "bite"
   ],
   "blastoise": [
     "life-dew",
     "water-pulse",
-    "water-gun",  
-	  "hydro-pump",
+    "water-gun",
+    "hydro-pump",
     "bite",
     "rain-dance",
     "muddy-water",
     "water-sport",
-    "hydro-cannon",  
-	  "whirlpool"
+    "hydro-cannon",
+    "whirlpool"
+  ],
+  "caterpie": [
+    "tackle",
+    "string-shot",
+    "bug-bite"
+  ],
+  "metapod": [
+    "tackle",
+    "string-shot",
+    "bug-bite",
+    "harden",
+    "iron-defense"
+  ],
+  "butterfree": [
+    "bug-bite",
+    "psybeam",
+    "draining-kiss",
+    "confusion",
+    "mega-drain",
+    "bug-buzz",
+    "quiver-dance",
+    "air-slash",
+    "hurricane",
+    "tackle"
+  ],
+  "weedle": [
+    "poison-sting",
+    "string-shot",
+    "bug-bite"
+  ],
+  "kakuna": [
+    "poison-sting",
+    "string-shot",
+    "bug-bite",
+    "harden",
+    "iron-defense"
+  ],
+  "beedrill": [
+    "agility",
+    "assurance",
+    "pin-missile",
+    "mega-drain",
+    "fury-cutter",
+    "ominous-wind",
+    "venoshock",
+    "outrage",
+    "poison-jab",
+    "pursuit"
   ],
   "tyranitar": [
     "leer",

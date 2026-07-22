@@ -132,6 +132,55 @@
 			font-size: 0.95rem;
 		}
 
+		.move-results-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 15px;
+			margin-bottom: 20px;
+		}
+
+		.move-results-header .pokemon-results-title {
+			margin-bottom: 0;
+		}
+
+		.move-filter-buttons {
+			display: flex;
+			gap: 6px;
+			background: rgba(0, 0, 0, 0.3);
+			padding: 4px;
+			border-radius: var(--radius-md);
+			border: 1px solid var(--border-color);
+			flex-wrap: wrap;
+		}
+
+		.btn-filter-move {
+			background: transparent;
+			border: none;
+			color: var(--text-secondary);
+			padding: 8px 14px;
+			border-radius: var(--radius-sm);
+			font-size: 0.85rem;
+			font-weight: 600;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			transition: var(--transition-smooth);
+		}
+
+		.btn-filter-move:hover {
+			color: #fff;
+			background: rgba(255, 255, 255, 0.05);
+		}
+
+		.btn-filter-move.active {
+			background: var(--color-primary);
+			color: #fff;
+			box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+		}
+
 		.pokemon-results-title {
 			font-family: 'Outfit', sans-serif;
 			font-size: 1.4rem;
@@ -141,6 +190,10 @@
 			display: flex;
 			align-items: center;
 			gap: 10px;
+		}
+
+		.result-pokemon-card.filtered-out {
+			display: none !important;
 		}
 
 		.pokemon-results-title i {

@@ -612,6 +612,7 @@ class PokemonController extends AbstractController
     public function searchMoves(Request $request): Response
     {
         $search = $request->query->get('q', '');
+        $filter = $request->query->get('filter', 'base');
         $results = [];
         $moveDetails = null;
         $allTms = [];
@@ -631,7 +632,15 @@ class PokemonController extends AbstractController
         $defaultBaseMoves = [];
         $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
         if (file_exists($defaultBaseMovesPath)) {
-            $defaultBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+            $rawBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+            foreach ($rawBaseMoves as $pkName => $moves) {
+                if (is_array($moves)) {
+                    $pkKey = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($pkName))));
+                    $defaultBaseMoves[$pkKey] = array_map(function ($m) {
+                        return preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m))));
+                    }, $moves);
+                }
+            }
         }
 
         if (!empty($search)) {
@@ -639,7 +648,8 @@ class PokemonController extends AbstractController
             try {
                 $moveDetails = $this->pokeApiService->getMoveDetailsWithLearnedBy($moveSlug);
                 if ($moveDetails && !empty($moveDetails['learned_by_pokemon'])) {
-                    $tmCode = $tmsMap[strtolower($moveDetails['name'])] ?? null;
+                    $moveNameNorm = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($moveDetails['name']))));
+                    $tmCode = $tmsMap[$moveNameNorm] ?? null;
 
                     foreach ($moveDetails['learned_by_pokemon'] as $p) {
                         $pId = (int)$p['id'];
@@ -647,16 +657,28 @@ class PokemonController extends AbstractController
                             continue;
                         }
 
-                        $pNameLower = strtolower($p['name']);
+                        $pSlug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($p['name']))));
+                        $baseName = explode('-', $pSlug)[0];
                         
                         $isBaseMove = false;
                         $baseSlotLabel = null;
-                        if (isset($defaultBaseMoves[$pNameLower]) && is_array($defaultBaseMoves[$pNameLower])) {
-                            $idx = array_search(strtolower($moveDetails['name']), array_map('strtolower', $defaultBaseMoves[$pNameLower]));
+                        
+                        $matchedMoves = $defaultBaseMoves[$pSlug] ?? $defaultBaseMoves[$baseName] ?? null;
+                        if ($matchedMoves !== null) {
+                            $idx = array_search($moveNameNorm, $matchedMoves);
                             if ($idx !== false) {
                                 $isBaseMove = true;
                                 $baseSlotLabel = 'm' . ($idx + 1) . ' (move nº ' . ($idx + 1) . ')';
                             }
+                        }
+
+                        // Filtragem server-side baseada na aba ativa
+                        if ($filter === 'base' && !$isBaseMove) {
+                            continue;
+                        }
+
+                        if ($filter === 'tm' && !$tmCode) {
+                            continue;
                         }
 
                         $results[] = [
@@ -681,6 +703,7 @@ class PokemonController extends AbstractController
             'search' => $search,
             'moveDetails' => $moveDetails,
             'results' => $results,
+            'filter' => $filter,
         ]);
     }
 }

@@ -89,37 +89,61 @@
 
 				<!-- Resultados de Pokémon -->
 				<div>
-					<h3 class="pokemon-results-title">
-						<i class="fa-solid fa-circle-check"></i>
-						{{ 'Pokémon que aprendem este golpe'|trans }}
-						<span class="slots-counter" style="margin-left: 5px; font-size: 0.9rem; font-weight: normal; color: var(--text-secondary);">({{ results|length }})</span>
-					</h3>
+					<div class="move-results-header">
+						<h3 class="pokemon-results-title">
+							<i class="fa-solid fa-circle-check"></i>
+							{{ 'Pokémon que aprendem este golpe'|trans }}
+							<span id="results-counter" class="slots-counter" style="margin-left: 5px; font-size: 0.9rem; font-weight: normal; color: var(--text-secondary);">({{ results|length }})</span>
+						</h3>
+
+						<div class="move-filter-buttons">
+							<a href="{{ path('app_move_search', { q: search, filter: 'base' }) }}"
+							   class="btn-filter-move {% if filter != 'tm' %}active{% endif %}"
+							   title="{{ 'Mostrar apenas Pokémon que aprendem como Golpe Base (ideal para Smeargle copiar via Sketch)'|trans }}">
+								<i class="fa-solid fa-circle-chevron-up"></i>
+								{{ 'Base Move'|trans }}
+							</a>
+							<a href="{{ path('app_move_search', { q: search, filter: 'tm' }) }}"
+							   class="btn-filter-move {% if filter == 'tm' %}active{% endif %}"
+							   title="{{ 'Mostrar apenas Pokémon que aprendem por TM'|trans }}">
+								<i class="fa-solid fa-compact-disc"></i>
+								{{ 'Apenas TM'|trans }}
+							</a>
+						</div>
+					</div>
 
 					{% if results is empty %}
 						<div class="card" style="text-align: center; padding: 30px; border: 1px solid var(--border-color);">
-							<p class="text-muted">{{ 'Nenhum Pokémon permitido no site aprende este golpe no momento.'|trans }}</p>
+							{% if filter == 'tm' %}
+								<p class="text-muted">{{ 'Nenhum Pokémon nesta busca aprende este golpe por TM.'|trans }}</p>
+							{% else %}
+								<p class="text-muted">{{ 'Nenhum Pokémon nesta busca aprende este golpe como Golpe Base (Base Move).'|trans }}</p>
+							{% endif %}
 						</div>
 					{% else %}
-						<div class="results-grid">
+						<div class="results-grid" id="pokemon-results-grid">
 							{% for p in results %}
 								<a href="{{ path('app_pokemon_detail', { name: p.name }) }}" class="result-pokemon-card">
 									<img src="{{ p.sprite }}" alt="{{ p.name|capitalize }}" class="result-sprite" loading="lazy">
 									<div class="result-info">
 										<span class="result-name">{{ p.name|replace({'-mega': ' Mega', '-x': ' X', '-y': ' Y', '-z': ' Z', '-': ' '})|title }}</span>
 										<div class="result-badges">
-											{% if p.is_base %}
-												<span class="badge-base-slot">
-													<i class="fa-solid fa-circle-chevron-up"></i>
-													{{ p.base_slot }}
-												</span>
-											{% endif %}
-											{% if p.tm_code %}
+											{% if filter == 'tm' and p.tm_code %}
 												<span class="badge-tm-slot">
 													<i class="fa-solid fa-compact-disc"></i>
 													{{ p.tm_code|upper }}
 												</span>
-											{% endif %}
-											{% if not p.is_base and not p.tm_code %}
+											{% elseif p.is_base %}
+												<span class="badge-base-slot">
+													<i class="fa-solid fa-circle-chevron-up"></i>
+													{{ p.base_slot }}
+												</span>
+											{% elseif p.tm_code %}
+												<span class="badge-tm-slot">
+													<i class="fa-solid fa-compact-disc"></i>
+													{{ p.tm_code|upper }}
+												</span>
+											{% else %}
 												<span class="badge-general-slot">{{ 'Nível (Geral)'|trans }}</span>
 											{% endif %}
 										</div>
