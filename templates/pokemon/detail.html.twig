@@ -155,12 +155,37 @@
 									'naturesMap': naturesMap,
 									'abilityDetails': abilityDetails,
 									'recommendedNature': recommendedNatures[tabType],
+									'mostUsedNature': mostUsedNature,
+									'mostUsedNaturePercent': mostUsedNaturePercent,
+									'mostUsedItem': mostUsedItem,
+									'mostUsedItemPercent': mostUsedItemPercent,
+									'mostUsedAbility': mostUsedAbility,
+									'mostUsedAbilityPercent': mostUsedAbilityPercent,
 								} %}
 							{% endif %}
 						</div>
 
 						<!-- Bloco do Moveset de Golpes Base JSON -->
 						{% if defaultBaseMoves is not empty %}
+							{% set baseBuild = defaultMoveset %}
+							{% if baseBuild is null %}
+								{% for m in movesets %}
+									{% if baseBuild is null and m.type == tabType %}
+										{% set baseBuild = m %}
+									{% endif %}
+								{% endfor %}
+							{% endif %}
+							{% if baseBuild is null %}
+								{% for m in movesets %}
+									{% if baseBuild is null and m.isDefault %}
+										{% set baseBuild = m %}
+									{% endif %}
+								{% endfor %}
+							{% endif %}
+							{% if baseBuild is null and movesets is not empty %}
+								{% set baseBuild = movesets|first %}
+							{% endif %}
+
 							<div class="json-base-moveset-card" id="json-base-{{ tabType }}" style="display: {{ (defaultMoveset is null) ? 'block' : 'none' }};">
 								<div class="moveset-card card moveset-highlight" style="padding: 20px;">
 									<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
@@ -172,9 +197,10 @@
 										</div>
 									</div>
 									
-									<div class="moveset-grid" style="display: block;">
-										<div class="moveset-section-moves" style="width: 100%;">
-											<div class="moves-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">
+									<div class="moveset-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+										<div class="moveset-section-moves">
+											<h4 class="moveset-title">{{ 'Golpes aprendidos'|trans }}</h4>
+											<div class="moves-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
 												{% for moveName in defaultBaseMoves %}
 													{% if moveName %}
 														{% set md = moveDetails[moveName|lower] ?? null %}
@@ -182,6 +208,88 @@
 													{% endif %}
 												{% endfor %}
 											</div>
+										</div>
+
+										<!-- Infos (Item, Nature, Ability) -->
+										<div class="build-summary-section" style="display: flex; flex-direction: column; gap: 15px;">
+											
+											{% set buildItem = baseBuild ? baseBuild.heldItem : null %}
+											{% set displayItem = buildItem|default(mostUsedItem ?? null) %}
+											<div class="build-sub-section">
+												<h4 class="moveset-title">{{ 'Item'|trans }}</h4>
+												
+												<div style="margin-bottom: 15px;">
+													{% if displayItem %}
+														<div style="display: flex; align-items: center; gap: 10px;">
+															<div style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 8px; display: flex; justify-content: center; align-items: center;">
+																<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/{{ displayItem }}.png" style="width: 30px; height: 30px;" alt="{{ displayItem }}">
+															</div>
+															
+															<div style="display: flex; align-items: center; gap: 5px;">
+																{% include 'partials/tooltip_trigger.html.twig' with {
+																	'title': ('Item: ' ~ displayItem|replace({'-': ' '})|title),
+																	'content': itemDetails[displayItem].description|default('Item recomendado.'|trans),
+																	'label': displayItem|replace({'-': ' '})|title
+																} %}
+																{% if mostUsedItemPercent is defined and mostUsedItemPercent > 0 and displayItem == (mostUsedItem ?? null) %}
+																	<span style="font-weight: bold; color: #fff; font-size: 0.9em;">({{ mostUsedItemPercent }}%)</span>
+																{% endif %}
+															</div>
+														</div>
+													{% else %}
+														<span style="font-weight: bold; color: #fff;">{{ 'Não especificado'|trans }}</span>
+													{% endif %}
+												</div>
+											</div>
+
+											<div class="build-sub-section">
+												<h4 class="moveset-title">{{ 'Nature'|trans }}</h4>
+												
+												<div style="margin-bottom: 15px;">
+													{% set displayNature = mostUsedNature|default(baseBuild ? baseBuild.nature : null)|default(recommendedNatures[tabType] ?? null) %}
+													{% if displayNature %}
+														<span style="font-weight: bold; color: #fff;">
+															{{ displayNature|capitalize }}
+															{% if mostUsedNaturePercent is defined and mostUsedNaturePercent > 0 %}
+																({{ mostUsedNaturePercent }}%)
+															{% endif %}
+														</span>
+														<p style="font-size: 0.85em; color: #aaa; margin: 0;">
+															{% if naturesMap[displayNature] is defined %}
+																+ {{ naturesMap[displayNature].increased|replace({'-': ' '})|title }} / - {{ naturesMap[displayNature].decreased|replace({'-': ' '})|title }}
+															{% else %}
+																{{ 'Nature ideal.'|trans }}
+															{% endif %}
+														</p>
+													{% else %}
+														<span style="font-weight: bold; color: #fff;">{{ 'Não especificada'|trans }}</span>
+													{% endif %}
+												</div>
+											</div>
+
+											{% set buildAbility = baseBuild ? baseBuild.ability : null %}
+											{% set displayAbility = buildAbility|default(mostUsedAbility ?? null) %}
+											<div class="build-sub-section">
+												<h4 class="moveset-title">{{ 'Habilidade'|trans }}</h4>
+												
+												<div style="margin-bottom: 15px;">
+													{% if displayAbility %}
+														<div style="display: flex; align-items: center; gap: 5px;">
+															{% include 'partials/tooltip_trigger.html.twig' with {
+																'title': ('Habilidade: ' ~ displayAbility|replace({'-': ' '})|title),
+																'content': abilityDetails[displayAbility].description|default('Habilidade recomendada.'|trans),
+																'label': displayAbility|replace({'-': ' '})|title
+															} %}
+															{% if mostUsedAbilityPercent is defined and mostUsedAbilityPercent > 0 and displayAbility == (mostUsedAbility ?? null) %}
+																<span style="font-weight: bold; color: #fff; font-size: 0.9em;">({{ mostUsedAbilityPercent }}%)</span>
+															{% endif %}
+														</div>
+													{% else %}
+														<span style="font-weight: bold; color: #fff;">{{ 'Não especificada'|trans }}</span>
+													{% endif %}
+												</div>
+											</div>
+											
 										</div>
 									</div>
 								</div>
@@ -331,7 +439,7 @@
 				if (isDbHidden) {
 					dbCard.style.display = 'block';
 					jsonCard.style.display = 'none';
-					btn.querySelector('.toggle-text').textContent = '{{ "Mostrar Golpes Padrão"|trans }}';
+					btn.querySelector('.toggle-text').textContent = '{{ "Mostrar Golpe Padrão"|trans }}';
 				} else {
 					dbCard.style.display = 'none';
 					jsonCard.style.display = 'block';

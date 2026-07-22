@@ -397,22 +397,53 @@ class PokemonController extends AbstractController
             }
         }
 
-        // Calcular a nature mais usada no geral (independente de tipo) e sua porcentagem
+        // Calcular a nature, item e habilidade mais usados no geral e suas porcentagens
         $mostUsedNature = null;
         $mostUsedNaturePercent = 0;
+        $mostUsedItem = null;
+        $mostUsedItemPercent = 0;
+        $mostUsedAbility = null;
+        $mostUsedAbilityPercent = 0;
+
         $totalMovesets = count($movesets);
         if ($totalMovesets > 0) {
             $overallNatureCounts = [];
+            $overallItemCounts = [];
+            $overallAbilityCounts = [];
+
             foreach ($movesets as $m) {
                 $n = $m->getNature();
                 if (!empty($n)) {
                     $overallNatureCounts[$n] = ($overallNatureCounts[$n] ?? 0) + 1;
                 }
+
+                $i = $m->getHeldItem();
+                if (!empty($i)) {
+                    $overallItemCounts[$i] = ($overallItemCounts[$i] ?? 0) + 1;
+                }
+
+                $a = $m->getAbility();
+                if (!empty($a)) {
+                    $overallAbilityCounts[$a] = ($overallAbilityCounts[$a] ?? 0) + 1;
+                }
             }
+
             if (!empty($overallNatureCounts)) {
                 arsort($overallNatureCounts);
                 $mostUsedNature = array_key_first($overallNatureCounts);
                 $mostUsedNaturePercent = (int) round(($overallNatureCounts[$mostUsedNature] / $totalMovesets) * 100);
+            }
+
+            if (!empty($overallItemCounts)) {
+                arsort($overallItemCounts);
+                $mostUsedItem = array_key_first($overallItemCounts);
+                $mostUsedItemPercent = (int) round(($overallItemCounts[$mostUsedItem] / $totalMovesets) * 100);
+            }
+
+            if (!empty($overallAbilityCounts)) {
+                arsort($overallAbilityCounts);
+                $mostUsedAbility = array_key_first($overallAbilityCounts);
+                $mostUsedAbilityPercent = (int) round(($overallAbilityCounts[$mostUsedAbility] / $totalMovesets) * 100);
             }
         }
 
@@ -453,6 +484,10 @@ class PokemonController extends AbstractController
             'locations' => $locations,
             'mostUsedNature' => $mostUsedNature,
             'mostUsedNaturePercent' => $mostUsedNaturePercent,
+            'mostUsedItem' => $mostUsedItem,
+            'mostUsedItemPercent' => $mostUsedItemPercent,
+            'mostUsedAbility' => $mostUsedAbility,
+            'mostUsedAbilityPercent' => $mostUsedAbilityPercent,
             'defaultBaseMoves' => $defaultBaseMoves,
         ]);
     }

@@ -1,136 +1,165 @@
-<div class="moveset-card card moveset-highlight" style="padding: 20px;">
-    <!-- Ações (topo) -->
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 0.9em; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
-                {% if m.author and m.author != 'Anônimo' %}
-                    <a href="{{ path('app_trainer_profile', { username: m.author }) }}" style="display: flex; align-items: center; gap: 5px; color: var(--color-secondary); font-weight: bold;">
-                        <i class="fa-solid fa-circle-user" style="font-size: 16px; color: var(--color-primary);"></i>
-                        {{ m.author }}
-                    </a>
-                {% else %}
-                    <span style="display: flex; align-items: center; gap: 5px; color: #fff; font-weight: bold;">
-                        <img src="{{ asset('image/Pokeball.png') }}" style="width: 16px; height: 16px; object-fit: contain;" alt="{{ 'Anônimo'|trans }}">
-                        {{ m.author|default('Anônimo'|trans) }}
-                    </span>
-                {% endif %}
-                <span style="color: var(--text-muted); font-weight: normal;">&bull; {{ m.createdAt|date('d/m/Y') }}</span>
-                {% if m.isDefault %}
-                    <span class="badge bg-success" style="background-color: #10b981; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; display: inline-flex; align-items: center; gap: 4px; font-weight: bold; margin-left: 6px; height: 22px;">
-                        <i class="fa-solid fa-star"></i> {{ 'Padrão'|trans }}
-                    </span>
-                {% endif %}
-            </span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
-            {% if is_granted('ROLE_ADMIN') %}
-                {% if m.isDefault %}
-                    <form method="post" action="{{ path('app_admin_moveset_remove_default', {'id': m.id}) }}" style="display: inline; margin: 0;">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; border: 1px solid #ef4444; color: #ef4444; background: transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="fa-solid fa-star-half-stroke"></i> {{ 'Remover'|trans }}
-                        </button>
-                    </form>
-                {% else %}
-                    <form method="post" action="{{ path('app_admin_moveset_default', {'id': m.id}) }}" style="display: inline; margin: 0;">
-                        <button type="submit" class="btn btn-sm btn-outline-success" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; border: 1px solid #10b981; color: #10b981; background: transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="fa-solid fa-star"></i> {{ 'Definir'|trans }}
-                        </button>
-                    </form>
-                {% endif %}
-            {% endif %}
-            <button class="btn btn-sm btn-outline-secondary share-btn" onclick="openShareModal('{{ m.id }}')" title="{{ 'Compartilhar Moveset'|trans }}" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer;">
-                <i class="fa-solid fa-share-nodes"></i> {{ 'Compartilhar'|trans }}
-            </button>
-            <button class="btn btn-sm btn-outline-secondary export-btn" onclick="exportMovesetJson({{ {
-                pokemonName: m.pokemonName,
-                type: m.type,
-                ability: m.ability,
-                nature: m.nature,
-                heldItem: m.heldItem,
-                moves: m.moves
-            }|json_encode|escape('html_attr') }})" title="{{ 'Exportar Moveset (JSON)'|trans }}" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                <i class="fa-solid fa-file-export"></i> {{ 'Exportar'|trans }}
-            </button>
-        </div>
-    </div>
+<div
+	class="moveset-card card moveset-highlight" style="padding: 20px;">
+	<!-- Ações (topo) -->
+	<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+		<div style="display: flex; align-items: center; gap: 8px;">
+			<span style="font-size: 0.9em; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+				{% if m.author and m.author != 'Anônimo' %}
+					<a href="{{ path('app_trainer_profile', { username: m.author }) }}" style="display: flex; align-items: center; gap: 5px; color: var(--color-secondary); font-weight: bold;">
+						<i class="fa-solid fa-circle-user" style="font-size: 16px; color: var(--color-primary);"></i>
+						{{ m.author }}
+					</a>
+				{% else %}
+					<span style="display: flex; align-items: center; gap: 5px; color: #fff; font-weight: bold;">
+						<img src="{{ asset('image/Pokeball.png') }}" style="width: 16px; height: 16px; object-fit: contain;" alt="{{ 'Anônimo'|trans }}">
+						{{ m.author|default('Anônimo'|trans) }}
+					</span>
+				{% endif %}
+				<span style="color: var(--text-muted); font-weight: normal;">&bull;
+					{{ m.createdAt|date('d/m/Y') }}</span>
+				{% if m.isDefault %}
+					<span class="badge bg-success" style="background-color: #10b981; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; display: inline-flex; align-items: center; gap: 4px; font-weight: bold; margin-left: 6px; height: 22px;">
+						<i class="fa-solid fa-star"></i>
+						{{ 'Padrão'|trans }}
+					</span>
+				{% endif %}
+			</span>
+		</div>
+		<div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+			{% if is_granted('ROLE_ADMIN') %}
+				{% if m.isDefault %}
+					<form method="post" action="{{ path('app_admin_moveset_remove_default', {'id': m.id}) }}" style="display: inline; margin: 0;">
+						<button type="submit" class="btn btn-sm btn-outline-danger" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; border: 1px solid #ef4444; color: #ef4444; background: transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+							<i class="fa-solid fa-star-half-stroke"></i>
+							{{ 'Remover'|trans }}
+						</button>
+					</form>
+				{% else %}
+					<form method="post" action="{{ path('app_admin_moveset_default', {'id': m.id}) }}" style="display: inline; margin: 0;">
+						<button type="submit" class="btn btn-sm btn-outline-success" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; border: 1px solid #10b981; color: #10b981; background: transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+							<i class="fa-solid fa-star"></i>
+							{{ 'Definir'|trans }}
+						</button>
+					</form>
+				{% endif %}
+			{% endif %}
+			<button class="btn btn-sm btn-outline-secondary share-btn" onclick="openShareModal('{{ m.id }}')" title="{{ 'Compartilhar Moveset'|trans }}" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer;">
+				<i class="fa-solid fa-share-nodes"></i>
+				{{ 'Compartilhar'|trans }}
+			</button>
+			<button class="btn btn-sm btn-outline-secondary export-btn" onclick="exportMovesetJson({{ {
+				                pokemonName: m.pokemonName,
+				                type: m.type,
+				                ability: m.ability,
+				                nature: m.nature,
+				                heldItem: m.heldItem,
+				                moves: m.moves
+				            }|json_encode|escape('html_attr') }})" title="{{ 'Exportar Moveset (JSON)'|trans }}" style="padding: 6px 12px; font-size: 0.85rem; height: 32px; border-radius: 20px; background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+				<i class="fa-solid fa-file-export"></i>
+				{{ 'Exportar'|trans }}
+			</button>
+		</div>
+	</div>
 
-    <div class="moveset-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
-        
-        <!-- Moves Recomendados -->
-        <div class="moveset-section-moves">
-            <h4 class="moveset-title">{{ 'Golpes recomendados'|trans }}</h4>
-            
-            <div class="moves-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                {% for moveName in m.moves %}
-                    {% if moveName %}
-                        {% set md = moveDetails[moveName] ?? null %}
-                        {% include 'partials/move_detail_item.html.twig' with {'moveName': moveName, 'md': md, 'pokemon': pokemon, 'moveIndex': loop.index} %}
-                    {% endif %}
-                {% endfor %}
-            </div>
-        </div>
+	<div
+		class="moveset-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
 
-        <!-- Infos (Item, Nature, Ability) -->
-        <div class="build-summary-section" style="display: flex; flex-direction: column; gap: 15px;">
-            
-            {% if m.heldItem %}
-                <div class="build-sub-section">
-                    <h4 class="moveset-title">{{ 'Item'|trans }}</h4>
-                    
-                    <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <div style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 8px; display: flex; justify-content: center; align-items: center;">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/{{ m.heldItem }}.png" style="width: 30px; height: 30px;" alt="{{ m.heldItem }}">
-                        </div>
-                        
-                        {% include 'partials/tooltip_trigger.html.twig' with {
-                            'title': ('Item: ' ~ m.heldItem|replace({'-': ' '})|title),
-                            'content': itemDetails[m.heldItem].description|default('Item recomendado.'|trans),
-                            'label': m.heldItem|replace({'-': ' '})|title
-                        } %}
-                    </div>
-                </div>
-            {% endif %}
+		<!-- Moves Recomendados -->
+		<div class="moveset-section-moves">
+			<h4 class="moveset-title">{{ 'Golpes recomendados'|trans }}</h4>
 
-            <div class="build-sub-section">
-                <h4 class="moveset-title">{{ 'Nature'|trans }}</h4>
-                
-                <div style="margin-bottom: 15px;">
-                    {% set displayNature = mostUsedNature|default(m.nature) %}
-                    {% if displayNature %}
-                        <span style="font-weight: bold; color: #fff;">
-                            {{ displayNature|capitalize }}
-                            {% if mostUsedNaturePercent is defined and mostUsedNaturePercent > 0 %}
-                                ({{ mostUsedNaturePercent }}%)
-                            {% endif %}
-                        </span>
-                        <p style="font-size: 0.85em; color: #aaa; margin: 0;">
-                            {% if naturesMap[displayNature] is defined %}
-                                + {{ naturesMap[displayNature].increased|replace({'-': ' '})|title }} / - {{ naturesMap[displayNature].decreased|replace({'-': ' '})|title }}
-                            {% else %}
-                                {{ 'Nature ideal.'|trans }}
-                            {% endif %}
-                        </p>
-                    {% else %}
-                        <span style="font-weight: bold; color: #fff;">{{ 'Não especificada'|trans }}</span>
-                    {% endif %}
-                </div>
-            </div>
+			<div class="moves-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+				{% for moveName in m.moves %}
+					{% if moveName %}
+						{% set md = moveDetails[moveName] ?? null %}
+						{% include 'partials/move_detail_item.html.twig' with {'moveName': moveName, 'md': md, 'pokemon': pokemon, 'moveIndex': loop.index} %}
+					{% endif %}
+				{% endfor %}
+			</div>
+		</div>
 
-            {% if m.ability %}
-                <div class="build-sub-section">
-                    <h4 class="moveset-title">{{ 'Habilidade'|trans }}</h4>
-                    
-                    <div style="margin-bottom: 15px;">
-                        {% include 'partials/tooltip_trigger.html.twig' with {
-                            'title': ('Habilidade: ' ~ m.ability|replace({'-': ' '})|title),
-                            'content': abilityDetails[m.ability].description|default('Habilidade recomendada.'|trans),
-                            'label': m.ability|replace({'-': ' '})|title
-                        } %}
-                    </div>
-                </div>
-            {% endif %}
-            
-        </div>
-        
-    </div>
+		<!-- Infos (Item, Nature, Ability) -->
+		<div class="build-summary-section" style="display: flex; flex-direction: column; gap: 15px;">
+
+			{% set displayItem = m.heldItem|default(mostUsedItem ?? null) %}
+			<div class="build-sub-section">
+				<h4 class="moveset-title">{{ 'Item'|trans }}</h4>
+
+				<div style="margin-bottom: 15px;">
+					{% if displayItem %}
+						<div style="display: flex; align-items: center; gap: 10px;">
+							<div style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 8px; display: flex; justify-content: center; align-items: center;">
+								<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/{{ displayItem }}.png" style="width: 30px; height: 30px;" alt="{{ displayItem }}">
+							</div>
+
+							<div style="display: flex; align-items: center; gap: 5px;">
+								{% include 'partials/tooltip_trigger.html.twig' with {
+                                    'title': ('Item: ' ~ displayItem|replace({'-': ' '})|title),
+                                    'content': itemDetails[displayItem].description|default('Item recomendado.'|trans),
+                                    'label': displayItem|replace({'-': ' '})|title
+                                } %}
+								{% if mostUsedItemPercent is defined and mostUsedItemPercent > 0 and displayItem == (mostUsedItem ?? null) %}
+									<span style="font-weight: bold; color: #fff; font-size: 0.9em;">({{ mostUsedItemPercent }}%)</span>
+								{% endif %}
+							</div>
+						</div>
+					{% else %}
+						<span style="font-weight: bold; color: #fff;">{{ 'Não especificado'|trans }}</span>
+					{% endif %}
+				</div>
+			</div>
+
+			<div class="build-sub-section">
+				<h4 class="moveset-title">{{ 'Nature'|trans }}</h4>
+
+				<div style="margin-bottom: 15px;">
+					{% set displayNature = mostUsedNature|default(m.nature) %}
+					{% if displayNature %}
+						<span style="font-weight: bold; color: #fff;">
+							{{ displayNature|capitalize }}
+							{% if mostUsedNaturePercent is defined and mostUsedNaturePercent > 0 %}
+								({{ mostUsedNaturePercent }}%)
+							{% endif %}
+						</span>
+						<p style="font-size: 0.85em; color: #aaa; margin: 0;">
+							{% if naturesMap[displayNature] is defined %}
+								+
+								{{ naturesMap[displayNature].increased|replace({'-': ' '})|title }}
+								/ -
+								{{ naturesMap[displayNature].decreased|replace({'-': ' '})|title }}
+							{% else %}
+								{{ 'Nature ideal.'|trans }}
+							{% endif %}
+						</p>
+					{% else %}
+						<span style="font-weight: bold; color: #fff;">{{ 'Não especificada'|trans }}</span>
+					{% endif %}
+				</div>
+			</div>
+
+			{% set displayAbility = m.ability|default(mostUsedAbility ?? null) %}
+			<div class="build-sub-section">
+				<h4 class="moveset-title">{{ 'Habilidade'|trans }}</h4>
+
+				<div style="margin-bottom: 15px;">
+					{% if displayAbility %}
+						<div style="display: flex; align-items: center; gap: 5px;">
+							{% include 'partials/tooltip_trigger.html.twig' with {
+                                'title': ('Habilidade: ' ~ displayAbility|replace({'-': ' '})|title),
+                                'content': abilityDetails[displayAbility].description|default('Habilidade recomendada.'|trans),
+                                'label': displayAbility|replace({'-': ' '})|title
+                            } %}
+							{% if mostUsedAbilityPercent is defined and mostUsedAbilityPercent > 0 and displayAbility == (mostUsedAbility ?? null) %}
+								<span style="font-weight: bold; color: #fff; font-size: 0.9em;">({{ mostUsedAbilityPercent }}%)</span>
+							{% endif %}
+						</div>
+					{% else %}
+						<span style="font-weight: bold; color: #fff;">{{ 'Não especificada'|trans }}</span>
+					{% endif %}
+				</div>
+			</div>
+
+		</div>
+
+	</div>
 </div>
