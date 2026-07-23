@@ -161,13 +161,15 @@
 }
 
 .team-build-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--text-secondary, #aaa);
     display: flex;
     align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: 5px;
 }
 
@@ -175,12 +177,23 @@
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
     border-radius: 6px;
-    padding: 6px 10px;
+    padding: 5px 6px;
     color: #fff;
-    font-size: 0.85rem;
+    font-size: 0.72rem;
     font-family: inherit;
     width: 100%;
     box-sizing: border-box;
+    text-align: center;
+    text-align-last: center;
+    -moz-text-align-last: center;
+    text-overflow: ellipsis;
+}
+
+select.team-build-input {
+    font-size: 0.72rem;
+    text-align: center;
+    text-align-last: center;
+    -moz-text-align-last: center;
 }
 
 .team-build-input:focus {
@@ -201,6 +214,8 @@ select option,
     background-color: #1a1a2e !important;
     color: #ffffff !important;
     padding: 8px 12px;
+    text-align: center;
+    font-size: 0.75rem;
 }
 
 /* Golpes Inline 1 a 10 */
@@ -344,6 +359,6 @@ select option,
 
 @media (max-width: 480px) {
     .team-slot-moves-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
 }

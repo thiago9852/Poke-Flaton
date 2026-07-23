@@ -27,11 +27,9 @@ class TeamController extends AbstractController
             'Dano Bruto (Físico)',
             'Dano Bruto (Especial)',
             'Suporte de Clima/Terreno',
-            'Sweeper / Atacante',
-            'Tank / Parede Defensiva',
-            'Pivot / Utilitário',
-            'Hazards / Entrada (Lead)',
-            'Lança-Status / Debuffer',
+            'Tank',
+            'Utilitário',
+            'Debuffer',
         ];
 
         $allNatures = $this->pokeApiService->getNatures();

@@ -15,7 +15,7 @@
 			<div class="team-header-title">
 				<h1>
 					<i class="fa-solid fa-users-line" style="color: var(--color-primary);"></i>
-					{{ 'Montar Time (Team Builder)'|trans }}
+					{{ 'Montar Time'|trans }}
 				</h1>
 			</div>
 
@@ -54,13 +54,13 @@
 								<i class="fa-solid fa-tags" style="color: #a855f7;"></i>
 								{{ 'Tag / Função'|trans }}
 							</label>
-							<select id="role-preset-slot-{{ slotIdx }}" class="team-build-input team-role-tag-select" style="font-size: 0.75rem; padding: 4px 6px; margin-bottom: 4px; width: 100%; text-align: center;">
+							<select id="role-preset-slot-{{ slotIdx }}" class="team-build-input team-role-tag-select" style="font-size: 0.72rem; padding: 4px 6px; margin-bottom: 4px; width: 100%; text-align: center; text-align-last: center;">
 								<option value="">-- {{ 'Função'|trans }} --</option>
 								{% for role in rolesList %}
 									<option value="{{ role }}">{{ role }}</option>
 								{% endfor %}
 							</select>
-							<input type="text" id="role-custom-slot-{{ slotIdx }}" class="team-build-input" style="font-size: 0.75rem; padding: 4px 8px; width: 100%; text-align: center;">
+							<!-- <input type="text" id="role-custom-slot-{{ slotIdx }}" class="team-build-input" style="font-size: 0.75rem; padding: 4px 8px; width: 100%; text-align: center;"> -->
 						</div>
 
 						<div class="team-pokemon-sprite-container">
@@ -116,15 +116,15 @@
 						<div class="team-slot-moves-section">
 							<div class="team-slot-moves-header" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
 								<span style="display: flex; align-items: center; gap: 6px;">
-									{{ 'Golpes Sugeridos / Selecionados (1 a 10)'|trans }}
+									{{ 'Golpes (1 a 10)'|trans }}
 								</span>
 
 								<!-- Carregar Moveset Dropdown -->
 								<div style="display: flex; align-items: center; gap: 6px;">
-									<label for="moveset-preset-slot-{{ slotIdx }}" style="font-size: 0.75rem; font-weight: 700; color: #c4b5fd; white-space: nowrap; margin: 0;">
+									<label for="moveset-preset-slot-{{ slotIdx }}" style="font-size: 0.72rem; font-weight: 700; color: #c4b5fd; white-space: nowrap; margin: 0;">
 										{{ 'Carregar Moveset:'|trans }}
 									</label>
-									<select id="moveset-preset-slot-{{ slotIdx }}" class="team-build-input" style="font-size: 0.8rem; padding: 3px 8px; font-weight: 600; background: rgba(0,0,0,0.4); border-color: rgba(139, 92, 246, 0.4); min-width: 180px; max-width: 250px;">
+									<select id="moveset-preset-slot-{{ slotIdx }}" class="team-build-input" style="font-size: 0.72rem; padding: 3px 6px; font-weight: 600; background: rgba(0,0,0,0.4); border-color: rgba(139, 92, 246, 0.4); min-width: 140px; max-width: 220px; text-align: center; text-align-last: center;">
 										<option value="base">-- {{ 'Golpes Base'|trans }} --</option>
 									</select>
 								</div>
