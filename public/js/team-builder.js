@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+function initTeamBuilder() {
 	const STORAGE_KEY = 'poke_team_builder_v1';
 	const teamSlotData = {}; // Cache de dados completos retornados da API por slot (1-6)
 
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function () {
 						nature: data.nature,
 						heldItem: data.heldItem,
 						ability: data.ability,
-						moves: data.moves
+						moves: data.baseMoves || data.moves
 					});
 				} else {
 					const msId = parseInt(selectedVal, 10);
@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 			// Popula o dropdown de movesets criados
 			if (movesetPresetSelect) {
-				movesetPresetSelect.innerHTML = '<option value="base">-- Golpes Base (Por Nível) --</option>';
+				movesetPresetSelect.innerHTML = '<option value="base">-- Golpes Base --</option>';
 				if (Array.isArray(data.movesets) && data.movesets.length > 0) {
 					data.movesets.forEach(ms => {
 						const opt = document.createElement('option');
@@ -244,15 +244,18 @@ document.addEventListener('DOMContentLoaded', function () {
 						movesetPresetSelect.appendChild(opt);
 					});
 				}
+				if (!customOverrides || !customOverrides.movesetId) {
+					movesetPresetSelect.value = 'base';
+				}
 			}
 
-			// Preenche build & golpes (usa customOverrides se existirem)
+			// Preenche build & golpes (usa customOverrides se existirem ou o padrão Golpes Base)
 			const buildSource = {
 				nature: customOverrides?.nature || data.nature || '',
 				heldItem: customOverrides?.heldItem || data.heldItem || '',
 				ability: customOverrides?.ability || data.ability || '',
 				role: customOverrides?.role || '',
-				moves: customOverrides?.moves || data.moves || []
+				moves: customOverrides?.moves || data.baseMoves || data.moves || []
 			};
 
 			applyBuildAndMovesToSlot(slotId, buildSource);
@@ -370,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (abilityInput) abilityInput.value = '';
 		if (rolePreset) rolePreset.value = '';
 		if (roleCustom) roleCustom.value = '';
-		if (movesetPresetSelect) movesetPresetSelect.innerHTML = '<option value="base">-- Golpes Base (Por Nível) --</option>';
+		if (movesetPresetSelect) movesetPresetSelect.innerHTML = '<option value="base">-- Golpes Base --</option>';
 
 		for (let mIdx = 1; mIdx <= 10; mIdx++) {
 			const moveInput = document.getElementById(`move-input-${slotId}-${mIdx}`);
@@ -471,4 +474,10 @@ document.addEventListener('DOMContentLoaded', function () {
 	window.closeIoModal = function () {
 		if (ioModal) ioModal.style.display = 'none';
 	};
-});
+}
+
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initTeamBuilder);
+} else {
+	initTeamBuilder();
+}

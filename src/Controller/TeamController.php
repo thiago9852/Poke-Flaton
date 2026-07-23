@@ -68,32 +68,22 @@ class TeamController extends AbstractController
             $defaultMoveset = $movesets[0];
         }
 
-        // Carrega default base moves do scratch/default_base_moves.json
+        // Carrega Golpes Base (Por Nível) do scratch/default_base_moves.json
         $baseMovesList = [];
         $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
         if (file_exists($defaultBaseMovesPath)) {
             $defaultBaseMovesData = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
             if (isset($defaultBaseMovesData[$nameLower])) {
-                $baseMovesList = $defaultBaseMovesData[$nameLower];
+                $baseMovesList = array_slice($defaultBaseMovesData[$nameLower], 0, 10);
             }
         }
 
-        // Se o moveset oficial existe, usa os golpes dele como preferenciais se tiver
-        $selectedMoveNames = [];
-        if ($defaultMoveset && !empty($defaultMoveset->getMoves())) {
-            $selectedMoveNames = $defaultMoveset->getMoves();
-        }
-
-        // Combina com base moves para formar até 10 golpes
-        $allMoveSlugs = array_unique(array_merge($selectedMoveNames, $baseMovesList));
-        $allMoveSlugs = array_slice($allMoveSlugs, 0, 10);
-
-        // Busca os detalhes dos golpes (tipo, categoria, poder, precisão, efeito)
-        $movesDetailed = [];
-        foreach ($allMoveSlugs as $idx => $mName) {
+        // Busca detalhes dos Golpes Base por Nível
+        $baseMovesDetailed = [];
+        foreach ($baseMovesList as $idx => $mName) {
             $mSlug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($mName))));
             $md = $this->pokeApiService->getMoveDetails($mSlug);
-            $movesDetailed[] = [
+            $baseMovesDetailed[] = [
                 'index' => $idx + 1,
                 'slug' => $mSlug,
                 'name' => ucwords(str_replace('-', ' ', $mSlug)),
@@ -165,7 +155,8 @@ class TeamController extends AbstractController
                 'sprite' => $pokemon['sprite_official'],
                 'types' => $pokemon['types'],
             ],
-            'moves' => $movesDetailed,
+            'baseMoves' => $baseMovesDetailed,
+            'moves' => $baseMovesDetailed,
             'movesets' => $formattedMovesets,
             'nature' => $nature ? strtolower($nature) : '',
             'heldItem' => $heldItem ? strtolower($heldItem) : '',
