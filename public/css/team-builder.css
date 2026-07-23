@@ -1,0 +1,349 @@
+.team-builder-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 20px 15px 60px 15px;
+}
+
+.team-builder-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    background: var(--bg-card, rgba(26, 26, 46, 0.8));
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    border-radius: var(--radius-md, 12px);
+    padding: 20px;
+}
+
+.team-header-title h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0 0 5px 0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.team-header-title p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary, #aaa);
+}
+
+.team-header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.team-slots-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Slots de Pokémon do Time */
+.team-slot-card {
+    background: var(--bg-card, #1a1a2e);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    border-radius: var(--radius-md, 12px);
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 20px;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    transition: var(--transition-smooth, all 0.3s ease);
+}
+
+.team-slot-card:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+}
+
+/* Coluna Esquerda: Sprite e Seleção do Pokémon */
+.team-slot-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+    padding-right: 20px;
+    position: relative;
+}
+
+.team-slot-number {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background: var(--color-primary, #8b5cf6);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.8rem;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.team-pokemon-sprite-container {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    padding: 10px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.team-pokemon-sprite {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+}
+
+.team-slot-search-wrapper {
+    width: 100%;
+    position: relative;
+}
+
+.team-slot-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+    color: #fff;
+    font-family: inherit;
+    text-align: center;
+}
+
+.team-slot-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary, #8b5cf6);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Coluna Principal: Top Bar (Build + Tag) & Golpes Inline 1-10 */
+.team-slot-main {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Top Bar de Build (Item, Nature, Ability) */
+.team-slot-build-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 12px 15px;
+    border-radius: var(--radius-sm, 8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.team-build-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.team-build-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary, #aaa);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.team-build-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #fff;
+    font-size: 0.85rem;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.team-build-input:focus {
+    outline: none;
+    border-color: var(--color-primary, #8b5cf6);
+}
+
+.team-role-tag-select {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+    color: #c4b5fd;
+    font-weight: 600;
+}
+
+select option,
+.team-build-input option,
+.team-role-tag-select option {
+    background-color: #1a1a2e !important;
+    color: #ffffff !important;
+    padding: 8px 12px;
+}
+
+/* Golpes Inline 1 a 10 */
+.team-slot-moves-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.team-slot-moves-header {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.team-slot-moves-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+/* Move Card Inline */
+.team-move-inline-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 55px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.team-move-inline-badge {
+    position: absolute;
+    bottom: -2px;
+    right: 4px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.06);
+    pointer-events: none;
+}
+
+.team-move-inline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+.team-move-name-input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.8rem;
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.team-move-stats-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--text-muted, #888);
+}
+
+.team-clear-slot-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted, #888);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.team-clear-slot-btn:hover {
+    color: #ef4444;
+}
+
+/* Modal de Importar / Exportar */
+.team-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.team-modal-card {
+    background: var(--bg-card, #1a1a2e);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+    border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+    padding: 25px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+}
+
+@media (max-width: 1024px) {
+    .team-slot-moves-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .team-slot-card {
+        grid-template-columns: 1fr;
+    }
+    .team-slot-left {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+        padding-right: 0;
+        padding-bottom: 15px;
+    }
+    .team-slot-moves-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .team-slot-moves-grid {
+        grid-template-columns: 1fr;
+    }
+}
