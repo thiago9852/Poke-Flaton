@@ -475,6 +475,76 @@ class DiscordApiController extends AbstractController
             'state' => $tierList->getState()
         ]);
     }
+
+    #[Route('/api/discord/golpe/{name}', name: 'api_discord_golpe', methods: ['GET'])]
+    #[Route('/api/discord/move/{name}', name: 'api_discord_move', methods: ['GET'])]
+    public function moveInfo(string $name): JsonResponse
+    {
+        $moveSlug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($name))));
+
+        try {
+            $moveDetails = $this->pokeApiService->getMoveDetailsWithLearnedBy($moveSlug);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Golpe não encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!$moveDetails) {
+            return new JsonResponse(['error' => 'Golpe não encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $moveNameNorm = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($moveDetails['name']))));
+
+        // TM Code
+        $tmCode = null;
+        $tmsJsonPath = $this->getParameter('kernel.project_dir') . '/scratch/tms.json';
+        if (file_exists($tmsJsonPath)) {
+            $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?: [];
+            foreach ($allTms as $tm) {
+                $mNorm = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($tm['move']))));
+                if ($mNorm === $moveNameNorm) {
+                    $tmCode = strtoupper($tm['item']);
+                    break;
+                }
+            }
+        }
+
+        // Base Moves
+        $basePokemon = [];
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
+        if (file_exists($defaultBaseMovesPath)) {
+            $rawBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
+            foreach ($rawBaseMoves as $pkName => $moves) {
+                if (is_array($moves)) {
+                    $pkKey = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($pkName))));
+                    $normalizedMoves = array_map(function ($m) {
+                        return preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m))));
+                    }, $moves);
+
+                    $idx = array_search($moveNameNorm, $normalizedMoves);
+                    if ($idx !== false) {
+                        $basePokemon[] = [
+                            'name' => $pkKey,
+                            'display_name' => ucfirst(str_replace('-', ' ', $pkKey)),
+                            'base_slot' => 'm' . ($idx + 1),
+                        ];
+                    }
+                }
+            }
+        }
+
+        return new JsonResponse([
+            'name' => ucwords(str_replace('-', ' ', $moveDetails['name'])),
+            'slug' => $moveDetails['name'],
+            'type' => $moveDetails['type'],
+            'category' => $moveDetails['category'],
+            'power' => $moveDetails['power'],
+            'accuracy' => $moveDetails['accuracy'],
+            'description' => $moveDetails['description'],
+            'tm_code' => $tmCode,
+            'base_pokemon' => $basePokemon,
+            'total_base_pokemon' => count($basePokemon)
+        ]);
+    }
 }
 
 
