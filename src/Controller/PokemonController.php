@@ -566,11 +566,17 @@ class PokemonController extends AbstractController
         }
 
         // 2. Golpes Base
+        $defaultBaseMoves = [];
         $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
         if (file_exists($defaultBaseMovesPath)) {
             $rawBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
-            foreach ($rawBaseMoves as $moves) {
+            foreach ($rawBaseMoves as $pkName => $moves) {
                 if (is_array($moves)) {
+                    $pkKey = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($pkName))));
+                    $defaultBaseMoves[$pkKey] = array_map(function ($m) {
+                        return preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m))));
+                    }, $moves);
+
                     foreach ($moves as $m) {
                         $slug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m))));
                         if (!isset($allMovesMap[$slug])) {
@@ -589,10 +595,25 @@ class PokemonController extends AbstractController
         $results = [];
         foreach ($allMovesMap as $slug => $data) {
             if (str_contains($slug, $query) || str_contains(strtolower($data['name']), strtolower($query))) {
+                // Encontrar quais Pokémon aprendem este golpe como Base Move
+                $basePokemon = [];
+                foreach ($defaultBaseMoves as $pkSlug => $moves) {
+                    $idx = array_search($slug, $moves);
+                    if ($idx !== false) {
+                        $basePokemon[] = [
+                            'name' => $pkSlug,
+                            'display_name' => ucfirst(str_replace('-', ' ', $pkSlug)),
+                            'base_slot' => 'm' . ($idx + 1)
+                        ];
+                    }
+                }
+
                 $results[] = [
                     'slug' => $data['slug'],
                     'name' => $data['name'],
                     'tm_code' => $data['tm_code'],
+                    'base_pokemon' => $basePokemon,
+                    'base_pokemon_count' => count($basePokemon),
                     'url' => $this->generateUrl('app_move_search', ['q' => $data['slug']]),
                 ];
             }

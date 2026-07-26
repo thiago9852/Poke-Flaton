@@ -481,3 +481,5 @@ if (document.readyState === 'loading') {
 } else {
 	initTeamBuilder();
 }
+document.addEventListener('turbo:load', initTeamBuilder);
+
