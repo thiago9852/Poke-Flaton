@@ -1,0 +1,242 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Mov Set | Movesets de Pokémons{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/pokemon.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/home.css') }}">
+{% endblock %}
+
+{% block body %}
+	<!-- Dashboard / Hero Wrapper -->
+	<div class="dashboard-hero-wrapper">
+		
+		<!-- ESQUERDA: Input de pesquisa + Introdu.o -->
+		<div class="hero-left-column">
+			<div class="poketibia-notice-pill" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(197, 240, 92, 0.1); border: 1px solid rgba(197, 240, 92, 0.3); color: #c5f05c; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px;">
+				<i class="fa-solid fa-gamepad"></i> {{ 'Para jogos inspirados em Poketibia (MMORPG de Pokémon)'|trans }}
+			</div>
+			<h1 class="hero-title">
+				{{ 'Domine a Arena'|trans }} <span class="highlight">Pokémon</span>
+			</h1>
+			<p class="hero-subtitle">
+				{{ 'Explore as melhores estratégias e crie seus próprios movesets para todas as gerações.'|trans }}
+			</p>
+			
+			<div class="landing-search-container">
+				<form action="{{ path('app_pokemon_index') }}" method="GET" class="search-form">
+					<div class="search-box">
+						<input type="text" id="global-search-input" name="q" placeholder="{{ 'Buscar por nome ou ID...'|trans }}" class="search-input" required autocomplete="off">
+						<i class="fa-solid fa-magnifying-glass search-icon"></i>
+						<div id="search-autocomplete-results" class="autocomplete-dropdown"></div>
+					</div>
+				</form>
+			</div>
+
+			<!-- Banner Informativo: Poketibia -->
+			<div class="poketibia-disclaimer-banner" style="background: rgba(23, 25, 23, 0.8); border: 1px solid rgba(197, 240, 92, 0.2); border-left: 4px solid var(--color-primary); border-radius: 12px; padding: 14px 18px; margin-top: 20px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(8px);">
+				<div style="font-size: 1.4rem; color: var(--color-primary); display: flex; align-items: center;">
+					<i class="fa-solid fa-gamepad"></i>
+				</div>
+				<div>
+					<p style="margin: 0; font-size: 0.88rem; color: var(--text-primary); line-height: 1.5;">
+						{{ 'Desenvolvido para a comunidade de jogos inspirados em Poketibia, um MMORPG de Pokémon.'|trans }}
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- DIREITA: Último moveset criado + Pokémon mais visto -->
+		<div class="hero-right-column">
+			
+			<!-- Card 1: Último Moveset Criado -->
+			<div class="hero-info-card last-moveset-card">
+				<div class="card-header-icon">
+					<i class="fa-solid fa-fire-flame-curved"></i>
+					<span>{{ 'Último Moveset'|trans }}</span>
+				</div>
+				{% if lastMovesetData %}
+					<div class="card-moveset-content">
+						<img src="{{ lastMovesetData.sprite }}" alt="{{ lastMovesetData.pokemonName }}" class="card-pkm-sprite">
+						<div class="card-details">
+							<h4 class="card-pkm-name">{{ lastMovesetData.pokemonName|capitalize }}</h4>
+							<span class="card-moveset-title">"{{ lastMovesetData.name }}"</span>
+							<div class="card-meta">
+								<span class="meta-creator"><i class="fa-solid fa-user"></i> {{ lastMovesetData.creator }}</span>
+								<span class="meta-date"><i class="fa-solid fa-clock"></i> {{ lastMovesetData.createdAt }}</span>
+							</div>
+						</div>
+					</div>
+				{% else %}
+					<div class="card-empty-msg">
+						{{ 'Nenhum moveset criado ainda.'|trans }}
+					</div>
+				{% endif %}
+			</div>
+
+			<!-- Card 2: Pokémon Mais Visto -->
+			<div class="hero-info-card most-viewed-card">
+				<div class="card-header-icon">
+					<i class="fa-solid fa-star"></i>
+					<span>{{ 'Pokémon Mais Visto'|trans }}</span>
+				</div>
+				{% if mostViewedPokemon %}
+					<div class="card-moveset-content">
+						<img src="{{ mostViewedPokemon.sprite }}" alt="{{ mostViewedPokemon.name }}" class="card-pkm-sprite">
+						<div class="card-details">
+							<h4 class="card-pkm-name">
+								{{ mostViewedPokemon.name|capitalize }}
+								<span class="card-pkm-id">#{{ "%03d"|format(mostViewedPokemon.dex_id|default(mostViewedPokemon.id)) }}</span>
+							</h4>
+							<div class="pokemon-types" style="margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap;">
+								{% for type in mostViewedPokemon.types %}
+									{% include 'partials/type_badge.html.twig' with {'type': type, 'typeDetails': typeDetails} %}
+								{% endfor %}
+							</div>
+						</div>
+					</div>
+				{% else %}
+					<div class="card-empty-msg">
+						{{ 'Nenhum pok.mon visualizado ainda.'|trans }}
+					</div>
+				{% endif %}
+			</div>
+
+		</div>
+
+	</div>
+
+	<!-- Cards de Baixo: Recursos Principais -->
+	<section class="landing-features-grid">
+		<div class="feature-card" onclick="window.location.href='{{ path('app_pokemon_index') }}'">
+			<div class="feature-icon-wrapper">
+				<i class="fa-solid fa-shield-halved"></i>
+			</div>
+			<h3 class="feature-title">{{ 'Movesets'|trans }}</h3>
+			<p class="feature-desc">{{ 'Crie e explore as melhores combinações de golpes para os Pokémon.'|trans }}</p>
+		</div>
+
+		<div class="feature-card" onclick="window.location.href='{{ path('app_team_builder') }}'">
+			<div class="feature-icon-wrapper">
+				<i class="fa-solid fa-people-group"></i>
+			</div>
+			<h3 class="feature-title">{{ 'Montar Time'|trans }}</h3>
+			<p class="feature-desc">{{ 'Monte e planeje a sinergia perfeita para sua equipe de batalha.'|trans }}</p>
+		</div>
+
+		<div class="feature-card" onclick="window.location.href='{{ path('app_tier_list') }}'">
+			<div class="feature-icon-wrapper">
+				<i class="fa-solid fa-layer-group"></i>
+			</div>
+			<h3 class="feature-title">{{ 'Tier List'|trans }}</h3>
+			<p class="feature-desc">{{ 'Classifique os Pokémon em diferentes categorias de poder e utilidade.'|trans }}</p>
+		</div>
+	</section>
+
+	<!-- Explorar por Geração -->
+	<section class="generations-section">
+		<h2 class="generations-title">
+			<i class="fa-solid fa-gamepad" style="color: var(--color-primary);"></i>
+			{{ 'Explorar Geração'|trans }}
+		</h2>
+		<div class="generations-grid">
+			{% for gen in generations %}
+				<a href="{{ path('app_pokemon_index', { 'generation': gen.number }) }}" class="generation-card">
+					<span class="gen-badge">{{ 'Geração'|trans }} {{ gen.number }}</span>
+					<span class="gen-games">{{ gen.games }}</span>
+					<span class="gen-region">{{ gen.region }}</span>
+					<span class="gen-count">{{ gen.count }} Pokémon</span>
+				</a>
+			{% endfor %}
+		</div>
+	</section>
+
+	<!-- Sobre o Site & Sobre os Dados -->
+	<section class="about-section">
+		<div class="about-showcase-grid">
+			
+			<!-- Card 1: Sobre o Site / Portal -->
+			<div class="about-showcase-card site-card">
+				<div class="about-card-header">
+					<div class="about-card-icon">
+						<i class="fa-solid fa-circle-info"></i>
+					</div>
+					<div class="about-card-title-group">
+						<h2>{{ 'Sobre o Site'|trans }}</h2>
+						<span class="about-card-subtitle">{{ 'Portal Poketibia MMORPG'|trans }}</span>
+					</div>
+				</div>
+				<p class="about-card-intro">
+					{{ 'O Mov Set . um portal estratégico completo criado para a comunidade de jogadores e treinadores de Poketibia MMORPG (servidores n.o oficiais).'|trans }}
+				</p>
+				<div class="about-info-list">
+					<div class="about-list-item">
+						<div class="about-list-check">
+							<i class="fa-solid fa-check"></i>
+						</div>
+						<div class="about-list-details">
+							<strong>{{ 'Movesets Personalizados'|trans }}</strong>
+							<p>{{ 'Crie, explore e compartilhe combinações detalhadas de golpes para PvP, PvE ou Masmorras de Poketibia.'|trans }}</p>
+						</div>
+					</div>
+					<div class="about-list-item">
+						<div class="about-list-check">
+							<i class="fa-solid fa-check"></i>
+						</div>
+						<div class="about-list-details">
+							<strong>{{ 'Sinergia com Team Builder'|trans }}</strong>
+							<p>{{ 'Monte equipes equilibradas analisando a cobertura defensiva e ofensiva de tipos e habilidades.'|trans }}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Card 2: Sobre os Dados / PokeAPI -->
+			<div class="about-showcase-card data-card">
+				<div class="about-card-header">
+					<div class="about-card-icon">
+						<i class="fa-solid fa-database"></i>
+					</div>
+					<div class="about-card-title-group">
+						<h2>{{ 'Sobre os Dados'|trans }}</h2>
+						<span class="about-card-subtitle">{{ 'Sincronização Integrada'|trans }}</span>
+					</div>
+				</div>
+				<p class="about-card-intro">
+					{{ 'Todas as informa.es exibidas no portal s.o integradas de forma dinâmica e automatizada utilizando a PokeAPI.'|trans }}
+				</p>
+				<div class="about-info-list">
+					<div class="about-list-item">
+						<div class="about-list-check">
+							<i class="fa-solid fa-check"></i>
+						</div>
+						<div class="about-list-details">
+							<strong>{{ 'PokeAPI Pública'|trans }}</strong>
+							<p>{{ 'Conex.o em tempo real para obter estatísticas base, habilidades e cadeias evolutivas completas.'|trans }}</p>
+						</div>
+					</div>
+					<div class="about-list-item">
+						<div class="about-list-check">
+							<i class="fa-solid fa-check"></i>
+						</div>
+						<div class="about-list-details">
+							<strong>{{ 'Sprites e Mídias'|trans }}</strong>
+							<p>{{ 'Visualiza.o de alta fidelidade com renderização dinâmica das artes dos Pokémon.'|trans }}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</section>
+
+	{% include 'partials/tooltip.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<div id="global-search-data" style="display: none;" data-url-search="{{ path('api_pokemon_search') }}"></div>
+	<script src="{{ asset('js/pokemon-search.js') }}"></script>
+{% endblock %}

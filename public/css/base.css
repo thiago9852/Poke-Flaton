@@ -1,0 +1,633 @@
+:root {
+    /* Paletas */
+    --bg-main: #101110;
+    --bg-card: rgba(23, 25, 23, 0.8);
+    --bg-header: rgba(14, 15, 23, 0.85);
+    
+    --border-color: rgba(255, 255, 255, 0.06);
+    --border-focus: #c5f05c;
+    
+    --text-primary: #f0f2ec;
+    --text-secondary: #a4aaa1;
+    --text-muted: #6b7280;
+    
+    /* Brand Cores */
+    --color-primary: #c5f05c;
+    --color-primary-glow: rgba(197, 240, 92, 0.4);
+    --color-secondary: #06b6d4;
+    --color-secondary-glow: rgba(6, 182, 212, 0.4);
+    
+    /* Tipos cores */
+    --type-normal: #9ca3af;
+    --type-fire: #ef4444;
+    --type-water: #3b82f6;
+    --type-grass: #10b981;
+    --type-electric: #f59e0b;
+    --type-ice: #06b6d4;
+    --type-fighting: #dc2626;
+    --type-poison: #a855f7;
+    --type-ground: #b45309;
+    --type-flying: #6366f1;
+    --type-psychic: #ec4899;
+    --type-bug: #84cc16;
+    --type-rock: #78350f;
+    --type-ghost: #4f46e5;
+    --type-dragon: #7c3aed;
+    --type-steel: #4b5563;
+    --type-dark: #374151;
+    --type-fairy: #f472b6;
+
+    /* EspaÃ§amentos e Bordas */
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', 'Outfit', system-ui, -apple-system, sans-serif;
+    background-image: linear-gradient(rgba(16, 17, 16, 0.84), rgba(16, 17, 16, 0.88)), url('../image/pokemon-wallpaper.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Layout: Header, Main, Footer */
+.app-header {
+    background-color: var(--bg-header);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+    height: 70px;
+    display: flex;
+    align-items: center;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.app-logo .logo-img {
+    height: 60px;
+    width: auto;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.app-nav {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-link {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    line-height: inherit;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.nav-link:hover {
+    color: var(--text-primary);
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.app-main {
+    flex: 1;
+    padding: 40px 0;
+}
+
+.app-footer {
+    background-color: #08090d;
+    border-top: 1px solid var(--border-color);
+    padding: 30px 0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.footer-logo img {
+    height: 100px;
+    width: auto;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.footer-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.api-attribution a {
+    color: var(--color-secondary);
+}
+
+.api-attribution a:hover {
+    text-decoration: underline;
+}
+
+/* User nav */
+.nav-user-dropdown {
+    position: relative;
+}
+
+.nav-user-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-user-avatar {
+    width: 35px !important;
+    height: 35px !important;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    object-fit: cover;
+    object-position: center top;
+}
+
+.nav-dropdown-caret {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+.nav-user-dropdown.open .nav-dropdown-caret {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 180px;
+    background: rgba(20, 21, 32);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(197, 240, 92, 0.1);
+    list-style: none;
+    padding: 6px;
+    z-index: 200;
+    animation: dropdownFadeIn 0.15s ease;
+}
+
+.nav-user-dropdown.open .nav-dropdown-menu {
+    display: block;
+}
+
+@keyframes dropdownFadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.nav-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: var(--transition-smooth);
+    white-space: nowrap;
+}
+
+.nav-dropdown-item:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-dropdown-item--danger {
+    color: #f87171;
+}
+
+.nav-dropdown-item--danger:hover {
+    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.nav-dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 4px 0;
+}
+
+/* Universal Loading Overlay */
+.global-loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(12, 13, 18, 0.7);
+    backdrop-filter: blur(12px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.global-loader-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.global-loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.global-loader-pokeball {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    animation: rotatePokeball 1.2s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+    filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.4));
+}
+
+@keyframes rotatePokeball {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+    50% {
+        transform: rotate(180deg) scale(1.1);
+        filter: drop-shadow(0 0 25px rgba(239, 68, 68, 0.7));
+    }
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+.global-loader-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    animation: pulseLoaderText 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseLoaderText {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* Responsividade da Navbar (Mobile) */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    transition: var(--transition-smooth);
+}
+
+.nav-toggle:hover {
+    color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: block;
+    }
+
+    .app-nav {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        background-color: #0c0d12;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        flex-direction: column;
+        padding: 16px 20px;
+        gap: 8px;
+        z-index: 1100;
+    }
+
+    .app-nav.open {
+        display: flex;
+    }
+
+    .nav-link {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 12px 16px;
+    }
+
+    .nav-user-dropdown, .nav-lang-dropdown {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .nav-user-btn, .nav-lang-btn {
+        width: 100%;
+        justify-content: space-between;
+        padding: 12px 16px;
+    }
+
+    .nav-dropdown-menu {
+        position: static;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        box-shadow: none;
+        margin-top: 8px;
+        border: 1px solid var(--border-color);
+    }
+}
+
+/* Seletor de Idiomas (Navbar Dropdown) */
+.nav-lang-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.nav-lang-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    color: var(--text-secondary);
+    transition: var(--transition-smooth);
+}
+
+.nav-lang-btn:hover {
+    color: var(--text-primary);
+}
+
+.nav-lang-dropdown.open .nav-dropdown-menu {
+    display: block;
+}
+
+.nav-lang-dropdown.open .nav-dropdown-caret {
+    transform: rotate(180deg);
+}
+
+.active-lang {
+    color: var(--color-primary) !important;
+    font-weight: 600;
+}
+
+/* Floating PokÃ©mon do Dia Button */
+.floating-game-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border: 2px solid #fff;
+    border-radius: 50px;
+    padding: 10px 20px;
+    color: #fff !important;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.45);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 10px;
+}
+
+.floating-game-pokeball {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    animation: rotatePokeballBtn 3s linear infinite;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.floating-game-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    background: linear-gradient(135deg, #f87171, #ef4444);
+    box-shadow: 0 15px 30px rgba(239, 68, 68, 0.6);
+}
+
+@keyframes rotatePokeballBtn {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.floating-game-text {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+    .floating-game-btn {
+        bottom: 20px;
+        right: 20px;
+        padding: 10px; /* CÃ­rculo perfeito no mobile */
+        border-radius: 50%;
+    }
+    
+    .floating-game-text {
+        display: none; /* Ocultar texto no mobile */
+    }
+    
+    .floating-game-pokeball {
+        width: 28px;
+        height: 28px;
+        margin: 0;
+    }
+}
+
+/* Global Back Button Styles */
+.stats-header-nav {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.btn-back-game {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+}
+
+.btn-back-game:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+    transform: translateX(-4px);
+}
+
+/* Notificações e Idioma na Navbar */
+.nav-notification-text, .nav-lang-text {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .nav-notification-text, .nav-lang-text {
+        display: inline;
+    }
+}
+
+/* Layout da Navbar (Logo - Esquerda, Opções - Centro, Login/Idioma - Direita) */
+@media (min-width: 769px) {
+    .app-nav {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        flex: 1;
+        margin-left: 40px;
+        gap: 0;
+    }
+    .nav-center {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin: 0 auto; /* Empurra opções para o centro */
+    }
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-center, .nav-right {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+    }
+}
+
+/* Bandeiras do seletor de idiomas */
+.lang-flag-img {
+    width: 20px;
+    height: auto;
+    border-radius: 2px;
+    transition: var(--transition-smooth);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.lang-flag-img.inactive {
+    filter: grayscale(100%);
+    opacity: 0.45;
+}
+
+.lang-flag-img.active {
+    filter: none;
+    opacity: 1;
+}
+
+/* Google Sign-in na Navbar */
+.nav-google-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #1a73e8, #1557b0);
+    color: #ffffff !important;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+    border: none;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nav-google-btn:hover {
+    background: linear-gradient(135deg, #1765cc, #124996);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.45);
+    transform: translateY(-1px);
+}
+
+.nav-g-signin {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Seção Oculta de Admin no Login */
+.admin-hidden-section summary::-webkit-details-marker {
+    display: none;
+}
+.admin-hidden-section summary {
+    list-style: none;
+}
+.admin-hidden-section[open] summary {
+    opacity: 1 !important;
+    color: var(--color-secondary) !important;
+}
+
+
+

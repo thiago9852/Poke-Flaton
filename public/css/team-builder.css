@@ -1,0 +1,780 @@
+/* team-builder.css - Premium Team Builder Interface */
+
+.team-builder-container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 30px 20px 80px;
+}
+
+/* Header / Toolbar Area */
+.team-builder-title-block {
+    margin-bottom: 20px;
+}
+
+.team-builder-title-block h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 850;
+    margin: 0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: -0.5px;
+}
+
+.team-builder-title-block h1 i {
+    text-shadow: 0 0 15px var(--color-primary-glow);
+}
+
+.team-builder-actions-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+/* Compact Buttons */
+.btn-action-clear,
+.btn-action-secondary,
+.btn-action-primary {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    padding: 8px 14px;
+    font-size: 0.78rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition-smooth);
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-transform: none;
+    box-sizing: border-box;
+}
+
+.btn-action-clear {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+.btn-action-clear:hover {
+    background: rgba(239, 68, 68, 0.16);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #fff;
+}
+
+.btn-action-secondary {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+}
+
+.btn-action-secondary:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.btn-action-primary {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.btn-action-primary:hover {
+    background: color-mix(in srgb, var(--color-primary) 85%, #fff);
+    box-shadow: 0 4px 12px var(--color-primary-glow);
+}
+
+/* Slots List Container */
+.team-slots-list {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+/* Premium Slot Card Grid */
+.team-slot-card {
+    --slot-type-color: var(--color-primary, #8b5cf6);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-left: 5px solid var(--slot-type-color);
+    border-radius: 18px;
+    padding: 30px;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 30px;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.team-slot-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    border-left-color: var(--slot-type-color);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45), 0 0 25px color-mix(in srgb, var(--slot-type-color) 12%, transparent);
+}
+
+/* Left Panel - Profile Container */
+.team-slot-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding-right: 30px;
+    position: relative;
+}
+
+.team-slot-number {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background: var(--slot-type-color);
+    color: #fff;
+    font-weight: 850;
+    font-size: 0.8rem;
+    font-family: 'Outfit', sans-serif;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.team-pokemon-sprite-container {
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--slot-type-color) 8%, transparent), rgba(0, 0, 0, 0.3) 80%);
+    border-radius: 50%;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-sizing: border-box;
+    transition: var(--transition-smooth);
+}
+
+
+.team-pokemon-sprite {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+}
+
+.team-slot-types {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-height: 24px;
+    margin-bottom: 18px;
+}
+
+.team-slot-types .type-badge {
+    font-size: 0.65rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.team-slot-search-wrapper {
+    width: 100%;
+    position: relative;
+}
+
+.team-slot-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-family: inherit;
+    text-align: center;
+    transition: var(--transition-smooth);
+}
+
+.team-slot-search-input:focus {
+    outline: none;
+    border-color: var(--slot-type-color);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 15px color-mix(in srgb, var(--slot-type-color) 20%, transparent);
+}
+
+/* Right Panel - Core Configuration & Move grid */
+.team-slot-main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Builds Row (Role presets, Item, Nature, Ability) */
+.team-slot-build-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.team-build-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.team-build-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.team-build-label i {
+    color: var(--slot-type-color);
+    font-size: 0.8rem;
+}
+
+.team-build-input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    transition: var(--transition-smooth);
+    text-align: center;
+    text-overflow: ellipsis;
+}
+
+.team-build-input:focus {
+    outline: none;
+    border-color: var(--slot-type-color);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--slot-type-color) 15%, transparent);
+}
+
+select.team-build-input {
+    text-align-last: center;
+}
+
+.team-role-tag-select {
+    background: rgba(139, 92, 246, 0.05);
+    border-color: rgba(139, 92, 246, 0.15);
+    color: #c4b5fd;
+    font-weight: 700;
+}
+
+.team-slot-card:hover .team-role-tag-select {
+    border-color: rgba(139, 92, 246, 0.35);
+}
+
+select option,
+.team-build-input option {
+    background-color: #12131a !important;
+    color: #fff !important;
+}
+
+/* Moves Showcase Section */
+.team-slot-moves-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.team-slot-moves-header {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.team-slot-moves-header select.team-build-input {
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+.team-slot-moves-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+/* Modern Inline Move Selector Cards */
+.team-move-inline-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-left: 3px solid var(--move-type-color, rgba(255, 255, 255, 0.08));
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 68px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+
+.team-move-inline-card:focus-within {
+    border-color: var(--move-type-color, var(--color-primary));
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.team-move-inline-badge {
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    pointer-events: none;
+    letter-spacing: 0.5px;
+}
+
+.team-move-inline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.team-move-inline-header .type-badge {
+    font-size: 0.58rem;
+    padding: 1px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.team-move-name-input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-weight: 750;
+    font-size: 0.85rem;
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0;
+}
+
+.team-move-stats-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.team-move-stats-row .stat-pill {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 1px 5px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.team-clear-slot-btn {
+    position: absolute;
+    top: 5px;
+    right: 3px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.8rem;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+    z-index: 10;
+}
+
+.team-clear-slot-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #ef4444;
+    transform: scale(1.1);
+}
+
+/* Modals */
+.team-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(8, 9, 12, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.team-modal-card {
+    background: #12131a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    padding: 30px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Autocomplete suggestions dropdown overrides */
+.team-slot-search-wrapper .autocomplete-dropdown {
+    background: #12131a !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+}
+
+@media (max-width: 1024px) {
+    .team-slot-build-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .team-slot-moves-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .team-slot-card {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px;
+    }
+    .team-slot-left {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding-right: 0;
+        padding-bottom: 20px;
+    }
+    .team-slot-moves-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .team-slot-build-bar {
+        grid-template-columns: 1fr;
+    }
+    .team-slot-moves-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================
+   Card compacto usado na Exportação de Imagem do Time
+   (renderizado fora da tela e capturado via html2canvas)
+   ========================================================== */
+.team-export-container {
+    width: 1040px;
+    padding: 22px;
+    background: linear-gradient(160deg, #13131f 0%, #1a1a2e 55%, #201a35 100%);
+    font-family: 'Outfit', sans-serif;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.team-export-header {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.team-export-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #fff;
+}
+
+.team-export-title i {
+    color: var(--color-primary, #8b5cf6);
+}
+
+.team-export-subtitle {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #a78bfa;
+    margin-top: 3px;
+}
+
+.team-export-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.team-export-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 9px 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+}
+
+/* Faixa da Função/Tag: sempre no topo do card, largura total (acima da sprite) */
+.team-export-role-bar {
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #c4b5fd;
+    background: rgba(139, 92, 246, 0.16);
+    border: 1px solid rgba(139, 92, 246, 0.32);
+    border-radius: 6px;
+    padding: 3px 8px;
+    margin-bottom: 8px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+}
+
+/* Cabeçalho: sprite à esquerda, nome + ícones de tipo à direita */
+.team-export-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.team-export-sprite-wrap {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    box-sizing: border-box;
+}
+
+.team-export-sprite {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.team-export-header-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.team-export-name {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: capitalize;
+}
+
+.team-export-type-icons {
+    display: flex;
+    gap: 4px;
+}
+
+.team-export-type-icon {
+    width: 19px;
+    height: 19px;
+    object-fit: contain;
+}
+
+/* Barra de Ability / Nature / Item: 3 células iguais lado a lado, com divisórias */
+.team-export-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.team-export-stat-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 5px 3px;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.team-export-stat-cell:last-child {
+    border-right: none;
+}
+
+.team-export-stat-label {
+    font-size: 0.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+}
+
+.team-export-stat-label i {
+    color: #a78bfa;
+    font-size: 0.58rem;
+}
+
+.team-export-stat-value {
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: #fff;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: capitalize;
+}
+
+.team-export-stat-value-empty {
+    color: #6b7280;
+    font-style: italic;
+    font-weight: 600;
+    text-transform: none;
+}
+
+.team-export-item-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.team-export-item-icon {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.team-export-item-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+/* Lista de golpes: 2 por linha — ícone de tipo, nome, poder e método (Nível / TM) */
+.team-export-moves {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px 4px;
+}
+
+.team-export-move {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 5px;
+    padding: 3px 4px;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.team-export-move-type-icon {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.team-export-move-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.58rem;
+    font-weight: 600;
+    color: #e5e7eb;
+    text-transform: capitalize;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.team-export-move-power {
+    width: 17px;
+    text-align: right;
+    font-size: 0.56rem;
+    font-weight: 700;
+    color: #facc15;
+    flex-shrink: 0;
+}
+
+.team-export-move-method {
+    min-width: 24px;
+    text-align: center;
+    font-size: 0.46rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 1px 2px;
+    border-radius: 4px;
+    background: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.team-export-move-empty {
+    grid-column: 1 / -1;
+    justify-content: center;
+    font-size: 0.68rem;
+    color: #888;
+    font-style: italic;
+}

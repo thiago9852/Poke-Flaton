@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html lang="{{ app.request.locale|replace({'_': '-'}) }}">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>
+			{% block title %}Mov Set | Os Melhores Movesets de PokÃ©mon
+			{% endblock %}
+		</title>
+		<link
+		rel="icon" href="{{ asset('image/Pokeball.png') }}">
+
+		<!-- Google Fonts -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link
+		href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+		<!-- FontAwesome & Bootstrap Icons -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+		{% block stylesheets %}
+			<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+			<link rel="stylesheet" href="{{ asset('css/base.css') }}">
+		{% endblock %}
+
+		{% block javascripts %}
+			{% block importmap %}
+				{{ importmap('app') }}
+			{% endblock %}
+		{% endblock %}
+
+	</head>
+	<body>
+
+		<header class="app-header">
+			<div class="container header-container">
+
+				<a href="{{ path('app_home') }}" class="app-logo">
+					<img src="{{ asset('image/Mov-set.png') }}" alt="Mov Set" class="logo-img">
+				</a>
+
+				<!-- BotÃ£o HambÃºrguer para Mobile -->
+				<button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+					<i class="fa-solid fa-bars"></i>
+				</button>
+
+				<nav class="app-nav" id="appNav">
+					<div class="nav-center">
+						<a href="{{ path('app_pokemon_index') }}" class="nav-link">
+							{{ 'Moveset'|trans }}</a>
+						<a href="{{ path('app_move_search') }}" class="nav-link">
+							{{ 'Buscar Golpes'|trans }}</a>
+						<a href="{{ path('app_team_builder') }}" class="nav-link">
+							{{ 'Montar Time'|trans }}</a>
+						<a href="{{ path('app_tier_list') }}" class="nav-link">
+							{{ 'Tier List'|trans }}</a>
+					</div>
+
+					<div class="nav-right">
+						{% set g_client_id = (google_client_id is defined and google_client_id) ? google_client_id : (app.request is defined and app.request.server.has('GOOGLE_CLIENT_ID') ? app.request.server.get('GOOGLE_CLIENT_ID') : null) %}
+						{% if app.user %}
+							<div class="nav-user-dropdown" id="userDropdown">
+
+								<button class="nav-link nav-user-btn" id="userDropdownBtn" aria-expanded="false" aria-haspopup="true">
+									<span style="display: flex; align-items: center; gap: 8px;">
+										<img src="{{ avatar_url(app.user.avatar) }}" alt="Avatar" class="nav-user-avatar">
+										<span>{{ app.user.displayName }}</span>
+									</span>
+									<i class="fa-solid fa-chevron-down nav-dropdown-caret"></i>
+								</button>
+
+								<ul class="nav-dropdown-menu" role="menu">
+									<li role="menuitem">
+										<a href="{{ path('app_trainer_card') }}" class="nav-dropdown-item">
+											{{ 'Meu Perfil'|trans }}</a>
+									</li>
+									<li class="nav-dropdown-divider" role="separator"></li>
+
+									{% if is_granted('ROLE_ADMIN') %}
+										<li role="menuitem">
+											<a href="{{ path('app_admin') }}" class="nav-dropdown-item">
+												{{ 'Admin'|trans }}</a>
+										</li>
+										<li class="nav-dropdown-divider" role="separator"></li>
+									{% endif %}
+
+									<li role="menuitem">
+										<a href="{{ path('app_logout') }}" class="nav-dropdown-item nav-dropdown-item--danger">
+											<i class="fa-solid fa-right-from-bracket"></i>
+											{{ 'Sair'|trans }}</a>
+									</li>
+								</ul>
+							</div>
+						{% else %}
+							{% if g_client_id %}
+								<script src="https://accounts.google.com/gsi/client" async defer></script>
+								<div id="g_id_onload"
+									 data-client_id="{{ g_client_id }}"
+									 data-context="signin"
+									 data-ux_mode="redirect"
+									 data-login_uri="{{ url('app_google_callback') }}"
+									 data-auto_prompt="false">
+								</div>
+								<div class="g_id_signin nav-g-signin"
+									 data-type="standard"
+									 data-shape="pill"
+									 data-theme="filled_blue"
+									 data-text="signin_with"
+									 data-size="medium"
+									 data-logo_alignment="left">
+								</div>
+							{% else %}
+								<a href="{{ path('app_login') }}" class="nav-google-btn">
+									<i class="fa-brands fa-google"></i>
+									<span>{{ 'Entrar com Google'|trans }}</span>
+								</a>
+							{% endif %}
+						{% endif %}
+
+						<div class="nav-lang-dropdown" id="langDropdown">
+							<button class="nav-link nav-lang-btn" id="langDropdownBtn" aria-expanded="false" aria-haspopup="true">
+								<span style="display: flex; align-items: center; gap: 8px;">
+									{% if app.request.locale == 'en' %}
+										<img src="https://flagcdn.com/w20/us.png" alt="English" class="lang-flag-img active">
+									{% else %}
+										<img src="https://flagcdn.com/w20/br.png" alt="PortuguÃªs" class="lang-flag-img active">
+									{% endif %}
+								</span>
+								<i class="fa-solid fa-chevron-down nav-dropdown-caret"></i>
+							</button>
+							<ul class="nav-dropdown-menu" role="menu" style="min-width: 140px;">
+								<li role="menuitem">
+									<a href="{{ path('app_change_locale', { locale: 'pt_BR' }) }}" class="nav-dropdown-item" style="display: flex; align-items: center; gap: 10px; width: 100%;">
+										<img src="https://flagcdn.com/w20/br.png" alt="PortuguÃªs" class="lang-flag-img {% if app.request.locale != 'en' %}active{% else %}inactive{% endif %}">
+										<span>PortuguÃªs</span>
+									</a>
+								</li>
+								<li role="menuitem">
+									<a href="{{ path('app_change_locale', { locale: 'en' }) }}" class="nav-dropdown-item" style="display: flex; align-items: center; gap: 10px; width: 100%;">
+										<img src="https://flagcdn.com/w20/us.png" alt="English" class="lang-flag-img {% if app.request.locale == 'en' %}active{% else %}inactive{% endif %}">
+										<span>English</span>
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</nav>
+			</div>
+		</header>
+
+		<main class="app-main">
+			<div class="container">
+
+				{% for label, messages in app.flashes %}
+					{% for message in messages %}
+						<div class="alert alert-{{ label }}">
+							{{ message|trans }}
+						</div>
+					{% endfor %}
+				{% endfor %}
+
+				{% block body %}{% endblock %}
+
+			</div>
+		</main>
+
+		<footer class="app-footer">
+			<div class="footer-logo">
+				<img src="{{ asset('image/Mov-set.png') }}" alt="Mov Set">
+			</div>
+			<div class="container footer-container">
+				<p>&copy;
+					{{ 'now'|date('Y') }}
+					{{ 'Mov Set. PokÃ©mon e todos os nomes relacionados sÃ£o marcas registradas da Nintendo, Game Freak e The PokÃ©mon Company.'|trans }}</p>
+				<p class="api-attribution">
+					{{ 'Dados fornecidos por'|trans }}
+					<a href="https://pokeapi.co/" target="_blank">PokeAPI</a>
+					{{ 'e Sprites por'|trans }}
+					<a href="https://github.com/PokeAPI/sprites" target="_blank">PokeAPI/sprites</a>.</p>
+			</div>
+		</footer>
+
+		<script src="{{ asset('js/tabs.js') }}"></script>
+		<script src="{{ asset('js/global-loading.js') }}"></script>
+
+		<!-- Global Loading Overlay -->
+		<div id="global-loader" class="global-loader-overlay">
+			<div class="global-loader-content">
+				<img src="{{ asset('image/Pokeball.png') }}" alt="{{ 'Carregando...'|trans }}" class="global-loader-pokeball">
+				<div class="global-loader-text">{{ 'Carregando...'|trans }}</div>
+			</div>
+		</div>
+
+		<!-- BotÃ£o Flutuante PokÃ©mon do Dia (Desativado) -->
+		{#
+		<a href="{{ path('app_game_daily') }}" class="floating-game-btn" title="{{ 'Jogar PokÃ©mon do Dia'|trans }}" data-turbo="false">
+			<img src="{{ asset('image/Pokeball.png') }}" class="floating-game-pokeball" alt="Pokeball">
+			<span class="floating-game-text">{{ 'PokÃ©mon do Dia'|trans }}</span>
+		</a>
+		#}
+
+	</body>
+</html>
+
