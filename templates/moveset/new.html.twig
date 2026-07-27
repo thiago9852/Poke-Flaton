@@ -193,16 +193,30 @@
 					<input type="text" id="available-moves-search" class="search-input" placeholder="{{ 'Buscar golpe por nome...'|trans }}">
 					<i class="fa-solid fa-magnifying-glass search-icon"></i>
 				</div>
-				<div class="filter-buttons">
-					<button type="button" class="btn-filter active" data-filter="all">
-						<i class="fa-solid fa-layer-group"></i>
-						{{ 'Todos'|trans }}</button>
-					<button type="button" class="btn-filter" data-filter="lvl">
-						<i class="fa-solid fa-circle-chevron-up"></i>
-						Lvl</button>
-					<button type="button" class="btn-filter" data-filter="tm">
-						<i class="fa-solid fa-compact-disc"></i>
-						TM</button>
+				<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+					<div class="filter-buttons">
+						<button type="button" class="btn-filter active" data-filter="all">
+							<i class="fa-solid fa-layer-group"></i>
+							{{ 'Todos'|trans }}</button>
+						<button type="button" class="btn-filter" data-filter="lvl">
+							<i class="fa-solid fa-circle-chevron-up"></i>
+							Lvl</button>
+						<button type="button" class="btn-filter" data-filter="tm">
+							<i class="fa-solid fa-compact-disc"></i>
+							TM</button>
+					</div>
+
+					{% if app.user %}
+						<div class="tm-mode-buttons" style="display: inline-flex; gap: 4px;">
+							<button type="button" class="btn-tm-mode active" data-tm-mode="all" title="{{ 'Mostrar todos os TMs como liberados para seleção'|trans }}">
+								<i class="fa-solid fa-unlock"></i>
+							</button>
+							<button type="button" class="btn-tm-mode" data-tm-mode="backpack" title="{{ 'Mostrar apenas TMs marcados como liberados na Mochila do Trainer Card'|trans }}">
+								<i class="fa-solid fa-suitcase"></i>
+							</button>
+						</div>
+					{% endif %}
+
 				</div>
 			</div>
 
@@ -237,22 +251,15 @@
 				{% endfor %}
 			{% endif %}
 
-			<div class="available-moves-list" id="available-moves-list">
+			<div class="available-moves-list" id="available-moves-list" data-unlocked-tms="{{ unlockedTms|json_encode|escape('html_attr') }}">
 				{% for move in movesList %}
 
 					{% set moveName = move.name is defined ? move.name : move %}
 					{% set learnMethod = move.learn_method is defined ? move.learn_method : 'base' %}
 
-					{% set isLocked = false %}
-					{% if app.user and learnMethod == 'TM' and moveName not in unlockedTms and pokemon.name|lower != 'smeargle' %}
-						{% set isLocked = true %}
-					{% endif %}
-
-					<div class="available-move-card {% if isLocked %}move-locked{% endif %}" data-move-name="{{ moveName }}" data-learn-method="{{ learnMethod }}" data-locked="{% if isLocked %}true{% else %}false{% endif %}" onclick="{% if isLocked %}alert('{{ 'Você precisa desbloquear a'|trans }} {{ moveName|replace({'-': ' '})|title }} (TM) {{ 'no seu Trainer Card para poder usá-la!'|trans }}');{% else %}addMoveToFirstEmptySlot('{{ moveName }}'){% endif %}" onmouseenter="showMoveTooltip(event, '{{ moveName }}')" onmouseleave="hideMoveTooltip()">
+					<div class="available-move-card" data-move-name="{{ moveName }}" data-learn-method="{{ learnMethod }}" data-locked="false" onclick="addMoveToFirstEmptySlot('{{ moveName }}')" onmouseenter="showMoveTooltip(event, '{{ moveName }}')" onmouseleave="hideMoveTooltip()">
 						<span class="move-name">
-							{% if isLocked %}
-								<i class="fa-solid fa-lock" style="color: #ef4444; margin-right: 6px;" title="TM Bloqueada"></i>
-							{% endif %}
+							<i class="fa-solid fa-lock" style="color: #ef4444; margin-right: 6px; display: none;" title="{{ 'TM Bloqueada'|trans }}"></i>
 							{{ moveName|replace({'-': ' '})|title }}
 						</span>
 						<div class="move-badges">

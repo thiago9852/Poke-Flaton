@@ -1794,6 +1794,33 @@
     box-shadow: 0 0 10px rgba(139, 92, 246, 0.25);
 }
 
+.btn-tm-mode {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-tm-mode:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+}
+
+.btn-tm-mode.active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.25);
+}
+
 .available-moves-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));

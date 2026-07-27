@@ -22,6 +22,7 @@ const MESSAGES = {
         statusLabel: 'Status',
         noDescription: 'Nenhuma descrição disponível.',
         removeMoveTitle: 'Remover golpe',
+        needUnlockTmAlert: 'Você precisa desbloquear esta TM na sua Mochila no Trainer Card para poder usá-la!',
         typeTranslations: {
             normal: 'Normal', fire: 'Fogo', water: 'Água', grass: 'Grama', electric: 'Elétrico', ice: 'Gelo', fighting: 'Lutador', poison: 'Venenoso', ground: 'Terra', flying: 'Voador', psychic: 'Psíquico', bug: 'Inseto', rock: 'Pedra', ghost: 'Fantasma', dragon: 'Dragão', dark: 'Sombrio', steel: 'Aço', fairy: 'Fada'
         }
@@ -38,6 +39,7 @@ const MESSAGES = {
         statusLabel: 'Status',
         noDescription: 'No description available.',
         removeMoveTitle: 'Remove move',
+        needUnlockTmAlert: 'You need to unlock this TM in your TM Backpack on your Trainer Card to use it!',
         typeTranslations: {
             normal: 'Normal', fire: 'Fire', water: 'Water', grass: 'Grass', electric: 'Electric', ice: 'Ice', fighting: 'Fighting', poison: 'Poison', ground: 'Ground', flying: 'Flying', psychic: 'Psychic', bug: 'Bug', rock: 'Rock', ghost: 'Ghost', dragon: 'Dragon', dark: 'Dark', steel: 'Steel', fairy: 'Fairy'
         }
@@ -47,6 +49,7 @@ const MESSAGES = {
 let MAX_MOVES = 4;
 let selectedMoves = [];
 let currentFilter = 'all';
+let currentTmMode = 'all';
 let searchQuery = '';
 let locale = 'pt_BR';
 
@@ -182,6 +185,16 @@ let locale = 'pt_BR';
                 document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 currentFilter = this.dataset.filter;
+                applyFilters();
+            });
+        });
+
+        // Filtros por modo de TM (Todos Liberados vs Apenas Mochila)
+        document.querySelectorAll('.btn-tm-mode').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.btn-tm-mode').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentTmMode = this.dataset.tmMode;
                 applyFilters();
             });
         });
@@ -384,6 +397,11 @@ function updateUI() {
 }
 
 window.addMoveToFirstEmptySlot = function (moveName) {
+    const card = document.querySelector(`.available-move-card[data-move-name="${moveName}"]`);
+    if (card && card.dataset.locked === 'true') {
+        alert(t('needUnlockTmAlert'));
+        return;
+    }
     if (selectedMoves.includes(moveName)) return;
     const emptyIndex = selectedMoves.indexOf(null);
     if (emptyIndex === -1) return alert(t('maxMovesAlert').replace('{max}', MAX_MOVES));
@@ -400,17 +418,59 @@ window.removeMoveFromSlot = function (index) {
 
 function applyFilters() {
     const query = searchQuery.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    const movesListContainer = document.getElementById('available-moves-list');
+    const unlockedTmsSet = new Set();
+    if (movesListContainer && movesListContainer.dataset.unlockedTms) {
+        try {
+            const rawTms = JSON.parse(movesListContainer.dataset.unlockedTms);
+            if (Array.isArray(rawTms)) {
+                rawTms.forEach(tm => {
+                    unlockedTmsSet.add(tm.toLowerCase().trim().replace(/\s+/g, '-'));
+                });
+            }
+        } catch (e) {
+            console.error('Erro ao ler unlockedTms:', e);
+        }
+    }
+
+    const pokemonName = appData ? (appData.dataset.pokemonName || '').toLowerCase() : '';
+
     document.querySelectorAll('.available-move-card').forEach(card => {
-        const moveName = card.dataset.moveName.toLowerCase().replace(/[^a-z0-9]/g, '');
-        const displayName = card.querySelector('.move-name').textContent.toLowerCase().replace(/[^a-z0-9]/g, '');
-        const learnMethod = card.dataset.learnMethod.toLowerCase();
-        const matchesSearch = moveName.includes(query) || displayName.includes(query);
+        const moveNameRaw = card.dataset.moveName || '';
+        const moveNameSlug = moveNameRaw.toLowerCase().trim().replace(/\s+/g, '-');
+        const moveNameClean = moveNameSlug.replace(/[^a-z0-9]/g, '');
+        const displayName = card.querySelector('.move-name')?.textContent.toLowerCase().replace(/[^a-z0-9]/g, '') || '';
+        const learnMethod = (card.dataset.learnMethod || 'base').toLowerCase();
+        
+        const matchesSearch = moveNameClean.includes(query) || displayName.includes(query);
 
         let matchesFilter = true;
         if (currentFilter === 'lvl') matchesFilter = (learnMethod === 'base' || learnMethod === 'both');
         else if (currentFilter === 'tm') matchesFilter = (learnMethod === 'tm' || learnMethod === 'both');
 
-        card.style.display = (matchesSearch && matchesFilter) ? 'flex' : 'none';
+        let isLocked = false;
+        let matchesTmMode = true;
+
+        if (learnMethod === 'tm' && pokemonName !== 'smeargle') {
+            if (currentTmMode === 'backpack') {
+                if (!unlockedTmsSet.has(moveNameSlug)) {
+                    isLocked = true;
+                    matchesTmMode = false;
+                }
+            } else {
+                isLocked = false;
+            }
+        }
+
+        card.dataset.locked = isLocked ? 'true' : 'false';
+        card.classList.toggle('move-locked', isLocked);
+        const lockIcon = card.querySelector('.fa-lock');
+        if (lockIcon) {
+            lockIcon.style.display = isLocked ? 'inline-block' : 'none';
+        }
+
+        card.style.display = (matchesSearch && matchesFilter && matchesTmMode) ? 'flex' : 'none';
     });
 }
 
