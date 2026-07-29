@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mov Set - {{ 'Pokémons'|trans }}
+{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/pokemon.css') }}">
+{% endblock %}
+
+{% block body %}
+
+	<section class="filter-section card">
+
+		<form action="{{ path('app_pokemon_index') }}" method="GET" class="search-form">
+			<div class="search-box">
+				<input type="text" name="q" value="{{ search }}" placeholder="{{ 'Buscar por nome ou número...'|trans }}" class="search-input" autocomplete="off">
+				<i class="fa-solid fa-magnifying-glass search-icon"></i>
+			</div>
+
+			<div class="sort-box">
+				<select name="sort" class="sort-select" aria-label="{{ 'Ordenar pokémons'|trans }}" onchange="this.form.submit()">
+					<option value="" {% if not sort %}selected{% endif %}>{{ 'Ordenar por:'|trans }}</option>
+					<option value="number_asc" {% if sort == 'number_asc' %}selected{% endif %}>{{ 'Nº (001 → 999)'|trans }}</option>
+					<option value="number_desc" {% if sort == 'number_desc' %}selected{% endif %}>{{ 'Nº (999 → 001)'|trans }}</option>
+					<option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>{{ 'Nome (A → Z)'|trans }}</option>
+					<option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>{{ 'Nome (Z → A)'|trans }}</option>
+				</select>
+			</div>
+
+			<div class="sort-box">
+				<select name="gen" class="sort-select" aria-label="{{ 'Filtrar por geração'|trans }}" onchange="this.form.submit()">
+					<option value="" {% if not selectedGen %}selected{% endif %}>{{ 'Todas Gerações'|trans }}</option>
+					{% for g in allowedGenerations %}
+						<option value="{{ g }}" {% if selectedGen == g %}selected{% endif %}>{{ 'Geração'|trans }} {{ g }}</option>
+					{% endfor %}
+				</select>
+			</div>
+
+			<a href="{{ path('app_pokemon_index') }}" class="btn btn-secondary btn-clear-filters" title="{{ 'Limpar todos os filtros'|trans }}">
+				<i class="fa-solid fa-filter-circle-xmark"></i>
+			</a>
+		</form>
+
+		<div class="type-filter-container">
+			<span class="filter-label">
+				<i class="fa-solid fa-sliders"></i>
+				{{ 'Filtrar por tipo:'|trans }}
+			</span>
+			{% set typeIds = {
+				'normal': 1, 'fighting': 2, 'flying': 3, 'poison': 4, 'ground': 5, 'rock': 6,
+				'bug': 7, 'ghost': 8, 'steel': 9, 'fire': 10, 'water': 11, 'grass': 12,
+				'electric': 13, 'psychic': 14, 'ice': 15, 'dragon': 16, 'dark': 17, 'fairy': 18
+			} %}
+			<div class="type-badges-list">
+				{% for type in allTypes %}
+					{% set typeId = typeIds[type.value]|default(1) %}
+					<a href="{{ path('app_pokemon_index', { q: search, type: selectedType == type.value ? '' : type.value, gen: selectedGen, sort: sort }) }}" 
+					   class="type-badge-link{{ selectedType == type.value ? ' active' : '' }}"
+					   title="{{ type.value|capitalize|trans }}">
+						<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/small/{{ typeId }}.png" alt="{{ type.value }}" class="type-filter-img">
+					</a>
+				{% endfor %}
+			</div>
+		</div>
+
+	</section>
+
+	<div class="pokemon-grid-container">
+		{% if pokemons is empty %}
+			<div class="empty-state card" style="text-align: center; padding: 60px 20px; background-color: rgba(255, 255, 255, 0.02);">
+				<i class="fa-solid fa-magnifying-glass" style="font-size: 3.5rem; color: var(--text-muted); margin-bottom: 20px; display: block;"></i>
+				<h3 style="color: var(--text-secondary); margin-bottom: 8px;">{{ 'Nenhum Pokémon encontrado.'|trans }}</h3>
+				<p style="color: var(--text-muted);">{{ 'Tente buscar com outro termo ou limpar os filtros atuais.'|trans }}</p>
+			</div>
+		{% else %}
+			<div class="pokemon-grid">
+				{% for pokemon in pokemons %}
+
+					<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="pokemon-card">
+						<div class="pokemon-card-bg-glow type-glow-{{ pokemon.types|first }}"></div>
+						<div class="pokemon-moveset-count-badge">
+							<span>{{ movesetCounts[pokemon.name|lower]|default(0) }} {{ (movesetCounts[pokemon.name|lower]|default(0) == 1 ? 'Moveset' : 'Movesets')|trans }}</span>
+						</div>
+						<span class="pokemon-id">#{{ "%03d"|format(pokemon.dex_id|default(pokemon.id)) }}</span>
+						<div class="pokemon-sprite-container">
+							<img src="{{ pokemon.sprite }}" alt="{{ pokemon.name|abbr_pokemon_name }}" class="pokemon-image" loading="lazy">
+						</div>
+						<h3 class="pokemon-name">{{ pokemon.name|abbr_pokemon_name }}</h3>
+						<div class="pokemon-types">
+
+							{% for type in pokemon.types %}
+								{% include 'partials/type_badge.html.twig' with {'type': type, 'typeDetails': typeDetails} %}
+							{% endfor %}
+
+						</div>
+					</a>
+
+				{% endfor %}
+			</div>
+		{% endif %}
+
+		<!-- Paginação -->
+		{% if lastPage > 1 %}
+			<div class="pagination-container">
+
+				{% if currentPage > 1 %}
+					<a href="{{ path('app_pokemon_index', { page: currentPage - 1, q: search, type: selectedType, gen: selectedGen, sort: sort }) }}" class="btn btn-secondary btn-sm">
+						<i class="fa-solid fa-chevron-left"></i>
+						{{ 'Anterior'|trans }}
+					</a>
+				{% else %}
+					<span class="btn btn-secondary btn-sm disabled">
+						<i class="fa-solid fa-chevron-left"></i>
+						{{ 'Anterior'|trans }}</span>
+				{% endif %}
+
+				<span class="page-info">{{ 'Página'|trans }}
+					<strong>{{ currentPage }}</strong>
+					{{ 'de'|trans }}
+					<strong>{{ lastPage }}</strong>
+				</span>
+
+				{% if currentPage < lastPage %}
+					<a href="{{ path('app_pokemon_index', { page: currentPage + 1, q: search, type: selectedType, gen: selectedGen, sort: sort }) }}" class="btn btn-secondary btn-sm">
+						{{ 'Próxima'|trans }}
+						<i class="fa-solid fa-chevron-right"></i>
+					</a>
+				{% else %}
+					<span class="btn btn-secondary btn-sm disabled">{{ 'Próxima'|trans }}
+						<i class="fa-solid fa-chevron-right"></i>
+					</span>
+				{% endif %}
+			</div>
+		{% endif %}
+
+	</div>
+
+	{% include 'partials/tooltip.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="{{ asset('js/pokemon-search.js') }}"></script>
+{% endblock %}
