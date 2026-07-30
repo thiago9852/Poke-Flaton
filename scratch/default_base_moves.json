@@ -122,17 +122,304 @@
     "poison-jab",
     "pursuit"
   ],
-  "tyranitar": [
+"pidgey": [
+    "quick-attack",
+    "brave-bird",
+    "gust",
+    "twister",
+    "wing-attack"
+  ],
+  "pidgeotto": [
+    "quick-attack",
+    "brave-bird",
+    "gust",
+    "twister",
+    "wing-attack",
+    "air-slash",
+    "hurricane"
+  ],
+  "pidgeot": [
+    "agility",
+    "air-cutter",
+    "wing-attack",
+    "twister",
+    "air-slash",
+    "hurricane",
+    "whirlwind",
+    "brave-bird",
+    "uproar",
+    "roost"
+  ],
+  "rattata": [
+    "quick-attack",
+    "bite",
+    "tackle",
+    "assurance",
+    "crunch"
+  ],
+  "raticate": [
+    "quick-attack",
+    "bite",
+    "tackle",
+    "assurance",
+    "crunch",
+    "sucker-punch",
+    "super-fang",
+    "swords-dance",
+    "take-down",
+    "scary-face"
+  ],
+  "spearow": [
+    "drill-peck",
     "leer",
-    "fire-fang",
-    "rock-slide",  
-	  "giga-impact",
-    "dark-pulse",
+    "assurance",
+    "fury-attack",
+    "wing-attack"
+  ],
+  "fearow": [
+    "drill-peck",
+    "leer",
+    "assurance",
+    "fury-attack",
+    "wing-attack",
+    "take-down",
+    "agility",
+    "aerial-ace",
+    "peck",
+    "roost"
+  ],
+  "ekans": [
+    "bite",
+    "acid",
+    "mud-bomb",
+    "sludge-bomb",
+    "poison-sting"
+  ],
+  "arbok": [
+    "bite",
+    "acid",
+    "mud-bomb",
+    "sludge-bomb",
+    "poison-sting",
+    "brutal-swing",
+    "crunch",
+    "leech-life",
+    "poison-jab",
+    "toxic"
+  ],
+  "pikachu": [
+    "agility",
+    "iron-tail",
+    "charm",
+    "thunderbolt",
+    "rest",
+    "thunder-shock",
+    "thunder"
+  ],
+  "raichu": [
+    "agility",
+    "iron-tail",
+    "play-rough",
+    "thunderbolt",
+    "thunder-wave",
+    "discharge",
+    "thunder",
+    "electro-ball",
+    "thunder-shock",
+    "rest"
+  ],
+  "sandshrew": [
+    "defense-curl",
+    "poison-sting",
+    "bulldoze",
     "earthquake",
-    "stone-edge",
+    "fury-cutter"
+  ],
+  "sandslash": [
+    "defense-curl",
+    "poison-sting",
+    "bulldoze",
+    "earthquake",
+    "fury-cutter",
+    "earth-power",
     "sandstorm",
-    "dragon-dance",  
-	  "rock-polish"
+    "sand-tomb",
+    "swift",
+    "gyro-ball"
+  ],
+  "nidoran-f": [
+    "poison-sting",
+    "toxic-spikes",
+    "toxic",
+    "fury-swipes",
+    "skull-bash"
+  ],
+  "nidorina": [
+    "poison-sting",
+    "toxic-spikes",
+    "toxic",
+    "fury-swipes",
+    "skull-bash",
+    "crunch",
+    "earth-power"
+  ],
+  "nidoran-m": [
+    "toxic",
+    "poison-sting",
+    "toxic-spikes",
+    "poison-jab",
+    "earth-power"
+  ],
+  "nidorino": [
+    "toxic",
+    "poison-sting",
+    "toxic-spikes",
+    "poison-jab",
+    "earth-power",
+    "horn-attack",
+    "earthquake"
+  ],
+  "nidoqueen": [
+    "poison-sting",
+    "toxic-spikes",
+    "toxic",
+    "fury-swipes",
+    "skull-bash",
+    "crunch",
+    "earth-power",
+    "earthquake",
+    "superpower",
+    "sludge-wave"
+  ],
+  "nidoking": [
+    "toxic",
+    "megahorn",
+    "toxic-spikes",
+    "poison-jab",
+    "peck",
+    "earth-power",
+    "poison-sting",
+    "horn-attack",
+    "earthquake",
+    "beat-up"
+  ],
+  "clefairy": [
+    "metronome",
+    "charm",
+    "moonblast",
+    "disarming-voice",
+    "life-dew"
+  ],
+  "clefable": [
+    "metronome",
+    "misty-terrain",
+    "moonblast",
+    "dazzling-gleam",
+    "meteor-mash",
+    "life-dew",
+    "disarming-voice",
+    "heal-pulse",
+    "heal-bell",
+    "uproar"
+  ],
+  "vulpix": [
+    "flare-blitz",
+    "confuse-ray",
+    "heat-wave",
+    "fire-blast",
+    "ember"
+  ],
+  "ninetales": [
+    "flare-blitz",
+    "confuse-ray",
+    "heat-wave",
+    "fire-blast",
+    "incinerate",
+    "inferno",
+    "will-o-wisp",
+    "mystical-fire",
+    "ember",
+    "safeguard"
+  ],
+  "jigglypuff": [
+    "charm",
+    "disarming-voice",
+    "defense-curl",
+    "heal-pulse",
+    "last-resort",
+    "moonblast",
+    "echoed-voice"
+  ],
+  "wigglytuff": [
+    "charm",
+    "disarming-voice",
+    "defense-curl",
+    "heal-pulse",
+    "last-resort",
+    "moonblast",
+    "echoed-voice",
+    "hyper-voice",
+    "wish",
+    "uproar"
+  ],
+  "zubat": [
+    "quick-attack",
+    "bite",
+    "air-slash",
+    "whirlwind",
+    "poison-fang"
+  ],
+  "golbat": [
+    "quick-attack",
+    "bite",
+    "air-slash",
+    "whirlwind",
+    "poison-fang",
+    "hypnosis",
+    "wing-attack",
+    "leech-life"
+  ],
+  "oddish": [
+    "absorb",
+    "mega-drain",
+    "poison-powder",
+    "sleep-powder",
+    "synthesis"
+  ],
+  "gloom": [
+    "absorb",
+    "mega-drain",
+    "poison-powder",
+    "sleep-powder",
+    "grassy-terrain",
+    "moonblast",
+    "synthesis"
+  ],
+  "vileplume": [
+    "absorb",
+    "mega-drain",
+    "poison-powder",
+    "sleep-powder",
+    "grassy-terrain",
+    "moonblast",
+    "petal-blizzard",
+    "toxic",
+    "petal-dance",
+    "synthesis"
+  ],
+  "paras": [
+    "absorb",
+    "bug-bite",
+    "x-scissor",
+    "venoshock",
+    "energy-ball"
+  ],
+  "venonat": [
+    "agility",
+    "bug-bite",
+    "sleep-powder",
+    "tackle",
+    "leech-life"
   ],
 
 "snivy": [
