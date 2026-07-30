@@ -40,13 +40,25 @@
 
         <div class="map-actions">
             {% if activeMap %}
-                <button id="btnAddMode" class="btn btn-add-mode" onclick="toggleAddMode()">
-                    <i class="fa-solid fa-circle-plus"></i>
-                    <span>{{ 'Adicionar Pokémon'|trans }}</span>
-                </button>
+                <div style="display: flex; gap: 8px; flex-direction: column;">
+                    <button id="btnAddMode" class="btn btn-add-mode" onclick="toggleAddMode()">
+                        <i class="fa-solid fa-circle-plus"></i>
+                        <span>{{ 'Adicionar Pokémon'|trans }}</span>
+                    </button>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <button id="btnPortalMode" class="btn btn-portal-mode" onclick="togglePortalMode()">
+                            <i class="fa-solid fa-map-pin"></i>
+                            <span>{{ 'Adicionar Submapa'|trans }}</span>
+                        </button>
+                    {% endif %}
+                </div>
                 <div id="addInstructions" class="action-instructions" style="display: none;">
                     <i class="fa-solid fa-circle-info"></i>
                     {{ 'Clique em qualquer lugar na imagem do mapa para marcar um Pokémon.'|trans }}
+                </div>
+                <div id="portalInstructions" class="action-instructions" style="display: none; background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); color: var(--text-primary);">
+                    <i class="fa-solid fa-circle-info"></i>
+                    {{ 'Clique em qualquer lugar na imagem do mapa para colocar um portal de Submapa.'|trans }}
                 </div>
             {% endif %}
         </div>
@@ -117,6 +129,11 @@
                         <input type="file" id="adminMapImage" name="image" accept="image/*" class="form-control-admin" required>
                     </div>
                     
+                    <div class="is-submap-checkbox-container">
+                        <input type="checkbox" id="adminMapIsSubmap" name="isSubmap" value="1">
+                        <label for="adminMapIsSubmap">{{ 'É um Submapa? (Ocultar da lista principal)'|trans }}</label>
+                    </div>
+                    
                     <button type="submit" class="btn btn-primary btn-sm">
                         <i class="fa-solid fa-floppy-disk"></i>
                         {{ 'Cadastrar Região'|trans }}
@@ -148,6 +165,60 @@
             </div>
         {% endif %}
     </div>
+
+    <!-- Sub-map Modal -->
+    <div id="submapModal" class="submap-modal" style="display: none;">
+        <div class="submap-modal-content">
+            <div class="submap-modal-header">
+                <button id="btnSubmapBack" class="btn btn-back" style="display: none;" onclick="navigateBackSubmap()">
+                    <i class="fa-solid fa-chevron-left"></i> {{ 'Voltar'|trans }}
+                </button>
+                <h3 id="submapModalTitle">Submapa</h3>
+                <button class="btn-close-modal" onclick="closeSubmapModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="submap-modal-body">
+                <div class="map-layout submap-layout">
+                    <!-- Submap Sidebar -->
+                    <div class="map-sidebar submap-sidebar">
+                        <div class="map-actions submap-actions">
+                            <button id="btnSubmapAddMode" class="btn btn-add-mode" onclick="toggleSubmapAddMode()">
+                                <i class="fa-solid fa-circle-plus"></i>
+                                <span>{{ 'Adicionar Pokémon'|trans }}</span>
+                            </button>
+                            <div id="submapAddInstructions" class="action-instructions" style="display: none;">
+                                <i class="fa-solid fa-circle-info"></i>
+                                {{ 'Clique em qualquer lugar no mapa para marcar um Pokémon.'|trans }}
+                            </div>
+                        </div>
+
+                        <!-- Submap Filter -->
+                        <div class="search-pokemon-card">
+                            <h4>
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                {{ 'Filtrar Marcadores'|trans }}
+                            </h4>
+                            <div class="search-box-container">
+                                <input type="text" id="submapSearchInput" class="search-pokemon-input" placeholder="{{ 'Buscar Pokémon no mapa...'|trans }}" oninput="filterSubmapMarkers()">
+                                <i class="fa-solid fa-magnifying-glass search-icon-small"></i>
+                            </div>
+                        </div>
+
+                        <!-- Submap Markers Scroll -->
+                        <div class="markers-list-section">
+                            <h4 class="markers-list-title">{{ 'Pokémon no Mapa'|trans }}</h4>
+                            <div id="submapMarkersList" class="markers-scroll-container">
+                                <!-- Loaded dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Submap container -->
+                    <div id="submapContainer" class="map-container submap-container-map"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -165,16 +236,28 @@
             imageUrl: asset('uploads/maps/' ~ activeMap.imagePath)
         }|json_encode|raw }}{% else %}null{% endif %};
         const pokemonBasicList = {{ pokemonList|json_encode|raw }};
+        const allMapsList = [
+            {% for m in allMaps %}
+                { id: {{ m.id }}, name: "{{ m.name|escape('js') }}", isSubmap: {{ m.isSubmap ? 'true' : 'false' }} },
+            {% endfor %}
+        ];
         const addPokemonUrl = "{{ path('app_map_pokemon_add') }}";
         const deletePokemonUrlTemplate = "{{ path('app_map_pokemon_delete', { id: 'PLACEHOLDER' }) }}";
         const pokemonDetailUrlTemplate = "{{ path('app_pokemon_detail', { name: 'PLACEHOLDER' }) }}";
+        const addPortalUrl = "{{ path('app_admin_map_portal_add') }}";
+        const deletePortalUrlTemplate = "{{ path('app_admin_map_portal_delete', { id: 'PLACEHOLDER' }) }}";
+        const getMapDataUrlTemplate = "{{ path('app_map_data', { id: 'PLACEHOLDER' }) }}";
         const csrfTokenAdd = "{{ csrf_token('add-map-pokemon') }}";
+        const csrfTokenAddPortal = "{{ csrf_token('add-map-portal') }}";
         const isAdmin = {% if is_granted('ROLE_ADMIN') %}true{% else %}false{% endif %};
         
         let map;
         let markers = {}; // Guardar os marcadores por ID
+        let portals = {}; // Guardar os portais por ID
         let addMode = false;
+        let portalMode = false;
         let activeTempMarker = null;
+        let activeTempPortal = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             // Inicializar mapa no sistema de coordenadas simples do Leaflet (L.CRS.Simple)
@@ -223,25 +306,40 @@
                     createdAt: "{{ mp.createdAt|date('d/m/Y H:i') }}",
                     csrfToken: "{{ csrf_token('delete-map-pokemon-' ~ mp.id) }}",
                     canDelete: {% if is_granted('ROLE_ADMIN') %}true{% else %}false{% endif %}
-                });
+                }, map, false);
             {% endfor %}
 
-            // Clique no mapa para adicionar marcador
+            // Carregar portais existentes
+            {% for portal in activeMapPortals %}
+                addPortalToMap({
+                    id: {{ portal.id }},
+                    latitude: {{ portal.latitude }},
+                    longitude: {{ portal.longitude }},
+                    targetMapId: {{ portal.targetMap.id }},
+                    targetMapName: "{{ portal.targetMap.name|escape('js') }}",
+                    csrfToken: "{{ csrf_token('delete-map-portal-' ~ portal.id) }}",
+                    canDelete: {% if is_granted('ROLE_ADMIN') %}true{% else %}false{% endif %}
+                }, map, false);
+            {% endfor %}
+
+            // Clique no mapa para adicionar marcador ou portal
             map.on('click', function(e) {
-                if (!addMode) return;
-                
                 const lat = e.latlng.lat; // Y
                 const lng = e.latlng.lng; // X
                 
                 // Impedir cliques fora da área de imagem (0 a 1000)
                 if (lat < 0 || lat > 1000 || lng < 0 || lng > 1000) return;
 
-                showAddPokemonPopup(lat, lng);
+                if (addMode) {
+                    showAddPokemonPopup(lat, lng);
+                } else if (portalMode) {
+                    showAddPortalPopup(lat, lng);
+                }
             });
         });
 
         // Adiciona marcador ao mapa
-        function addMarkerToMap(data) {
+        function addMarkerToMap(data, targetMap = map, isSubmap = false) {
             const iconUrl = `https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/4ea93c96af1c74c0f240315fac1b5f34361a710c/UICONS/pokemon/${data.pokemonId}.png`;
             
             const customIcon = L.divIcon({
@@ -252,7 +350,7 @@
                 popupAnchor: [0, -20]
             });
 
-            const marker = L.marker([data.latitude, data.longitude], { icon: customIcon }).addTo(map);
+            const marker = L.marker([data.latitude, data.longitude], { icon: customIcon }).addTo(targetMap);
 
             const movesetUrl = pokemonDetailUrlTemplate.replace('PLACEHOLDER', data.pokemonName.toLowerCase());
             let popupContent = `
@@ -278,7 +376,7 @@
 
             if (data.canDelete) {
                 popupContent += `
-                    <button class="btn-popup-delete" onclick="deleteMarker(${data.id}, '${data.csrfToken}')">
+                    <button class="btn-popup-delete" onclick="deleteMarker(${data.id}, '${data.csrfToken}', ${isSubmap})">
                         <i class="fa-solid fa-trash-can"></i> Excluir
                     </button>
                 `;
@@ -290,11 +388,15 @@
             `;
 
             marker.bindPopup(popupContent);
-            markers[data.id] = marker;
+            if (isSubmap) {
+                submapMarkers[data.id] = marker;
+            } else {
+                markers[data.id] = marker;
+            }
         }
 
         // Deleta o marcador
-        function deleteMarker(id, token) {
+        function deleteMarker(id, token, isSubmap = false) {
             if (!confirm("Deseja realmente excluir esta marcação?")) return;
 
             const formData = new FormData();
@@ -308,15 +410,19 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    if (markers[id]) {
-                        map.removeLayer(markers[id]);
-                        delete markers[id];
+                    const currentMarkers = isSubmap ? submapMarkers : markers;
+                    const currentMap = isSubmap ? submapMapInstance : map;
+                    const listId = isSubmap ? 'submapMarkersList' : 'markersList';
+
+                    if (currentMarkers[id]) {
+                        currentMap.removeLayer(currentMarkers[id]);
+                        delete currentMarkers[id];
                     }
                     const item = document.querySelector(`.marker-list-item[data-id="${id}"]`);
                     if (item) {
                         item.remove();
                     }
-                    const list = document.getElementById('markersList');
+                    const list = document.getElementById(listId);
                     if (list.children.length === 0) {
                         list.innerHTML = `
                             <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 20px;">
@@ -336,6 +442,7 @@
 
         // Alterna modo de inserção
         function toggleAddMode() {
+            if (portalMode) togglePortalMode();
             addMode = !addMode;
             const btn = document.getElementById('btnAddMode');
             const instructions = document.getElementById('addInstructions');
@@ -578,7 +685,7 @@
 
         function filterMapMarkers() {
             const query = document.getElementById('mapSearchInput').value.trim().toLowerCase();
-            const sidebarItems = document.querySelectorAll('.marker-list-item');
+            const sidebarItems = document.querySelectorAll('.map-sidebar:not(.submap-sidebar) .marker-list-item');
             
             sidebarItems.forEach(item => {
                 const name = item.getAttribute('data-name');
@@ -591,7 +698,7 @@
 
             Object.keys(markers).forEach(id => {
                 const marker = markers[id];
-                const item = document.querySelector(`.marker-list-item[data-id="${id}"]`);
+                const item = document.querySelector(`.map-sidebar:not(.submap-sidebar) .marker-list-item[data-id="${id}"]`);
                 const name = item ? item.getAttribute('data-name') : '';
 
                 const iconElement = marker.getElement();
@@ -602,6 +709,691 @@
                         iconElement.classList.add('filtered-out');
                     }
                 }
+            });
+        }
+
+        // --- SUBMAP & PORTALS JS LOGIC ---
+
+        function addPortalToMap(data, targetMap = map, isSubmap = false) {
+            const portalIcon = L.divIcon({
+                className: 'portal-map-icon',
+                html: `<img src="{{ asset('image/pokeball-pin.svg') }}" class="portal-map-icon-img" alt="${data.targetMapName}">`,
+                iconSize: [36, 53],
+                iconAnchor: [18, 53],
+                popupAnchor: [0, -45]
+            });
+
+            const marker = L.marker([data.latitude, data.longitude], { icon: portalIcon }).addTo(targetMap);
+
+            let popupContent = `
+                <div class="portal-popup">
+                    <h4>${data.targetMapName}</h4>
+                    <p>Clique abaixo para entrar nesta área especial.</p>
+                    <button class="btn btn-primary btn-sm" onclick="openSubmapModal(${data.targetMapId})">
+                        <i class="fa-solid fa-door-open"></i> Entrar
+                    </button>
+            `;
+
+            if (data.canDelete) {
+                popupContent += `
+                    <button class="btn-popup-delete" onclick="deletePortal(${data.id}, '${data.csrfToken}', ${isSubmap})">
+                        <i class="fa-solid fa-trash-can"></i> Excluir Portal
+                    </button>
+                `;
+            }
+
+            popupContent += `
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+            if (isSubmap) {
+                submapPortals[data.id] = marker;
+            } else {
+                portals[data.id] = marker;
+            }
+        }
+
+        function showAddPortalPopup(lat, lng) {
+            if (activeTempPortal) {
+                map.removeLayer(activeTempPortal);
+            }
+
+            activeTempPortal = L.marker([lat, lng]).addTo(map);
+
+            // Build select options for available maps (only sub-maps)
+            let optionsHtml = '';
+            allMapsList.forEach(m => {
+                if (activeMap && m.id !== activeMap.id && m.isSubmap) {
+                    optionsHtml += `<option value="${m.id}">${m.name}</option>`;
+                }
+            });
+
+            const formHtml = `
+                <div class="map-inserter-form">
+                    <h4><i class="fa-solid fa-map-pin"></i> Criar Portal de Submapa</h4>
+                    <div class="form-group-admin">
+                        <label for="portalTargetMapSelect">Selecione o Mapa Destino</label>
+                        <select id="portalTargetMapSelect" class="map-popup-input" style="background: #14151f; border-color: var(--border-color); color: #fff;">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="saveMapPortal(${lat}, ${lng})" style="width:100%; margin-top: 4px;">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Portal
+                    </button>
+                </div>
+            `;
+
+            activeTempPortal.bindPopup(formHtml, { minWidth: 260 }).openPopup();
+
+            activeTempPortal.on('popupclose', function() {
+                if (portalMode) {
+                    togglePortalMode();
+                }
+            });
+        }
+
+        function saveMapPortal(lat, lng) {
+            const targetMapId = document.getElementById('portalTargetMapSelect').value;
+
+            if (!targetMapId) {
+                alert("Por favor, selecione um mapa de destino.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('parentMapId', activeMap ? activeMap.id : '');
+            formData.append('targetMapId', targetMapId);
+            formData.append('latitude', lat);
+            formData.append('longitude', lng);
+            formData.append('_token', csrfTokenAddPortal);
+
+            fetch(addPortalUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (activeTempPortal) {
+                        map.removeLayer(activeTempPortal);
+                        activeTempPortal = null;
+                    }
+                    
+                    addPortalToMap({
+                        id: data.portal.id,
+                        latitude: data.portal.latitude,
+                        longitude: data.portal.longitude,
+                        targetMapId: data.portal.targetMapId,
+                        targetMapName: data.portal.targetMapName,
+                        csrfToken: data.portal.csrfToken,
+                        canDelete: isAdmin
+                    }, map, false);
+
+                    togglePortalMode();
+                } else {
+                    alert(data.error || "Erro ao salvar portal.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro ao salvar portal.");
+            });
+        }
+
+        function deletePortal(id, token, isSubmap = false) {
+            if (!confirm("Deseja realmente excluir este portal?")) return;
+
+            const formData = new FormData();
+            formData.append('_token', token);
+
+            const deleteUrl = deletePortalUrlTemplate.replace('PLACEHOLDER', id);
+            fetch(deleteUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const currentPortals = isSubmap ? submapPortals : portals;
+                    const currentMap = isSubmap ? submapMapInstance : map;
+                    
+                    if (currentPortals[id]) {
+                        currentMap.removeLayer(currentPortals[id]);
+                        delete currentPortals[id];
+                    }
+                } else {
+                    alert(data.error || "Erro ao deletar portal.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro de comunicação com o servidor.");
+            });
+        }
+
+        function togglePortalMode() {
+            if (addMode) toggleAddMode();
+            
+            portalMode = !portalMode;
+            const btn = document.getElementById('btnPortalMode');
+            const instructions = document.getElementById('portalInstructions');
+            const mapContainer = document.getElementById('map');
+
+            if (portalMode) {
+                btn.classList.add('active');
+                btn.innerHTML = `<i class="fa-solid fa-xmark"></i> <span>Cancelar</span>`;
+                instructions.style.display = 'block';
+                mapContainer.style.cursor = 'crosshair';
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = `<i class="fa-solid fa-map-pin"></i> <span>Adicionar Submapa</span>`;
+                instructions.style.display = 'none';
+                mapContainer.style.cursor = '';
+                if (activeTempPortal) {
+                    map.removeLayer(activeTempPortal);
+                    activeTempPortal = null;
+                }
+            }
+        }
+
+        let submapMapInstance = null;
+        let submapMarkers = {};
+        let submapPortals = {};
+        let submapAddMode = false;
+        let activeSubmapTempMarker = null;
+        let submapHistory = [];
+        let currentSubmapData = null;
+
+        function openSubmapModal(targetMapId, fromHistory = false) {
+            const modal = document.getElementById('submapModal');
+            modal.style.display = 'flex';
+
+            if (map) map.closePopup();
+
+            if (!fromHistory) {
+                if (currentSubmapData) {
+                    submapHistory.push({
+                        id: currentSubmapData.map.id,
+                        name: currentSubmapData.map.name
+                    });
+                } else {
+                    submapHistory = [];
+                }
+            }
+
+            const btnBack = document.getElementById('btnSubmapBack');
+            if (submapHistory.length > 0) {
+                btnBack.style.display = 'block';
+                const parentInfo = submapHistory[submapHistory.length - 1];
+                btnBack.innerHTML = `<i class="fa-solid fa-chevron-left"></i> ${parentInfo.name}`;
+            } else {
+                btnBack.style.display = 'none';
+            }
+
+            const fetchUrl = getMapDataUrlTemplate.replace('PLACEHOLDER', targetMapId);
+            fetch(fetchUrl)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    currentSubmapData = data;
+                    document.getElementById('submapModalTitle').innerText = data.map.name;
+                    
+                    destroySubmapInstance();
+                    initSubmapLeaflet(data);
+                } else {
+                    alert(data.error || "Erro ao carregar dados do submapa.");
+                    closeSubmapModal();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro ao conectar com o servidor.");
+                closeSubmapModal();
+            });
+        }
+
+        function initSubmapLeaflet(data) {
+            const bounds = [[0, 0], [1000, 1000]];
+
+            submapMapInstance = L.map('submapContainer', {
+                crs: L.CRS.Simple,
+                minZoom: -2,
+                maxZoom: 3,
+                zoomControl: true,
+                attributionControl: false
+            });
+
+            submapMapInstance.on('popupopen', function(e) {
+                const popupNode = e.popup.getElement();
+                if (popupNode) {
+                    L.DomEvent.disableClickPropagation(popupNode);
+                }
+            });
+
+            L.imageOverlay(data.map.imageUrl, bounds).addTo(submapMapInstance);
+            submapMapInstance.fitBounds(bounds);
+            submapMapInstance.setMaxBounds(bounds);
+
+            data.pokemons.forEach(p => {
+                addMarkerToSubmap(p);
+            });
+
+            data.portals.forEach(portal => {
+                addPortalToSubmap(portal);
+            });
+
+            renderSubmapSidebarList(data.pokemons);
+
+            submapMapInstance.on('click', function(e) {
+                if (!submapAddMode) return;
+                
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                
+                if (lat < 0 || lat > 1000 || lng < 0 || lng > 1000) return;
+
+                showSubmapAddPokemonPopup(lat, lng);
+            });
+
+            setTimeout(() => {
+                submapMapInstance.invalidateSize();
+            }, 100);
+        }
+
+        function destroySubmapInstance() {
+            if (submapMapInstance) {
+                submapMapInstance.remove();
+                submapMapInstance = null;
+            }
+            submapMarkers = {};
+            submapPortals = {};
+            if (submapAddMode) {
+                toggleSubmapAddMode();
+            }
+            activeSubmapTempMarker = null;
+            document.getElementById('submapSearchInput').value = '';
+        }
+
+        function closeSubmapModal() {
+            document.getElementById('submapModal').style.display = 'none';
+            destroySubmapInstance();
+            currentSubmapData = null;
+            submapHistory = [];
+        }
+
+        function navigateBackSubmap() {
+            if (submapHistory.length > 0) {
+                const prev = submapHistory.pop();
+                openSubmapModal(prev.id, true);
+            }
+        }
+
+        function toggleSubmapAddMode() {
+            submapAddMode = !submapAddMode;
+            const btn = document.getElementById('btnSubmapAddMode');
+            const instructions = document.getElementById('submapAddInstructions');
+            const mapContainer = document.getElementById('submapContainer');
+
+            if (submapAddMode) {
+                btn.classList.add('active');
+                btn.innerHTML = `<i class="fa-solid fa-xmark"></i> <span>Cancelar</span>`;
+                instructions.style.display = 'block';
+                mapContainer.style.cursor = 'crosshair';
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = `<i class="fa-solid fa-circle-plus"></i> <span>Adicionar Pokémon</span>`;
+                instructions.style.display = 'none';
+                mapContainer.style.cursor = '';
+                if (activeSubmapTempMarker) {
+                    submapMapInstance.removeLayer(activeSubmapTempMarker);
+                    activeSubmapTempMarker = null;
+                }
+            }
+        }
+
+        function addMarkerToSubmap(data) {
+            const iconUrl = `https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/4ea93c96af1c74c0f240315fac1b5f34361a710c/UICONS/pokemon/${data.pokemonId}.png`;
+            
+            const customIcon = L.divIcon({
+                className: 'pokemon-map-icon',
+                html: `<img src="${iconUrl}" class="pokemon-map-icon-img" alt="${data.pokemonName}" onerror="this.onerror=null; this.src='{{ asset('image/Pokeball.png') }}';">`,
+                iconSize: [44, 44],
+                iconAnchor: [22, 22],
+                popupAnchor: [0, -20]
+            });
+
+            const marker = L.marker([data.latitude, data.longitude], { icon: customIcon }).addTo(submapMapInstance);
+
+            const movesetUrl = pokemonDetailUrlTemplate.replace('PLACEHOLDER', data.pokemonName.toLowerCase());
+            let popupContent = `
+                <div class="map-popup-container">
+                    <div class="map-popup-header">
+                        <img src="${iconUrl}" class="map-popup-img" alt="${data.pokemonName}" onerror="this.onerror=null; this.src='{{ asset('image/Pokeball.png') }}';">
+                        <div>
+                            <div class="map-popup-title">${capitalizeFirstLetter(data.pokemonName)}</div>
+                            <a href="${movesetUrl}" class="map-popup-link" target="_blank">
+                                Ver Movesets
+                            </a>
+                        </div>
+                    </div>
+                    <div class="map-popup-body">
+                        ${data.notes ? `<div class="map-popup-notes">"${data.notes}"</div>` : `<span style="color: var(--text-muted); font-style: italic;">Sem observações.</span>`}
+                    </div>
+                    <div class="map-popup-footer">
+                        <div>
+                            <i class="fa-solid fa-user"></i> ${data.username}<br>
+                            <i class="fa-solid fa-clock"></i> ${data.createdAt}
+                        </div>
+            `;
+
+            if (data.canDelete) {
+                popupContent += `
+                    <button class="btn-popup-delete" onclick="deleteMarker(${data.id}, '${data.csrfToken}', true)">
+                        <i class="fa-solid fa-trash-can"></i> Excluir
+                    </button>
+                `;
+            }
+
+            popupContent += `
+                    </div>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+            submapMarkers[data.id] = marker;
+        }
+
+        function addPortalToSubmap(portal) {
+            const portalIcon = L.divIcon({
+                className: 'portal-map-icon',
+                html: `<img src="{{ asset('image/pokeball-pin.svg') }}" class="portal-map-icon-img" alt="${portal.targetMapName}">`,
+                iconSize: [36, 53],
+                iconAnchor: [18, 53],
+                popupAnchor: [0, -45]
+            });
+
+            const marker = L.marker([portal.latitude, portal.longitude], { icon: portalIcon }).addTo(submapMapInstance);
+
+            let popupContent = `
+                <div class="portal-popup">
+                    <h4>${portal.targetMapName}</h4>
+                    <p>Clique abaixo para entrar nesta área especial.</p>
+                    <button class="btn btn-primary btn-sm" onclick="openSubmapModal(${portal.targetMapId})">
+                        <i class="fa-solid fa-door-open"></i> Entrar
+                    </button>
+            `;
+
+            if (portal.canDelete) {
+                popupContent += `
+                    <button class="btn-popup-delete" onclick="deletePortal(${portal.id}, '${portal.csrfToken}', true)">
+                        <i class="fa-solid fa-trash-can"></i> Excluir Portal
+                    </button>
+                `;
+            }
+
+            popupContent += `
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+            submapPortals[portal.id] = marker;
+        }
+
+        function renderSubmapSidebarList(pokemons) {
+            const list = document.getElementById('submapMarkersList');
+            list.innerHTML = '';
+
+            if (pokemons.length === 0) {
+                list.innerHTML = `
+                    <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 20px;">
+                        Nenhum Pokémon marcado neste mapa ainda.
+                    </div>
+                `;
+                return;
+            }
+
+            pokemons.forEach(pokemon => {
+                const item = document.createElement('div');
+                item.className = 'marker-list-item';
+                item.setAttribute('onclick', `focusOnSubmapMarker(${pokemon.id})`);
+                item.setAttribute('data-id', pokemon.id);
+                item.setAttribute('data-name', pokemon.pokemonName.toLowerCase());
+                
+                const iconUrl = `https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/4ea93c96af1c74c0f240315fac1b5f34361a710c/UICONS/pokemon/${pokemon.pokemonId}.png`;
+
+                item.innerHTML = `
+                    <div class="marker-list-item-left">
+                        <img src="${iconUrl}" alt="${pokemon.pokemonName}" class="marker-list-item-img" onerror="this.onerror=null; this.src='{{ asset('image/Pokeball.png') }}';">
+                        <div class="marker-list-item-info">
+                            <span class="marker-list-item-name">${pokemon.pokemonName}</span>
+                            <span class="marker-list-item-coords">
+                                X: ${pokemon.longitude.toFixed(0)}, Y: ${pokemon.latitude.toFixed(0)}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.8rem;">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function focusOnSubmapMarker(id) {
+            const marker = submapMarkers[id];
+            if (marker) {
+                submapMapInstance.setView(marker.getLatLng(), Math.max(submapMapInstance.getZoom(), 1));
+                marker.openPopup();
+            }
+        }
+
+        function filterSubmapMarkers() {
+            const query = document.getElementById('submapSearchInput').value.trim().toLowerCase();
+            const sidebarItems = document.querySelectorAll('.submap-sidebar .marker-list-item');
+            
+            sidebarItems.forEach(item => {
+                const name = item.getAttribute('data-name');
+                if (name.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            Object.keys(submapMarkers).forEach(id => {
+                const marker = submapMarkers[id];
+                const item = document.querySelector(`.submap-sidebar .marker-list-item[data-id="${id}"]`);
+                const name = item ? item.getAttribute('data-name') : '';
+
+                const iconElement = marker.getElement();
+                if (iconElement) {
+                    if (name.includes(query)) {
+                        iconElement.classList.remove('filtered-out');
+                    } else {
+                        iconElement.classList.add('filtered-out');
+                    }
+                }
+            });
+        }
+
+        function showSubmapAddPokemonPopup(lat, lng) {
+            if (activeSubmapTempMarker) {
+                submapMapInstance.removeLayer(activeSubmapTempMarker);
+            }
+
+            activeSubmapTempMarker = L.marker([lat, lng]).addTo(submapMapInstance);
+
+            const formHtml = `
+                <div class="map-inserter-form">
+                    <h4><i class="fa-solid fa-location-crosshairs"></i> Marcar Pokémon</h4>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="submapPopupSearchInput" class="map-popup-input" placeholder="Buscar Pokémon..." autocomplete="off" oninput="handleSubmapPopupAutocomplete(this)">
+                        <div id="submapPopupAutocompleteList" class="autocomplete-dropdown"></div>
+                    </div>
+                    <div id="submapPopupSelectedPreview" class="preview-selected-pokemon" style="display: none;"></div>
+                    <input type="hidden" id="submapPopupSelectedId" value="">
+                    <input type="hidden" id="submapPopupSelectedName" value="">
+                    
+                    <div class="form-group-admin" style="margin-top: 4px;">
+                        <input type="text" id="submapPopupNotes" class="map-popup-input" placeholder="Observações (opcional, ex: No matinho, Caverna)...">
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="saveSubmapPokemonMarker(${lat}, ${lng})" style="width:100%; margin-top: 4px;">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Ponto
+                    </button>
+                </div>
+            `;
+
+            activeSubmapTempMarker.bindPopup(formHtml, { minWidth: 260 }).openPopup();
+
+            activeSubmapTempMarker.on('popupclose', function() {
+                if (submapAddMode) {
+                    toggleSubmapAddMode();
+                }
+            });
+        }
+
+        function handleSubmapPopupAutocomplete(input) {
+            const query = input.value.trim().toLowerCase();
+            const listContainer = document.getElementById('submapPopupAutocompleteList');
+            
+            listContainer.innerHTML = '';
+            listContainer.style.display = 'none';
+            
+            if (query.length < 2) return;
+
+            const filtered = pokemonBasicList.filter(p => p.name.toLowerCase().includes(query)).slice(0, 5);
+
+            if (filtered.length > 0) {
+                listContainer.style.display = 'flex';
+                filtered.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.style.padding = '6px 10px';
+                    item.style.fontSize = '0.8rem';
+                    
+                    const iconUrl = `https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/4ea93c96af1c74c0f240315fac1b5f34361a710c/UICONS/pokemon/${p.id}.png`;
+                    
+                    item.innerHTML = `
+                        <img src="${iconUrl}" style="width: 24px; height: 24px; object-fit: contain;" onerror="this.onerror=null; this.src='{{ asset('image/Pokeball.png') }}';">
+                        <div class="autocomplete-item-info">
+                            <span class="poke-name" style="font-size:0.85rem;">${capitalizeFirstLetter(p.name)}</span>
+                        </div>
+                    `;
+                    item.onmousedown = function(e) {
+                        if (e) e.stopPropagation();
+                    };
+                    item.onclick = function(e) {
+                        if (e) e.stopPropagation();
+                        selectSubmapPokemonForMarker(p.id, p.name);
+                    };
+                    listContainer.appendChild(item);
+                });
+            }
+        }
+
+        function selectSubmapPokemonForMarker(id, name) {
+            document.getElementById('submapPopupSelectedId').value = id;
+            document.getElementById('submapPopupSelectedName').value = name;
+            
+            const dropdown = document.getElementById('submapPopupAutocompleteList');
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'none';
+            
+            document.getElementById('submapPopupSearchInput').style.display = 'none';
+
+            const preview = document.getElementById('submapPopupSelectedPreview');
+            const iconUrl = `https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/4ea93c96af1c74c0f240315fac1b5f34361a710c/UICONS/pokemon/${id}.png`;
+            
+            preview.innerHTML = `
+                <img src="${iconUrl}" class="preview-img" alt="${name}" onerror="this.onerror=null; this.src='{{ asset('image/Pokeball.png') }}';">
+                <span class="preview-name">${capitalizeFirstLetter(name)}</span>
+                <button type="button" class="btn-popup-delete" id="btnSubmapPopupChange" style="margin-left: auto;">
+                    <i class="fa-solid fa-pen"></i> Alterar
+                </button>
+            `;
+            preview.style.display = 'flex';
+
+            const btnChange = document.getElementById('btnSubmapPopupChange');
+            if (btnChange) {
+                btnChange.onmousedown = function(e) {
+                    if (e) e.stopPropagation();
+                };
+                btnChange.onclick = function(e) {
+                    if (e) e.stopPropagation();
+                    resetSubmapSelectedPokemon();
+                };
+            }
+        }
+
+        function resetSubmapSelectedPokemon() {
+            document.getElementById('submapPopupSelectedId').value = '';
+            document.getElementById('submapPopupSelectedName').value = '';
+            document.getElementById('submapPopupSelectedPreview').style.display = 'none';
+            
+            const searchInput = document.getElementById('submapPopupSearchInput');
+            searchInput.value = '';
+            searchInput.style.display = 'block';
+            searchInput.focus();
+        }
+
+        function saveSubmapPokemonMarker(lat, lng) {
+            const pokemonId = document.getElementById('submapPopupSelectedId').value;
+            const pokemonName = document.getElementById('submapPopupSelectedName').value;
+            const notes = document.getElementById('submapPopupNotes').value;
+
+            if (!pokemonId || !pokemonName) {
+                alert("Por favor, selecione um Pokémon da lista de sugestões.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('mapId', currentSubmapData ? currentSubmapData.map.id : '');
+            formData.append('pokemonName', pokemonName);
+            formData.append('pokemonId', pokemonId);
+            formData.append('latitude', lat);
+            formData.append('longitude', lng);
+            formData.append('notes', notes);
+            formData.append('_token', csrfTokenAdd);
+
+            fetch(addPokemonUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (activeSubmapTempMarker) {
+                        submapMapInstance.removeLayer(activeSubmapTempMarker);
+                        activeSubmapTempMarker = null;
+                    }
+                    
+                    const newMarkerData = {
+                        id: data.pokemon.id,
+                        pokemonId: data.pokemon.pokemonId,
+                        pokemonName: data.pokemon.pokemonName,
+                        latitude: data.pokemon.latitude,
+                        longitude: data.pokemon.longitude,
+                        notes: data.pokemon.notes,
+                        username: data.pokemon.username,
+                        createdAt: data.pokemon.createdAt,
+                        csrfToken: "{{ csrf_token('delete-map-pokemon-ID') }}".replace('ID', data.pokemon.id),
+                        canDelete: isAdmin
+                    };
+
+                    addMarkerToSubmap(newMarkerData);
+                    
+                    currentSubmapData.pokemons.unshift(newMarkerData);
+                    renderSubmapSidebarList(currentSubmapData.pokemons);
+
+                    toggleSubmapAddMode();
+                } else {
+                    alert(data.error || "Erro ao salvar marcador.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro ao salvar marcador.");
             });
         }
 

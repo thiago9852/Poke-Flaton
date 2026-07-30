@@ -21,16 +21,23 @@ class Map
     #[ORM\Column(length: 255)]
     private ?string $imagePath = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isSubmap = false;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\OneToMany(mappedBy: 'map', targetEntity: MapPokemon::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $pokemons;
 
+    #[ORM\OneToMany(mappedBy: 'parentMap', targetEntity: MapPortal::class, cascade: ['remove'], orphanRemoval: true)]
+    private Collection $portals;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->pokemons = new ArrayCollection();
+        $this->portals = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -94,6 +101,44 @@ class Map
             // set the owning side to null (unless already changed)
             if ($pokemon->getMap() === $this) {
                 $pokemon->setMap(null);
+            }
+        }
+        return $this;
+    }
+
+    public function isSubmap(): bool
+    {
+        return $this->isSubmap;
+    }
+
+    public function setIsSubmap(bool $isSubmap): static
+    {
+        $this->isSubmap = $isSubmap;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MapPortal>
+     */
+    public function getPortals(): Collection
+    {
+        return $this->portals;
+    }
+
+    public function addPortal(MapPortal $portal): static
+    {
+        if (!$this->portals->contains($portal)) {
+            $this->portals->add($portal);
+            $portal->setParentMap($this);
+        }
+        return $this;
+    }
+
+    public function removePortal(MapPortal $portal): static
+    {
+        if ($this->portals->removeElement($portal)) {
+            if ($portal->getParentMap() === $this) {
+                $portal->setParentMap(null);
             }
         }
         return $this;

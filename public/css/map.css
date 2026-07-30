@@ -594,3 +594,215 @@
     color: var(--text-muted);
     line-height: 1.5;
 }
+
+/* Submap Portal & Modal Styles */
+.portal-popup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 180px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.portal-popup h4 {
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.portal-popup p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.portal-popup .btn-primary {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border: none;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: var(--transition-smooth);
+}
+
+.portal-popup .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4);
+}
+
+/* Modal Styling */
+.submap-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(8, 9, 14, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.submap-modal-content {
+    background: #0e0f17;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(139, 92, 246, 0.1);
+    width: 90vw;
+    max-width: 1200px;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.submap-modal-header {
+    padding: 16px 24px;
+    background: rgba(21, 22, 32, 0.6);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.submap-modal-header h3 {
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    flex: 1;
+    text-align: center;
+}
+
+.submap-modal-header .btn-back {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition-smooth);
+}
+
+.submap-modal-header .btn-back:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--border-focus);
+}
+
+.submap-modal-header .btn-close-modal {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+.submap-modal-header .btn-close-modal:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.submap-modal-body {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.submap-layout {
+    height: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+.submap-sidebar {
+    height: 100%;
+    box-shadow: none;
+    border-right: 1px solid var(--border-color);
+    background: #0b0c12;
+}
+
+.submap-container-map {
+    height: 100% !important;
+}
+
+/* Custom styling for portal pins */
+.portal-map-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.portal-map-icon-img {
+    width: 36px;
+    height: 53px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.portal-map-icon:hover .portal-map-icon-img {
+    transform: scale(1.15) translateY(-3px);
+    filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.8)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+}
+
+.btn-portal-mode {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--color-primary);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    transition: var(--transition-smooth);
+}
+
+.btn-portal-mode:hover {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: var(--border-focus);
+}
+
+.btn-portal-mode.active {
+    background: #ef4444;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+    animation: addModePulse 1.5s infinite;
+}
+
+.is-submap-checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.is-submap-checkbox-container input {
+    cursor: pointer;
+}

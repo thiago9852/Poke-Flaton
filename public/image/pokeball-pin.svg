@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 46 68" fill="none">
+  <defs>
+    <clipPath id="c">
+      <path d="M23 2C11.4 2 2 11.4 2 23c0 12.4 9.2 24.2 21 43 11.8-18.8 21-30.6 21-43C44 11.4 34.6 2 23 2z"/>
+    </clipPath>
+  </defs>
+  <!-- white base shape -->
+  <path d="M23 2C11.4 2 2 11.4 2 23c0 12.4 9.2 24.2 21 43 11.8-18.8 21-30.6 21-43C44 11.4 34.6 2 23 2z" fill="white"/>
+  <!-- red top half clipped to pin shape -->
+  <rect x="0" y="0" width="46" height="23" fill="#e60000" clip-path="url(#c)"/>
+  <!-- pin outline -->
+  <path d="M23 2C11.4 2 2 11.4 2 23c0 12.4 9.2 24.2 21 43 11.8-18.8 21-30.6 21-43C44 11.4 34.6 2 23 2z" stroke="black" stroke-width="2.5"/>
+  <!-- horizontal divider line -->
+  <line x1="2" y1="23" x2="44" y2="23" stroke="black" stroke-width="2.5" clip-path="url(#c)"/>
+  <!-- center button circle -->
+  <circle cx="23" cy="23" r="6.5" fill="white" stroke="black" stroke-width="2.5"/>
+</svg>

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Map;
 use App\Entity\MapPokemon;
+use App\Entity\MapPortal;
 use App\Repository\MapRepository;
 use App\Repository\MapPokemonRepository;
 use App\Service\PokeApiService;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Asset\Packages;
 
 class MapController extends AbstractController
 {
@@ -40,7 +43,8 @@ class MapController extends AbstractController
     #[Route('/map', name: 'app_map', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $maps = $this->mapRepository->findBy([], ['name' => 'ASC']);
+        $maps = $this->mapRepository->findBy(['isSubmap' => false], ['name' => 'ASC']);
+        $allMaps = $this->mapRepository->findBy([], ['name' => 'ASC']);
         
         // Determinar o mapa ativo
         $activeMapId = $request->query->get('mapId');
@@ -51,8 +55,10 @@ class MapController extends AbstractController
         }
 
         $activeMapPokemons = [];
+        $activeMapPortals = [];
         if ($activeMap) {
             $activeMapPokemons = $this->mapPokemonRepository->findBy(['map' => $activeMap], ['createdAt' => 'DESC']);
+            $activeMapPortals = $activeMap->getPortals();
         }
 
         // Lista básica de Pokémon para autocomplete no cadastro
@@ -60,8 +66,10 @@ class MapController extends AbstractController
 
         return $this->render('map/index.html.twig', [
             'maps' => $maps,
+            'allMaps' => $allMaps,
             'activeMap' => $activeMap,
             'activeMapPokemons' => $activeMapPokemons,
+            'activeMapPortals' => $activeMapPortals,
             'pokemonList' => $pokemonBasicList,
         ]);
     }
@@ -91,23 +99,31 @@ class MapController extends AbstractController
             return $this->redirectToRoute('app_map');
         }
 
-        $uploadsDir = $this->projectDir . '/public/uploads/maps';
+        $uploadsDir = $this->projectDir . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'maps';
+        $uploadsDir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $uploadsDir);
+        
         if (!is_dir($uploadsDir)) {
             mkdir($uploadsDir, 0777, true);
         }
 
         $newFilename = uniqid() . '.' . $file->guessExtension();
+        $targetPath = $uploadsDir . DIRECTORY_SEPARATOR . $newFilename;
 
         try {
-            $file->move($uploadsDir, $newFilename);
+            if (!move_uploaded_file($file->getPathname(), $targetPath)) {
+                throw new \Exception('Não foi possível mover o arquivo de upload para o destino final.');
+            }
         } catch (\Exception $e) {
-            $this->addFlash('error', 'Falha ao fazer upload da imagem.');
+            $this->addFlash('error', 'Falha ao fazer upload da imagem: ' . $e->getMessage());
             return $this->redirectToRoute('app_map');
         }
 
+        $isSubmap = (bool) $request->request->get('isSubmap', false);
+
         $map = new Map();
         $map->setName($name)
-            ->setImagePath($newFilename);
+            ->setImagePath($newFilename)
+            ->setIsSubmap($isSubmap);
 
         $this->entityManager->persist($map);
         $this->entityManager->flush();
@@ -223,5 +239,135 @@ class MapController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/admin/map/portal/add', name: 'app_admin_map_portal_add', methods: ['POST'])]
+    public function addPortal(Request $request, CsrfTokenManagerInterface $csrfTokenManager): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $parentMapId = $request->request->get('parentMapId');
+        $targetMapId = $request->request->get('targetMapId');
+        $latitude = $request->request->get('latitude');
+        $longitude = $request->request->get('longitude');
+        $token = $request->request->get('_token');
+
+        if (!$this->isCsrfTokenValid('add-map-portal', $token)) {
+            return new JsonResponse(['error' => 'Token CSRF inválido.'], 400);
+        }
+
+        if (!$parentMapId || !$targetMapId || $latitude === null || $longitude === null) {
+            return new JsonResponse(['error' => 'Dados incompletos.'], 400);
+        }
+
+        if ($parentMapId == $targetMapId) {
+            return new JsonResponse(['error' => 'Um mapa não pode apontar para si mesmo.'], 400);
+        }
+
+        $parentMap = $this->mapRepository->find($parentMapId);
+        $targetMap = $this->mapRepository->find($targetMapId);
+
+        if (!$parentMap || !$targetMap) {
+            return new JsonResponse(['error' => 'Mapas não encontrados.'], 404);
+        }
+
+        $portal = new MapPortal();
+        $portal->setParentMap($parentMap)
+            ->setTargetMap($targetMap)
+            ->setLatitude((float)$latitude)
+            ->setLongitude((float)$longitude);
+
+        $this->entityManager->persist($portal);
+        $this->entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'portal' => [
+                'id' => $portal->getId(),
+                'parentMapId' => $parentMap->getId(),
+                'targetMapId' => $targetMap->getId(),
+                'targetMapName' => $targetMap->getName(),
+                'latitude' => $portal->getLatitude(),
+                'longitude' => $portal->getLongitude(),
+                'createdAt' => $portal->getCreatedAt()->format('d/m/Y H:i'),
+                'csrfToken' => $csrfTokenManager->getToken('delete-map-portal-' . $portal->getId())->getValue(),
+                'canDelete' => true
+            ]
+        ]);
+    }
+
+    #[Route('/admin/map/portal/{id}/delete', name: 'app_admin_map_portal_delete', methods: ['POST'])]
+    public function deletePortal(int $id, Request $request, \App\Repository\MapPortalRepository $mapPortalRepository): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $portal = $mapPortalRepository->find($id);
+        if (!$portal) {
+            return new JsonResponse(['error' => 'Portal não encontrado.'], 404);
+        }
+
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete-map-portal-' . $id, $token)) {
+            return new JsonResponse(['error' => 'Token CSRF inválido.'], 400);
+        }
+
+        $this->entityManager->remove($portal);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/map/{id}/data', name: 'app_map_data', methods: ['GET'])]
+    public function getMapData(int $id, CsrfTokenManagerInterface $csrfTokenManager, Packages $assets): JsonResponse
+    {
+        $map = $this->mapRepository->find($id);
+        if (!$map) {
+            return new JsonResponse(['error' => 'Mapa não encontrado.'], 404);
+        }
+
+        $pokemons = $this->mapPokemonRepository->findBy(['map' => $map], ['createdAt' => 'DESC']);
+        $portals = $map->getPortals();
+
+        $pokemonsData = [];
+        foreach ($pokemons as $mp) {
+            $pokemonsData[] = [
+                'id' => $mp->getId(),
+                'pokemonId' => $mp->getPokemonId(),
+                'pokemonName' => ucfirst($mp->getPokemonName()),
+                'latitude' => $mp->getLatitude(),
+                'longitude' => $mp->getLongitude(),
+                'notes' => $mp->getNotes(),
+                'username' => $mp->getUser() ? $mp->getUser()->getUsername() : 'Anônimo',
+                'createdAt' => $mp->getCreatedAt()->format('d/m/Y H:i'),
+                'canDelete' => $this->isGranted('ROLE_ADMIN')
+            ];
+        }
+
+        $portalsData = [];
+        foreach ($portals as $portal) {
+            $portalsData[] = [
+                'id' => $portal->getId(),
+                'parentMapId' => $map->getId(),
+                'targetMapId' => $portal->getTargetMap()->getId(),
+                'targetMapName' => $portal->getTargetMap()->getName(),
+                'latitude' => $portal->getLatitude(),
+                'longitude' => $portal->getLongitude(),
+                'createdAt' => $portal->getCreatedAt()->format('d/m/Y H:i'),
+                'csrfToken' => $csrfTokenManager->getToken('delete-map-portal-' . $portal->getId())->getValue(),
+                'canDelete' => $this->isGranted('ROLE_ADMIN')
+            ];
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'map' => [
+                'id' => $map->getId(),
+                'name' => $map->getName(),
+                'imagePath' => $map->getImagePath(),
+                'imageUrl' => $assets->getUrl('uploads/maps/' . $map->getImagePath())
+            ],
+            'pokemons' => $pokemonsData,
+            'portals' => $portalsData
+        ]);
     }
 }
