@@ -1,0 +1,370 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Perfil de'|trans }}
+	{{ targetUser.displayName }}
+	| Mov Set
+{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/trainer-card.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+{% endblock %}
+
+{% block body %}
+	<div class="trainer-card-page-wrapper">
+
+		<!-- Abas -->
+		<div class="profile-tabs">
+			<button class="tab-btn active" onclick="switchTab(event, 'trainer-card-tab')">
+				<i class="fa-solid fa-address-card"></i>
+				{{ 'Trainer Card'|trans }}
+			</button>
+			{#
+			<button class="tab-btn" onclick="switchTab(event, 'pokedex-tab')">
+				<i class="fa-solid fa-square-poll-horizontal"></i>
+				{{ 'Pokédex'|trans }} (<span id="pokedex-count-badge">{{ caughtCount }}</span>)
+			</button>
+			#}
+		</div>
+
+		<div id="trainer-card-tab" class="tab-content active">
+
+			<!-- Trainer Card -->
+			<div class="trainer-profile-banner" style="{% if selectedTemplateUrl %}background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('{{ selectedTemplateUrl }}'); background-size: cover; background-position: center;{% endif %}">
+				<div class="banner-glow"></div>
+				<div class="banner-accent-line"></div>
+
+				<div class="banner-content">
+					<!-- Avatar + Info -->
+
+					<div class="banner-row-top">
+						<div class="banner-avatar-section">
+							<div class="banner-avatar-frame" style="cursor: default;">
+								<img src="{{ avatar_url(targetUser.avatar) }}" alt="Avatar" id="trainer-avatar-img" class="trainer-avatar-sprite">
+							</div>
+						</div>
+
+						<div class="banner-info-section">
+							<div class="banner-user-identity">
+								<div class="banner-avatar-badge">
+									<span class="banner-id-tag">#{{ "%05d"|format(targetUser.id) }}</span>
+								</div>
+
+								<h2 class="banner-username">{{ targetUser.apelido }}</h2>
+								<span class="banner-join-date">
+									<i class="fa-solid fa-calendar-days"></i>
+									{{ 'Membro desde'|trans }}
+									{{ targetUser.createdAt|date('d/m/Y') }}
+								</span>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="banner-row-bottom">
+						<div class="banner-stats-section">
+
+							<div class="banner-stat-item">
+								<span class="banner-stat-value" id="card-votes-count">{{ totalVotes }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-heart"></i>
+									{{ 'Curtidas'|trans }}
+								</span>
+							</div>
+
+							<div class="banner-stat-divider"></div>
+							<div class="banner-stat-item">
+								<span class="banner-stat-value">{{ createdCount }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-flask"></i>
+									{{ 'Movesets'|trans }}
+								</span>
+							</div>
+
+							<div class="banner-stat-divider"></div>
+							<div class="banner-stat-item">
+								<span class="banner-stat-value">{{ followingCount }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-user-plus"></i>
+									{{ 'Seguindo'|trans }}
+								</span>
+							</div>
+
+							<div class="banner-stat-divider"></div>
+							<div class="banner-stat-item">
+								<span class="banner-stat-value" id="followers-count-display">{{ followersCount }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-users"></i>
+									{{ 'Seguidores'|trans }}
+								</span>
+							</div>
+						</div>
+
+						<!-- Seção de ações -->
+						<div class="banner-actions-section">
+							{% if app.user %}
+
+								{% if app.user.username != targetUser.username %}
+									{% set isFollowing = targetUser.username in app.user.following %}
+
+									<button id="follow-btn" class="btn {% if isFollowing %}btn-secondary{% else %}btn-primary{% endif %} btn-block" onclick="toggleFollowTrainer('{{ targetUser.username }}')">
+										<i class="fa-solid {% if isFollowing %}fa-user-minus{% else %}fa-user-plus{% endif %}"></i>
+										<span class="btn-text">
+											{% if isFollowing %}{{ 'Deixar de Seguir'|trans }}{% else %}{{ 'Seguir Treinador'|trans }}
+											{% endif %}
+										</span>
+									</button>
+								{% else %}
+									<div class="profile-self-notice" style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px 18px; font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+										<i class="fa-solid fa-circle-info" style="color: var(--color-secondary);"></i>
+										<span>{{ 'Seu perfil público'|trans }}</span>
+									</div>
+								{% endif %}
+
+							{% else %}
+								<div class="follow-prompt" style="font-size: 0.85rem; color: var(--text-muted);">
+									<span>{{ 'Faça'|trans }}
+										<a href="{{ path('app_login') }}" style="color: var(--color-secondary); font-weight: 600;">{{ 'login'|trans }}</a>
+										{{ 'para seguir.'|trans }}
+									</span>
+								</div>
+							{% endif %}
+
+						</div>
+					</div>
+				</div>
+
+				<!-- Footer -->
+				<div class="banner-footer-strip">
+					<span class="region-text">
+						{{ 'REGIÃO DE'|trans }}
+						{{ targetUser.regional|upper }}
+					</span>
+				</div>
+			</div>
+
+			<!-- Mochila de TMs -->
+			<div class="technical-machine-section trainer-section-collapsible">
+				<div class="trainer-section-header" onclick="toggleCategorySection('tms-content-section', 'tms-chevron')">
+					<h2 class="trainer-card-title">{{ 'Mochila de TMs'|trans }}</h2>
+					<i class="fa-solid fa-chevron-down trainer-section-chevron" id="tms-chevron"></i>
+				</div>
+
+				<div id="tms-content-section" class="trainer-section-content">
+					<div class="tms-container card">
+						<div class="tms-header">
+							<p>{{ 'Cassetes de golpes técnicos (TMs) desbloqueados por este treinador.'|trans }}</p>
+						</div>
+
+						{% set unlockedTmsList = [] %}
+
+						{% for tm in tms %}
+							{% if tm.move in targetUser.unlockedTms %}
+								{% set unlockedTmsList = unlockedTmsList|merge([tm]) %}
+							{% endif %}
+						{% endfor %}
+
+						{% if unlockedTmsList is empty %}
+							<div style="text-align: center; padding: 30px; color: var(--text-secondary);">
+								<i class="fa-solid fa-circle-info" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 12px; display: block;"></i>
+								{{ 'Este treinador ainda não desbloqueou nenhuma TM.'|trans }}
+							</div>
+						{% else %}
+							<div class="tms-grid">
+								{% for tm in unlockedTmsList %}
+									{% set tmNumber = tm.item|upper %}
+									{% set moveDisplayName = tm.move|replace({'-': ' '})|title %}
+
+									<div class="tm-disc-card active" style="cursor: default;">
+										<div class="disc-graphic">
+											<div class="disc-inner"></div>
+										</div>
+
+										<div class="tm-info">
+											<span class="tm-number">{{ tmNumber }}</span>
+											<span class="tm-move-name" title="{{ moveDisplayName }}">{{ moveDisplayName }}</span>
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+
+						{% endif %}
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Movesets Criados -->
+			<div class="moveset-list-section trainer-section-collapsible">
+				<div class="trainer-section-header" onclick="toggleCategorySection('movesets-content-section', 'movesets-chevron')">
+					<h2 class="trainer-card-title">{{ 'Lista de Movesets'|trans }}</h2>
+					<i class="fa-solid fa-chevron-down trainer-section-chevron" id="movesets-chevron"></i>
+				</div>
+
+				<div id="movesets-content-section" class="trainer-section-content">
+					<div class="movesets-list card">
+						<p class="section-subtitle">{{ 'Estratégias publicadas por este treinador para a comunidade.'|trans }}</p>
+
+						{% if userMovesets is empty %}
+							<div class="empty-movesets-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+								<i class="fa-solid fa-flask" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+								<h3>{{ 'Este treinador ainda não criou nenhum moveset!'|trans }}</h3>
+							</div>
+						{% else %}
+							<div class="movesets-grid">
+								{% for m in userMovesets %}
+									<div class="user-moveset-card" id="user-moveset-card-{{ m.id }}">
+										<div class="moveset-card-header">
+											<div class="moveset-pokemon-info">
+												<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{{ m.pokemonId }}.png" alt="{{ m.pokemonName }}" class="moveset-pokemon-sprite">
+												<div>
+													<a href="{{ path('app_pokemon_detail', { name: m.pokemonName }) }}" class="moveset-pokemon-name">{{ m.pokemonName|capitalize }}</a>
+												</div>
+											</div>
+										</div>
+
+										<div class="moveset-details-grid">
+											<div class="moveset-detail-item">
+												<span class="moveset-detail-label">{{ 'Tipo'|trans }}</span>
+												<span class="moveset-detail-value" title="{{ m.type }}">{{ m.type|capitalize }}</span>
+											</div>
+											<div class="moveset-detail-item">
+												<span class="moveset-detail-label">{{ 'Habilidade'|trans }}</span>
+												<span class="moveset-detail-value" title="{{ m.ability ? m.ability|capitalize : '-' }}">{{ m.ability ? m.ability|capitalize : '-' }}</span>
+											</div>
+											<div class="moveset-detail-item">
+												<span class="moveset-detail-label">{{ 'Item'|trans }}</span>
+												<span class="moveset-detail-value" title="{{ m.heldItem ? m.heldItem|capitalize : '-' }}">{{ m.heldItem ? m.heldItem|capitalize : '-' }}</span>
+											</div>
+										</div>
+
+										<div class="moveset-moves-list">
+											<span class="moveset-moves-title">{{ 'Golpes recomendados'|trans }}</span>
+											<div class="moveset-moves-tags">
+												{% for move in m.moves %}
+													<span class="moveset-move-tag">{{ move|replace({'-': ' '})|title }}</span>
+												{% endfor %}
+											</div>
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
+			<!-- Tier Lists Criadas -->
+			<div class="tierlist-list-section trainer-section-collapsible">
+				<div class="trainer-section-header" onclick="toggleCategorySection('tierlists-content-section', 'tierlists-chevron')">
+					<h2 class="trainer-card-title">{{ 'Lista de Tier Lists'|trans }}</h2>
+					<i class="fa-solid fa-chevron-down trainer-section-chevron" id="tierlists-chevron"></i>
+				</div>
+
+				<div id="tierlists-content-section" class="trainer-section-content">
+					<div class="movesets-list card">
+						<p class="section-subtitle">{{ 'Visualizar ou clonar as tier lists criadas por este treinador.'|trans }}</p>
+
+						{% if userTierLists is empty %}
+							<div class="empty-movesets-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+								<i class="fa-solid fa-layer-group" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+								<h3>{{ 'Este treinador ainda não criou nenhuma tier list!'|trans }}</h3>
+							</div>
+						{% else %}
+							<div class="movesets-grid">
+								{% for tl in userTierLists %}
+									<div class="user-moveset-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+										<div class="moveset-card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 12px;">
+											<div class="moveset-pokemon-info" style="gap: 10px;">
+												<i class="fa-solid fa-list-check" style="font-size: 1.5rem; color: var(--color-primary);"></i>
+												<div>
+													<a href="{{ path('app_tier_list_view', { id: tl.id }) }}" class="moveset-pokemon-name" style="font-size: 1.05rem; font-weight: 700; color: #fff;">{{ tl.title }}</a>
+													<span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 2px;">
+														<i class="fa-solid fa-calendar-day"></i> {{ tl.createdAt|date('d/m/Y') }}
+													</span>
+												</div>
+											</div>
+										</div>
+
+										{% if tl.tags is not empty %}
+											<div class="moveset-moves-list" style="margin-top: auto; padding-top: 0;">
+												<div class="moveset-moves-tags">
+													{% for tag in tl.tags %}
+														<span class="moveset-move-tag" style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); color: var(--color-secondary);">{{ tag }}</span>
+													{% endfor %}
+												</div>
+											</div>
+										{% endif %}
+
+										<div style="margin-top: 15px; display: flex; gap: 8px;">
+											<a href="{{ path('app_tier_list_view', { id: tl.id }) }}" class="btn btn-secondary btn-sm" style="flex: 1; text-align: center; justify-content: center; padding: 6px 12px; font-size: 0.8rem;">
+												<i class="fa-solid fa-eye"></i> {{ 'Visualizar'|trans }}
+											</a>
+											<a href="{{ path('app_tier_list_create', { clone: tl.id }) }}" class="btn btn-primary btn-sm" style="flex: 1; text-align: center; justify-content: center; padding: 6px 12px; font-size: 0.8rem;">
+												<i class="fa-solid fa-copy"></i> {{ 'Clonar'|trans }}
+											</a>
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		{# 
+		<!-- Pokedex Catch -->
+		<div id="pokedex-tab" class="tab-content">
+			<div class="pokedex-list-container card">
+				<div class="tms-header">
+					<h2>{{ 'Pokédex de %username%'|trans({'%username%': targetUser.displayName}) }}</h2>
+					<p>{{ 'Confira todos os Pokémons capturados por este treinador na sua jornada!'|trans }}</p>
+				</div>
+
+				{% if caughtDetails is empty %}
+					<div class="empty-pokedex-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+						<i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+						<h3>{{ 'Nenhum Pokémon capturado ainda!'|trans }}</h3>
+					</div>
+				{% else %}
+					<div class="pokedex-caught-grid">
+						{% for poke in caughtDetails %}
+
+							<div class="pokedex-caught-card border-type-{{ poke.types|first }}" id="caught-card-{{ poke.name }}">
+								<div class="caught-card-inner">
+									<a href="{{ path('app_pokemon_detail', { name: poke.name }) }}" class="poke-sprite-link">
+										<img src="{{ poke.sprite }}" alt="{{ poke.name|capitalize }}" class="poke-sprite-img">
+									</a>
+									<span class="poke-id">Nº
+										{{ "%04d"|format(poke.id) }}</span>
+									<a href="{{ path('app_pokemon_detail', { name: poke.name }) }}" class="poke-name-link">
+										<span class="poke-name-text">{{ poke.name|capitalize }}</span>
+									</a>
+									<div class="poke-badges-container">
+										{% for type in poke.types %}
+											<span class="type-badge-sm type-badge-pd type-badge-{{ type }}">{{ type|capitalize|trans }}</span>
+										{% endfor %}
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+
+					</div>
+				{% endif %}
+
+			</div>
+		</div>
+		#}
+
+
+	</div>
+
+	<!-- Container Oculto com a URL via Twig para o JS -->
+	<div id="public-profile-data" style="display: none;" data-url-follow-toggle="{{ path('app_trainer_card_follow_toggle') }}"></div>
+
+	{% include 'partials/tooltip.html.twig' %}
+	<script src="{{ asset('js/public-profile.js') }}"></script>
+{% endblock %}

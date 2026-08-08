@@ -1,0 +1,518 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'Trainer Card'|trans }} |
+	{{ user.displayName }}
+{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="{{ asset('css/trainer-card.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/poke-types.css') }}">
+{% endblock %}
+
+{% block body %}
+	<div
+		class="trainer-card-page-wrapper">
+
+		<!-- Guias -->
+		<div class="profile-tabs">
+			<button class="tab-btn active" onclick="switchTab(event, 'trainer-card-tab')">
+				<i class="fa-solid fa-address-card"></i>
+				{{ 'Trainer Card'|trans }}
+			</button>
+			<button class="tab-btn" onclick="switchTab(event, 'comunidade-tab')">
+				<i class="fa-solid fa-user-group"></i>
+				{{ 'Comunidade'|trans }} (<span id="following-count-badge">{{ followingCount }}</span>)
+			</button>
+		</div>
+
+		<!-- Trainer Card, TMs, Movesets -->
+		<div
+			id="trainer-card-tab" class="tab-content active">
+
+		<!-- Trainer Card -->
+			<div class="trainer-profile-banner" style="{% if selectedTemplateUrl %}background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('{{ selectedTemplateUrl }}'); background-size: cover;{% endif %}">
+				<div class="banner-glow"></div>
+				<div class="banner-accent-line"></div>
+
+				<div class="banner-content">
+					<div class="banner-row-top">
+
+						<!-- Avatar -->
+						<div class="banner-avatar-section">
+							<div class="banner-avatar-frame" onclick="openAvatarModal()">
+								<img src="{{ avatar_url(user.avatar) }}" alt="Avatar" id="trainer-avatar-img" class="trainer-avatar-sprite">
+								<div class="banner-avatar-edit-overlay">
+									<i class="fa-solid fa-pen"></i>
+								</div>
+							</div>
+						</div>
+
+						<!-- Seção Informações -->
+						<div class="banner-info-section">
+							<div class="banner-user-identity">
+								<div class="banner-avatar-badge">
+									<span class="banner-id-tag">#{{ "%05d"|format(user.id) }}</span>
+								</div>
+								<h2 class="banner-username">{{ user.apelido }}</h2>
+								<span class="banner-join-date">
+									<i class="fa-solid fa-calendar-days"></i>
+									{{ 'Membro desde'|trans }}
+									{{ user.createdAt|date('d/m/Y') }}
+								</span>
+							</div>
+
+						</div>
+					</div>
+
+					<div class="banner-row-bottom">
+						<!-- Estatísticas -->
+
+						<div class="banner-stats-section">
+							<div class="banner-stat-item">
+								<span class="banner-stat-value" id="card-votes-count">{{ totalVotes }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-heart"></i>
+									{{ 'Curtidas'|trans }}
+								</span>
+							</div>
+							<div class="banner-stat-divider"></div>
+
+							<div class="banner-stat-item">
+								<span class="banner-stat-value">{{ createdCount }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-flask"></i>
+									{{ 'Movesets'|trans }}
+								</span>
+							</div>
+							<div class="banner-stat-divider"></div>
+
+							<div class="banner-stat-item">
+								<span class="banner-stat-value">{{ followingCount }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-user-plus"></i>
+									{{ 'Seguindo'|trans }}
+								</span>
+							</div>
+							<div class="banner-stat-divider"></div>
+
+							<div class="banner-stat-item">
+								<span class="banner-stat-value">{{ followersCount }}</span>
+								<span class="banner-stat-label">
+									<i class="fa-solid fa-users"></i>
+									{{ 'Seguidores'|trans }}
+								</span>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				<!-- Rodapé -->
+				<div class="banner-footer-strip">
+					<div style="display: flex; gap: 8px; align-items: center;">
+						<span class="region-text"> {{ 'REGIÃO DE'|trans }}
+							{{ user.regional|upper }}
+						</span>
+					</div>
+					
+					<!-- Compartilhar perfil / Mudar Fundo -->
+					<div class="banner-actions-section">
+						<button class="banner-share-btn" title="{{ 'Compartilhar Trainer Card (em breve)'|trans }}" disabled>
+							<i class="fa-solid fa-share-nodes"></i>
+						</button>
+						<button class="banner-share-btn" onclick="openTemplateModal()" style="background: rgba(139, 92, 246, 0.2); cursor: pointer;" title="{{ 'Alterar Plano de Fundo'|trans }}">
+							<i class="fa-solid fa-image"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Mochila de TMs -->
+			<div class="technical-machine-section trainer-section-collapsible">
+				<div class="trainer-section-header" onclick="toggleCategorySection('tms-content-section', 'tms-chevron')">
+					<h2 class="trainer-card-title">{{ 'Mochila de TMs'|trans }}</h2>
+					<i class="fa-solid fa-chevron-down trainer-section-chevron" id="tms-chevron"></i>
+				</div>
+
+				<div id="tms-content-section" class="trainer-section-content">
+					<div class="tms-container card">
+						<div class="tms-header">
+							<p>{{ 'Selecione os golpes que você já desbloqueou. Eles estarão disponíveis para criar seus movesets.'|trans }}</p>
+						</div>
+
+						<div class="search-box" style="margin-bottom: 20px;">
+							<input type="text" id="tm-search-input" class="search-input" placeholder="{{ 'Buscar por número (ex: TM01) ou golpe...'|trans }}" oninput="filterTms()">
+							<i class="fa-solid fa-magnifying-glass search-icon"></i>
+						</div>
+
+						<div class="tms-grid" id="tms-grid-list">
+							{% for tm in tms %}
+
+								{% set hasTm = tm.move in user.unlockedTms %}
+								{% set tmNumber = tm.item|upper %}
+								{% set moveDisplayName = tm.move|replace({'-': ' '})|title %}
+
+								<div class="tm-disc-card
+									{% if hasTm %}active{% endif %}" 
+									data-move="{{ tm.move }}" data-item="{{ tm.item }}" 
+									onclick="toggleTmOwnership(this, '{{ tm.move }}')"
+								>
+									<div class="disc-graphic">
+										<div class="disc-inner"></div>
+									</div>
+
+									<div class="tm-info">
+										<span class="tm-number">{{ tmNumber }}</span>
+										<span class="tm-move-name" title="{{ moveDisplayName }}">{{ moveDisplayName }}</span>
+									</div>
+									<div class="tm-checkbox">
+										<i class="fa-solid fa-check"></i>
+									</div>
+								</div>
+
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Movesets Criados -->
+			<div class="moveset-list-section trainer-section-collapsible">
+				<div class="trainer-section-header" onclick="toggleCategorySection('movesets-content-section', 'movesets-chevron')">
+					<h2 class="trainer-card-title">{{ 'Lista de Movesets'|trans }}</h2>
+					<i class="fa-solid fa-chevron-down trainer-section-chevron" id="movesets-chevron"></i>
+				</div>
+
+				<div id="movesets-content-section" class="trainer-section-content">
+					<div class="movesets-list card">
+						<p class="section-subtitle">{{ 'Gerencie as estratégias que você publicou para a comunidade.'|trans }}</p>
+
+						{% if userMovesets is empty %}
+							<div class="empty-movesets-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+								<i class="fa-solid fa-flask" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+								<h3>{{ 'Você ainda não criou nenhum moveset!'|trans }}</h3>
+								<p>{{ 'Navegue pela lista de Pokémons e crie uma nova estratégia.'|trans }}</p>
+							</div>
+						{% else %}
+							<div class="movesets-grid" id="user-movesets-list-grid">
+								{% for m in userMovesets %}
+
+									<div class="user-moveset-card" id="user-moveset-card-{{ m.id }}">
+										<div class="moveset-card-header">
+											<div class="moveset-pokemon-info">
+												<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{{ m.pokemonId }}.png" alt="{{ m.pokemonName }}" class="moveset-pokemon-sprite">
+												<div>
+													<a href="{{ path('app_pokemon_detail', { name: m.pokemonName }) }}" class="moveset-pokemon-name">{{ m.pokemonName|capitalize }}</a>
+												</div>
+											</div>
+											<button class="moveset-delete-btn" onclick="deleteMoveset({{ m.id }})" title="{{ 'Excluir moveset'|trans }}">
+												<i class="fa-solid fa-trash-can"></i>
+											</button>
+										</div>
+
+										<div class="moveset-details-grid">
+											<div class="moveset-detail-item">
+												<span class="moveset-detail-label">{{ 'Tipo'|trans }}</span>
+												<span class="moveset-detail-value" title="{{ m.type }}">{{ m.type|capitalize }}</span>
+											</div>
+											<div class="moveset-detail-item">
+												<span class="moveset-detail-label">{{ 'Habilidade'|trans }}</span>
+												<span class="moveset-detail-value" title="{{ m.ability ? m.ability|capitalize : '-' }}">{{ m.ability ? m.ability|capitalize : '-' }}</span>
+											</div>
+											<div class="moveset-detail-item">
+												<span class="moveset-detail-label">{{ 'Item'|trans }}</span>
+												<span class="moveset-detail-value" title="{{ m.heldItem ? m.heldItem|capitalize : '-' }}">{{ m.heldItem ? m.heldItem|capitalize : '-' }}</span>
+											</div>
+										</div>
+
+										<div class="moveset-moves-list">
+											<span class="moveset-moves-title">{{ 'Golpes recomendados'|trans }}</span>
+											<div class="moveset-moves-tags">
+												{% for move in m.moves %}
+													<span class="moveset-move-tag">{{ move|replace({'-': ' '})|title }}</span>
+												{% endfor %}
+											</div>
+										</div>
+									</div>
+
+								{% endfor %}
+							</div>
+
+						{% endif %}
+					</div>
+				</div>
+
+			</div>
+
+			<!-- Tier Lists Criadas -->
+			<div class="tierlist-list-section trainer-section-collapsible">
+				<div class="trainer-section-header" onclick="toggleCategorySection('tierlists-content-section', 'tierlists-chevron')">
+					<h2 class="trainer-card-title">{{ 'Lista de Tier Lists'|trans }}</h2>
+					<i class="fa-solid fa-chevron-down trainer-section-chevron" id="tierlists-chevron"></i>
+				</div>
+
+				<div id="tierlists-content-section" class="trainer-section-content">
+					<div class="movesets-list card">
+						<p class="section-subtitle">{{ 'Gerencie ou visualize as tier lists criadas para a comunidade.'|trans }}</p>
+
+						{% if userTierLists is empty %}
+							<div class="empty-movesets-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+								<i class="fa-solid fa-layer-group" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+								<h3>{{ 'Você ainda não criou nenhuma tier list!'|trans }}</h3>
+								<p>{{ 'Acesse a página de Tier List e monte sua própria classificação.'|trans }}</p>
+							</div>
+						{% else %}
+							<div class="movesets-grid">
+								{% for tl in userTierLists %}
+									<div class="user-moveset-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+										<div class="moveset-card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 12px;">
+											<div class="moveset-pokemon-info" style="gap: 10px;">
+												<i class="fa-solid fa-list-check" style="font-size: 1.5rem; color: var(--color-primary);"></i>
+												<div>
+													<a href="{{ path('app_tier_list_view', { id: tl.id }) }}" class="moveset-pokemon-name" style="font-size: 1.05rem; font-weight: 700; color: #fff;">{{ tl.title }}</a>
+													<span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 2px;">
+														<i class="fa-solid fa-calendar-day"></i> {{ tl.createdAt|date('d/m/Y') }}
+													</span>
+												</div>
+											</div>
+										</div>
+
+										{% if tl.tags is not empty %}
+											<div class="moveset-moves-list" style="margin-top: auto; padding-top: 0;">
+												<div class="moveset-moves-tags">
+													{% for tag in tl.tags %}
+														<span class="moveset-move-tag" style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); color: var(--color-secondary);">{{ tag }}</span>
+													{% endfor %}
+												</div>
+											</div>
+										{% endif %}
+
+										<div style="margin-top: 15px; display: flex; gap: 8px;">
+											<a href="{{ path('app_tier_list_view', { id: tl.id }) }}" class="btn btn-secondary btn-sm" style="flex: 1; text-align: center; justify-content: center; padding: 6px 12px; font-size: 0.8rem;">
+												<i class="fa-solid fa-eye"></i> {{ 'Visualizar'|trans }}
+											</a>
+											<a href="{{ path('app_tier_list_create', { clone: tl.id }) }}" class="btn btn-primary btn-sm" style="flex: 1; text-align: center; justify-content: center; padding: 6px 12px; font-size: 0.8rem;">
+												<i class="fa-solid fa-copy"></i> {{ 'Clonar'|trans }}
+											</a>
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+
+		<!-- Tab 4: Comunidade -->
+		<div id="comunidade-tab" class="tab-content">
+			<div class="comunidade-tab-layout">
+
+				<!-- Seguindo -->
+				<div class="following-list-container card">
+					<div class="tms-header">
+						<h2>{{ 'Seguindo'|trans }}</h2>
+					</div>
+
+					{% if user.following is empty %}
+						<div class="empty-pokedex-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+							<i class="fa-solid fa-user-plus" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+							<h3>{{ 'Você não está seguindo ninguém ainda!'|trans }}</h3>
+							<p>{{ 'Clique no nome dos autores dos movesets para visitar seus perfis públicos e segui-los!'|trans }}</p>
+						</div>
+
+					{% else %}
+						<div class="following-trainers-grid">
+							{% for followingUsername in user.following %}
+								<div class="following-trainer-item" id="following-item-{{ followingUsername }}">
+									<a href="{{ path('app_trainer_profile', { username: followingUsername }) }}" class="trainer-avatar-link">
+										<div class="trainer-avatar-container">
+											<i class="fa-solid fa-circle-user generic-avatar-icon" style="font-size: 1.5rem; color: var(--text-muted);"></i>
+										</div>
+									</a>
+									<div class="trainer-info-block">
+										<a href="{{ path('app_trainer_profile', { username: followingUsername }) }}" class="trainer-profile-link">
+											<span class="trainer-username-text">{{ followingUsername }}</span>
+										</a>
+										<span class="trainer-badge-subtitle">{{ 'Treinador Seguido'|trans }}</span>
+									</div>
+									<button class="btn btn-secondary btn-sm" onclick="unfollowTrainer('{{ followingUsername }}')">
+										<i class="fa-solid fa-user-minus"></i>
+										{{ 'Deixar de Seguir'|trans }}
+									</button>
+								</div>
+							{% endfor %}
+						</div>
+
+					{% endif %}
+
+				</div>
+
+				<!-- Seguidores -->
+				<div class="followers-list-container card">
+					<div class="tms-header">
+						<h2>{{ 'Seguidores'|trans }}</h2>
+					</div>
+
+					{% if followersList is empty %}
+						<div class="empty-pokedex-msg" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+							<i class="fa-solid fa-users" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 15px; display: block;"></i>
+							<h3>{{ 'Nenhum seguidor ainda!'|trans }}</h3>
+							<p>{{ 'Publique movesets interessantes para atrair seguidores à sua comunidade.'|trans }}</p>
+						</div>
+
+					{% else %}
+						<div class="followers-trainers-grid">
+							{% for follower in followersList %}
+
+								<div class="follower-trainer-item">
+									<a href="{{ path('app_trainer_profile', { username: follower.username }) }}" class="trainer-avatar-link">
+										<div class="trainer-avatar-container">
+
+											{% if follower.avatar %}
+												<img src="{{ avatar_url(follower.avatar) }}" alt="{{ follower.username }}" class="trainer-avatar-mini">
+											{% else %}
+												<i class="fa-solid fa-circle-user generic-avatar-icon" style="font-size: 1.5rem; color: var(--text-muted);"></i>
+											{% endif %}
+
+										</div>
+									</a>
+									<div class="trainer-info-block">
+										<a href="{{ path('app_trainer_profile', { username: follower.username }) }}" class="trainer-profile-link">
+											<span class="trainer-username-text">{{ follower.displayName }}</span>
+										</a>
+										<span class="trainer-badge-subtitle">{{ 'Seguidor'|trans }}</span>
+									</div>
+								</div>
+
+							{% endfor %}
+						</div>
+					{% endif %}
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal para Seleção de Plano de Fundo -->
+	<div class="avatar-modal-overlay" id="template-modal">
+		<div class="avatar-modal-card card" style="max-width: 500px;">
+			<div class="avatar-modal-header">
+				<h3>{{ 'Escolha o Plano de Fundo do Card'|trans }}</h3>
+
+				<button class="close-modal-btn" onclick="closeTemplateModal()">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+			</div>
+
+			<div class="avatar-modal-grid" style="grid-template-columns: 1fr; gap: 10px; max-height: 400px; overflow-y: auto;">
+				<!-- Opção de Restaurar Padrão -->
+
+				<div class="title-option-card {% if user.cardTemplate is empty %}selected{% endif %}" onclick="updateTemplateSelection('')" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(255,255,255,0.02); transition: var(--transition-smooth); cursor: pointer;">
+					<div style="display: flex; align-items: center; gap: 12px;">
+						<div style="width: 64px; height: 36px; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.4); border-radius: var(--radius-xs); border: 1px solid var(--border-color);">
+							<i class="fa-solid fa-ban" style="color: var(--text-muted);"></i>
+						</div>
+						<div style="text-align: left;">
+							<strong style="display: block; font-size: 0.95rem; color: {% if user.cardTemplate is empty %}var(--color-secondary){% else %}var(--text-primary){% endif %};">
+								{{ 'Padrão do Sistema'|trans }}
+							</strong>
+							<span style="font-size: 0.75rem; color: var(--text-muted);">{{ 'Gradiente padrão do Mov Set'|trans }}</span>
+						</div>
+					</div>
+					{% if user.cardTemplate is empty %}
+						<div style="color: var(--color-secondary); font-size: 1.1rem;">
+							<i class="fa-solid fa-circle-check"></i>
+						</div>
+					{% endif %}
+				</div>
+
+				{% for ts in templateStatuses %}
+					<div class="title-option-card {% if ts.isSelected %}selected{% endif %}" data-template="{{ ts.image }}" onclick="updateTemplateSelection('{{ ts.image }}')" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(255,255,255,0.02); transition: var(--transition-smooth); cursor: pointer;">
+						<div style="display: flex; align-items: center; gap: 12px;">
+
+							{% if ts.imageUrl %}
+								<img src="{{ ts.imageUrl }}" alt="Template" style="width: 64px; height: 36px; object-fit: cover; border-radius: var(--radius-xs); border: 1px solid var(--border-color);">
+							{% endif %}
+
+							<div style="text-align: left;">
+								<strong style="display: block; font-size: 0.95rem; color: {% if ts.isSelected %}var(--color-secondary){% else %}var(--text-primary){% endif %};">{{ ts.name }}</strong>
+								<span style="font-size: 0.75rem; color: var(--text-muted);">{{ ts.requirement }}</span>
+							</div>
+						</div>
+
+						{% if ts.isSelected %}
+							<div style="color: var(--color-secondary); font-size: 1.1rem;">
+								<i class="fa-solid fa-circle-check"></i>
+							</div>
+						{% endif %}
+
+					</div>
+				{% endfor %}
+			</div>
+
+		</div>
+	</div>
+
+	<!-- Modal para Seleção de Avatar -->
+	<div class="avatar-modal-overlay" id="avatar-modal">
+		<div class="avatar-modal-card card">
+			<div class="avatar-modal-header" style="flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 15px; padding-bottom: 8px;">
+				<div style="display: flex; justify-content: space-between; align-items: center;">
+					<h3 style="margin: 0;">{{ 'Escolha seu Avatar'|trans }}</h3>
+					<button class="close-modal-btn" onclick="closeAvatarModal()">
+						<i class="fa-solid fa-xmark"></i>
+					</button>
+				</div>
+				<!-- Tabs Selector -->
+				<div class="avatar-tabs" style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+					<button id="tab-btn-trainer" class="btn btn-sm btn-secondary active" onclick="switchAvatarTab('trainer')" style="flex: 1; text-align: center;">{{ 'Treinador'|trans }}</button>
+					<button id="tab-btn-pkm" class="btn btn-sm btn-secondary" onclick="switchAvatarTab('pkm')" style="flex: 1; text-align: center;">{{ 'Pokémon'|trans }}</button>
+				</div>
+			</div>
+
+			<!-- Tab: Trainer -->
+			<div class="avatar-modal-grid" id="avatar-grid-trainer">
+				{% for avatar in avatarStatuses %}
+					{% set trainerName = avatar.name|title %}
+					{% set avatarUrl = avatar_url(avatar.filename) %}
+					{% set isSel = (user.avatar == avatar.filename) or (user.avatar == avatar.filename|replace({'trainer:': ''})) or (user.avatar is empty and avatar.filename == 'trainer:unknown.png') %}
+
+					<div class="modal-avatar-option {% if isSel %}selected{% endif %}" data-filename="{{ avatar.filename }}" onclick="updateAvatarSelection('{{ avatar.filename }}')" title="{{ trainerName }}">
+						<div class="avatar-img-wrapper">
+							<img src="{{ avatarUrl }}" alt="{{ trainerName }}">
+						</div>
+						<span class="avatar-label">{{ trainerName }}</span>
+					</div>
+				{% endfor %}
+			</div>
+
+			<!-- Tab: PKM -->
+			<div class="avatar-modal-grid" id="avatar-grid-pkm" style="display: none;">
+				{% for avatar in pkmAvatarStatuses %}
+					{% set pkmName = avatar.name|title %}
+					{% set avatarUrl = avatar_url(avatar.filename) %}
+					{% set isSel = (user.avatar == avatar.filename) %}
+
+					<div class="modal-avatar-option {% if isSel %}selected{% endif %}" data-filename="{{ avatar.filename }}" onclick="updateAvatarSelection('{{ avatar.filename }}')" title="{{ pkmName }}">
+						<div class="avatar-img-wrapper">
+							<img src="{{ avatarUrl }}" alt="{{ pkmName }}">
+						</div>
+						<span class="avatar-label">{{ pkmName }}</span>
+					</div>
+				{% endfor %}
+			</div>
+
+		</div>
+	</div>
+
+	<!-- Container Oculto com as URLs para o Javascript usar via AJAX -->
+	<div id="trainer-card-data" style="display: none;" data-url-tm-toggle="{{ path('app_trainer_card_tm_toggle') }}" data-url-pokemon-toggle-catch="{{ path('app_trainer_card_pokemon_toggle_catch') }}" data-url-follow-toggle="{{ path('app_trainer_card_follow_toggle') }}" data-url-avatar-update="{{ path('app_trainer_card_avatar_update') }}" data-url-template-update="{{ path('app_trainer_card_template_update') }}"></div>
+
+	{% include 'partials/tooltip.html.twig' %}
+	<script src="{{ asset('js/trainer-card.js') }}"></script>
+{% endblock %}
