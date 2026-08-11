@@ -1,0 +1,154 @@
+
+<div id="share-card-{{ m.id }}" class="share-card-canvas-container">
+    <div class="share-card-glow type-glow-{{ pokemon.types|first }}"></div>
+
+    <!-- Header -->
+    <div class="share-card-header">
+        <div class="share-logo-section">
+        </div>
+        <div class="share-category-section">
+            <span class="share-category-badge">
+                {% if m.type == 'padrao' %}
+                    {{ 'PADRÃO'|trans }}
+                {% else %}
+                    {{ m.type|upper|trans }}
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- Grid do conteudo principal -->
+    <div class="share-card-body">
+
+        <!-- Coluna 1: Arte e informações do Pokémon -->
+        <div class="share-column share-column-pokemon" style="justify-content: space-between;">
+            <div style="display: flex; flex-direction: column; gap: 6px; width: 100%; margin-bottom: 10px;">
+                <div style="display: flex; gap: 6px; width: 100%;">
+
+                    {% if m.heldItem %}
+                        <div class="share-build-box" style="flex: 1.1; padding: 6px 8px; gap: 6px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; min-width: 0;">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/{{ m.heldItem }}.png" style="width: 22px; height: 22px; object-fit: contain; flex-shrink: 0;" alt="{{ m.heldItem }}">
+                            <div style="display: flex; flex-direction: column; line-height: 1.1; min-width: 0; flex-grow: 1;">
+                                <span style="font-size: 0.55rem; color: #8b8b9a; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px;">{{ 'Item'|trans }}</span>
+                                <span style="font-size: 0.75rem; color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ m.heldItem|replace({'-': ' '})|title }}">{{ m.heldItem|replace({'-': ' '})|title }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="share-build-box" style="flex: 0.9; padding: 6px 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; min-width: 0;">
+                        <div style="display: flex; flex-direction: column; line-height: 1.1; min-width: 0; flex-grow: 1;">
+                            <span style="font-size: 0.55rem; color: #8b8b9a; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px;">{{ 'Nature'|trans }}</span>
+                            {% set displayNature = mostUsedNature|default(m.nature) %}
+                            <span style="font-size: 0.75rem; color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {%- if displayNature -%}
+                                    {{ displayNature|capitalize|trans }}
+                                    {%- if mostUsedNaturePercent is defined and mostUsedNaturePercent > 0 -%}
+                                        &nbsp;({{ mostUsedNaturePercent }}%)
+                                    {%- endif -%}
+                                {%- else -%}
+                                    {{ 'Sem dados'|trans }}
+                                {%- endif -%}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if m.ability %}
+                    <div class="share-build-box" style="padding: 6px 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                        <div style="display: flex; flex-direction: column; line-height: 1.1; min-width: 0; flex-grow: 1;">
+                            <span style="font-size: 0.55rem; color: #8b8b9a; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px;">{{ 'Habilidade'|trans }}</span>
+                            <span style="font-size: 0.75rem; color: #fff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ m.ability|replace({'-': ' '})|title }}</span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Pokémon Iimagem, nome, tipos -->
+            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%;">
+                <div class="share-pokemon-sprite-container" style="height: 110px; width: 110px; margin-bottom: 6px;">
+
+                    <img id="share-pokemon-artwork-{{ m.id }}" 
+                        src="{{ pokemon.sprite_official }}" 
+                        class="share-pokemon-image" 
+                        alt="{{ pokemon.name|abbr_pokemon_name }}"
+                    >
+
+                </div>
+                <h2 class="share-pokemon-name" style="font-size: 1.4rem;">{{ pokemon.name|abbr_pokemon_name }}</h2>
+                <div class="share-pokemon-id" style="margin: 0 0 6px;">Nº {{ "%04d"|format(pokemon.species_id) }}</div>
+
+                <div class="share-pokemon-types">
+                    {% for type in pokemon.types %}
+                        <span class="type-badge type-badge-{{ type }} no-tooltip" style="font-size: 0.65rem; padding: 2px 8px; border-radius: 4px;">{{ type|capitalize|trans }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna 2: Detalhes do Build e Golpes -->
+        <div class="share-column share-column-build" style="justify-content: center; gap: 8px;">
+            <div class="share-moves-section" style="width: 100%;">
+                <span class="share-section-title">{{ 'Golpes recomendados'|trans }}</span>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
+                    {% for moveName in m.moves %}
+                        {% if moveName %}
+                            {% set md = moveDetails[moveName] ?? null %}
+                            
+                            <div class="share-move-item" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 4px 8px; display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; box-sizing: border-box; height: 45px; min-width: 0;">
+                                <div style="display: flex; align-items: center; justify-content: start; gap: 6px; min-width: 0; flex-grow: 1;">
+                                    <span class="type-badge-sm type-badge-{{ md.type|default('normal') }} no-tooltip" style="font-size: 0.55rem; padding: 1px 4px; border-radius: 2px; font-weight: bold; text-transform: uppercase; color: white; flex-shrink: 0; margin-left: 4px;">{{ md.type|default('normal')|slice(0,3)|upper }}</span>
+                                    <span style="font-weight: 800; font-size: 0.8rem; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ moveName|replace({'-': ' '})|title }}">{{ moveName|replace({'-': ' '})|title }}</span>
+                                </div>
+
+                                <!-- Ícone de categoria -->
+                                <div style="display: inline-flex; align-items: center; justify-content: start; gap: 10px; font-size: 0.65rem; flex-shrink: 0; padding-left: 4px;">
+                                    {% set moveMeta = pokemon.moves[moveName] ?? null %}
+                                    {% set learnMethod = (moveMeta is iterable and moveMeta.learn_method is defined) ? moveMeta.learn_method : 'base' %}
+                                    
+                                    <span>
+                                        {% if md.category == 'physical' %}
+                                            <i class="fa-solid fa-hand-fist"></i> {{ 'Físico'|trans }}
+                                        {% elseif md.category == 'special' %}
+                                            <i class="fa-solid fa-sparkles"></i> {{ 'Especial'|trans }}
+                                        {% else %}
+                                            <i class="fa-solid fa-shield"></i> {{ 'Status'|trans }}
+                                        {% endif %}
+                                    </span>
+
+                                    {% if md.power > 0 %}
+                                        <span><i class="fa-solid fa-fire"></i> {{ md.power }}</span>
+                                    {% endif %}
+                                    <span>{{ learnMethod == 'TM' ? 'TM' : 'Lvl'|trans }}</span>
+
+                                </div>
+                            </div>
+
+                        {% endif %}
+                    {% endfor %}
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna 3: Código QR -->
+        <div class="share-column share-column-qr">
+            <div class="share-qr-container">
+                <div id="share-qr-{{ m.id }}" class="share-qr-code-placeholder">
+                    <!-- QR Code Canvas dinamico -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="share-card-footer">
+        <div class="share-footer-left">
+            <i class="fa-solid fa-circle-user"></i>
+            <span>{{ 'Criado por <strong>%author%</strong> em %date%'|trans({'%author%': m.author|default('Anônimo'|trans), '%date%': m.createdAt|date('d/m/Y')})|raw }}</span>
+        </div>
+        <div class="share-footer-right">
+            <span>Mov Set &copy; {{ 'now'|date('Y') }}</span>
+        </div>
+    </div>
+</div>

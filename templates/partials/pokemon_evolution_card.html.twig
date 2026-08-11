@@ -1,0 +1,63 @@
+<div class="card pokemon-evolution-card">
+    <h2 class="card-title"> {{ 'Linha Evolutiva'|trans }}</h2>
+    
+    {% if evolutionChain is empty %}
+        <p class="no-drops-text" style="color: var(--text-secondary); font-style: italic; font-size: 0.95rem; margin: 10px 0;">{{ 'Este Pokémon não possui evolução cadastrada.'|trans }}</p>
+    {% else %}
+        <div class="evolution-stages-container">
+            {% for stageIndex, stageNodes in evolutionChain %}
+                
+                <!-- Coluna de Setas e Métodos -->
+                {% if stageIndex > 1 %}
+                    <div class="evolution-arrows-column">
+                        {% for node in stageNodes %}
+                            <div class="evolution-arrow-item">
+                                {% if node.evolution_gender is defined and node.evolution_gender is not empty %}
+                                    <div class="evolution-method-gender {{ node.evolution_gender }}" title="{{ (node.evolution_gender == 'male' ? 'Apenas Macho' : 'Apenas Fêmea')|trans }}">
+                                        {% if node.evolution_gender == 'male' %}
+                                            <i class="fa-solid fa-mars"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-venus"></i>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                                <span class="evolution-method">
+                                    {{ node.evolution_method|default('Nível/Stone')|trans }}
+                                </span>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Coluna dos Pokémon do Estágio Atual -->
+                <div class="evolution-stage-column">
+                    {% for node in stageNodes %}
+
+                        <a href="{{ path('app_pokemon_detail', { name: node.name }) }}" 
+                            class="evolution-node {% if node.name == pokemon.name %}active{% endif %}" 
+                        >
+                            <img src="{{ node.sprite }}" alt="{{ node.name|capitalize }}" class="evolution-sprite">
+
+                            <div class="evolution-details">
+                                <span class="evolution-id">#{{ "%04d"|format(node.id) }}</span>
+                                <span class="evolution-name" style="display: block; font-family: 'Outfit', sans-serif;">{{ node.name|abbr_pokemon_name }}</span>
+
+                                <div class="evolution-types">
+                                    {% if node.types is defined %}
+                                        {% for type in node.types %}
+                                            {% include 'partials/type_badge.html.twig' with {'type': type, 'typeDetails': typeDetails} %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                        
+                    {% endfor %}
+                </div>
+
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+</div>
