@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Command;
+
+use App\Service\PokeApi\PokeApiValidator;
+use App\Service\TrainerProfileService;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+
+#[AsCommand(
+    name: 'app:db-seed',
+    description: 'Popula o banco de dados com avatares padrão e sincroniza templates/avatares a partir do GitHub.',
+)]
+class AppDbSeedCommand extends Command
+{
+    public function __construct(private readonly TrainerProfileService $trainerProfileService, private readonly PokeApiValidator $pokeApiValidator)
+    {
+        parent::__construct();
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $io = new SymfonyStyle($input, $output);
+
+        $io->title('Iniciando Seeding e Inicialização do Banco de Dados');
+
+        $io->section('Inicializando Variações de Pokémon padrão...');
+        $this->pokeApiValidator->initializeDatabaseAndVariations();
+        $io->success('Variações de Pokémon inicializadas com sucesso!');
+
+        $io->section('Inicializando Avatares padrão...');
+        $this->trainerProfileService->initializeDatabaseAndAvatars();
+        $io->success('Avatares iniciais inseridos com sucesso!');
+
+        $io->section('Sincronizando Avatares a partir da API do GitHub...');
+        try {
+            $avatarResult = $this->trainerProfileService->syncAvatarsFromApi();
+            $io->success(sprintf('Sincronização de avatares concluída! %d novos inseridos.', $avatarResult['inserted']));
+        } catch (\Exception $e) {
+            $io->warning('Não foi possível sincronizar os avatares do GitHub: '.$e->getMessage());
+        }
+
+        $io->section('Sincronizando Templates a partir da API do GitHub...');
+        try {
+            $templateResult = $this->trainerProfileService->syncTemplatesFromApi();
+            $io->success(sprintf('Sincronização de templates concluída! %d novos inseridos.', $templateResult['inserted']));
+        } catch (\Exception $e) {
+            $io->warning('Não foi possível sincronizar os templates do GitHub: '.$e->getMessage());
+        }
+
+        $io->success('Processo de seeding de banco de dados concluído com sucesso!');
+
+        return Command::SUCCESS;
+    }
+}
