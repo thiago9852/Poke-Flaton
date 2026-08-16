@@ -47,6 +47,7 @@ class TierList
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
         return $this;
     }
 
@@ -58,6 +59,7 @@ class TierList
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -69,6 +71,7 @@ class TierList
     public function setState(array $state): self
     {
         $this->state = $state;
+
         return $this;
     }
 
@@ -80,6 +83,7 @@ class TierList
     public function setTags(array $tags): self
     {
         $this->tags = $tags;
+
         return $this;
     }
 
@@ -91,6 +95,7 @@ class TierList
     public function setCreatedAt(\DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 }

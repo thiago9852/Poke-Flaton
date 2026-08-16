@@ -1,7 +1,7 @@
 parameters:
     # Gerações habilitadas no site. Atualmente apenas a Geração 1 está ativa.
     # Ex: [1] para apenas Geração 1, ou [1, 2] para Geração 1 e 2.
-    app.pokemon.allowed_generations: [1, 2, 3, 4, 5, 6]
+    app.pokemon.allowed_generations: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
     # IDs individuais permitidos de gerações não totalmente ativadas.
     # Ex: [722] se quisermos permitir apenas o Decidueye de Gen 7 no site.

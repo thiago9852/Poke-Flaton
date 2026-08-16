@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}
-	{{ 'Montar Tier List de Pokémon'|trans }} | PokeFlaton
+	{{ 'Montar Tier List de Pokémon'|trans }} | Mov Set
 {% endblock %}
 
 {% block stylesheets %}
@@ -36,8 +36,13 @@
 		></div>
 
 		<header class="tier-list-header">
-			<h1>{{ 'Montar Tier List de Pokémon'|trans }}</h1>
-			<p>{{ 'Selecione, ordene e publique sua classificação personalizada.'|trans }}</p>
+			<div class="tier-list-header-icon">
+				<i class="fa-solid fa-ranking-star"></i>
+			</div>
+			<div class="tier-list-header-text">
+				<h1>{{ 'Montar Tier List de Pokémon'|trans }}</h1>
+				<p>{{ 'Selecione, ordene e publique sua classificação personalizada.'|trans }}</p>
+			</div>
 		</header>
 
 		<!-- Painel de Ferramentas -->
@@ -85,7 +90,7 @@
 				<div class="export-meta">
 					<h2 class="export-title" id="exportTitleText">{{ 'Minha Tier List de Pokémon'|trans }}</h2>
 					<span class="export-author">
-						{{ 'Criado por:'|trans }} <strong id="exportAuthorText">{{ app.user ? app.user.username : 'Anônimo'|trans }}</strong>
+						{{ 'Criado por:'|trans }} <strong id="exportAuthorText">{{ app.user ? app.user.displayName : 'Anônimo'|trans }}</strong>
 					</span>
 				</div>
 			</div>
@@ -97,7 +102,7 @@
 
 			<!-- Footer de Exportação (invisível na UI) -->
 			<div id="exportFooter" class="export-only-footer" style="display: none;">
-				<span>pokeflaton-tiers</span>
+				<span>movset-tiers</span>
 			</div>
 		</div>
 

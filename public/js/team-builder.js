@@ -2,6 +2,59 @@ function initTeamBuilder() {
 	const STORAGE_KEY = 'poke_team_builder_v1';
 	const teamSlotData = {}; // Cache de dados completos retornados da API por slot (1-6)
 
+	const TYPE_COLORS = {
+		normal: '#9ca3af', fire: '#ef4444', water: '#3b82f6', grass: '#10b981',
+		electric: '#f59e0b', ice: '#06b6d4', fighting: '#dc2626', poison: '#a855f7',
+		ground: '#b45309', flying: '#6366f1', psychic: '#ec4899', bug: '#84cc16',
+		rock: '#78350f', ghost: '#4f46e5', dragon: '#7c3aed', steel: '#4b5563',
+		dark: '#374151', fairy: '#f472b6'
+	};
+
+	// IDs oficiais dos tipos na PokeAPI (usados para montar as URLs dos ícones de tipo)
+	const TYPE_IDS = {
+		normal: 1, fighting: 2, flying: 3, poison: 4, ground: 5, rock: 6,
+		bug: 7, ghost: 8, steel: 9, fire: 10, water: 11, grass: 12,
+		electric: 13, psychic: 14, ice: 15, dragon: 16, dark: 17, fairy: 18
+	};
+
+	function typeIconUrl(typeName) {
+		const id = TYPE_IDS[typeName] || 1;
+		return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/small/${id}.png`;
+	}
+
+	function itemIconUrl(itemName) {
+		if (!itemName) return '';
+		const slug = itemName.toLowerCase().trim().replace(/\s+/g, '-');
+		return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${slug}.png`;
+	}
+
+	function slugifyMoveName(name) {
+		return (name || '').toLowerCase().trim().replace(/\s+/g, '-');
+	}
+
+	// Reconstrói golpes salvos (strings simples do LocalStorage) usando os golpes
+	// detalhados (tipo/poder/precisão) já conhecidos para este Pokémon, evitando que
+	// os golpes voltem "crus" (só o nome) depois de recarregar a página.
+	function enrichSavedMoves(moves, data) {
+		if (!Array.isArray(moves) || !data) return moves;
+
+		const dict = {};
+		(data.baseMoves || []).forEach(m => {
+			if (m && m.name) dict[slugifyMoveName(m.name)] = m;
+		});
+		(data.movesets || []).forEach(ms => {
+			(ms.moves || []).forEach(m => {
+				if (m && m.name) dict[slugifyMoveName(m.name)] = m;
+			});
+		});
+
+		return moves.map(mv => {
+			if (typeof mv !== 'string') return mv; // já é um objeto detalhado
+			const enriched = dict[slugifyMoveName(mv)];
+			return enriched || mv;
+		});
+	}
+
 	// Inicializa os 6 slots
 	for (let i = 1; i <= 6; i++) {
 		initSlotSearch(i);
@@ -36,16 +89,25 @@ function initTeamBuilder() {
 	const btnExportTeamImage = document.getElementById('btn-export-team-image');
 	if (btnExportTeamImage) {
 		btnExportTeamImage.addEventListener('click', async function () {
-			const container = document.querySelector('.team-slots-list');
-			if (!container) return;
+			const { wrapper, hasAny } = buildTeamExportNode();
+			if (!hasAny) {
+				alert('Seu time está vazio. Adicione pelo menos 1 Pokémon.');
+				return;
+			}
 
 			const originalText = this.innerHTML;
 			this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando Imagem...';
 			this.disabled = true;
 
+			wrapper.style.position = 'fixed';
+			wrapper.style.top = '0';
+			wrapper.style.left = '-99999px';
+			wrapper.style.zIndex = '-1';
+			document.body.appendChild(wrapper);
+
 			try {
 				await new Promise(resolve => setTimeout(resolve, 200));
-				const canvas = await html2canvas(container, {
+				const canvas = await html2canvas(wrapper, {
 					useCORS: true,
 					allowTaint: true,
 					scale: 2,
@@ -61,10 +123,146 @@ function initTeamBuilder() {
 				console.error("Erro ao gerar imagem do time:", e);
 				alert("Não foi possível gerar a imagem. Tente novamente.");
 			} finally {
+				document.body.removeChild(wrapper);
 				this.innerHTML = originalText;
 				this.disabled = false;
 			}
 		});
+	}
+
+	// Coleta os golpes preenchidos de um slot (nome, tipo, poder e método: Nível ou TM)
+	function getSlotMoves(slotId) {
+		const data = teamSlotData[slotId];
+		const learnMap = (data && data.pokemon && data.pokemon.moves_learn_info) || {};
+		const moves = [];
+
+		for (let mIdx = 1; mIdx <= 10; mIdx++) {
+			const input = document.getElementById(`move-input-${slotId}-${mIdx}`);
+			const val = input ? input.value.trim() : '';
+			if (!val) continue;
+
+			let type = 'normal';
+			const badge = document.getElementById(`move-type-badge-${slotId}-${mIdx}`);
+			if (badge && badge.style.display !== 'none') {
+				const match = badge.className.match(/type-badge-(\w+)/);
+				if (match) type = match[1];
+			}
+
+			let power = '—';
+			const statsRow = document.getElementById(`move-stats-${slotId}-${mIdx}`);
+			if (statsRow && statsRow.children.length >= 2) {
+				power = statsRow.children[0].textContent.trim() || '—';
+			}
+
+			const slug = val.toLowerCase().replace(/\s+/g, '-');
+			const learnInfo = learnMap[slug];
+			let method = '—';
+			if (learnInfo && learnInfo.learn_method) {
+				if (learnInfo.learn_method === 'base') method = 'Nv.';
+				else if (learnInfo.learn_method === 'TM') method = 'TM';
+				else if (learnInfo.learn_method === 'both') method = 'Nv.';
+			}
+
+			moves.push({ name: val, type, power, method });
+		}
+		return moves;
+	}
+
+	// Monta o card compacto (função, sprite + tipos, ability/nature/item inline, e a lista de golpes) usado na exportação de imagem
+	function buildTeamExportCard(slotId) {
+		const searchInput = document.getElementById(`search-slot-${slotId}`);
+		const pokemonName = searchInput ? searchInput.value.trim() : '';
+		if (!pokemonName) return null;
+
+		const data = teamSlotData[slotId];
+		const spriteEl = document.getElementById(`sprite-slot-${slotId}`);
+		const natureSelect = document.getElementById(`nature-slot-${slotId}`);
+		const itemInput = document.getElementById(`item-slot-${slotId}`);
+		const abilitySelect = document.getElementById(`ability-slot-${slotId}`);
+		const rolePreset = document.getElementById(`role-preset-slot-${slotId}`);
+
+		const spriteSrc = spriteEl ? spriteEl.src : '';
+		const types = (data && data.pokemon && Array.isArray(data.pokemon.types)) ? data.pokemon.types : [];
+		const natureVal = natureSelect ? natureSelect.value : '';
+		const itemVal = itemInput ? itemInput.value.trim() : '';
+		const abilityVal = (abilitySelect && abilitySelect.selectedIndex > 0) ? abilitySelect.options[abilitySelect.selectedIndex].textContent : '';
+		const roleVal = rolePreset ? rolePreset.value.trim() : '';
+		const moves = getSlotMoves(slotId);
+
+		const typeIconsHtml = types.map(t => `<img class="team-export-type-icon" src="${typeIconUrl(t)}" alt="${t}" crossorigin="anonymous">`).join('');
+
+		const movesHtml = moves.length
+			? moves.map(mv => `
+				<div class="team-export-move">
+					<img class="team-export-move-type-icon" src="${typeIconUrl(mv.type)}" alt="${mv.type}" crossorigin="anonymous">
+					<span class="team-export-move-name">${mv.name}</span>
+					<span class="team-export-move-power">${mv.power}</span>
+					<span class="team-export-move-method">${mv.method}</span>
+				</div>
+			`).join('')
+			: `<div class="team-export-move team-export-move-empty">— Sem golpes definidos —</div>`;
+
+		const natureLabel = natureVal ? (natureVal.charAt(0).toUpperCase() + natureVal.slice(1)) : '';
+
+		const itemValueHtml = itemVal
+			? `<img class="team-export-item-icon" src="${itemIconUrl(itemVal)}" alt="${itemVal}" crossorigin="anonymous"><span class="team-export-item-text">${itemVal}</span>`
+			: `<span class="team-export-stat-value-empty">— Nenhum —</span>`;
+
+		const roleBarHtml = roleVal ? `<div class="team-export-role-bar">${roleVal}</div>` : '';
+
+		const card = document.createElement('div');
+		card.className = 'team-export-card';
+		card.innerHTML = `
+			${roleBarHtml}
+			<div class="team-export-card-header">
+				<div class="team-export-sprite-wrap">
+					<img src="${spriteSrc}" class="team-export-sprite" crossorigin="anonymous">
+				</div>
+				<div class="team-export-header-info">
+					<div class="team-export-name">${pokemonName}</div>
+					<div class="team-export-type-icons">${typeIconsHtml}</div>
+				</div>
+			</div>
+			<div class="team-export-stats-bar">
+				<div class="team-export-stat-cell">
+					<span class="team-export-stat-label">Ability</span>
+					<span class="team-export-stat-value ${abilityVal ? '' : 'team-export-stat-value-empty'}">${abilityVal || '—'}</span>
+				</div>
+				<div class="team-export-stat-cell">
+					<span class="team-export-stat-label"> Nature</span>
+					<span class="team-export-stat-value ${natureLabel ? '' : 'team-export-stat-value-empty'}">${natureLabel || '—'}</span>
+				</div>
+				<div class="team-export-stat-cell">
+					<span class="team-export-stat-label"> Item</span>
+					<span class="team-export-stat-value team-export-item-value">${itemValueHtml}</span>
+				</div>
+			</div>
+			<div class="team-export-moves">${movesHtml}</div>
+		`;
+		return card;
+	}
+
+	// Monta o nó completo (fora da tela) usado para gerar a imagem exportável do time
+	function buildTeamExportNode() {
+		const wrapper = document.createElement('div');
+		wrapper.className = 'team-export-container';
+
+		wrapper.innerHTML = `
+			<div class="team-export-header">
+				<div class="team-export-title">Meu Time</div>
+			</div>
+		`;
+
+		const grid = document.createElement('div');
+		grid.className = 'team-export-grid';
+
+		for (let slotId = 1; slotId <= 6; slotId++) {
+			const card = buildTeamExportCard(slotId);
+			if (card) grid.appendChild(card);
+		}
+
+		wrapper.appendChild(grid);
+		return { wrapper, hasAny: grid.children.length > 0 };
 	}
 
 	// Modal JSON
@@ -223,12 +421,31 @@ function initTeamBuilder() {
 			const spriteEl = document.getElementById(`sprite-slot-${slotId}`);
 			const searchInput = document.getElementById(`search-slot-${slotId}`);
 			const movesetPresetSelect = document.getElementById(`moveset-preset-slot-${slotId}`);
+			const abilitySelect = document.getElementById(`ability-slot-${slotId}`);
+			const typesContainer = document.getElementById(`types-slot-${slotId}`);
+			const slotCard = document.getElementById(`team-slot-card-${slotId}`);
 
 			if (spriteEl) {
 				spriteEl.src = data.pokemon.sprite;
 				spriteEl.style.opacity = '1';
 			}
 			if (searchInput) searchInput.value = data.pokemon.display_name;
+
+			// Exibe os tipos do Pokémon e tinge o card com a cor do tipo principal
+			const types = (data.pokemon && Array.isArray(data.pokemon.types)) ? data.pokemon.types : [];
+			if (typesContainer) {
+				typesContainer.innerHTML = types.map(t => `<span class="type-badge type-badge-${t}">${t.toUpperCase()}</span>`).join('');
+			}
+			if (slotCard) {
+				slotCard.style.setProperty('--slot-type-color', TYPE_COLORS[types[0]] || 'var(--color-primary)');
+			}
+
+			// Popula o select de Habilidade com as opções que este Pokémon pode aprender
+			if (abilitySelect) {
+				const abilities = (data.pokemon && Array.isArray(data.pokemon.abilities)) ? data.pokemon.abilities : [];
+				abilitySelect.innerHTML = '<option value="">-- Selecione --</option>' +
+					abilities.map(a => `<option value="${a}">${a.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>`).join('');
+			}
 
 			// Popula o dropdown de movesets criados
 			if (movesetPresetSelect) {
@@ -255,14 +472,14 @@ function initTeamBuilder() {
 				heldItem: customOverrides?.heldItem || data.heldItem || '',
 				ability: customOverrides?.ability || data.ability || '',
 				role: customOverrides?.role || '',
-				moves: customOverrides?.moves || data.baseMoves || data.moves || []
+				moves: enrichSavedMoves(customOverrides?.moves || data.baseMoves || data.moves || [], data)
 			};
 
 			applyBuildAndMovesToSlot(slotId, buildSource);
 
-			const roleCustom = document.getElementById(`role-custom-slot-${slotId}`);
-			if (roleCustom && buildSource.role) {
-				roleCustom.value = buildSource.role;
+			const rolePreset = document.getElementById(`role-preset-slot-${slotId}`);
+			if (rolePreset && buildSource.role) {
+				rolePreset.value = buildSource.role;
 			}
 
 			saveStateToStorage();
@@ -283,6 +500,7 @@ function initTeamBuilder() {
 		const moveList = build.moves || [];
 		for (let mIdx = 1; mIdx <= 10; mIdx++) {
 			const moveData = moveList[mIdx - 1];
+			const moveCard = document.getElementById(`move-card-${slotId}-${mIdx}`);
 			const moveInput = document.getElementById(`move-input-${slotId}-${mIdx}`);
 			const typeBadge = document.getElementById(`move-type-badge-${slotId}-${mIdx}`);
 			const statsRow = document.getElementById(`move-stats-${slotId}-${mIdx}`);
@@ -291,6 +509,7 @@ function initTeamBuilder() {
 				if (moveInput) moveInput.value = moveData;
 				if (typeBadge) typeBadge.style.display = 'none';
 				if (statsRow) statsRow.innerHTML = '<span class="text-muted" style="font-size: 0.7rem;">—</span>';
+				if (moveCard) moveCard.style.removeProperty('--move-type-color');
 			} else if (moveData && moveData.name) {
 				if (moveInput) moveInput.value = moveData.name;
 				if (typeBadge) {
@@ -304,28 +523,22 @@ function initTeamBuilder() {
 						<span><i class="fa-solid fa-bullseye"></i> ${moveData.accuracy}</span>
 					`;
 				}
+				if (moveCard) moveCard.style.setProperty('--move-type-color', TYPE_COLORS[moveData.type] || '');
 			} else {
 				if (moveInput) moveInput.value = '';
 				if (typeBadge) typeBadge.style.display = 'none';
 				if (statsRow) statsRow.innerHTML = '<span class="text-muted" style="font-size: 0.7rem;">—</span>';
+				if (moveCard) moveCard.style.removeProperty('--move-type-color');
 			}
 		}
 	}
 
+	// O próprio select de Tag/Função é a fonte da informação (não existe mais um campo de texto livre separado)
 	function initRolePresets(slotId) {
 		const rolePreset = document.getElementById(`role-preset-slot-${slotId}`);
-		const roleCustom = document.getElementById(`role-custom-slot-${slotId}`);
-
-		if (rolePreset && roleCustom) {
+		if (rolePreset) {
 			rolePreset.addEventListener('change', function () {
-				if (this.value) {
-					if (roleCustom.value) {
-						roleCustom.value = `${this.value} - ${roleCustom.value}`;
-					} else {
-						roleCustom.value = this.value;
-					}
-					saveStateToStorage();
-				}
+				saveStateToStorage();
 			});
 		}
 	}
@@ -335,7 +548,7 @@ function initTeamBuilder() {
 			`item-slot-${slotId}`,
 			`nature-slot-${slotId}`,
 			`ability-slot-${slotId}`,
-			`role-custom-slot-${slotId}`,
+			`role-preset-slot-${slotId}`,
 		];
 
 		for (let mIdx = 1; mIdx <= 10; mIdx++) {
@@ -360,8 +573,9 @@ function initTeamBuilder() {
 		const natureSelect = document.getElementById(`nature-slot-${slotId}`);
 		const abilityInput = document.getElementById(`ability-slot-${slotId}`);
 		const rolePreset = document.getElementById(`role-preset-slot-${slotId}`);
-		const roleCustom = document.getElementById(`role-custom-slot-${slotId}`);
 		const movesetPresetSelect = document.getElementById(`moveset-preset-slot-${slotId}`);
+		const typesContainer = document.getElementById(`types-slot-${slotId}`);
+		const slotCard = document.getElementById(`team-slot-card-${slotId}`);
 
 		if (spriteEl) {
 			spriteEl.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png';
@@ -370,12 +584,14 @@ function initTeamBuilder() {
 		if (searchInput) searchInput.value = '';
 		if (itemInput) itemInput.value = '';
 		if (natureSelect) natureSelect.value = '';
-		if (abilityInput) abilityInput.value = '';
+		if (abilityInput) abilityInput.innerHTML = '<option value="">-- Selecione --</option>';
 		if (rolePreset) rolePreset.value = '';
-		if (roleCustom) roleCustom.value = '';
 		if (movesetPresetSelect) movesetPresetSelect.innerHTML = '<option value="base">-- Golpes Base --</option>';
+		if (typesContainer) typesContainer.innerHTML = '';
+		if (slotCard) slotCard.style.removeProperty('--slot-type-color');
 
 		for (let mIdx = 1; mIdx <= 10; mIdx++) {
+			const moveCard = document.getElementById(`move-card-${slotId}-${mIdx}`);
 			const moveInput = document.getElementById(`move-input-${slotId}-${mIdx}`);
 			const typeBadge = document.getElementById(`move-type-badge-${slotId}-${mIdx}`);
 			const statsRow = document.getElementById(`move-stats-${slotId}-${mIdx}`);
@@ -383,6 +599,7 @@ function initTeamBuilder() {
 			if (moveInput) moveInput.value = '';
 			if (typeBadge) typeBadge.style.display = 'none';
 			if (statsRow) statsRow.innerHTML = '<span class="text-muted" style="font-size: 0.7rem;">—</span>';
+			if (moveCard) moveCard.style.removeProperty('--move-type-color');
 		}
 
 		if (autoSave) saveStateToStorage();
@@ -418,7 +635,7 @@ function initTeamBuilder() {
 			const itemInput = document.getElementById(`item-slot-${slotId}`);
 			const natureSelect = document.getElementById(`nature-slot-${slotId}`);
 			const abilityInput = document.getElementById(`ability-slot-${slotId}`);
-			const roleCustom = document.getElementById(`role-custom-slot-${slotId}`);
+			const rolePreset = document.getElementById(`role-preset-slot-${slotId}`);
 			const movesetPresetSelect = document.getElementById(`moveset-preset-slot-${slotId}`);
 
 			const pokemonName = searchInput ? searchInput.value.trim() : '';
@@ -439,7 +656,7 @@ function initTeamBuilder() {
 				heldItem: itemInput ? itemInput.value.trim() : '',
 				nature: natureSelect ? natureSelect.value : '',
 				ability: abilityInput ? abilityInput.value.trim() : '',
-				role: roleCustom ? roleCustom.value.trim() : '',
+				role: rolePreset ? rolePreset.value.trim() : '',
 				moves: moves,
 			});
 		}

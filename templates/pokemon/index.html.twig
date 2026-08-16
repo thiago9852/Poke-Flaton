@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}PokeFlaton - {{ 'Pokémons'|trans }}
+{% block title %}Mov Set - {{ 'Pokémons'|trans }}
 {% endblock %}
 
 {% block stylesheets %}
@@ -48,10 +48,18 @@
 				<i class="fa-solid fa-sliders"></i>
 				{{ 'Filtrar por tipo:'|trans }}
 			</span>
+			{% set typeIds = {
+				'normal': 1, 'fighting': 2, 'flying': 3, 'poison': 4, 'ground': 5, 'rock': 6,
+				'bug': 7, 'ghost': 8, 'steel': 9, 'fire': 10, 'water': 11, 'grass': 12,
+				'electric': 13, 'psychic': 14, 'ice': 15, 'dragon': 16, 'dark': 17, 'fairy': 18
+			} %}
 			<div class="type-badges-list">
 				{% for type in allTypes %}
-					<a href="{{ path('app_pokemon_index', { q: search, type: selectedType == type.value ? '' : type.value, gen: selectedGen, sort: sort }) }}" class="type-badge-link type-badge-{{ type.value }}{{ selectedType == type.value ? ' active' : '' }}">
-						{{ type.value|capitalize|trans }}
+					{% set typeId = typeIds[type.value]|default(1) %}
+					<a href="{{ path('app_pokemon_index', { q: search, type: selectedType == type.value ? '' : type.value, gen: selectedGen, sort: sort }) }}" 
+					   class="type-badge-link{{ selectedType == type.value ? ' active' : '' }}"
+					   title="{{ type.value|capitalize|trans }}">
+						<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/sword-shield/small/{{ typeId }}.png" alt="{{ type.value }}" class="type-filter-img">
 					</a>
 				{% endfor %}
 			</div>

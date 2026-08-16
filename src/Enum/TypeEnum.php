@@ -1,6 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 // src/Enum
+
 namespace App\Enum;
 
 enum TypeEnum: string
@@ -23,30 +26,4 @@ enum TypeEnum: string
     case Steel = 'steel';
     case Fairy = 'fairy';
     case Dark = 'dark';
-
-    public static function getCasesForModule(string $moduleName): array
-    {
-        return match ($moduleName) {
-            'type' => [
-                self::Normal,
-                self::Fire,
-                self::Water,
-                self::Grass,
-                self::Electric,
-                self::Ice,
-                self::Fighting,
-                self::Poison,
-                self::Ground,
-                self::Flying,
-                self::Psychic,
-                self::Bug,
-                self::Rock,
-                self::Ghost,
-                self::Dragon,
-                self::Steel,
-                self::Fairy,
-                self::Dark,
-            ],
-        };
-    }
 }

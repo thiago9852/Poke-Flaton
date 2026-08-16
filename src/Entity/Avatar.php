@@ -23,21 +23,6 @@ class Avatar
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $requirement = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $reqMedal = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $reqTier = null;
-
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $reqGoldCount = null;
-
-    #[ORM\Column(length: 50, nullable: true)]
-    private ?string $reqRankType = null;
-
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $reqRankPos = null;
-
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $isDefault = false;
 
@@ -78,66 +63,6 @@ class Avatar
     public function setRequirement(?string $requirement): static
     {
         $this->requirement = $requirement;
-
-        return $this;
-    }
-
-    public function getReqMedal(): ?string
-    {
-        return $this->reqMedal;
-    }
-
-    public function setReqMedal(?string $reqMedal): static
-    {
-        $this->reqMedal = $reqMedal;
-
-        return $this;
-    }
-
-    public function getReqTier(): ?string
-    {
-        return $this->reqTier;
-    }
-
-    public function setReqTier(?string $reqTier): static
-    {
-        $this->reqTier = $reqTier;
-
-        return $this;
-    }
-
-    public function getReqGoldCount(): ?int
-    {
-        return $this->reqGoldCount;
-    }
-
-    public function setReqGoldCount(?int $reqGoldCount): static
-    {
-        $this->reqGoldCount = $reqGoldCount;
-
-        return $this;
-    }
-
-    public function getReqRankType(): ?string
-    {
-        return $this->reqRankType;
-    }
-
-    public function setReqRankType(?string $reqRankType): static
-    {
-        $this->reqRankType = $reqRankType;
-
-        return $this;
-    }
-
-    public function getReqRankPos(): ?int
-    {
-        return $this->reqRankPos;
-    }
-
-    public function setReqRankPos(?int $reqRankPos): static
-    {
-        $this->reqRankPos = $reqRankPos;
 
         return $this;
     }

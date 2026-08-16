@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'Montar Time'|trans }} | PokeFlaton{% endblock %}
+{% block title %}{{ 'Montar Time'|trans }} | Mov Set{% endblock %}
 
 {% block stylesheets %}
 	{{ parent() }}
@@ -10,30 +10,35 @@
 
 {% block body %}
 	<div class="team-builder-container">
-		<!-- Header da Página -->
-		<div class="team-builder-header">
-			<div class="team-header-title">
-				<h1>
-					<i class="fa-solid fa-users-line" style="color: var(--color-primary);"></i>
-					{{ 'Montar Time'|trans }}
-				</h1>
-			</div>
-
-			<div class="team-header-actions">
-				<button type="button" class="btn btn-outline-danger btn-sm" id="btn-clear-team">
-					<i class="fa-solid fa-trash-can"></i> {{ 'Limpar Time'|trans }}
-				</button>
-				<button type="button" class="btn btn-outline-secondary btn-sm" id="btn-open-io-modal">
-					<i class="fa-solid fa-file-code"></i> {{ 'Importar / Exportar JSON'|trans }}
-				</button>
-				<button type="button" class="btn btn-outline-success btn-sm" id="btn-export-team-image">
-					<i class="fa-solid fa-image"></i> {{ 'Exportar Imagem'|trans }}
-				</button>
-				<button type="button" class="btn btn-primary btn-sm" id="btn-copy-team-text">
-					<i class="fa-solid fa-copy"></i> {{ 'Copiar Resumo do Time'|trans }}
-				</button>
-			</div>
+		<!-- Título da Página -->
+		<div class="team-builder-title-block">
+			<h1>
+				{{ 'Montar Time'|trans }}
+			</h1>
 		</div>
+
+		<!-- Barra de Ações Separada -->
+		<div class="team-builder-actions-bar">
+			<button type="button" class="btn btn-action-clear" id="btn-clear-team">
+				<i class="fa-solid fa-trash-can"></i> {{ 'Limpar Time'|trans }}
+			</button>
+			<button type="button" class="btn btn-action-secondary" id="btn-open-io-modal">
+				<i class="fa-solid fa-file-code"></i> {{ 'Importar / Exportar JSON'|trans }}
+			</button>
+			<button type="button" class="btn btn-action-secondary" id="btn-export-team-image">
+				<i class="fa-solid fa-image"></i> {{ 'Exportar Imagem'|trans }}
+			</button>
+			<button type="button" class="btn btn-action-primary" id="btn-copy-team-text">
+				<i class="fa-solid fa-copy"></i> {{ 'Copiar Resumo'|trans }}
+			</button>
+		</div>
+
+		<!-- Lista compartilhada de Itens para autocomplete (mesmo padrão usado na criação de moveset) -->
+		<datalist id="team-items-list">
+			{% for item in items %}
+				<option value="{{ item.name }}">{{ item.name|replace({'-': ' '})|title }}</option>
+			{% endfor %}
+		</datalist>
 
 		<!-- Lista dos 6 Slots de Pokémon -->
 		<div class="team-slots-list">
@@ -44,28 +49,15 @@
 						<i class="fa-solid fa-xmark"></i>
 					</button>
 
-					<!-- Coluna Esquerda: Tag/Função, Sprite e Seleção -->
+					<!-- Coluna Esquerda: Sprite e Seleção -->
 					<div class="team-slot-left">
 						<div class="team-slot-number">#{{ slotIdx }}</div>
-
-						<!-- Tag / Função Personalizada -->
-						<div class="team-left-tag-container" style="width: 100%; margin-bottom: 8px;">
-							<label class="team-build-label" style="font-size: 0.7rem; margin-bottom: 4px; justify-content: center;">
-								<i class="fa-solid fa-tags" style="color: #a855f7;"></i>
-								{{ 'Tag / Função'|trans }}
-							</label>
-							<select id="role-preset-slot-{{ slotIdx }}" class="team-build-input team-role-tag-select" style="font-size: 0.72rem; padding: 4px 6px; margin-bottom: 4px; width: 100%; text-align: center; text-align-last: center;">
-								<option value="">-- {{ 'Função'|trans }} --</option>
-								{% for role in rolesList %}
-									<option value="{{ role }}">{{ role }}</option>
-								{% endfor %}
-							</select>
-							<!-- <input type="text" id="role-custom-slot-{{ slotIdx }}" class="team-build-input" style="font-size: 0.75rem; padding: 4px 8px; width: 100%; text-align: center;"> -->
-						</div>
 
 						<div class="team-pokemon-sprite-container">
 							<img id="sprite-slot-{{ slotIdx }}" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="Pikachu" class="team-pokemon-sprite" style="opacity: 0.3;">
 						</div>
+
+						<div id="types-slot-{{ slotIdx }}" class="team-slot-types"></div>
 
 						<div class="team-slot-search-wrapper">
 							<input type="text"
@@ -78,16 +70,29 @@
 						</div>
 					</div>
 
-					<!-- Coluna Principal: Top Build Bar & Golpes Inline 1-10 -->
+					<!-- Coluna Principal: Top Build Bar & Golpes Inline 1-10 bar -->
 					<div class="team-slot-main">
-						<!-- Top Bar (Item, Nature, Ability) -->
+						<!-- Top Bar (Role, Item, Nature, Ability) -->
 						<div class="team-slot-build-bar">
+							<!-- Função / Tag -->
+							<div class="team-build-field">
+								<label class="team-build-label">
+									{{ 'Função'|trans }}
+								</label>
+								<select id="role-preset-slot-{{ slotIdx }}" class="team-build-input team-role-tag-select">
+									<option value="">-- {{ 'Selecionar'|trans }} --</option>
+									{% for role in rolesList %}
+										<option value="{{ role }}">{{ role }}</option>
+									{% endfor %}
+								</select>
+							</div>
+
 							<!-- Item -->
 							<div class="team-build-field">
 								<label class="team-build-label">
 									{{ 'Item'|trans }}
 								</label>
-								<input type="text" id="item-slot-{{ slotIdx }}" class="team-build-input" autocomplete="off">
+								<input type="text" id="item-slot-{{ slotIdx }}" class="team-build-input" list="team-items-list" autocomplete="off" placeholder="{{ 'Digite para buscar...'|trans }}">
 							</div>
 
 							<!-- Nature -->
@@ -108,7 +113,9 @@
 								<label class="team-build-label">
 									{{ 'Habilidade'|trans }}
 								</label>
-								<input type="text" id="ability-slot-{{ slotIdx }}" class="team-build-input" autocomplete="off">
+								<select id="ability-slot-{{ slotIdx }}" class="team-build-input">
+									<option value="">-- {{ 'Selecione'|trans }} --</option>
+								</select>
 							</div>
 						</div>
 
@@ -116,7 +123,7 @@
 						<div class="team-slot-moves-section">
 							<div class="team-slot-moves-header" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
 								<span style="display: flex; align-items: center; gap: 6px;">
-									{{ 'Golpes (1 a 10)'|trans }}
+									{{ 'Golpes'|trans }}
 								</span>
 
 								<!-- Carregar Moveset Dropdown -->

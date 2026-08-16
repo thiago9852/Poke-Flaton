@@ -2,11 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\TierList;
 use App\Entity\User;
-use App\Enum\VivillonPattern;
-use App\Repository\MovesetRepository;
 use App\Repository\UserRepository;
-use App\Service\PokeApiService;
 use App\Service\TrainerProfileService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,27 +16,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TrainerCardController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-    private PokeApiService $pokeApiService;
-    private MovesetRepository $movesetRepository;
-    private UserRepository $userRepository;
-    private TrainerProfileService $trainerProfileService;
-    private string $projectDir;
-
     public function __construct(
-        EntityManagerInterface $entityManager,
-        PokeApiService $pokeApiService,
-        MovesetRepository $movesetRepository,
-        UserRepository $userRepository,
-        TrainerProfileService $trainerProfileService,
-        #[Autowire('%kernel.project_dir%')] string $projectDir
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UserRepository $userRepository,
+        private readonly TrainerProfileService $trainerProfileService,
+        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
     ) {
-        $this->entityManager = $entityManager;
-        $this->pokeApiService = $pokeApiService;
-        $this->movesetRepository = $movesetRepository;
-        $this->userRepository = $userRepository;
-        $this->trainerProfileService = $trainerProfileService;
-        $this->projectDir = $projectDir;
     }
 
     #[Route('/trainer-card', name: 'app_trainer_card', methods: ['GET'])]
@@ -50,63 +33,19 @@ class TrainerCardController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // Obter dados unificados de perfil e conquistas via Service
+        // Obter dados unificados de perfil e estatísticas via Service
         $data = $this->trainerProfileService->getTrainerProfileData($user);
 
-        // DIAGNOSTIC CODE
-        $templates = $this->entityManager->getRepository(\App\Entity\CardTemplate::class)->findAll();
-        $output = "=== CARD TEMPLATES ===\n";
-        foreach ($templates as $t) {
-            $output .= "ID: " . $t->getId() . " | Name: " . $t->getName() . " | Image: " . var_export($t->getImage(), true) . " | isDefault: " . ($t->isDefault() ? 'YES' : 'NO') . "\n";
-        }
-        $output .= "\n=== USER ===\n";
-        $output .= "Username: " . $user->getUsername() . " | CardTemplate: " . var_export($user->getCardTemplate(), true) . "\n";
-        file_put_contents($this->projectDir . '/scratch/db_diagnostic.txt', $output);
-
         // Obter lista de TMs mapeadas
-        $tmsJsonPath = $this->projectDir . '/scratch/tms.json';
+        $tmsJsonPath = $this->projectDir.'/scratch/tms.json';
         $tms = [];
         if (file_exists($tmsJsonPath)) {
             $tms = json_decode(file_get_contents($tmsJsonPath), true) ?? [];
         }
 
-        // Obter status de avatares com desbloqueio
-        $avatarStatuses = $this->trainerProfileService->getAvatarUnlockStatus($user, [
-            $data['activityMedals'],
-            $data['catchMedals'],
-            $data['regionalMedals'],
-            $data['typeMedals']
-        ]);
-
-        // Obter status de avatares Pokémon
+        $avatarStatuses = $this->trainerProfileService->getAvatarUnlockStatus($user);
         $pkmAvatarStatuses = $this->trainerProfileService->getPkmAvatarStatuses($user);
-
-        // Obter status de títulos com desbloqueio
-        $titleStatuses = $this->trainerProfileService->getTitlesUnlockStatus($user, [
-            $data['activityMedals'],
-            $data['catchMedals'],
-            $data['regionalMedals'],
-            $data['typeMedals']
-        ]);
-
-        $selectedTitle = 'Treinador Novato';
-        $selectedTitleRequirement = 'Desbloqueado por padrão.';
-        $selectedRibbon = 'https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/gen8/alert-ribbon.png';
-        foreach ($titleStatuses as $ts) {
-            if ($ts['isSelected']) {
-                $selectedTitle = $ts['name'];
-                $selectedTitleRequirement = $ts['requirement'];
-                $selectedRibbon = $ts['ribbonUrl'];
-                break;
-            }
-        }
-
-        $templateStatuses = $this->trainerProfileService->getTemplatesUnlockStatus($user, [
-            $data['activityMedals'],
-            $data['catchMedals'],
-            $data['regionalMedals'],
-            $data['typeMedals']
-        ]);
+        $templateStatuses = $this->trainerProfileService->getTemplatesUnlockStatus($user);
 
         $selectedTemplateUrl = null;
         foreach ($templateStatuses as $ts) {
@@ -120,18 +59,9 @@ class TrainerCardController extends AbstractController
             'user' => $user,
             'avatarStatuses' => $avatarStatuses,
             'pkmAvatarStatuses' => $pkmAvatarStatuses,
-            'titleStatuses' => $titleStatuses,
             'templateStatuses' => $templateStatuses,
-            'selectedTitle' => $selectedTitle,
-            'selectedTitleRequirement' => $selectedTitleRequirement,
-            'selectedRibbon' => $selectedRibbon,
             'selectedTemplateUrl' => $selectedTemplateUrl,
             'tms' => $tms,
-            'activityMedals' => $data['activityMedals'],
-            'catchMedals' => $data['catchMedals'],
-            'regionalMedals' => $data['regionalMedals'],
-            'typeMedals' => $data['typeMedals'],
-            'vivillonMedals' => $data['vivillonMedals'],
             'createdCount' => $data['createdCount'],
             'totalVotes' => $data['totalVotes'],
             'typesCount' => $data['typesCount'],
@@ -141,7 +71,7 @@ class TrainerCardController extends AbstractController
             'followersCount' => $data['followersCount'],
             'caughtDetails' => $data['caughtDetails'],
             'userMovesets' => $data['userMovesets'],
-            'userTierLists' => $this->entityManager->getRepository(\App\Entity\TierList::class)->findBy(['user' => $user], ['createdAt' => 'DESC']),
+            'userTierLists' => $this->entityManager->getRepository(TierList::class)->findBy(['user' => $user], ['createdAt' => 'DESC']),
             'followersList' => $data['followersList'],
         ]);
     }
@@ -179,7 +109,7 @@ class TrainerCardController extends AbstractController
         return new JsonResponse([
             'success' => true,
             'unlocked' => $unlocked,
-            'count' => count($unlockedTms)
+            'count' => count($unlockedTms),
         ]);
     }
 
@@ -204,39 +134,21 @@ class TrainerCardController extends AbstractController
             $prefix = $parts[0];
             $filename = $parts[1];
         } else {
-            $avatar = 'trainer:' . $avatar;
+            $avatar = 'trainer:'.$avatar;
         }
 
         if ($prefix !== 'pkm' && $prefix !== 'trainer') {
             return new JsonResponse(['error' => 'Tipo de avatar inválido.'], Response::HTTP_BAD_REQUEST);
         }
 
-        $data = $this->trainerProfileService->getTrainerProfileData($user);
-        if ($prefix === 'trainer') {
-            $avatarStatuses = $this->trainerProfileService->getAvatarUnlockStatus($user, [
-                $data['activityMedals'],
-                $data['catchMedals'],
-                $data['regionalMedals'],
-                $data['typeMedals']
-            ]);
-        } else {
-            $avatarStatuses = $this->trainerProfileService->getPkmAvatarStatuses($user, [
-                $data['activityMedals'],
-                $data['catchMedals'],
-                $data['regionalMedals'],
-                $data['typeMedals']
-            ]);
-        }
+        $avatarStatuses = $prefix === 'trainer'
+            ? $this->trainerProfileService->getAvatarUnlockStatus($user)
+            : $this->trainerProfileService->getPkmAvatarStatuses($user);
 
         $found = false;
         foreach ($avatarStatuses as $status) {
             if ($status['filename'] === $avatar) {
                 $found = true;
-                if ($status['isLocked']) {
-                    return new JsonResponse([
-                        'error' => 'Este avatar está bloqueado! Requisito: ' . $status['requirement']
-                    ], Response::HTTP_BAD_REQUEST);
-                }
                 break;
             }
         }
@@ -251,7 +163,7 @@ class TrainerCardController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
-            'avatarUrl' => $this->trainerProfileService->getAvatarUrl($avatar)
+            'avatarUrl' => $this->trainerProfileService->getAvatarUrl($avatar),
         ]);
     }
 
@@ -272,7 +184,6 @@ class TrainerCardController extends AbstractController
         $caught = $user->getCaughtPokemon();
         $key = array_search($pokemonName, $caught);
         $isCaught = false;
-        $newPattern = null;
 
         if ($key !== false) {
             unset($caught[$key]);
@@ -280,18 +191,6 @@ class TrainerCardController extends AbstractController
         } else {
             $caught[] = $pokemonName;
             $isCaught = true;
-
-            // Vivillon patterns collection
-            if ($pokemonName === 'vivillon') {
-                $allPatterns = VivillonPattern::values();
-                $userPatterns = $user->getVivillonPatterns();
-                $missingPatterns = array_diff($allPatterns, $userPatterns);
-                if (!empty($missingPatterns)) {
-                    $newPattern = $missingPatterns[array_rand($missingPatterns)];
-                    $userPatterns[] = $newPattern;
-                    $user->setVivillonPatterns($userPatterns);
-                }
-            }
         }
 
         $user->setCaughtPokemon($caught);
@@ -301,8 +200,7 @@ class TrainerCardController extends AbstractController
         return new JsonResponse([
             'success' => true,
             'caught' => $isCaught,
-            'pattern' => $newPattern,
-            'count' => count($caught)
+            'count' => count($caught),
         ]);
     }
 
@@ -348,210 +246,8 @@ class TrainerCardController extends AbstractController
         return new JsonResponse([
             'success' => true,
             'following' => $isFollowing,
-            'count' => count($following)
+            'count' => count($following),
         ]);
-    }
-
-    #[Route('/showcase-medals/update', name: 'app_trainer_card_showcase_update', methods: ['POST'])]
-    public function updateShowcaseMedals(Request $request): JsonResponse
-    {
-        /** @var User $user */
-        $user = $this->getUser();
-        if (!$user) {
-            return new JsonResponse(['error' => 'Acesso negado.'], Response::HTTP_FORBIDDEN);
-        }
-
-        $slot = (int) $request->request->get('slot', -1);
-        $medalName = trim($request->request->get('medal', ''));
-
-        if ($slot < 0 || $slot > 3) {
-            return new JsonResponse(['error' => 'Slot inválido.'], Response::HTTP_BAD_REQUEST);
-        }
-
-        $showcaseMedals = $user->getShowcaseMedals();
-
-        // Preenche o array até ter 4 slots
-        while (count($showcaseMedals) < 4) {
-            $showcaseMedals[] = null;
-        }
-
-        if (empty($medalName)) {
-            // Remove a medal do slot
-            $showcaseMedals[$slot] = null;
-        } else {
-            // Valida se a medalha existe e foi conquistada
-            $data = $this->trainerProfileService->getTrainerProfileData($user);
-            $allMedals = array_merge(
-                $data['activityMedals'],
-                $data['catchMedals'],
-                $data['regionalMedals'],
-                $data['typeMedals']
-            );
-
-            $validMedal = false;
-            foreach ($allMedals as $medal) {
-                if ($medal['name'] === $medalName && $medal['tier'] !== 'locked' && $medal['enabled']) {
-                    $validMedal = true;
-                    break;
-                }
-            }
-
-            if (!$validMedal) {
-                return new JsonResponse(['error' => 'Medalha inválida ou ainda não conquistada.'], Response::HTTP_BAD_REQUEST);
-            }
-
-            $showcaseMedals[$slot] = $medalName;
-        }
-
-        // Limpa null trailing
-        $showcaseMedals = array_values(array_pad($showcaseMedals, 4, null));
-
-        $user->setShowcaseMedals($showcaseMedals);
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-
-        return new JsonResponse([
-            'success' => true,
-            'showcaseMedals' => $showcaseMedals
-        ]);
-    }
-
-    #[Route('/trainers/ranking', name: 'app_trainer_ranking', methods: ['GET'])]
-    public function ranking(Request $request): Response
-    {
-        $search = trim($request->query->get('q', ''));
-        $sortBy = $request->query->get('sort', 'medals'); // 'medalha' ou 'likes'
-
-        if (!empty($search)) {
-            $users = $this->userRepository->createQueryBuilder('u')
-                ->where('u.username LIKE :q')
-                ->setParameter('q', '%' . $search . '%')
-                ->getQuery()
-                ->getResult();
-        } else {
-            $users = $this->userRepository->findAll();
-        }
-
-        $rankedUsers = [];
-        foreach ($users as $u) {
-            $data = $this->trainerProfileService->getTrainerProfileData($u);
-
-            // conta as medalhas
-            $goldCount = 0;
-            $silverCount = 0;
-            $bronzeCount = 0;
-
-            $allMedals = array_merge(
-                $data['activityMedals'],
-                $data['catchMedals'],
-                $data['regionalMedals'],
-                $data['typeMedals']
-            );
-
-            foreach ($allMedals as $medal) {
-                if ($medal['tier'] === 'gold') $goldCount++;
-                elseif ($medal['tier'] === 'silver') $silverCount++;
-                elseif ($medal['tier'] === 'bronze') $bronzeCount++;
-            }
-
-            // Pega o título selecionado
-            $titleStatuses = $this->trainerProfileService->getTitlesUnlockStatus($u, [
-                $data['activityMedals'],
-                $data['catchMedals'],
-                $data['regionalMedals'],
-                $data['typeMedals']
-            ]);
-
-            $selectedTitle = 'Treinador Novato';
-            $selectedRibbon = $this->trainerProfileService->getRibbonUrl('alert-ribbon.png');
-            foreach ($titleStatuses as $ts) {
-                if ($ts['isSelected']) {
-                    $selectedTitle = $ts['name'];
-                    $selectedRibbon = $ts['ribbonUrl'];
-                    break;
-                }
-            }
-
-            $rankedUsers[] = [
-                'user' => $u,
-                'gold' => $goldCount,
-                'silver' => $silverCount,
-                'bronze' => $bronzeCount,
-                'totalMedals' => $goldCount + $silverCount + $bronzeCount,
-                'votes' => $data['totalVotes'],
-                'created' => $data['createdCount'],
-                'followers' => $data['followersCount'],
-                'title' => $selectedTitle,
-                'titleRibbon' => $selectedRibbon,
-            ];
-        }
-
-        // Ordenação
-        if ($sortBy === 'likes') {
-            usort($rankedUsers, function ($a, $b) {
-                if ($a['votes'] !== $b['votes']) {
-                    return $b['votes'] <=> $a['votes'];
-                }
-                return $b['gold'] <=> $a['gold'];
-            });
-        } else { // Ordena por medalhas
-            usort($rankedUsers, function ($a, $b) {
-                if ($a['gold'] !== $b['gold']) {
-                    return $b['gold'] <=> $a['gold'];
-                }
-                if ($a['silver'] !== $b['silver']) {
-                    return $b['silver'] <=> $a['silver'];
-                }
-                if ($a['bronze'] !== $b['bronze']) {
-                    return $b['bronze'] <=> $a['bronze'];
-                }
-                return $b['votes'] <=> $a['votes'];
-            });
-        }
-
-        // Recuperar títulos do Top 3 dinamicamente do banco de dados (ou fallback)
-        $titleRepo = $this->entityManager->getRepository(\App\Entity\Title::class);
-        $topTitles = $titleRepo->findBy(['reqRankType' => $sortBy], ['reqRankPos' => 'ASC']);
-
-        $firstTitle = $sortBy === 'likes' ? 'Lenda da Popularidade' : 'Campeão Supremo';
-        $firstRibbon = $this->trainerProfileService->getRibbonUrl($sortBy === 'likes' ? 'royal-ribbon.png' : 'championship-ribbon.png');
-
-        $secondTitle = $sortBy === 'likes' ? 'Ícone da Comunidade' : 'Mestre de Elite';
-        $secondRibbon = $this->trainerProfileService->getRibbonUrl($sortBy === 'likes' ? 'red-ribbon.png' : 'elite-four-ribbon.png');
-
-        $thirdTitle = $sortBy === 'likes' ? 'Querido do Público' : 'Especialista Lendário';
-        $thirdRibbon = $this->trainerProfileService->getRibbonUrl($sortBy === 'likes' ? 'best-friends-ribbon.png' : 'classic-ribbon.png');
-
-        foreach ($topTitles as $t) {
-            if ($t->getReqRankPos() === 1) {
-                $firstTitle = $t->getName();
-                $firstRibbon = $this->trainerProfileService->getRibbonUrl($t->getRibbon());
-            } elseif ($t->getReqRankPos() === 2) {
-                $secondTitle = $t->getName();
-                $secondRibbon = $this->trainerProfileService->getRibbonUrl($t->getRibbon());
-            } elseif ($t->getReqRankPos() === 3) {
-                $thirdTitle = $t->getName();
-                $thirdRibbon = $this->trainerProfileService->getRibbonUrl($t->getRibbon());
-            }
-        }
-
-        $renderParams = [
-            'rankedUsers' => $rankedUsers,
-            'search' => $search,
-            'sort' => $sortBy,
-            'first_title' => $firstTitle,
-            'first_title_ribbon' => $firstRibbon,
-            'second_title' => $secondTitle,
-            'second_title_ribbon' => $secondRibbon,
-            'third_title' => $thirdTitle,
-            'third_title_ribbon' => $thirdRibbon,
-        ];
-
-        if ($request->query->get('ajax') || $request->isXmlHttpRequest()) {
-            return $this->render('trainer_card/_ranking_content.html.twig', $renderParams);
-        }
-
-        return $this->render('trainer_card/ranking.html.twig', $renderParams);
     }
 
     #[Route('/trainer/{username}', name: 'app_trainer_profile', methods: ['GET'])]
@@ -562,41 +258,17 @@ class TrainerCardController extends AbstractController
             throw $this->createNotFoundException('Treinador não encontrado.');
         }
 
-        // Obter dados unificados de perfil e conquistas
+        // Obter dados unificados de perfil e estatísticas
         $data = $this->trainerProfileService->getTrainerProfileData($targetUser);
 
         // Obter lista de TMs mapeadas
-        $tmsJsonPath = $this->projectDir . '/scratch/tms.json';
+        $tmsJsonPath = $this->projectDir.'/scratch/tms.json';
         $tms = [];
         if (file_exists($tmsJsonPath)) {
             $tms = json_decode(file_get_contents($tmsJsonPath), true) ?? [];
         }
 
-        $titleStatuses = $this->trainerProfileService->getTitlesUnlockStatus($targetUser, [
-            $data['activityMedals'],
-            $data['catchMedals'],
-            $data['regionalMedals'],
-            $data['typeMedals']
-        ]);
-
-        $selectedTitle = 'Treinador Novato';
-        $selectedTitleRequirement = 'Desbloqueado por padrão.';
-        $selectedRibbon = 'https://raw.githubusercontent.com/msikma/pokesprite/master/misc/ribbon/gen8/alert-ribbon.png';
-        foreach ($titleStatuses as $ts) {
-            if ($ts['isSelected']) {
-                $selectedTitle = $ts['name'];
-                $selectedTitleRequirement = $ts['requirement'];
-                $selectedRibbon = $ts['ribbonUrl'];
-                break;
-            }
-        }
-
-        $templateStatuses = $this->trainerProfileService->getTemplatesUnlockStatus($targetUser, [
-            $data['activityMedals'],
-            $data['catchMedals'],
-            $data['regionalMedals'],
-            $data['typeMedals']
-        ]);
+        $templateStatuses = $this->trainerProfileService->getTemplatesUnlockStatus($targetUser);
 
         $selectedTemplateUrl = null;
         foreach ($templateStatuses as $ts) {
@@ -608,16 +280,8 @@ class TrainerCardController extends AbstractController
 
         return $this->render('trainer_card/public.html.twig', [
             'targetUser' => $targetUser,
-            'selectedTitle' => $selectedTitle,
-            'selectedTitleRequirement' => $selectedTitleRequirement,
-            'selectedRibbon' => $selectedRibbon,
             'selectedTemplateUrl' => $selectedTemplateUrl,
             'tms' => $tms,
-            'activityMedals' => $data['activityMedals'],
-            'catchMedals' => $data['catchMedals'],
-            'regionalMedals' => $data['regionalMedals'],
-            'typeMedals' => $data['typeMedals'],
-            'vivillonMedals' => $data['vivillonMedals'],
             'createdCount' => $data['createdCount'],
             'totalVotes' => $data['totalVotes'],
             'typesCount' => $data['typesCount'],
@@ -627,60 +291,7 @@ class TrainerCardController extends AbstractController
             'followersCount' => $data['followersCount'],
             'caughtDetails' => $data['caughtDetails'],
             'userMovesets' => $data['userMovesets'],
-            'userTierLists' => $this->entityManager->getRepository(\App\Entity\TierList::class)->findBy(['user' => $targetUser], ['createdAt' => 'DESC']),
-        ]);
-    }
-
-    #[Route('/title/update', name: 'app_trainer_card_title_update', methods: ['POST'])]
-    public function updateTitle(Request $request): JsonResponse
-    {
-        /** @var User $user */
-        $user = $this->getUser();
-        if (!$user) {
-            return new JsonResponse(['error' => 'Acesso negado.'], Response::HTTP_FORBIDDEN);
-        }
-
-        $title = $request->request->get('title');
-        if (empty($title)) {
-            return new JsonResponse(['error' => 'Parâmetro inválido.'], Response::HTTP_BAD_REQUEST);
-        }
-
-        // Validar se o título está desbloqueado para o usuário
-        $data = $this->trainerProfileService->getTrainerProfileData($user);
-        $titleStatuses = $this->trainerProfileService->getTitlesUnlockStatus($user, [
-            $data['activityMedals'],
-            $data['catchMedals'],
-            $data['regionalMedals'],
-            $data['typeMedals']
-        ]);
-
-        $validTitle = false;
-        $ribbonUrl = null;
-        foreach ($titleStatuses as $status) {
-            if ($status['name'] === $title) {
-                if ($status['isLocked']) {
-                    return new JsonResponse([
-                        'error' => 'Este título está bloqueado! Requisito: ' . $status['requirement']
-                    ], Response::HTTP_BAD_REQUEST);
-                }
-                $validTitle = true;
-                $ribbonUrl = $status['ribbonUrl'];
-                break;
-            }
-        }
-
-        if (!$validTitle) {
-            return new JsonResponse(['error' => 'Título inválido.'], Response::HTTP_BAD_REQUEST);
-        }
-
-        $user->setTitle($title);
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-
-        return new JsonResponse([
-            'success' => true,
-            'title' => $title,
-            'ribbonUrl' => $ribbonUrl
+            'userTierLists' => $this->entityManager->getRepository(TierList::class)->findBy(['user' => $targetUser], ['createdAt' => 'DESC']),
         ]);
     }
 
@@ -698,26 +309,16 @@ class TrainerCardController extends AbstractController
             $user->setCardTemplate(null);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
             return new JsonResponse(['success' => true, 'imageUrl' => null]);
         }
 
-        $data = $this->trainerProfileService->getTrainerProfileData($user);
-        $templateStatuses = $this->trainerProfileService->getTemplatesUnlockStatus($user, [
-            $data['activityMedals'],
-            $data['catchMedals'],
-            $data['regionalMedals'],
-            $data['typeMedals']
-        ]);
+        $templateStatuses = $this->trainerProfileService->getTemplatesUnlockStatus($user);
 
         $validTemplate = false;
         $imageUrl = null;
         foreach ($templateStatuses as $status) {
             if ($status['image'] === $templateImage) {
-                if ($status['isLocked']) {
-                    return new JsonResponse([
-                        'error' => 'Este plano de fundo está bloqueado! Requisito: ' . $status['requirement']
-                    ], Response::HTTP_BAD_REQUEST);
-                }
                 $validTemplate = true;
                 $imageUrl = $status['imageUrl'];
                 break;
@@ -734,7 +335,7 @@ class TrainerCardController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
-            'imageUrl' => $imageUrl
+            'imageUrl' => $imageUrl,
         ]);
     }
 }

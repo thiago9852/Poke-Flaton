@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,7 +16,7 @@ class LocaleController extends AbstractController
     {
         $supportedLocales = ['pt_BR', 'en'];
         $targetLocale = $locale;
-        
+
         if ($locale === 'ptbr' || $locale === 'pt-BR') {
             $targetLocale = 'pt_BR';
         }
@@ -24,6 +26,7 @@ class LocaleController extends AbstractController
         }
 
         $referer = $request->headers->get('referer');
+
         return $this->redirect($referer ?: $this->generateUrl('app_home'));
     }
 }

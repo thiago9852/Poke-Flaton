@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Moveset;
 use App\Entity\PokemonLocation;
+use App\Entity\TierList;
 use App\Repository\MovesetRepository;
+use App\Service\PokeApi\PokeApiValidator;
 use App\Service\PokeApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,13 +18,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DiscordApiController extends AbstractController
 {
-    private PokeApiService $pokeApiService;
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(PokeApiService $pokeApiService, EntityManagerInterface $entityManager)
+    public function __construct(private readonly PokeApiService $pokeApiService, private readonly EntityManagerInterface $entityManager)
     {
-        $this->pokeApiService = $pokeApiService;
-        $this->entityManager = $entityManager;
     }
 
     #[Route('/api/discord/pokemon/{name}', name: 'api_discord_pokemon', methods: ['GET'])]
@@ -38,7 +35,7 @@ class DiscordApiController extends AbstractController
                 return new JsonResponse(['error' => 'Pokémon não permitido ou não encontrado.'], Response::HTTP_NOT_FOUND);
             }
         } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Pokémon não encontrado: ' . $e->getMessage()], Response::HTTP_NOT_FOUND);
+            return new JsonResponse(['error' => 'Pokémon não encontrado: '.$e->getMessage()], Response::HTTP_NOT_FOUND);
         }
 
         // Buscar locais aprovados do banco de dados
@@ -46,7 +43,7 @@ class DiscordApiController extends AbstractController
             ['pokemonName' => $pokemon['name'], 'isApproved' => true],
             ['createdAt' => 'ASC']
         );
-        $locations = array_map(fn($loc) => $loc->getLocationName(), $locationEntities);
+        $locations = array_map(fn ($loc) => $loc->getLocationName(), $locationEntities);
 
         // Buscar cadeia evolutiva
         $evolutionChain = [];
@@ -59,12 +56,12 @@ class DiscordApiController extends AbstractController
                         'name' => $node['name'] ?? '',
                         'id' => $node['id'] ?? 0,
                         'evolution_method' => $node['evolution_method'] ?? null,
-                        'evolution_gender' => $node['evolution_gender'] ?? null
+                        'evolution_gender' => $node['evolution_gender'] ?? null,
                     ];
                 }
                 $evolutionChain[$stage] = $stageNodes;
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // Ignorar erro e enviar vazio
         }
 
@@ -72,7 +69,7 @@ class DiscordApiController extends AbstractController
         $movesetRepo = $this->entityManager->getRepository(Moveset::class);
         $movesets = $movesetRepo->findBy(['pokemonName' => $pokemon['name']]);
         $recommendedNature = 'Nenhuma cadastrada';
-        
+
         $natureCounts = [];
         foreach ($movesets as $m) {
             $n = $m->getNature();
@@ -80,7 +77,7 @@ class DiscordApiController extends AbstractController
                 $natureCounts[$n] = ($natureCounts[$n] ?? 0) + 1;
             }
         }
-        if (!empty($natureCounts)) {
+        if ($natureCounts !== []) {
             arsort($natureCounts);
             $mostUsedNature = array_key_first($natureCounts);
             $recommendedNature = ucfirst($mostUsedNature);
@@ -95,7 +92,7 @@ class DiscordApiController extends AbstractController
             'stats' => $pokemon['stats'],
             'locations' => $locations,
             'evolution_chain' => $evolutionChain,
-            'recommended_nature' => $recommendedNature
+            'recommended_nature' => $recommendedNature,
         ]);
     }
 
@@ -103,14 +100,9 @@ class DiscordApiController extends AbstractController
     public function natureInfo(string $name): JsonResponse
     {
         $nameLower = strtolower(trim($name));
-        
+
         // Dicionário de traduções de Natures de PT-BR para Inglês (caso o usuário digite em português)
         $natureTranslations = [
-            'audaz' => 'hardy',
-            'docil' => 'docile',
-            'dócil' => 'docile',
-            'audaz' => 'brave',
-            'ardente' => 'fiery', 
             'hardy' => 'hardy', 'lonely' => 'lonely', 'brave' => 'brave', 'adamant' => 'adamant', 'naughty' => 'naughty',
             'bold' => 'bold', 'docile' => 'docile', 'relaxed' => 'relaxed', 'impish' => 'impish', 'lax' => 'lax',
             'timid' => 'timid', 'hasty' => 'hasty', 'serious' => 'serious', 'jolly' => 'jolly', 'naive' => 'naive',
@@ -124,8 +116,7 @@ class DiscordApiController extends AbstractController
             'ousada' => 'bold',
             'relaxada' => 'relaxed',
             'esperta' => 'impish',
-            'ativa' => 'lax',
-            'tímida' => 'timid', 'timida' => 'timid',
+            'ativa' => 'lax', 'timida' => 'timid',
             'apressada' => 'hasty',
             'séria' => 'serious', 'seria' => 'serious',
             'alegre' => 'jolly',
@@ -167,7 +158,7 @@ class DiscordApiController extends AbstractController
             'special-defense' => 'Defesa Especial',
             'speed' => 'Velocidade',
             'hp' => 'HP',
-            'none' => 'Nenhum (Neutro)'
+            'none' => 'Nenhum (Neutro)',
         ];
 
         return new JsonResponse([
@@ -185,7 +176,7 @@ class DiscordApiController extends AbstractController
     {
         try {
             $pokemon = $this->pokeApiService->getPokemonDetails($name);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return new JsonResponse(['error' => 'Pokémon não encontrado.'], Response::HTTP_NOT_FOUND);
         }
 
@@ -194,7 +185,7 @@ class DiscordApiController extends AbstractController
             ['isDefault' => 'DESC', 'votes' => 'DESC']
         );
 
-        if (empty($movesets)) {
+        if ($movesets === []) {
             return new JsonResponse(['error' => 'Nenhum moveset encontrado para este Pokémon.'], Response::HTTP_NOT_FOUND);
         }
 
@@ -214,7 +205,7 @@ class DiscordApiController extends AbstractController
                 'app_moveset_share_card_only',
                 ['id' => $moveset->getId()],
                 UrlGeneratorInterface::ABSOLUTE_URL
-            )
+            ),
         ]);
     }
 
@@ -222,7 +213,7 @@ class DiscordApiController extends AbstractController
     public function shareCardOnly(
         int $id,
         MovesetRepository $movesetRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): Response {
         $moveset = $movesetRepository->find($id);
         if (!$moveset) {
@@ -258,7 +249,7 @@ class DiscordApiController extends AbstractController
 
         // Buscar outros movesets para estatísticas de nature, se houver
         $siblingMovesets = $movesetRepository->findBy(['pokemonName' => $pokemon['name']]);
-        
+
         $mostUsedNature = null;
         $mostUsedNaturePercent = 0;
         $totalMovesets = count($siblingMovesets);
@@ -270,7 +261,7 @@ class DiscordApiController extends AbstractController
                     $overallNatureCounts[$n] = ($overallNatureCounts[$n] ?? 0) + 1;
                 }
             }
-            if (!empty($overallNatureCounts)) {
+            if ($overallNatureCounts !== []) {
                 arsort($overallNatureCounts);
                 $mostUsedNature = array_key_first($overallNatureCounts);
                 $mostUsedNaturePercent = (int) round(($overallNatureCounts[$mostUsedNature] / $totalMovesets) * 100);
@@ -294,16 +285,16 @@ class DiscordApiController extends AbstractController
     {
         $nameClean = strtolower(trim($name));
         $nameKebab = str_replace(' ', '-', $nameClean);
-        
+
         $ability = $this->pokeApiService->getAbilityDetails($nameKebab);
-        
+
         if ($ability['description'] === 'Habilidade recomendada para ativar a estratégia.') {
             return new JsonResponse(['error' => 'Habilidade não encontrada.'], Response::HTTP_NOT_FOUND);
         }
-        
+
         return new JsonResponse([
             'name' => ucwords(str_replace('-', ' ', $ability['name'])),
-            'description' => $ability['description']
+            'description' => $ability['description'],
         ]);
     }
 
@@ -312,17 +303,17 @@ class DiscordApiController extends AbstractController
     {
         $nameClean = strtolower(trim($name));
         $nameKebab = str_replace(' ', '-', $nameClean);
-        
+
         $item = $this->pokeApiService->getItemDetails($nameKebab);
-        
+
         if ($item['description'] === 'Item recomendado para ativar a estratégia.') {
             return new JsonResponse(['error' => 'Item não encontrado.'], Response::HTTP_NOT_FOUND);
         }
-        
+
         return new JsonResponse([
             'name' => ucwords(str_replace('-', ' ', $item['name'])),
             'description' => $item['description'],
-            'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/%s.png', $item['name'])
+            'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/%s.png', $item['name']),
         ]);
     }
 
@@ -331,33 +322,33 @@ class DiscordApiController extends AbstractController
     {
         try {
             $basicList = $this->pokeApiService->getPokemonBasicList();
-            if (empty($basicList)) {
+            if ($basicList === []) {
                 return new JsonResponse(['error' => 'Nenhum Pokémon disponível.'], Response::HTTP_NOT_FOUND);
             }
-            
+
             $randomPokemon = $basicList[array_rand($basicList)];
             $details = $this->pokeApiService->getPokemonDetails($randomPokemon['name']);
-            
+
             $name = $details['name'];
             $speciesName = $details['species_name'] ?? $name;
             $description = $details['description'];
-            
+
             $toCensor = array_unique([
                 $name,
                 $speciesName,
                 str_replace('-', ' ', $name),
                 str_replace('-', ' ', $speciesName),
             ]);
-            
+
             foreach ($toCensor as $word) {
                 if (strlen($word) > 2) {
-                    $pattern = '/\b' . preg_quote($word, '/') . '(s|’s|\'s)?\b/i';
+                    $pattern = '/\b'.preg_quote($word, '/').'(s|’s|\'s)?\b/i';
                     $description = preg_replace($pattern, '`????`', $description);
                 }
             }
-            
-            $generation = \App\Service\PokeApi\PokeApiValidator::getGenerationById($details['id']);
-            
+
+            $generation = PokeApiValidator::getGenerationById($details['id']);
+
             return new JsonResponse([
                 'id' => $details['id'],
                 'name' => $details['name'],
@@ -365,10 +356,10 @@ class DiscordApiController extends AbstractController
                 'types' => $details['types'],
                 'stats' => $details['stats'],
                 'generation' => $generation,
-                'sprite' => $details['sprite_official']
+                'sprite' => $details['sprite_official'],
             ]);
         } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Erro ao buscar Pokémon aleatório: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse(['error' => 'Erro ao buscar Pokémon aleatório: '.$e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -376,7 +367,7 @@ class DiscordApiController extends AbstractController
     public function typeInfo(string $name): JsonResponse
     {
         $nameClean = strtolower(trim($name));
-        
+
         $typeTranslations = [
             'normal' => 'normal', 'fogo' => 'fire', 'água' => 'water', 'agua' => 'water',
             'grama' => 'grass', 'planta' => 'grass', 'elétrico' => 'electric', 'eletrico' => 'electric',
@@ -386,19 +377,19 @@ class DiscordApiController extends AbstractController
             'dragao' => 'dragon', 'sombrio' => 'dark', 'aço' => 'steel', 'aco' => 'steel',
             'fada' => 'fairy',
         ];
-        
+
         $targetType = $typeTranslations[$nameClean] ?? $nameClean;
-        
+
         $typeDetails = $this->pokeApiService->getTypeDetails($targetType);
-        
+
         if (empty($typeDetails['damage_relations'])) {
             return new JsonResponse(['error' => 'Tipo não encontrado.'], Response::HTTP_NOT_FOUND);
         }
-        
+
         return new JsonResponse([
             'name' => ucfirst($targetType),
             'name_pt' => array_search($targetType, $typeTranslations) ?: ucfirst($targetType),
-            'damage_relations' => $typeDetails['damage_relations']
+            'damage_relations' => $typeDetails['damage_relations'],
         ]);
     }
 
@@ -410,18 +401,18 @@ class DiscordApiController extends AbstractController
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('t')
-           ->from(\App\Entity\TierList::class, 't')
+           ->from(TierList::class, 't')
            ->orderBy('t.createdAt', 'DESC')
            ->setMaxResults(15);
 
         if (!empty($tagFilter)) {
             $qb->andWhere('t.tags LIKE :tag')
-               ->setParameter('tag', '%"' . $tagFilter . '"%');
+               ->setParameter('tag', '%"'.$tagFilter.'"%');
         }
 
         if (!empty($searchFilter)) {
             $qb->andWhere('t.title LIKE :search')
-               ->setParameter('search', '%' . $searchFilter . '%');
+               ->setParameter('search', '%'.$searchFilter.'%');
         }
 
         $tierLists = $qb->getQuery()->getResult();
@@ -431,10 +422,10 @@ class DiscordApiController extends AbstractController
             $data[] = [
                 'id' => $t->getId(),
                 'title' => $t->getTitle(),
-                'user' => $t->getUser() ? $t->getUser()->getUsername() : 'Anônimo',
+                'user' => $t->getUser() ? $t->getUser()->getDisplayName() : 'Anônimo',
                 'tags' => $t->getTags(),
                 'created_at' => $t->getCreatedAt()->format('Y-m-d H:i:s'),
-                'url' => $this->generateUrl('app_tier_list_view', ['id' => $t->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
+                'url' => $this->generateUrl('app_tier_list_view', ['id' => $t->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
             ];
         }
 
@@ -444,17 +435,17 @@ class DiscordApiController extends AbstractController
     #[Route('/api/discord/tier-list/{idOrTitle}', name: 'api_discord_tier_list_show', methods: ['GET'])]
     public function showTierList(string $idOrTitle): JsonResponse
     {
-        $repo = $this->entityManager->getRepository(\App\Entity\TierList::class);
+        $repo = $this->entityManager->getRepository(TierList::class);
 
         if (is_numeric($idOrTitle)) {
-            $tierList = $repo->find((int)$idOrTitle);
+            $tierList = $repo->find((int) $idOrTitle);
         } else {
             // Busca por título parcial
             $qb = $this->entityManager->createQueryBuilder();
             $qb->select('t')
-               ->from(\App\Entity\TierList::class, 't')
+               ->from(TierList::class, 't')
                ->where('t.title LIKE :title')
-               ->setParameter('title', '%' . $idOrTitle . '%')
+               ->setParameter('title', '%'.$idOrTitle.'%')
                ->orderBy('t.createdAt', 'DESC')
                ->setMaxResults(1);
             $tierLists = $qb->getQuery()->getResult();
@@ -468,11 +459,11 @@ class DiscordApiController extends AbstractController
         return new JsonResponse([
             'id' => $tierList->getId(),
             'title' => $tierList->getTitle(),
-            'user' => $tierList->getUser() ? $tierList->getUser()->getUsername() : 'Anônimo',
+            'user' => $tierList->getUser() ? $tierList->getUser()->getDisplayName() : 'Anônimo',
             'tags' => $tierList->getTags(),
             'created_at' => $tierList->getCreatedAt()->format('Y-m-d H:i:s'),
             'url' => $this->generateUrl('app_tier_list_view', ['id' => $tierList->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
-            'state' => $tierList->getState()
+            'state' => $tierList->getState(),
         ]);
     }
 
@@ -484,7 +475,7 @@ class DiscordApiController extends AbstractController
 
         try {
             $moveDetails = $this->pokeApiService->getMoveDetailsWithLearnedBy($moveSlug);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return new JsonResponse(['error' => 'Golpe não encontrado.'], Response::HTTP_NOT_FOUND);
         }
 
@@ -496,7 +487,7 @@ class DiscordApiController extends AbstractController
 
         // TM Code
         $tmCode = null;
-        $tmsJsonPath = $this->getParameter('kernel.project_dir') . '/scratch/tms.json';
+        $tmsJsonPath = $this->getParameter('kernel.project_dir').'/scratch/tms.json';
         if (file_exists($tmsJsonPath)) {
             $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?: [];
             foreach ($allTms as $tm) {
@@ -510,22 +501,20 @@ class DiscordApiController extends AbstractController
 
         // Base Moves
         $basePokemon = [];
-        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir').'/scratch/default_base_moves.json';
         if (file_exists($defaultBaseMovesPath)) {
             $rawBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
             foreach ($rawBaseMoves as $pkName => $moves) {
                 if (is_array($moves)) {
                     $pkKey = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($pkName))));
-                    $normalizedMoves = array_map(function ($m) {
-                        return preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m))));
-                    }, $moves);
+                    $normalizedMoves = array_map(fn ($m) => preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m)))), $moves);
 
                     $idx = array_search($moveNameNorm, $normalizedMoves);
                     if ($idx !== false) {
                         $basePokemon[] = [
                             'name' => $pkKey,
                             'display_name' => ucfirst(str_replace('-', ' ', $pkKey)),
-                            'base_slot' => 'm' . ($idx + 1),
+                            'base_slot' => 'm'.($idx + 1),
                         ];
                     }
                 }
@@ -542,9 +531,7 @@ class DiscordApiController extends AbstractController
             'description' => $moveDetails['description'],
             'tm_code' => $tmCode,
             'base_pokemon' => $basePokemon,
-            'total_base_pokemon' => count($basePokemon)
+            'total_base_pokemon' => count($basePokemon),
         ]);
     }
 }
-
-

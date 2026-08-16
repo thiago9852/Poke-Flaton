@@ -36,7 +36,7 @@ class Moveset
     private ?string $nature = null;
 
     #[ORM\Column]
-    private int $votes = 0;
+    private int $votes;
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $author = null;
@@ -72,6 +72,7 @@ class Moveset
     public function setPokemonName(string $pokemonName): static
     {
         $this->pokemonName = $pokemonName;
+
         return $this;
     }
 
@@ -83,6 +84,7 @@ class Moveset
     public function setPokemonId(int $pokemonId): static
     {
         $this->pokemonId = $pokemonId;
+
         return $this;
     }
 
@@ -94,6 +96,7 @@ class Moveset
     public function setType(string $type): static
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -105,6 +108,7 @@ class Moveset
     public function setMoves(array $moves): static
     {
         $this->moves = $moves;
+
         return $this;
     }
 
@@ -116,6 +120,7 @@ class Moveset
     public function setAbility(?string $ability): static
     {
         $this->ability = $ability;
+
         return $this;
     }
 
@@ -127,6 +132,7 @@ class Moveset
     public function setHeldItem(?string $heldItem): static
     {
         $this->heldItem = $heldItem;
+
         return $this;
     }
 
@@ -138,6 +144,7 @@ class Moveset
     public function setNature(string $nature): static
     {
         $this->nature = $nature;
+
         return $this;
     }
 
@@ -149,6 +156,7 @@ class Moveset
     public function setVotes(int $votes): static
     {
         $this->votes = $votes;
+
         return $this;
     }
 
@@ -160,12 +168,14 @@ class Moveset
     public function setAuthor(?string $author): static
     {
         $this->author = $author;
+
         return $this;
     }
 
     public function incrementVotes(): static
     {
-        $this->votes++;
+        ++$this->votes;
+
         return $this;
     }
 
@@ -177,6 +187,7 @@ class Moveset
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -188,6 +199,7 @@ class Moveset
     public function setIsApproved(bool $isApproved): static
     {
         $this->isApproved = $isApproved;
+
         return $this;
     }
 
@@ -199,6 +211,7 @@ class Moveset
     public function setIsDefault(bool $isDefault): static
     {
         $this->isDefault = $isDefault;
+
         return $this;
     }
 
@@ -210,6 +223,7 @@ class Moveset
     public function setSuggestedDefault(bool $suggestedDefault): static
     {
         $this->suggestedDefault = $suggestedDefault;
+
         return $this;
     }
 }

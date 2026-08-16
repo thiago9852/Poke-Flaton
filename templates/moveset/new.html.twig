@@ -12,7 +12,7 @@
 
 {% block body %}
 	<div class="back-link-container">
-		<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="back-link">
+		<a href="{{ path('app_pokemon_detail', { name: pokemon.name }) }}" class="back-link btn-back-game">
 			<i class="fa-solid fa-arrow-left"></i>
 			{{ 'Voltar para'|trans }}
 			{{ pokemon.name|capitalize }}
@@ -195,10 +195,7 @@
 				</div>
 				<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
 					<div class="filter-buttons">
-						<button type="button" class="btn-filter active" data-filter="all">
-							<i class="fa-solid fa-layer-group"></i>
-							{{ 'Todos'|trans }}</button>
-						<button type="button" class="btn-filter" data-filter="lvl">
+						<button type="button" class="btn-filter active" data-filter="lvl">
 							<i class="fa-solid fa-circle-chevron-up"></i>
 							Lvl</button>
 						<button type="button" class="btn-filter" data-filter="tm">
@@ -257,25 +254,46 @@
 					{% set moveName = move.name is defined ? move.name : move %}
 					{% set learnMethod = move.learn_method is defined ? move.learn_method : 'base' %}
 
-					<div class="available-move-card" data-move-name="{{ moveName }}" data-learn-method="{{ learnMethod }}" data-locked="false" onclick="addMoveToFirstEmptySlot('{{ moveName }}')" onmouseenter="showMoveTooltip(event, '{{ moveName }}')" onmouseleave="hideMoveTooltip()">
-						<span class="move-name">
-							<i class="fa-solid fa-lock" style="color: #ef4444; margin-right: 6px; display: none;" title="{{ 'TM Bloqueada'|trans }}"></i>
-							{{ moveName|replace({'-': ' '})|title }}
-						</span>
-						<div class="move-badges">
-
-							{% if learnMethod == 'both' %}
+					{% if learnMethod == 'both' %}
+						<!-- Card 1: Por Nível -->
+						<div class="available-move-card" data-move-name="{{ moveName }}" data-learn-method="base" data-locked="false" onclick="addMoveToFirstEmptySlot('{{ moveName }}', 'base')" onmouseenter="showMoveTooltip(event, '{{ moveName }}')" onmouseleave="hideMoveTooltip()">
+							<span class="move-name">
+								<i class="fa-solid fa-lock" style="color: #ef4444; margin-right: 6px; display: none;" title="{{ 'TM Bloqueada'|trans }}"></i>
+								{{ moveName|replace({'-': ' '})|title }}
+							</span>
+							<div class="move-badges">
 								<span class="learn-method-badge method-base">Lvl</span>
-								<span class="learn-method-badge method-tm">TM</span>
-							{% elseif learnMethod == 'TM' %}
-								<span class="learn-method-badge method-tm">TM</span>
-							{% else %}
-								<span class="learn-method-badge method-base">Lvl</span>
-							{% endif %}
-
-							<span class="type-badge-sm type-badge-pr type-badge-loading"></span>
+								<span class="type-badge-sm type-badge-pr type-badge-loading"></span>
+							</div>
 						</div>
-					</div>
+						
+						<!-- Card 2: Por TM -->
+						<div class="available-move-card" data-move-name="{{ moveName }}" data-learn-method="TM" data-locked="false" onclick="addMoveToFirstEmptySlot('{{ moveName }}', 'TM')" onmouseenter="showMoveTooltip(event, '{{ moveName }}')" onmouseleave="hideMoveTooltip()">
+							<span class="move-name">
+								<i class="fa-solid fa-lock" style="color: #ef4444; margin-right: 6px; display: none;" title="{{ 'TM Bloqueada'|trans }}"></i>
+								{{ moveName|replace({'-': ' '})|title }}
+							</span>
+							<div class="move-badges">
+								<span class="learn-method-badge method-tm">TM</span>
+								<span class="type-badge-sm type-badge-pr type-badge-loading"></span>
+							</div>
+						</div>
+					{% else %}
+						<div class="available-move-card" data-move-name="{{ moveName }}" data-learn-method="{{ learnMethod }}" data-locked="false" onclick="addMoveToFirstEmptySlot('{{ moveName }}', '{{ learnMethod }}')" onmouseenter="showMoveTooltip(event, '{{ moveName }}')" onmouseleave="hideMoveTooltip()">
+							<span class="move-name">
+								<i class="fa-solid fa-lock" style="color: #ef4444; margin-right: 6px; display: none;" title="{{ 'TM Bloqueada'|trans }}"></i>
+								{{ moveName|replace({'-': ' '})|title }}
+							</span>
+							<div class="move-badges">
+								{% if learnMethod == 'TM' %}
+									<span class="learn-method-badge method-tm">TM</span>
+								{% else %}
+									<span class="learn-method-badge method-base">Lvl</span>
+								{% endif %}
+								<span class="type-badge-sm type-badge-pr type-badge-loading"></span>
+							</div>
+						</div>
+					{% endif %}
 
 				{% endfor %}
 			</div>

@@ -1,19 +1,19 @@
 :root {
     /* Paletas */
-    --bg-main: #0c0d12;
-    --bg-card: rgba(20, 21, 30, 0.7);
+    --bg-main: #101110;
+    --bg-card: rgba(23, 25, 23, 0.8);
     --bg-header: rgba(14, 15, 23, 0.85);
     
     --border-color: rgba(255, 255, 255, 0.06);
-    --border-focus: #8b5cf6;
+    --border-focus: #c5f05c;
     
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
+    --text-primary: #f0f2ec;
+    --text-secondary: #a4aaa1;
     --text-muted: #6b7280;
     
     /* Brand Cores */
-    --color-primary: #8b5cf6;
-    --color-primary-glow: rgba(139, 92, 246, 0.4);
+    --color-primary: #c5f05c;
+    --color-primary-glow: rgba(197, 240, 92, 0.4);
     --color-secondary: #06b6d4;
     --color-secondary-glow: rgba(6, 182, 212, 0.4);
     
@@ -37,7 +37,7 @@
     --type-dark: #374151;
     --type-fairy: #f472b6;
 
-    /* Espaçamentos e Bordas */
+    /* EspaÃ§amentos e Bordas */
     --radius-sm: 8px;
     --radius-md: 16px;
     --radius-lg: 24px;
@@ -54,7 +54,7 @@
 
 body {
     font-family: 'Plus Jakarta Sans', 'Outfit', system-ui, -apple-system, sans-serif;
-    background-image: linear-gradient(rgba(12, 13, 18, 0.82), rgba(12, 13, 18, 0.88)), url('../image/pokemon-wallpaper.webp');
+    background-image: linear-gradient(rgba(16, 17, 16, 0.84), rgba(16, 17, 16, 0.88)), url('../image/pokemon-wallpaper.webp');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -209,7 +209,7 @@ a {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     backdrop-filter: blur(16px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(197, 240, 92, 0.1);
     list-style: none;
     padding: 6px;
     z-index: 200;
@@ -430,7 +430,7 @@ a {
     font-weight: 600;
 }
 
-/* Floating Pokémon do Dia Button */
+/* Floating PokÃ©mon do Dia Button */
 .floating-game-btn {
     position: fixed;
     bottom: 30px;
@@ -479,7 +479,7 @@ a {
     .floating-game-btn {
         bottom: 20px;
         right: 20px;
-        padding: 10px; /* Círculo perfeito no mobile */
+        padding: 10px; /* CÃ­rculo perfeito no mobile */
         border-radius: 50%;
     }
     
@@ -534,3 +534,100 @@ a {
         display: inline;
     }
 }
+
+/* Layout da Navbar (Logo - Esquerda, Opções - Centro, Login/Idioma - Direita) */
+@media (min-width: 769px) {
+    .app-nav {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        flex: 1;
+        margin-left: 40px;
+        gap: 0;
+    }
+    .nav-center {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin: 0 auto; /* Empurra opções para o centro */
+    }
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-center, .nav-right {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+    }
+}
+
+/* Bandeiras do seletor de idiomas */
+.lang-flag-img {
+    width: 20px;
+    height: auto;
+    border-radius: 2px;
+    transition: var(--transition-smooth);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.lang-flag-img.inactive {
+    filter: grayscale(100%);
+    opacity: 0.45;
+}
+
+.lang-flag-img.active {
+    filter: none;
+    opacity: 1;
+}
+
+/* Google Sign-in na Navbar */
+.nav-google-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #1a73e8, #1557b0);
+    color: #ffffff !important;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+    border: none;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nav-google-btn:hover {
+    background: linear-gradient(135deg, #1765cc, #124996);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.45);
+    transform: translateY(-1px);
+}
+
+.nav-g-signin {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Seção Oculta de Admin no Login */
+.admin-hidden-section summary::-webkit-details-marker {
+    display: none;
+}
+.admin-hidden-section summary {
+    list-style: none;
+}
+.admin-hidden-section[open] summary {
+    opacity: 1 !important;
+    color: var(--color-secondary) !important;
+}
+
+
+

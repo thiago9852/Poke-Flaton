@@ -7,17 +7,13 @@ use App\Service\PokeApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TeamController extends AbstractController
 {
-    private PokeApiService $pokeApiService;
-
-    public function __construct(PokeApiService $pokeApiService)
+    public function __construct(private readonly PokeApiService $pokeApiService)
     {
-        $this->pokeApiService = $pokeApiService;
     }
 
     #[Route('/team', name: 'app_team_builder')]
@@ -39,9 +35,12 @@ class TeamController extends AbstractController
         }
         ksort($naturesMap);
 
+        $items = $this->pokeApiService->getItems();
+
         return $this->render('team/index.html.twig', [
             'rolesList' => $rolesList,
             'naturesMap' => $naturesMap,
+            'items' => $items,
         ]);
     }
 
@@ -62,13 +61,13 @@ class TeamController extends AbstractController
         );
 
         $defaultMoveset = null;
-        if (!empty($movesets)) {
+        if ($movesets !== []) {
             $defaultMoveset = $movesets[0];
         }
 
         // Carrega Golpes Base (Por Nível) do scratch/default_base_moves.json
         $baseMovesList = [];
-        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir').'/scratch/default_base_moves.json';
         if (file_exists($defaultBaseMovesPath)) {
             $defaultBaseMovesData = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
             if (isset($defaultBaseMovesData[$nameLower])) {
@@ -88,7 +87,7 @@ class TeamController extends AbstractController
                 'type' => $md['type'] ?? 'normal',
                 'category' => $md['category'] ?? 'status',
                 'power' => $md['power'] ?? '—',
-                'accuracy' => $md['accuracy'] ? $md['accuracy'] . '%' : '—',
+                'accuracy' => $md['accuracy'] ? $md['accuracy'].'%' : '—',
                 'description' => $md['description'] ?? 'Efeito do golpe.',
                 'type_icon' => $md['type_icon'] ?? '',
             ];
@@ -107,7 +106,9 @@ class TeamController extends AbstractController
         foreach ($movesets as $ms) {
             $msMoves = [];
             foreach ($ms->getMoves() as $mName) {
-                if (empty($mName)) continue;
+                if (empty($mName)) {
+                    continue;
+                }
                 $mSlug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($mName))));
                 $md = $this->pokeApiService->getMoveDetails($mSlug);
                 $msMoves[] = [
@@ -117,13 +118,13 @@ class TeamController extends AbstractController
                     'type' => $md['type'] ?? 'normal',
                     'category' => $md['category'] ?? 'status',
                     'power' => $md['power'] ?? '—',
-                    'accuracy' => $md['accuracy'] ? $md['accuracy'] . '%' : '—',
+                    'accuracy' => $md['accuracy'] ? $md['accuracy'].'%' : '—',
                     'description' => $md['description'] ?? 'Efeito do golpe.',
                     'type_icon' => $md['type_icon'] ?? '',
                 ];
             }
 
-            $typeLabel = match($ms->getType()) {
+            $typeLabel = match ($ms->getType()) {
                 'pvp' => 'PvP',
                 'dg' => 'Dungeon (DG)',
                 default => 'Padrão',
@@ -152,6 +153,8 @@ class TeamController extends AbstractController
                 'display_name' => ucwords(str_replace(['-mega', '-x', '-y', '-z', '-'], [' Mega', ' X', ' Y', ' Z', ' '], $pokemon['name'])),
                 'sprite' => $pokemon['sprite_official'],
                 'types' => $pokemon['types'],
+                'moves_learn_info' => $pokemon['moves'] ?? [],
+                'abilities' => $pokemon['abilities'] ?? [],
             ],
             'baseMoves' => $baseMovesDetailed,
             'moves' => $baseMovesDetailed,

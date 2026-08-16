@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form;
 
 use App\Entity\User;
@@ -31,7 +33,7 @@ class RegistrationType extends AbstractType
                 RegionEnum::Galar => 'VIII',
                 RegionEnum::Paldea => 'IX',
             };
-            $regionChoices[$region->value . ' — Gen ' . $genRoman] = $region->value;
+            $regionChoices[$region->value.' — Gen '.$genRoman] = $region->value;
         }
 
         $builder
@@ -62,7 +64,7 @@ class RegistrationType extends AbstractType
                 'type' => PasswordType::class,
                 'invalid_message' => 'As senhas informadas não coincidem.',
                 'required' => true,
-                'first_options'  => ['label' => 'Senha'],
+                'first_options' => ['label' => 'Senha'],
                 'second_options' => ['label' => 'Confirmar Senha'],
                 'constraints' => [
                     new NotBlank(['message' => 'A senha não pode estar vazia.']),

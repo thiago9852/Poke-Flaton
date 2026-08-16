@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}PokeFlaton |
+{% block title %}Mov Set |
 	{{ pokemon.name|abbr_pokemon_name }}
 {% endblock %}
 
@@ -70,7 +70,7 @@
 		<div class="pokemon-info-column">
 			{% include 'partials/pokemon_main_card.html.twig' with {'pokemon': pokemon, 'typeDetails': typeDetails} %}
 			{% include 'partials/pokemon_stats_card.html.twig' with {'pokemon': pokemon} %}
-			{% include 'partials/pokemon_locations_card.html.twig' with {'pokemon': pokemon, 'locations': locations} %}
+			{# {% include 'partials/pokemon_locations_card.html.twig' with {'pokemon': pokemon, 'locations': locations} %} #}
 		</div>
 
 		<!-- Coluna direita: Seção de Movesets -->

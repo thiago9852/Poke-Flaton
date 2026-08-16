@@ -43,6 +43,7 @@ class PokemonLocation
     public function setPokemonName(string $pokemonName): static
     {
         $this->pokemonName = $pokemonName;
+
         return $this;
     }
 
@@ -54,6 +55,7 @@ class PokemonLocation
     public function setLocationName(string $locationName): static
     {
         $this->locationName = $locationName;
+
         return $this;
     }
 
@@ -65,6 +67,7 @@ class PokemonLocation
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -76,6 +79,7 @@ class PokemonLocation
     public function setIsApproved(bool $isApproved): static
     {
         $this->isApproved = $isApproved;
+
         return $this;
     }
 }

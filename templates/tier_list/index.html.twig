@@ -1,19 +1,18 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}
-	{{ 'Tier Lists da Comunidade'|trans }} | PokeFlaton
+	{{ 'Tier Lists da Comunidade'|trans }} | Mov Set
 {% endblock %}
 
 {% block stylesheets %}
 	{{ parent() }}
-	<link rel="stylesheet" href="{{ asset('css/tier-list.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/tier-list.css') }}?v=1.1">
 {% endblock %}
 
 {% block body %}
 	<div class="tier-list-container">
 		<header class="tier-list-header">
 			<h1>{{ 'Tier Lists da Comunidade'|trans }}</h1>
-			<p>{{ 'Explore, filtre e inspire-se nas classificações de Pokémon criadas pelos treinadores.'|trans }}</p>
 		</header>
 
 		<!-- Actions Bar -->
@@ -52,8 +51,14 @@
 		<section class="gallery-grid">
 			{% for list in tierLists %}
 				{% set totalPokes = 0 %}
+				{% set previewSprites = [] %}
 				{% for row in list.state %}
 					{% set totalPokes = totalPokes + row.pokemons|length %}
+					{% for p in row.pokemons %}
+						{% if previewSprites|length < 5 and p.sprite is defined and p.sprite is not empty %}
+							{% set previewSprites = previewSprites|merge([p.sprite]) %}
+						{% endif %}
+					{% endfor %}
 				{% endfor %}
 
 				<div class="tier-list-card" onclick="window.location.href='{{ path('app_tier_list_view', { id: list.id }) }}'">
@@ -62,7 +67,7 @@
 						<div class="card-meta">
 							<span>
 								<i class="fa-solid fa-user"></i>
-								{{ list.user ? list.user.username : 'Anônimo'|trans }}
+								{{ list.user ? list.user.displayName : 'Anônimo'|trans }}
 							</span>
 							<span>&bull;</span>
 							<span>
@@ -84,6 +89,17 @@
 							{% endfor %}
 						</div>
 					</div>
+
+					{% if previewSprites is not empty %}
+						<div class="card-preview-avatars">
+							{% for sprite in previewSprites %}
+								<img src="{{ sprite }}" class="preview-avatar-img" alt="Pokemon" loading="lazy">
+							{% endfor %}
+							{% if totalPokes > 5 %}
+								<span class="preview-avatar-more">+{{ totalPokes - 5 }}</span>
+							{% endif %}
+						</div>
+					{% endif %}
 
 					<div class="card-summary">
 						<i class="fa-solid fa-gamepad"></i>

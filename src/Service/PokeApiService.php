@@ -1,25 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
-use App\Service\PokeApi\PokeApiValidator;
 use App\Service\PokeApi\PokeApiDetailsFetcher;
 use App\Service\PokeApi\PokeApiPokemonFetcher;
+use App\Service\PokeApi\PokeApiValidator;
 
 class PokeApiService
 {
-    private PokeApiValidator $validator;
-    private PokeApiDetailsFetcher $detailsFetcher;
-    private PokeApiPokemonFetcher $pokemonFetcher;
-
-    public function __construct(
-        PokeApiValidator $validator,
-        PokeApiDetailsFetcher $detailsFetcher,
-        PokeApiPokemonFetcher $pokemonFetcher
-    ) {
-        $this->validator = $validator;
-        $this->detailsFetcher = $detailsFetcher;
-        $this->pokemonFetcher = $pokemonFetcher;
+    public function __construct(private readonly PokeApiValidator $validator, private readonly PokeApiDetailsFetcher $detailsFetcher, private readonly PokeApiPokemonFetcher $pokemonFetcher)
+    {
     }
 
     public function getMegaEvolutions(): array

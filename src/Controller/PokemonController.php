@@ -2,26 +2,24 @@
 
 namespace App\Controller;
 
-use App\Service\PokeApiService;
-use App\Repository\MovesetRepository;
-use App\Enum\TypeEnum;
 use App\Entity\PokemonAccess;
+use App\Entity\PokemonLocation;
+use App\Enum\TypeEnum;
+use App\Repository\MovesetRepository;
 use App\Repository\PokemonAccessRepository;
+use App\Service\PokeApiService;
+use App\Service\TrainerProfileService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Service\TrainerProfileService;
 
 class PokemonController extends AbstractController
 {
-    private PokeApiService $pokeApiService;
-
-    public function __construct(PokeApiService $pokeApiService)
+    public function __construct(private readonly PokeApiService $pokeApiService)
     {
-        $this->pokeApiService = $pokeApiService;
     }
 
     #[Route('/', name: 'app_home')]
@@ -30,8 +28,8 @@ class PokemonController extends AbstractController
         $trending = $pokemonAccessRepository->findTrending(8);
         $trendingPokemons = [];
 
-        if (!empty($trending)) {
-            $names = array_map(fn($t) => $t->getPokemonName(), $trending);
+        if ($trending !== []) {
+            $names = array_map(fn ($t) => $t->getPokemonName(), $trending);
             $details = $this->pokeApiService->getPokemonDetailsBatchByNames($names);
 
             foreach ($trending as $access) {
@@ -47,6 +45,34 @@ class PokemonController extends AbstractController
                         'views' => $access->getViews(),
                     ];
                 }
+            }
+        }
+
+        // Pokémon mais visto (primeiro do trending)
+        $mostViewedPokemon = $trendingPokemons[0] ?? null;
+
+        // Último moveset criado
+        $lastMoveset = $movesetRepository->findOneBy(
+            ['isApproved' => true],
+            ['createdAt' => 'DESC']
+        );
+        if (!$lastMoveset) {
+            $lastMoveset = $movesetRepository->findOneBy([], ['createdAt' => 'DESC']);
+        }
+        $lastMovesetData = null;
+        if ($lastMoveset) {
+            try {
+                $pDetails = $this->pokeApiService->getPokemonDetails(strtolower($lastMoveset->getPokemonName()));
+                $lastMovesetData = [
+                    'id' => $lastMoveset->getId(),
+                    'pokemonName' => $lastMoveset->getPokemonName(),
+                    'name' => $lastMoveset->getType(),
+                    'sprite' => $pDetails['sprite_official'] ?? ($pDetails['sprite'] ?? ''),
+                    'creator' => $lastMoveset->getAuthor() ?: 'Visitante',
+                    'createdAt' => $lastMoveset->getCreatedAt()->format('d/m/Y H:i'),
+                ];
+            } catch (\Exception) {
+                // ignore
             }
         }
 
@@ -86,7 +112,7 @@ class PokemonController extends AbstractController
         $movesetCounts = $movesetRepository->getMovesetCountsGroupedByPokemon();
 
         $typeDetails = [];
-        foreach (TypeEnum::getCasesForModule('type') as $typeCase) {
+        foreach (TypeEnum::cases() as $typeCase) {
             $typeDetails[$typeCase->value] = $this->pokeApiService->getTypeDetails($typeCase->value);
         }
 
@@ -95,6 +121,8 @@ class PokemonController extends AbstractController
             'generations' => $generations,
             'movesetCounts' => $movesetCounts,
             'typeDetails' => $typeDetails,
+            'lastMovesetData' => $lastMovesetData,
+            'mostViewedPokemon' => $mostViewedPokemon,
         ]);
     }
 
@@ -119,25 +147,21 @@ class PokemonController extends AbstractController
 
         // Filtra pela geração se especificado
         if (!empty($genFilter)) {
-            $genInt = (int)$genFilter;
-            $basicList = array_filter($basicList, function ($p) use ($genInt) {
-                return PokeApiService::getGenerationById($p['dex_id'] ?? $p['id']) === $genInt;
-            });
+            $genInt = (int) $genFilter;
+            $basicList = array_filter($basicList, fn ($p) => PokeApiService::getGenerationById($p['dex_id'] ?? $p['id']) === $genInt);
         }
 
         // Filtra pelo termo de busca
         if (!empty($search)) {
             $searchLower = strtolower(trim($search));
-            $basicList = array_filter($basicList, function ($p) use ($searchLower) {
-                return str_contains($p['name'], $searchLower) || strval($p['id']) === $searchLower;
-            });
+            $basicList = array_filter($basicList, fn ($p) => str_contains($p['name'], $searchLower) || strval($p['id']) === $searchLower);
         }
 
         // Adiciona megas se não estiver filtrando por tipo
         if (empty($typeFilter)) {
             $finalList = [];
             $megas = $this->pokeApiService->getMegaEvolutions();
-            
+
             // Coleta os IDs de todas as Megas para evitar duplicá-las quando percorrermos o basicList
             $megaIds = [];
             foreach ($megas as $baseId => $megasArr) {
@@ -164,9 +188,9 @@ class PokemonController extends AbstractController
                             $finalList[] = [
                                 'id' => $mega['id'],
                                 'name' => $mega['name'],
-                                'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' . $mega['id'] . '.png',
+                                'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'.$mega['id'].'.png',
                                 'types' => $mega['types'],
-                                'dex_id' => $p['id']
+                                'dex_id' => $p['id'],
                             ];
                         }
                     }
@@ -178,7 +202,7 @@ class PokemonController extends AbstractController
             if (!empty($search) && str_contains(strtolower($search), 'mega')) {
                 $searchLower = strtolower(trim($search));
                 foreach ($this->pokeApiService->getMegaEvolutions() as $baseId => $megasArr) {
-                    if (!empty($genFilter) && PokeApiService::getGenerationById($baseId) !== (int)$genFilter) {
+                    if (!empty($genFilter) && PokeApiService::getGenerationById($baseId) !== (int) $genFilter) {
                         continue;
                     }
                     foreach ($megasArr as $mega) {
@@ -198,9 +222,9 @@ class PokemonController extends AbstractController
                                 $finalList[] = [
                                     'id' => $mega['id'],
                                     'name' => $mega['name'],
-                                    'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' . $mega['id'] . '.png',
+                                    'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'.$mega['id'].'.png',
                                     'types' => $mega['types'],
-                                    'dex_id' => $baseId
+                                    'dex_id' => $baseId,
                                 ];
                             }
                         }
@@ -221,6 +245,7 @@ class PokemonController extends AbstractController
                     if ($dexIdA === $dexIdB) {
                         return $b['id'] <=> $a['id'];
                     }
+
                     return $dexIdB <=> $dexIdA;
 
                 case 'name_asc':
@@ -234,6 +259,7 @@ class PokemonController extends AbstractController
                     if ($dexIdA === $dexIdB) {
                         return $a['id'] <=> $b['id'];
                     }
+
                     return $dexIdA <=> $dexIdB;
             }
         });
@@ -250,7 +276,7 @@ class PokemonController extends AbstractController
         $movesetCounts = $movesetRepository->getMovesetCountsGroupedByPokemon();
 
         $typeDetails = [];
-        foreach (TypeEnum::getCasesForModule('type') as $typeCase) {
+        foreach (TypeEnum::cases() as $typeCase) {
             $typeDetails[$typeCase->value] = $this->pokeApiService->getTypeDetails($typeCase->value);
         }
 
@@ -258,7 +284,7 @@ class PokemonController extends AbstractController
             'pokemons' => $pokemons,
             'currentPage' => $page,
             'lastPage' => $lastPage,
-            'allTypes' => TypeEnum::getCasesForModule('type'),
+            'allTypes' => TypeEnum::cases(),
             'selectedType' => $typeFilter,
             'selectedGen' => $genFilter,
             'allowedGenerations' => $this->pokeApiService->getAllowedGenerations(),
@@ -275,7 +301,7 @@ class PokemonController extends AbstractController
         MovesetRepository $movesetRepository,
         PokemonAccessRepository $pokemonAccessRepository,
         EntityManagerInterface $entityManager,
-        TrainerProfileService $trainerProfileService
+        TrainerProfileService $trainerProfileService,
     ): Response {
         $trainerProfileService->initializeMovesetColumns();
 
@@ -288,7 +314,7 @@ class PokemonController extends AbstractController
             if (!$isAllowed) {
                 throw $this->createNotFoundException('Pokémon não encontrado.');
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw $this->createNotFoundException('Pokémon não encontrado.');
         }
 
@@ -305,7 +331,7 @@ class PokemonController extends AbstractController
             $pokemonAccess->setLastAccessedAt(new \DateTime());
             $entityManager->persist($pokemonAccess);
             $entityManager->flush();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // Ignore
         }
 
@@ -314,28 +340,28 @@ class PokemonController extends AbstractController
 
         // Buscar Pokémon anterior com base na espécie
         $prevPokemon = null;
-        for ($prevId = $pokemon['species_id'] - 1; $prevId >= 1; $prevId--) {
+        for ($prevId = $pokemon['species_id'] - 1; $prevId >= 1; --$prevId) {
             if (!$this->pokeApiService->isPokemonAllowed($prevId)) {
                 continue;
             }
             try {
                 $prevPokemon = $this->pokeApiService->getPokemonDetails(strval($prevId));
                 break;
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 // ignore
             }
         }
 
         // Buscar Pokémon próximo com base na espécie
         $nextPokemon = null;
-        for ($nextId = $pokemon['species_id'] + 1; $nextId <= 1025; $nextId++) {
+        for ($nextId = $pokemon['species_id'] + 1; $nextId <= 1025; ++$nextId) {
             if (!$this->pokeApiService->isPokemonAllowed($nextId)) {
                 continue;
             }
             try {
                 $nextPokemon = $this->pokeApiService->getPokemonDetails(strval($nextId));
                 break;
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 // ignore
             }
         }
@@ -349,7 +375,7 @@ class PokemonController extends AbstractController
         // Buscar detalhes de cada golpe, habilidade e nature contidos nos movesets
         $moveDetails = [];
         $abilityDetails = [];
-        
+
         $allNatures = $this->pokeApiService->getNatures();
         $naturesMap = [];
         foreach ($allNatures as $n) {
@@ -391,7 +417,7 @@ class PokemonController extends AbstractController
                     }
                 }
             }
-            if (!empty($natureCounts)) {
+            if ($natureCounts !== []) {
                 arsort($natureCounts); // Ordena mantendo a chave (nature), do maior para o menor
                 $recommendedNatures[$tabType] = array_key_first($natureCounts);
             }
@@ -428,19 +454,19 @@ class PokemonController extends AbstractController
                 }
             }
 
-            if (!empty($overallNatureCounts)) {
+            if ($overallNatureCounts !== []) {
                 arsort($overallNatureCounts);
                 $mostUsedNature = array_key_first($overallNatureCounts);
                 $mostUsedNaturePercent = (int) round(($overallNatureCounts[$mostUsedNature] / $totalMovesets) * 100);
             }
 
-            if (!empty($overallItemCounts)) {
+            if ($overallItemCounts !== []) {
                 arsort($overallItemCounts);
                 $mostUsedItem = array_key_first($overallItemCounts);
                 $mostUsedItemPercent = (int) round(($overallItemCounts[$mostUsedItem] / $totalMovesets) * 100);
             }
 
-            if (!empty($overallAbilityCounts)) {
+            if ($overallAbilityCounts !== []) {
                 arsort($overallAbilityCounts);
                 $mostUsedAbility = array_key_first($overallAbilityCounts);
                 $mostUsedAbilityPercent = (int) round(($overallAbilityCounts[$mostUsedAbility] / $totalMovesets) * 100);
@@ -449,7 +475,7 @@ class PokemonController extends AbstractController
 
         // Carrega default base moves do JSON
         $defaultBaseMoves = [];
-        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir').'/scratch/default_base_moves.json';
         if (file_exists($defaultBaseMovesPath)) {
             $defaultBaseMovesData = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
             $pokemonNameLower = strtolower($pokemon['name']);
@@ -464,7 +490,7 @@ class PokemonController extends AbstractController
             }
         }
 
-        $locations = $entityManager->getRepository(\App\Entity\PokemonLocation::class)->findBy(
+        $locations = $entityManager->getRepository(PokemonLocation::class)->findBy(
             ['pokemonName' => $pokemon['name']],
             ['createdAt' => 'ASC']
         );
@@ -501,15 +527,13 @@ class PokemonController extends AbstractController
         }
 
         $allBasicList = $this->pokeApiService->getPokemonBasicList();
-        
+
         // Filtra instantaneamente a lista que já está em cache
-        $filtered = array_filter($allBasicList, function ($p) use ($query) {
-            return str_contains($p['name'], $query) || strval($p['id']) === $query;
-        });
+        $filtered = array_filter($allBasicList, fn ($p) => str_contains($p['name'], $query) || strval($p['id']) === $query);
 
         // Adicionar megas se buscar por "mega"
         if (str_contains($query, 'mega')) {
-            foreach ($this->pokeApiService->getMegaEvolutions() as $baseId => $megas) {
+            foreach ($this->pokeApiService->getMegaEvolutions() as $megas) {
                 foreach ($megas as $mega) {
                     if (!$this->pokeApiService->isPokemonAllowed($mega['id'])) {
                         continue;
@@ -518,7 +542,7 @@ class PokemonController extends AbstractController
                         $filtered[] = [
                             'id' => $mega['id'],
                             'name' => $mega['name'],
-                            'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' . $mega['id'] . '.png',
+                            'sprite' => 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'.$mega['id'].'.png',
                         ];
                     }
                 }
@@ -526,15 +550,15 @@ class PokemonController extends AbstractController
         }
 
         // Limitar a 8 resultados para não estourar a tela do usuário
-        $filtered = array_slice($filtered, 0, 8); 
-        
+        $filtered = array_slice($filtered, 0, 8);
+
         $results = [];
         foreach ($filtered as $item) {
             $results[] = [
                 'id' => $item['id'],
                 'name' => ucfirst(str_replace('-', ' ', $item['name'])),
                 'sprite' => $item['sprite'],
-                'url' => $this->generateUrl('app_pokemon_detail', ['name' => $item['name']])
+                'url' => $this->generateUrl('app_pokemon_detail', ['name' => $item['name']]),
             ];
         }
 
@@ -552,7 +576,7 @@ class PokemonController extends AbstractController
         $allMovesMap = [];
 
         // 1. Golpes de TMs
-        $tmsJsonPath = $this->getParameter('kernel.project_dir') . '/scratch/tms.json';
+        $tmsJsonPath = $this->getParameter('kernel.project_dir').'/scratch/tms.json';
         if (file_exists($tmsJsonPath)) {
             $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?: [];
             foreach ($allTms as $tm) {
@@ -567,15 +591,13 @@ class PokemonController extends AbstractController
 
         // 2. Golpes Base
         $defaultBaseMoves = [];
-        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir').'/scratch/default_base_moves.json';
         if (file_exists($defaultBaseMovesPath)) {
             $rawBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
             foreach ($rawBaseMoves as $pkName => $moves) {
                 if (is_array($moves)) {
                     $pkKey = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($pkName))));
-                    $defaultBaseMoves[$pkKey] = array_map(function ($m) {
-                        return preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m))));
-                    }, $moves);
+                    $defaultBaseMoves[$pkKey] = array_map(fn ($m) => preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m)))), $moves);
 
                     foreach ($moves as $m) {
                         $slug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m))));
@@ -603,7 +625,7 @@ class PokemonController extends AbstractController
                         $basePokemon[] = [
                             'name' => $pkSlug,
                             'display_name' => ucfirst(str_replace('-', ' ', $pkSlug)),
-                            'base_slot' => 'm' . ($idx + 1)
+                            'base_slot' => 'm'.($idx + 1),
                         ];
                     }
                 }
@@ -628,103 +650,7 @@ class PokemonController extends AbstractController
     #[Route('/pokedex', name: 'app_pokedex')]
     public function pokedex(Request $request): Response
     {
-        $user = $this->getUser();
-        $caught = [];
-        if ($user) {
-            $caught = $user->getCaughtPokemon();
-        }
-
-        // Pega a lista básica de todos os Pokémons permitidos
-        $basicList = $this->pokeApiService->getPokemonBasicList();
-
-        $allGenerationsMetadata = [
-            1 => ['number' => 1, 'games' => 'Red & Blue', 'region' => 'Kanto'],
-            2 => ['number' => 2, 'games' => 'Gold & Silver', 'region' => 'Johto'],
-            3 => ['number' => 3, 'games' => 'Ruby & Sapphire', 'region' => 'Hoenn'],
-            4 => ['number' => 4, 'games' => 'Diamond & Pearl', 'region' => 'Sinnoh'],
-            5 => ['number' => 5, 'games' => 'Black & White', 'region' => 'Unova'],
-            6 => ['number' => 6, 'games' => 'X & Y', 'region' => 'Kalos'],
-            7 => ['number' => 7, 'games' => 'Sun & Moon', 'region' => 'Alola'],
-            8 => ['number' => 8, 'games' => 'Sword & Shield', 'region' => 'Galar'],
-            9 => ['number' => 9, 'games' => 'Scarlet & Violet', 'region' => 'Paldea'],
-        ];
-
-        $allowedGens = $this->pokeApiService->getAllowedGenerations();
-
-        $pokedexList = [];
-        $totalRegistered = 0;
-        
-        foreach ($basicList as $p) {
-            $gen = PokeApiService::getGenerationById($p['dex_id'] ?? $p['id']);
-            if (!in_array($gen, $allowedGens)) {
-                continue;
-            }
-
-            $pNameLower = strtolower($p['name']);
-            $isCaught = false;
-            $caughtAt = null;
-
-            // Verifica se o usuário capturou o Pokémon
-            if (array_key_exists($pNameLower, $caught)) {
-                $isCaught = true;
-                $caughtAt = $caught[$pNameLower];
-            } elseif (in_array($pNameLower, $caught)) {
-                $isCaught = true;
-            }
-
-            if ($isCaught) {
-                $totalRegistered++;
-            }
-
-            $pokedexList[] = [
-                'id' => $p['id'],
-                'dex_id' => $p['dex_id'] ?? $p['id'],
-                'name' => $p['name'],
-                'display_name' => ucfirst(str_replace('-', ' ', $p['name'])),
-                'sprite' => $p['sprite'],
-                'generation' => $gen,
-                'isCaught' => $isCaught,
-                'caughtAt' => $caughtAt
-            ];
-        }
-
-        // Aplica o filtro de busca se presente
-        $search = $request->query->get('q');
-        if (!empty($search)) {
-            $searchLower = strtolower(trim($search));
-            $pokedexList = array_filter($pokedexList, function ($p) use ($searchLower) {
-                return str_contains(strtolower($p['name']), $searchLower) || strval($p['id']) === $searchLower;
-            });
-        }
-
-        // Aplica o filtro de geração se presente
-        $genFilter = $request->query->get('gen');
-        if (!empty($genFilter)) {
-            $genInt = (int)$genFilter;
-            $pokedexList = array_filter($pokedexList, function ($p) use ($genInt) {
-                return $p['generation'] === $genInt;
-            });
-        }
-
-        // Ordena por id crescente
-        usort($pokedexList, fn($a, $b) => $a['id'] <=> $b['id']);
-
-        // Coleta nomes das regiões e contagens de gerações para o cabeçalho ou filtros
-        $generationsInfo = [];
-        foreach ($allowedGens as $genNum) {
-            if (isset($allGenerationsMetadata[$genNum])) {
-                $generationsInfo[] = $allGenerationsMetadata[$genNum];
-            }
-        }
-
-        return $this->render('pokemon/pokedex.html.twig', [
-            'pokedexList' => $pokedexList,
-            'totalCount' => count($pokedexList),
-            'totalRegistered' => $totalRegistered,
-            'allGenerations' => $generationsInfo,
-            'selectedGen' => $genFilter,
-            'search' => $search
-        ]);
+        return $this->redirectToRoute('app_home');
     }
 
     #[Route('/moves', name: 'app_move_search', methods: ['GET'])]
@@ -738,7 +664,7 @@ class PokemonController extends AbstractController
         $tmsMap = [];
 
         // Carrega TMs
-        $tmsJsonPath = $this->getParameter('kernel.project_dir') . '/scratch/tms.json';
+        $tmsJsonPath = $this->getParameter('kernel.project_dir').'/scratch/tms.json';
         if (file_exists($tmsJsonPath)) {
             $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?: [];
             foreach ($allTms as $tm) {
@@ -749,15 +675,13 @@ class PokemonController extends AbstractController
 
         // Carrega default base moves
         $defaultBaseMoves = [];
-        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir').'/scratch/default_base_moves.json';
         if (file_exists($defaultBaseMovesPath)) {
             $rawBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
             foreach ($rawBaseMoves as $pkName => $moves) {
                 if (is_array($moves)) {
                     $pkKey = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($pkName))));
-                    $defaultBaseMoves[$pkKey] = array_map(function ($m) {
-                        return preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m))));
-                    }, $moves);
+                    $defaultBaseMoves[$pkKey] = array_map(fn ($m) => preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m)))), $moves);
                 }
             }
         }
@@ -771,7 +695,7 @@ class PokemonController extends AbstractController
                     $tmCode = $tmsMap[$moveNameNorm] ?? null;
 
                     foreach ($moveDetails['learned_by_pokemon'] as $p) {
-                        $pId = (int)$p['id'];
+                        $pId = (int) $p['id'];
                         if (!$this->pokeApiService->isPokemonAllowed($pId)) {
                             continue;
                         }
@@ -783,16 +707,16 @@ class PokemonController extends AbstractController
 
                         $pSlug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($p['name']))));
                         $baseName = explode('-', $pSlug)[0];
-                        
+
                         $isBaseMove = false;
                         $baseSlotLabel = null;
-                        
+
                         $matchedMoves = $defaultBaseMoves[$pSlug] ?? $defaultBaseMoves[$baseName] ?? null;
                         if ($matchedMoves !== null) {
                             $idx = array_search($moveNameNorm, $matchedMoves);
                             if ($idx !== false) {
                                 $isBaseMove = true;
-                                $baseSlotLabel = 'm' . ($idx + 1) . ' (move nº ' . ($idx + 1) . ')';
+                                $baseSlotLabel = 'm'.($idx + 1).' (move nº '.($idx + 1).')';
                             }
                         }
 
@@ -816,9 +740,9 @@ class PokemonController extends AbstractController
                     }
 
                     // Ordena por ID do Pokémon
-                    usort($results, fn($a, $b) => $a['id'] <=> $b['id']);
+                    usort($results, fn ($a, $b) => $a['id'] <=> $b['id']);
                 }
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $moveDetails = null;
             }
         }

@@ -2,8 +2,8 @@
 
 namespace App\Command;
 
-use App\Service\TrainerProfileService;
 use App\Service\PokeApi\PokeApiValidator;
+use App\Service\TrainerProfileService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,18 +12,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:db-seed',
-    description: 'Popula o banco de dados com os títulos padrão, avatares e sincroniza templates/avatares a partir do GitHub.',
+    description: 'Popula o banco de dados com avatares padrão e sincroniza templates/avatares a partir do GitHub.',
 )]
 class AppDbSeedCommand extends Command
 {
-    private TrainerProfileService $trainerProfileService;
-    private PokeApiValidator $pokeApiValidator;
-
-    public function __construct(TrainerProfileService $trainerProfileService, PokeApiValidator $pokeApiValidator)
+    public function __construct(private readonly TrainerProfileService $trainerProfileService, private readonly PokeApiValidator $pokeApiValidator)
     {
         parent::__construct();
-        $this->trainerProfileService = $trainerProfileService;
-        $this->pokeApiValidator = $pokeApiValidator;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -31,10 +26,6 @@ class AppDbSeedCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $io->title('Iniciando Seeding e Inicialização do Banco de Dados');
-
-        $io->section('Inicializando Títulos padrão...');
-        $this->trainerProfileService->initializeDatabaseAndTitles();
-        $io->success('Títulos inicializados com sucesso!');
 
         $io->section('Inicializando Variações de Pokémon padrão...');
         $this->pokeApiValidator->initializeDatabaseAndVariations();
@@ -49,7 +40,7 @@ class AppDbSeedCommand extends Command
             $avatarResult = $this->trainerProfileService->syncAvatarsFromApi();
             $io->success(sprintf('Sincronização de avatares concluída! %d novos inseridos.', $avatarResult['inserted']));
         } catch (\Exception $e) {
-            $io->warning('Não foi possível sincronizar os avatares do GitHub: ' . $e->getMessage());
+            $io->warning('Não foi possível sincronizar os avatares do GitHub: '.$e->getMessage());
         }
 
         $io->section('Sincronizando Templates a partir da API do GitHub...');
@@ -57,7 +48,7 @@ class AppDbSeedCommand extends Command
             $templateResult = $this->trainerProfileService->syncTemplatesFromApi();
             $io->success(sprintf('Sincronização de templates concluída! %d novos inseridos.', $templateResult['inserted']));
         } catch (\Exception $e) {
-            $io->warning('Não foi possível sincronizar os templates do GitHub: ' . $e->getMessage());
+            $io->warning('Não foi possível sincronizar os templates do GitHub: '.$e->getMessage());
         }
 
         $io->success('Processo de seeding de banco de dados concluído com sucesso!');

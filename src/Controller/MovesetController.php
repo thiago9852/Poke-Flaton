@@ -3,26 +3,22 @@
 namespace App\Controller;
 
 use App\Entity\Moveset;
+use App\Entity\PokemonSuggestion;
+use App\Entity\User;
 use App\Repository\MovesetRepository;
 use App\Service\PokeApiService;
-use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class MovesetController extends AbstractController
 {
-    private PokeApiService $pokeApiService;
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(PokeApiService $pokeApiService, EntityManagerInterface $entityManager)
+    public function __construct(private readonly PokeApiService $pokeApiService, private readonly EntityManagerInterface $entityManager)
     {
-        $this->pokeApiService = $pokeApiService;
-        $this->entityManager = $entityManager;
     }
 
     #[Route('/pokemon/{name}/moveset/new', name: 'app_moveset_new', methods: ['GET', 'POST'])]
@@ -37,13 +33,13 @@ class MovesetController extends AbstractController
             if (!$isAllowed) {
                 throw $this->createNotFoundException('Pokémon não encontrado.');
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw $this->createNotFoundException('Pokémon não encontrado.');
         }
 
         // Carregar Natures e Itens para preencher os selects do formulário
         $natures = $this->pokeApiService->getNatures();
-        $items   = $this->pokeApiService->getItems();
+        $items = $this->pokeApiService->getItems();
 
         // Calcular o limite de moves com base no estágio evolutivo e BST
         $maxMoves = $this->pokeApiService->calculateMaxMoves($pokemon['species_name'], $pokemon['stats']);
@@ -58,15 +54,15 @@ class MovesetController extends AbstractController
 
             // Capturar até 10 golpes e filtrar vazios
             $moves = [];
-            for ($i = 1; $i <= 10; $i++) {
-                $moveVal = $request->request->get('move' . $i);
+            for ($i = 1; $i <= 10; ++$i) {
+                $moveVal = $request->request->get('move'.$i);
                 if (!empty($moveVal)) {
                     $moves[] = $moveVal;
                 }
             }
 
             // Validações básicas
-            if (empty($type) || !in_array($type, ['padrao', 'pvp'])) {
+            if (empty($type) || !in_array($type, ['padrao', 'pvp', 'dg'])) {
                 $errors[] = 'Tipo de moveset inválido.';
             }
             if (count($moves) < 4 || count($moves) > $maxMoves) {
@@ -85,13 +81,15 @@ class MovesetController extends AbstractController
                 $moveset->setAbility($ability);
                 $moveset->setHeldItem($heldItem);
                 $moveset->setNature($nature);
-                
+
                 if ($this->getUser()) {
-                    $moveset->setAuthor($this->getUser()->getUserIdentifier());
+                    /** @var \App\Entity\User $currentUser */
+                    $currentUser = $this->getUser();
+                    $moveset->setAuthor($currentUser->getDisplayName());
                 } else {
                     $moveset->setAuthor('Anônimo'); // Se não tiver sessão, ficará como anônimo
                 }
-                
+
                 $moveset->setIsApproved(true);
                 $moveset->setIsDefault(false);
 
@@ -124,14 +122,12 @@ class MovesetController extends AbstractController
 
         $unlockedTms = [];
         if ($this->getUser()) {
-            $unlockedTms = array_map(function($move) {
-                return preg_replace('/-+/', '-', str_replace(' ', '-', strtolower($move)));
-            }, $this->getUser()->getUnlockedTms());
+            $unlockedTms = array_map(fn ($move) => preg_replace('/-+/', '-', str_replace(' ', '-', strtolower($move))), $this->getUser()->getUnlockedTms());
         }
 
         $allTms = [];
         if (strtolower($name) === 'smeargle') {
-            $tmsJsonPath = $this->getParameter('kernel.project_dir') . '/scratch/tms.json';
+            $tmsJsonPath = $this->getParameter('kernel.project_dir').'/scratch/tms.json';
             if (file_exists($tmsJsonPath)) {
                 $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?? [];
             }
@@ -139,7 +135,7 @@ class MovesetController extends AbstractController
 
         // Carrega default base moves
         $defaultBaseMoves = [];
-        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir') . '/scratch/default_base_moves.json';
+        $defaultBaseMovesPath = $this->getParameter('kernel.project_dir').'/scratch/default_base_moves.json';
         if (file_exists($defaultBaseMovesPath)) {
             $defaultBaseMovesData = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
             $pokemonNameLower = strtolower($pokemon['name']);
@@ -162,7 +158,7 @@ class MovesetController extends AbstractController
 
     private function addSuggestionVote(string $pokemonName, string $type, string $value): void
     {
-        $repo = $this->entityManager->getRepository(\App\Entity\PokemonSuggestion::class);
+        $repo = $this->entityManager->getRepository(PokemonSuggestion::class);
         $suggestion = $repo->findOneBy([
             'pokemonName' => $pokemonName,
             'type' => $type,
@@ -170,7 +166,7 @@ class MovesetController extends AbstractController
         ]);
 
         if (!$suggestion) {
-            $suggestion = new \App\Entity\PokemonSuggestion();
+            $suggestion = new PokemonSuggestion();
             $suggestion->setPokemonName($pokemonName);
             $suggestion->setType($type);
             $suggestion->setValue($value);
@@ -195,16 +191,15 @@ class MovesetController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
-            'votes' => $moveset->getVotes()
+            'votes' => $moveset->getVotes(),
         ]);
     }
 
     #[Route('/moveset/{id}/delete', name: 'app_moveset_delete', methods: ['POST'])]
     public function delete(
         int $id, Security $security,
-        MovesetRepository $movesetRepository
+        MovesetRepository $movesetRepository,
     ): JsonResponse {
-
         $moveset = $movesetRepository->find($id);
 
         if (!$moveset) {
@@ -227,8 +222,7 @@ class MovesetController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
-            'message' => 'Moveset excluído com sucesso!'
+            'message' => 'Moveset excluído com sucesso!',
         ]);
     }
 }
-

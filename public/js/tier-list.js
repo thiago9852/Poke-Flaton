@@ -795,7 +795,7 @@ function initTierList() {
 
         const rows = board.querySelectorAll('.tier-row');
         rows.forEach(row => {
-            row.style.borderBottom = '2px solid rgba(255, 255, 255, 0.08)';
+            row.style.borderBottom = '1px solid rgba(255, 255, 255, 0.08)';
         });
 
         html2canvas(wrapper, {

@@ -2,9 +2,9 @@
 
 namespace App\Service\PokeApi;
 
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PokeApiDetailsFetcher
 {
@@ -32,25 +32,20 @@ class PokeApiDetailsFetcher
         'shadow' => 10002,
     ];
 
-    private HttpClientInterface $httpClient;
-    private CacheInterface $cache;
-
-    public function __construct(HttpClientInterface $httpClient, CacheInterface $cache)
+    public function __construct(private readonly HttpClientInterface $httpClient, private readonly CacheInterface $cache)
     {
-        $this->httpClient = $httpClient;
-        $this->cache = $cache;
     }
 
     /**
-     * Obter detalhes de uma habilidade
+     * Obter detalhes de uma habilidade.
      */
     public function getAbilityDetails(string $abilityName): array
     {
-        return $this->cache->get('ability_' . $abilityName, function (ItemInterface $item) use ($abilityName) {
+        return $this->cache->get('ability_'.$abilityName, function (ItemInterface $item) use ($abilityName) {
             $item->expiresAfter(86400 * 30); // 30 dias
 
             try {
-                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/ability/' . strtolower($abilityName));
+                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/ability/'.strtolower($abilityName));
                 $data = $response->toArray();
 
                 $description = '';
@@ -62,7 +57,7 @@ class PokeApiDetailsFetcher
                         }
                     }
                 }
-                
+
                 if (empty($description) && !empty($data['effect_entries'])) {
                     foreach ($data['effect_entries'] as $entry) {
                         if ($entry['language']['name'] === 'en') {
@@ -76,7 +71,7 @@ class PokeApiDetailsFetcher
                     'name' => $data['name'],
                     'description' => $description ?: 'Nenhuma descrição disponível.',
                 ];
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 return [
                     'name' => $abilityName,
                     'description' => 'Habilidade recomendada para ativar a estratégia.',
@@ -86,15 +81,15 @@ class PokeApiDetailsFetcher
     }
 
     /**
-     * Obter detalhes de um item
+     * Obter detalhes de um item.
      */
     public function getItemDetails(string $itemName): array
     {
-        return $this->cache->get('item_' . $itemName, function (ItemInterface $item) use ($itemName) {
+        return $this->cache->get('item_'.$itemName, function (ItemInterface $item) use ($itemName) {
             $item->expiresAfter(86400 * 30); // 30 dias
 
             try {
-                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/item/' . strtolower($itemName));
+                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/item/'.strtolower($itemName));
                 $data = $response->toArray();
 
                 $description = '';
@@ -106,7 +101,7 @@ class PokeApiDetailsFetcher
                         }
                     }
                 }
-                
+
                 if (empty($description) && !empty($data['effect_entries'])) {
                     foreach ($data['effect_entries'] as $entry) {
                         if ($entry['language']['name'] === 'en') {
@@ -120,7 +115,7 @@ class PokeApiDetailsFetcher
                     'name' => $itemName,
                     'description' => $description ?: 'Nenhuma descrição disponível.',
                 ];
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 return [
                     'name' => $itemName,
                     'description' => 'Item recomendado para ativar a estratégia.',
@@ -130,39 +125,39 @@ class PokeApiDetailsFetcher
     }
 
     /**
-     * Obter detalhes de um tipo (vantagens e fraquezas)
+     * Obter detalhes de um tipo (vantagens e fraquezas).
      */
     public function getTypeDetails(string $typeName): array
     {
-        return $this->cache->get('type_details_' . $typeName, function (ItemInterface $item) use ($typeName) {
+        return $this->cache->get('type_details_'.$typeName, function (ItemInterface $item) use ($typeName) {
             $item->expiresAfter(86400 * 30); // 30 dias
 
             try {
-                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/type/' . strtolower($typeName));
+                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/type/'.strtolower($typeName));
                 $data = $response->toArray();
 
                 return [
                     'name' => $typeName,
-                    'damage_relations' => $data['damage_relations']
+                    'damage_relations' => $data['damage_relations'],
                 ];
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 return [
                     'name' => $typeName,
-                    'damage_relations' => []
+                    'damage_relations' => [],
                 ];
             }
         });
     }
 
     /**
-     * Obter detalhes de um movimento (Tipo, categoria, poder, descrição)
+     * Obter detalhes de um movimento (Tipo, categoria, poder, descrição).
      */
     public function getMoveDetails(string $moveName): array
     {
-        return $this->cache->get('move_details_' . $moveName, function (ItemInterface $item) use ($moveName) {
+        return $this->cache->get('move_details_'.$moveName, function (ItemInterface $item) use ($moveName) {
             $item->expiresAfter(86400 * 30); // Cache por 30 dias
             try {
-                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/move/' . $moveName);
+                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/move/'.$moveName);
                 $data = $response->toArray();
 
                 $description = '';
@@ -189,12 +184,13 @@ class PokeApiDetailsFetcher
                     'accuracy' => $data['accuracy'],
                     'description' => $description ?: 'Sem descrição de efeito.',
                 ];
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $typeId = self::TYPE_IDS['normal'] ?? 1;
                 $typeIcon = sprintf(
                     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-ix/scarlet-violet/small/%d.png',
                     $typeId
                 );
+
                 return [
                     'name' => $moveName,
                     'type' => 'normal',
@@ -202,21 +198,21 @@ class PokeApiDetailsFetcher
                     'category' => 'physical',
                     'power' => null,
                     'accuracy' => null,
-                    'description' => 'Golpe físico ou especial.'
+                    'description' => 'Golpe físico ou especial.',
                 ];
             }
         });
     }
 
     /**
-     * Obter detalhes de um movimento incluindo quais Pokémon o aprendem
+     * Obter detalhes de um movimento incluindo quais Pokémon o aprendem.
      */
     public function getMoveDetailsWithLearnedBy(string $moveName): array
     {
-        return $this->cache->get('move_details_learned_' . $moveName, function (ItemInterface $item) use ($moveName) {
+        return $this->cache->get('move_details_learned_'.$moveName, function (ItemInterface $item) use ($moveName) {
             $item->expiresAfter(86400 * 30); // Cache por 30 dias
             try {
-                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/move/' . $moveName);
+                $response = $this->httpClient->request('GET', 'https://pokeapi.co/api/v2/move/'.$moveName);
                 $data = $response->toArray();
 
                 $description = '';
@@ -254,12 +250,13 @@ class PokeApiDetailsFetcher
                     'description' => $description ?: 'Sem descrição de efeito.',
                     'learned_by_pokemon' => $learnedBy,
                 ];
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $typeId = self::TYPE_IDS['normal'] ?? 1;
                 $typeIcon = sprintf(
                     'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-ix/scarlet-violet/small/%d.png',
                     $typeId
                 );
+
                 return [
                     'name' => $moveName,
                     'type' => 'normal',
@@ -275,7 +272,7 @@ class PokeApiDetailsFetcher
     }
 
     /**
-     * Obter todas as natures
+     * Obter todas as natures.
      */
     public function getNatures(): array
     {
@@ -297,23 +294,24 @@ class PokeApiDetailsFetcher
                     $natures[] = [
                         'name' => $name,
                         'increased' => $nd['increased_stat']['name'] ?? 'none',
-                        'decreased' => $nd['decreased_stat']['name'] ?? 'none'
+                        'decreased' => $nd['decreased_stat']['name'] ?? 'none',
                     ];
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     $natures[] = [
                         'name' => $name,
                         'increased' => 'none',
-                        'decreased' => 'none'
+                        'decreased' => 'none',
                     ];
                 }
             }
-            usort($natures, fn($a, $b) => strcmp($a['name'], $b['name']));
+            usort($natures, fn ($a, $b) => strcmp($a['name'], $b['name']));
+
             return $natures;
         });
     }
 
     /**
-     * Obter lista de itens seguráveis
+     * Obter lista de itens seguráveis.
      */
     public function getItems(): array
     {
@@ -326,10 +324,11 @@ class PokeApiDetailsFetcher
             foreach ($data['results'] as $r) {
                 $items[] = [
                     'name' => $r['name'],
-                    'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/%s.png', $r['name'])
+                    'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/%s.png', $r['name']),
                 ];
             }
-            usort($items, fn($a, $b) => strcmp($a['name'], $b['name']));
+            usort($items, fn ($a, $b) => strcmp($a['name'], $b['name']));
+
             return $items;
         });
     }

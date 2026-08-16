@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'Entrar'|trans }} | PokeFlaton{% endblock %}
+{% block title %}{{ 'Entrar'|trans }} | Mov Set{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -12,9 +12,9 @@
     <div class="auth-card card">
         <div class="detail-glow login-glow"></div>
         <div class="auth-header">
-            <img src="{{ asset('image/PokeFlaton-pokeball.png') }}" alt="PokeFlaton" class="auth-logo">
+            <img src="{{ asset('image/Mov-set.png') }}" alt="Mov Set" class="auth-logo">
             <h1 class="auth-title">{{ 'Acesse sua Conta'|trans }}</h1>
-            <p class="auth-subtitle">{{ 'Entre para gerenciar seu Trainer Card, TMs e conquistas!'|trans }}</p>
+            <p class="auth-subtitle">{{ 'Entre com sua conta Google na barra de navegação superior para se conectar!'|trans }}</p>
         </div>
 
         {% if error %}
@@ -23,38 +23,67 @@
             </div>
         {% endif %}
 
-        <form method="post" action="{{ path('app_login') }}" class="auth-form">
-            <div class="form-group">
-                <label for="username" class="form-label">{{ 'Nome de Usuário'|trans }}</label>
-                <div class="input-icon-wrapper">
-                    <i class="fa-solid fa-user input-icon"></i>
-                    <input type="text" value="{{ last_username }}" name="_username" id="username" class="form-input" autocomplete="username" required autofocus placeholder="{{ 'Digite seu usuário...'|trans }}">
+        <div class="auth-body" style="display: flex; flex-direction: column; gap: 15px; align-items: center; justify-content: center; margin-top: 20px; width: 100%;">
+            {% if google_client_id %}
+                <!-- Google Sign-in Widget -->
+                <script src="https://accounts.google.com/gsi/client" async defer></script>
+                <div id="g_id_onload"
+                     data-client_id="{{ google_client_id }}"
+                     data-context="signin"
+                     data-ux_mode="redirect"
+                     data-login_uri="{{ url('app_google_callback') }}"
+                     data-auto_prompt="false">
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label for="password" class="form-label">{{ 'Senha'|trans }}</label>
-                <div class="input-icon-wrapper">
-                    <i class="fa-solid fa-lock input-icon"></i>
-                    <input type="password" name="_password" id="password" class="form-input" autocomplete="current-password" required placeholder="{{ 'Digite sua senha...'|trans }}">
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="filled_blue"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left"
+                     style="width: 100%;">
                 </div>
-            </div>
+            {% else %}
+                <p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+                    {{ 'Faça login instantâneo com o Google através do menu na barra superior.'|trans }}
+                </p>
+            {% endif %}
 
-            <label class="remember-me-group">
-                <input type="checkbox" id="_remember_me" name="_remember_me" checked>
-                <span>{{ 'Permanecer conectado'|trans }}</span>
-            </label>
+            <!-- Opções oculta apenas para Admin / Desenvolvedor -->
+            <details class="admin-hidden-section" style="width: 100%; margin-top: 25px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+                <summary style="cursor: pointer; text-align: center; font-size: 0.8rem; color: var(--text-muted); user-select: none; opacity: 0.6; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                    <i class="fa-solid fa-user-shield" style="margin-right: 4px;"></i> {{ 'Acesso Restrito / Admin'|trans }}
+                </summary>
+                
+                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                    <!-- Login Tradicional de Admin -->
+                    <form action="{{ path('app_login') }}" method="POST" style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">{{ 'Usuário'|trans }}</label>
+                            <input type="text" name="_username" value="{{ last_username }}" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">{{ 'Senha'|trans }}</label>
+                            <input type="password" name="_password" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit;">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 4px; padding: 8px; font-size: 0.9rem;">
+                            <i class="fa-solid fa-lock"></i> {{ 'Entrar como Admin'|trans }}
+                        </button>
+                    </form>
 
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                    <div style="width: 100%; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); line-height: 0.1em; margin: 5px 0;"><span style="background: var(--bg-card); padding: 0 10px; color: var(--text-muted); font-size: 0.75rem;">OU</span></div>
 
-            <button type="submit" class="btn btn-primary btn-block">
-                <i class="fa-solid fa-right-to-bracket"></i> {{ 'Entrar'|trans }}
-            </button>
-        </form>
-
-        <div class="auth-footer">
-            <p>{{ 'Ainda não tem uma conta?'|trans }} <a href="{{ path('app_register') }}" class="auth-link">{{ 'Cadastre-se aqui'|trans }}</a></p>
+                    <!-- Mock Login / Portfolio Convidado -->
+                    <form action="{{ path('app_mock_login') }}" method="POST" style="width: 100%;">
+                        <button type="submit" class="btn btn-secondary btn-block" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: var(--color-secondary); border-radius: var(--radius-sm); font-weight: bold; cursor: pointer; font-size: 0.85rem; font-family: inherit;">
+                            <i class="fa-solid fa-user-astronaut"></i> {{ 'Entrar como Convidado'|trans }}
+                        </button>
+                    </form>
+                </div>
+            </details>
         </div>
+
     </div>
 </div>
 {% endblock %}

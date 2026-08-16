@@ -1,4 +1,4 @@
-/* Componentes: Cards, Botões e Alertas */
+﻿/* Componentes: Cards, BotÃµes e Alertas */
 .card {
     background: var(--bg-card);
     backdrop-filter: blur(10px);
@@ -25,11 +25,12 @@
 
 .btn-primary {
     background-color: var(--color-primary);
-    color: #fff;
+    color: #101110;
 }
 
 .btn-primary:hover {
-    background-color: #7c3aed;
+    background-color: #b0e048;
+    box-shadow: 0 0 20px rgba(197, 240, 92, 0.4);
 }
 
 .btn-secondary {
@@ -39,6 +40,51 @@
 
 .btn-secondary:hover {
     background-color: rgba(255, 255, 255, 0.12);
+}
+
+.btn-outline-primary {
+    background-color: transparent;
+    border: 1px solid rgba(197, 240, 92, 0.4);
+    color: var(--color-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: rgba(197, 240, 92, 0.1);
+    border-color: var(--color-primary);
+}
+
+.btn-outline-secondary {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.btn-outline-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    color: var(--text-primary);
+    border-color: var(--border-focus);
+}
+
+.btn-outline-danger {
+    background-color: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+.btn-outline-danger:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.btn-outline-success {
+    background-color: transparent;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #34d399;
+}
+
+.btn-outline-success:hover {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.55);
 }
 
 .btn-sm {
@@ -123,7 +169,7 @@
 
 .search-input:focus {
     border-color: var(--border-focus);
-    box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+    box-shadow: 0 0 12px rgba(197, 240, 92, 0.2);
     background-color: rgba(255, 255, 255, 0.08);
 }
 
@@ -171,7 +217,7 @@
 
 .sort-select:focus {
     border-color: var(--border-focus);
-    box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+    box-shadow: 0 0 12px rgba(197, 240, 92, 0.2);
     background-color: rgba(255, 255, 255, 0.08);
 }
 

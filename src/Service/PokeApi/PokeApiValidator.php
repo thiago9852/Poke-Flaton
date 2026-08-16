@@ -2,39 +2,20 @@
 
 namespace App\Service\PokeApi;
 
-use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\PokemonVariation;
-use App\Repository\PokemonVariationRepository;
 use App\Config\PokemonConfig;
+use App\Repository\PokemonVariationRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 class PokeApiValidator
 {
-    private array $allowedGenerations;
-    private array $allowedExtraIds;
-    private array $excludedIds;
-    private array $megaEvolutions;
-    private EntityManagerInterface $entityManager;
-    private PokemonVariationRepository $variationRepository;
     private ?array $variations = null;
 
-    public function __construct(
-        array $allowedGenerations,
-        array $allowedExtraIds,
-        array $excludedIds,
-        array $megaEvolutions,
-        EntityManagerInterface $entityManager,
-        PokemonVariationRepository $variationRepository
-    ) {
-        $this->allowedGenerations = $allowedGenerations;
-        $this->allowedExtraIds = $allowedExtraIds;
-        $this->excludedIds = $excludedIds;
-        $this->megaEvolutions = $megaEvolutions;
-        $this->entityManager = $entityManager;
-        $this->variationRepository = $variationRepository;
+    public function __construct(private readonly array $allowedGenerations, private readonly array $allowedExtraIds, private readonly array $excludedIds, private readonly array $megaEvolutions, private readonly EntityManagerInterface $entityManager, private readonly PokemonVariationRepository $variationRepository)
+    {
     }
 
     /**
-     * Garante o carregamento sob demanda das variações (Lazy Loading) com fallback robusto
+     * Garante o carregamento sob demanda das variações (Lazy Loading) com fallback robusto.
      */
     private function getVariationsList(): array
     {
@@ -46,19 +27,20 @@ class PokeApiValidator
                 foreach ($dbVariations as $var) {
                     $this->variations[$var->getId()] = [
                         'base_id' => $var->getBaseId(),
-                        'name' => $var->getName()
+                        'name' => $var->getName(),
                     ];
                 }
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 // Fallback para a configuração padrão em caso de tabela inexistente ou erro de conexão
                 foreach (PokemonConfig::DEFAULT_VARIATIONS as $id => $data) {
                     $this->variations[$id] = [
                         'base_id' => $data['base_id'],
-                        'name' => $data['name']
+                        'name' => $data['name'],
                     ];
                 }
             }
         }
+
         return $this->variations;
     }
 
@@ -70,7 +52,7 @@ class PokeApiValidator
     {
         try {
             $connection = $this->entityManager->getConnection();
-            
+
             if (!$force) {
                 // Só inicializa se a tabela estiver completamente vazia
                 $count = (int) $connection->fetchOne('SELECT COUNT(*) FROM pokemon_variation');
@@ -86,10 +68,10 @@ class PokeApiValidator
                 $connection->insert('pokemon_variation', [
                     'id' => $id,
                     'base_id' => $data['base_id'],
-                    'name' => $data['name']
+                    'name' => $data['name'],
                 ]);
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // Silencioso se der erro (ex: tabela ainda não criada)
         }
     }
@@ -111,15 +93,34 @@ class PokeApiValidator
 
     public static function getGenerationById(int $id): int
     {
-        if ($id >= 1 && $id <= 151) return 1;
-        if ($id >= 152 && $id <= 251) return 2;
-        if ($id >= 252 && $id <= 386) return 3;
-        if ($id >= 387 && $id <= 493) return 4;
-        if ($id >= 494 && $id <= 649) return 5;
-        if ($id >= 650 && $id <= 721) return 6;
-        if ($id >= 722 && $id <= 809) return 7;
-        if ($id >= 810 && $id <= 905) return 8;
-        if ($id >= 906 && $id <= 1025) return 9;
+        if ($id >= 1 && $id <= 151) {
+            return 1;
+        }
+        if ($id >= 152 && $id <= 251) {
+            return 2;
+        }
+        if ($id >= 252 && $id <= 386) {
+            return 3;
+        }
+        if ($id >= 387 && $id <= 493) {
+            return 4;
+        }
+        if ($id >= 494 && $id <= 649) {
+            return 5;
+        }
+        if ($id >= 650 && $id <= 721) {
+            return 6;
+        }
+        if ($id >= 722 && $id <= 809) {
+            return 7;
+        }
+        if ($id >= 810 && $id <= 905) {
+            return 8;
+        }
+        if ($id >= 906 && $id <= 1025) {
+            return 9;
+        }
+
         return 0; // Out of standard range
     }
 
@@ -139,6 +140,7 @@ class PokeApiValidator
                 }
             }
         }
+
         return $id;
     }
 
@@ -176,10 +178,6 @@ class PokeApiValidator
         }
 
         // Check if baseId in the extra allowed list
-        if (in_array($baseId, $this->allowedExtraIds)) {
-            return true;
-        }
-
-        return false;
+        return in_array($baseId, $this->allowedExtraIds);
     }
 }

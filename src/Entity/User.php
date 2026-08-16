@@ -25,7 +25,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var array<string>
      */
     #[ORM\Column]
-    private array $roles = [];
+    private array $roles;
 
     #[ORM\Column]
     private ?string $password = null;
@@ -37,34 +37,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var array<string>
      */
     #[ORM\Column]
-    private array $unlockedTms = [];
+    private array $unlockedTms;
 
     /**
      * @var array<string>
      */
     #[ORM\Column]
-    private array $caughtPokemon = [];
+    private array $caughtPokemon;
 
     /**
      * @var array<string>
      */
     #[ORM\Column]
-    private array $following = [];
-
-    /**
-     * @var array<string>
-     */
-    #[ORM\Column]
-    private array $vivillonPatterns = [];
-
-    /**
-     * @var array<string> Up to 4 medal names to showcase on the trainer card
-     */
-    #[ORM\Column(type: 'json')]
-    private array $showcaseMedals = [];
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $title = null;
+    private array $following;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $cardTemplate = null;
@@ -85,8 +70,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->unlockedTms = [];
         $this->caughtPokemon = [];
         $this->following = [];
-        $this->vivillonPatterns = [];
-        $this->showcaseMedals = [];
     }
 
     public function getId(): ?int
@@ -102,6 +85,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): static
     {
         $this->username = $username;
+
         return $this;
     }
 
@@ -135,6 +119,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
+
         return $this;
     }
 
@@ -149,6 +134,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
+
         return $this;
     }
 
@@ -168,6 +154,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setAvatar(?string $avatar): static
     {
         $this->avatar = $avatar;
+
         return $this;
     }
 
@@ -185,6 +172,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUnlockedTms(array $unlockedTms): static
     {
         $this->unlockedTms = $unlockedTms;
+
         return $this;
     }
 
@@ -202,6 +190,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCaughtPokemon(array $caughtPokemon): static
     {
         $this->caughtPokemon = $caughtPokemon;
+
         return $this;
     }
 
@@ -219,55 +208,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setFollowing(array $following): static
     {
         $this->following = $following;
-        return $this;
-    }
 
-    /**
-     * @return array<string>
-     */
-    public function getVivillonPatterns(): array
-    {
-        return $this->vivillonPatterns;
-    }
-
-    /**
-     * @param array<string> $vivillonPatterns
-     */
-    public function setVivillonPatterns(array $vivillonPatterns): static
-    {
-        $this->vivillonPatterns = $vivillonPatterns;
-        return $this;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getShowcaseMedals(): array
-    {
-        if (!isset($this->showcaseMedals)) {
-            $this->showcaseMedals = [];
-        }
-
-        return $this->showcaseMedals;
-    }
-
-    /**
-     * @param array<string> $showcaseMedals
-     */
-    public function setShowcaseMedals(array $showcaseMedals): static
-    {
-        $this->showcaseMedals = array_slice($showcaseMedals, 0, 4);
-        return $this;
-    }
-
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(?string $title): static
-    {
-        $this->title = $title;
         return $this;
     }
 
@@ -279,6 +220,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCardTemplate(?string $cardTemplate): static
     {
         $this->cardTemplate = $cardTemplate;
+
         return $this;
     }
 
@@ -290,6 +232,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -303,6 +246,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->apelido = $apelido;
 
         return $this;
+    }
+
+    public function getDisplayName(): string
+    {
+        return !empty($this->apelido) ? $this->apelido : (string) $this->username;
     }
 
     public function getRegional(): ?string

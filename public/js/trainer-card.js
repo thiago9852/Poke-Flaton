@@ -29,7 +29,6 @@ window.toggleTmOwnership = async function (element, moveName) {
             element.classList.toggle('active', data.unlocked);
             const collBadge = document.getElementById('tm-count-badge');
             if (collBadge) collBadge.textContent = data.count;
-            updateCollectorMedal(data.count);
         } else {
             alert(data.error || 'Erro ao atualizar TM.');
         }
@@ -123,78 +122,6 @@ window.deleteMoveset = async function (movesetId) {
     }
 };
 
-window.updateCollectorMedal = function (count) {
-    const bronze = 10, silver = 30, gold = 60;
-    let tier = 'locked', nextTarget = bronze, percent = Math.min(100, Math.floor((count / bronze) * 100));
-
-    if (count >= gold) { tier = 'gold'; nextTarget = null; percent = 100; }
-    else if (count >= silver) { tier = 'silver'; nextTarget = gold; percent = Math.min(100, Math.floor(((count - silver) / (gold - silver)) * 100)); }
-    else if (count >= bronze) { tier = 'bronze'; nextTarget = silver; percent = Math.min(100, Math.floor(((count - bronze) / (silver - bronze)) * 100)); }
-
-    const card = document.getElementById('medal-card-collector');
-    if (!card) return;
-    card.className = `medal-card card medal-tier-${tier}`;
-
-    const progressEl = document.getElementById('medal-progress-collector');
-    if (progressEl) progressEl.textContent = count;
-
-    const targetEl = document.getElementById('medal-target-collector');
-    if (nextTarget) {
-        if (targetEl) targetEl.textContent = nextTarget;
-        else if (progressEl) progressEl.parentElement.innerHTML = `<span class="progress-current" id="medal-progress-collector">${count}</span><span class="progress-separator">/</span><span class="progress-target" id="medal-target-collector">${nextTarget}</span>`;
-    } else if (progressEl) {
-        progressEl.parentElement.innerHTML = `<span class="progress-current" id="medal-progress-collector">${count}</span> <span class="progress-max">(Máximo)</span>`;
-    }
-
-    const fillEl = card.querySelector('.medal-progress-fill');
-    if (fillEl) fillEl.style.width = `${percent}%`;
-
-    const milestones = card.querySelectorAll('.milestone');
-    if (milestones.length >= 3) {
-        milestones[0].classList.toggle('reached', count >= bronze);
-        milestones[1].classList.toggle('reached', count >= silver);
-        milestones[2].classList.toggle('reached', count >= gold);
-    }
-};
-
-window.openTitleModal = () => document.getElementById('title-modal').classList.add('active');
-window.closeTitleModal = () => document.getElementById('title-modal').classList.remove('active');
-
-window.updateTitleSelection = async function (titleName) {
-    const formData = new FormData();
-    formData.append('title', titleName);
-    try {
-        const response = await fetch(getTcUrl('urlTitleUpdate'), { method: 'POST', body: formData });
-        const data = await response.json();
-        if (data.success) {
-            const labelEl = document.getElementById('trainer-title-label');
-            if (labelEl) labelEl.textContent = data.title;
-            const titleContainer = document.querySelector('.banner-achievement-title');
-            if (titleContainer) {
-                ['trainer-ribbon-img', 'trainer-title-icon'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.remove();
-                });
-                if (data.ribbonUrl) {
-                    const img = document.createElement('img');
-                    img.src = data.ribbonUrl; img.alt = "Ribbon"; img.id = "trainer-ribbon-img";
-                    img.className = "banner-ribbon-sprite"; img.style.cssText = "width:24px;height:24px;object-fit:contain;image-rendering:pixelated;margin-right:4px;";
-                    titleContainer.insertBefore(img, labelEl);
-                } else {
-                    const icon = document.createElement('i');
-                    icon.className = "fa-solid fa-crown"; icon.id = "trainer-title-icon";
-                    titleContainer.insertBefore(icon, labelEl);
-                }
-            }
-            closeTitleModal();
-            location.reload();
-        } else alert(data.error || 'Erro ao atualizar título.');
-    } catch (e) {
-        console.error(e);
-        alert('Erro de conexão ao atualizar título.');
-    }
-};
-
 window.openAvatarModal = () => document.getElementById('avatar-modal').classList.add('active');
 window.closeAvatarModal = () => document.getElementById('avatar-modal').classList.remove('active');
 
@@ -233,40 +160,6 @@ window.updateAvatarSelection = async function (filename) {
         console.error(e);
         alert('Erro de conexão ao atualizar avatar.');
     }
-};
-
-let currentMedalSlot = 0;
-window.openMedalPickerModal = function (slotIndex) {
-    currentMedalSlot = slotIndex;
-    document.getElementById('medal-picker-modal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-    const slot = document.querySelector(`.showcase-slot[data-slot="${slotIndex}"]`);
-    document.getElementById('remove-medal-btn').style.display = (slot && slot.classList.contains('filled')) ? 'inline-flex' : 'none';
-};
-window.closeMedalPickerModal = function () {
-    document.getElementById('medal-picker-modal').classList.remove('active');
-    document.body.style.overflow = '';
-};
-
-    const modal = document.getElementById('medal-picker-modal');
-    if (modal) modal.addEventListener('click', function (e) { if (e.target === this) closeMedalPickerModal(); });
-
-window.selectShowcaseMedal = async function (medalName) {
-    const formData = new FormData(); formData.append('slot', currentMedalSlot); formData.append('medal', medalName);
-    try {
-        const response = await fetch(getTcUrl('urlShowcaseUpdate'), { method: 'POST', body: formData });
-        const data = await response.json();
-        if (data.success) { closeMedalPickerModal(); location.reload(); } else alert(data.error || 'Erro ao selecionar medalha.');
-    } catch (e) { console.error(e); alert('Erro de conexão ao atualizar medalha.'); }
-};
-
-window.removeMedalFromSlot = async function () {
-    const formData = new FormData(); formData.append('slot', currentMedalSlot); formData.append('medal', '');
-    try {
-        const response = await fetch(getTcUrl('urlShowcaseUpdate'), { method: 'POST', body: formData });
-        const data = await response.json();
-        if (data.success) { closeMedalPickerModal(); location.reload(); } else alert(data.error || 'Erro ao remover medalha.');
-    } catch (e) { console.error(e); alert('Erro de conexão ao remover medalha.'); }
 };
 
 window.openTemplateModal = () => document.getElementById('template-modal').classList.add('active');

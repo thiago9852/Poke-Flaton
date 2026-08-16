@@ -31,7 +31,7 @@ class MovesetRepository extends ServiceEntityRepository
     }
 
     /**
-     * Obter a contagem de movesets agrupados pelo nome do pokémon
+     * Obter a contagem de movesets agrupados pelo nome do pokémon.
      */
     public function getMovesetCountsGroupedByPokemon(): array
     {
@@ -43,8 +43,9 @@ class MovesetRepository extends ServiceEntityRepository
 
         $counts = [];
         foreach ($results as $row) {
-            $counts[strtolower($row['pokemonName'])] = (int)$row['cnt'];
+            $counts[strtolower($row['pokemonName'])] = (int) $row['cnt'];
         }
+
         return $counts;
     }
 }

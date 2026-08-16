@@ -2,25 +2,20 @@
 
 namespace App\Controller;
 
-use App\Service\PokeApiService;
 use App\Entity\TierList;
 use App\Enum\TypeEnum;
+use App\Service\PokeApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TierListController extends AbstractController
 {
-    private PokeApiService $pokeApiService;
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(PokeApiService $pokeApiService, EntityManagerInterface $entityManager)
+    public function __construct(private readonly PokeApiService $pokeApiService, private readonly EntityManagerInterface $entityManager)
     {
-        $this->pokeApiService = $pokeApiService;
-        $this->entityManager = $entityManager;
     }
 
     /**
@@ -31,7 +26,7 @@ class TierListController extends AbstractController
         $conn = $this->entityManager->getConnection();
         $schemaManager = $conn->createSchemaManager();
         if (!$schemaManager->tablesExist(['tier_list'])) {
-            $sql = "CREATE TABLE tier_list (
+            $sql = 'CREATE TABLE tier_list (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 title VARCHAR(100) NOT NULL,
                 user_id INT NULL,
@@ -39,7 +34,7 @@ class TierListController extends AbstractController
                 tags JSON NOT NULL,
                 created_at DATETIME NOT NULL,
                 FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE SET NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;';
             $conn->executeStatement($sql);
         }
     }
@@ -58,7 +53,7 @@ class TierListController extends AbstractController
 
         if (!empty($tagFilter)) {
             $qb->andWhere('t.tags LIKE :tag')
-               ->setParameter('tag', '%"' . $tagFilter . '"%');
+               ->setParameter('tag', '%"'.$tagFilter.'"%');
         }
 
         $tierLists = $qb->getQuery()->getResult();
@@ -81,7 +76,7 @@ class TierListController extends AbstractController
         }
 
         $pokemonList = $this->pokeApiService->getPokemonBasicList();
-        
+
         // Ordena por ID
         usort($pokemonList, function ($a, $b) {
             $idA = $a['dex_id'] ?? $a['id'];
@@ -89,12 +84,13 @@ class TierListController extends AbstractController
             if ($idA === $idB) {
                 return $a['id'] <=> $b['id'];
             }
+
             return $idA <=> $idB;
         });
 
         // Mapa de tipos
         $typesMap = [];
-        foreach (TypeEnum::getCasesForModule('type') as $typeEnum) {
+        foreach (TypeEnum::cases() as $typeEnum) {
             $typeStr = $typeEnum->value;
             $pokemonOfType = $this->pokeApiService->getPokemonBasicListByType($typeStr);
             foreach ($pokemonOfType as $p) {
@@ -105,7 +101,7 @@ class TierListController extends AbstractController
         return $this->render('tier_list/create.html.twig', [
             'pokemonList' => $pokemonList,
             'typesMap' => $typesMap,
-            'allTypes' => TypeEnum::getCasesForModule('type'),
+            'allTypes' => TypeEnum::cases(),
             'allowedGenerations' => $this->pokeApiService->getAllowedGenerations(),
             'clonedTier' => $clonedTier,
         ]);
@@ -115,7 +111,7 @@ class TierListController extends AbstractController
     public function save(Request $request): JsonResponse
     {
         $this->ensureTableExists();
-        
+
         $data = json_decode($request->getContent(), true);
         if (!$data || empty($data['title']) || empty($data['state'])) {
             return new JsonResponse(['error' => 'Dados incompletos fornecidos.'], 400);
@@ -133,10 +129,10 @@ class TierListController extends AbstractController
 
             return new JsonResponse([
                 'success' => true,
-                'id' => $tierList->getId()
+                'id' => $tierList->getId(),
             ]);
         } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Falha ao salvar a Tier List: ' . $e->getMessage()], 500);
+            return new JsonResponse(['error' => 'Falha ao salvar a Tier List: '.$e->getMessage()], 500);
         }
     }
 
@@ -191,8 +187,9 @@ class TierListController extends AbstractController
 
         // Validar token CSRF
         $token = $request->request->get('_token');
-        if (!$this->isCsrfTokenValid('delete-tier-list-' . $id, $token)) {
+        if (!$this->isCsrfTokenValid('delete-tier-list-'.$id, $token)) {
             $this->addFlash('error', 'Token de segurança inválido.');
+
             return $this->redirectToRoute('app_tier_list_view', ['id' => $id]);
         }
 

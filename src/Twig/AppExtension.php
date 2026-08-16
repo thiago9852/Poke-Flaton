@@ -5,35 +5,28 @@ namespace App\Twig;
 use App\Repository\PokemonLocationRepository;
 use App\Service\TrainerProfileService;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
 use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class AppExtension extends AbstractExtension
 {
-    private PokemonLocationRepository $pokemonLocationRepository;
-    private TrainerProfileService $trainerProfileService;
-
-    public function __construct(
-        PokemonLocationRepository $pokemonLocationRepository,
-        TrainerProfileService $trainerProfileService
-    ) {
-        $this->pokemonLocationRepository = $pokemonLocationRepository;
-        $this->trainerProfileService = $trainerProfileService;
+    public function __construct(private readonly PokemonLocationRepository $pokemonLocationRepository, private readonly TrainerProfileService $trainerProfileService)
+    {
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('pending_locations_count', [$this, 'getPendingLocationsCount']),
-            new TwigFunction('avatar_url', [$this, 'getAvatarUrl']),
+            new TwigFunction('pending_locations_count', $this->getPendingLocationsCount(...)),
+            new TwigFunction('avatar_url', $this->getAvatarUrl(...)),
         ];
     }
 
     public function getFilters(): array
     {
         return [
-            new TwigFilter('abbr_pokemon_name', [$this, 'abbreviatePokemonName']),
-            new TwigFilter('abbr_variety_name', [$this, 'abbreviateVarietyName']),
+            new TwigFilter('abbr_pokemon_name', $this->abbreviatePokemonName(...)),
+            new TwigFilter('abbr_variety_name', $this->abbreviateVarietyName(...)),
         ];
     }
 
@@ -53,7 +46,7 @@ class AppExtension extends AbstractExtension
         $speciesLower = strtolower(trim($speciesName));
 
         // Remover o nome da espécie se ele for um prefixo no nome da variedade
-        if (str_starts_with($nameLower, $speciesLower . '-')) {
+        if (str_starts_with($nameLower, $speciesLower.'-')) {
             $suffix = substr($nameLower, strlen($speciesLower) + 1);
         } else {
             $suffix = $nameLower;
@@ -67,22 +60,22 @@ class AppExtension extends AbstractExtension
         // Casos especiais diretos para o sufixo
         $specialSuffixes = [
             'paldea-combat-breed' => 'Combat',
-            'paldea-blaze-breed'  => 'Blaze',
-            'paldea-aqua-breed'   => 'Aqua',
-            'single-strike'       => 'Single',
-            'rapid-strike'        => 'Rapid',
-            'ice-rider'           => 'Ice',
-            'shadow-rider'        => 'Shadow',
-            'galar-standard'      => 'Galar',
-            'galar-zen'           => 'Zen',
-            'crowned-sword'       => 'Crowned',
-            'crowned-shield'      => 'Crowned',
-            'red-striped'         => 'Red',
-            'blue-striped'        => 'Blue',
-            'white-striped'       => 'White',
-            'gmax'                => 'G-Max',
-            'mega-x'              => 'Mega X',
-            'mega-y'              => 'Mega Y',
+            'paldea-blaze-breed' => 'Blaze',
+            'paldea-aqua-breed' => 'Aqua',
+            'single-strike' => 'Single',
+            'rapid-strike' => 'Rapid',
+            'ice-rider' => 'Ice',
+            'shadow-rider' => 'Shadow',
+            'galar-standard' => 'Galar',
+            'galar-zen' => 'Zen',
+            'crowned-sword' => 'Crowned',
+            'crowned-shield' => 'Crowned',
+            'red-striped' => 'Red',
+            'blue-striped' => 'Blue',
+            'white-striped' => 'White',
+            'gmax' => 'G-Max',
+            'mega-x' => 'Mega X',
+            'mega-y' => 'Mega Y',
         ];
 
         if (isset($specialSuffixes[$suffix])) {
@@ -136,7 +129,7 @@ class AppExtension extends AbstractExtension
             }
         }
 
-        if (empty($newParts)) {
+        if ($newParts === []) {
             return 'Padrão';
         }
 
@@ -191,29 +184,29 @@ class AppExtension extends AbstractExtension
 
             // Sub-formas específicas muito grandes
             'tauros-paldea-combat-breed' => 'Tauros (Combat)',
-            'tauros-paldea-blaze-breed'  => 'Tauros (Blaze)',
-            'tauros-paldea-aqua-breed'   => 'Tauros (Aqua)',
-            'urshifu-single-strike'      => 'Urshifu (Single)',
-            'urshifu-rapid-strike'       => 'Urshifu (Rapid)',
-            'calyrex-ice-rider'          => 'Calyrex (Ice)',
-            'calyrex-shadow-rider'       => 'Calyrex (Shadow)',
-            'darmanitan-galar-standard'  => 'Darmanitan (Galar)',
-            'darmanitan-galar-zen'       => 'Darmanitan (G. Zen)',
-            'zacian-crowned-sword'       => 'Zacian (Crowned)',
-            'zamazenta-crowned-shield'   => 'Zamazenta (Crowned)',
-            'basculin-red-striped'       => 'Basculin (Red)',
-            'basculin-blue-striped'      => 'Basculin (Blue)',
-            'basculin-white-striped'     => 'Basculin (White)',
-            'lycanroc-midday'            => 'Lycanroc (Midday)',
-            'lycanroc-midnight'          => 'Lycanroc (Midnight)',
-            'lycanroc-dusk'              => 'Lycanroc (Dusk)',
-            'rotom-mow'                  => 'Rotom (Mow)',
-            'rotom-frost'                => 'Rotom (Frost)',
-            'rotom-heat'                 => 'Rotom (Heat)',
-            'rotom-wash'                 => 'Rotom (Wash)',
-            'rotom-fan'                  => 'Rotom (Fan)',
-            'charizard-gmax'             => 'Charizard (G-Max)',
-            'pikachu-gmax'               => 'Pikachu (G-Max)',
+            'tauros-paldea-blaze-breed' => 'Tauros (Blaze)',
+            'tauros-paldea-aqua-breed' => 'Tauros (Aqua)',
+            'urshifu-single-strike' => 'Urshifu (Single)',
+            'urshifu-rapid-strike' => 'Urshifu (Rapid)',
+            'calyrex-ice-rider' => 'Calyrex (Ice)',
+            'calyrex-shadow-rider' => 'Calyrex (Shadow)',
+            'darmanitan-galar-standard' => 'Darmanitan (Galar)',
+            'darmanitan-galar-zen' => 'Darmanitan (G. Zen)',
+            'zacian-crowned-sword' => 'Zacian (Crowned)',
+            'zamazenta-crowned-shield' => 'Zamazenta (Crowned)',
+            'basculin-red-striped' => 'Basculin (Red)',
+            'basculin-blue-striped' => 'Basculin (Blue)',
+            'basculin-white-striped' => 'Basculin (White)',
+            'lycanroc-midday' => 'Lycanroc (Midday)',
+            'lycanroc-midnight' => 'Lycanroc (Midnight)',
+            'lycanroc-dusk' => 'Lycanroc (Dusk)',
+            'rotom-mow' => 'Rotom (Mow)',
+            'rotom-frost' => 'Rotom (Frost)',
+            'rotom-heat' => 'Rotom (Heat)',
+            'rotom-wash' => 'Rotom (Wash)',
+            'rotom-fan' => 'Rotom (Fan)',
+            'charizard-gmax' => 'Charizard (G-Max)',
+            'pikachu-gmax' => 'Pikachu (G-Max)',
         ];
 
         if (isset($specialCases[$nameLower])) {
@@ -271,11 +264,11 @@ class AppExtension extends AbstractExtension
                 }
             }
 
-            if (empty($newSuffixParts)) {
+            if ($newSuffixParts === []) {
                 return $base;
             }
 
-            return $base . ' (' . implode(' ', $newSuffixParts) . ')';
+            return $base.' ('.implode(' ', $newSuffixParts).')';
         }
 
         return ucfirst($nameLower);

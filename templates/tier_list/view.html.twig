@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}
-	{{ tierList.title }} | PokeFlaton
+	{{ tierList.title }} | Mov Set
 {% endblock %}
 
 {% block stylesheets %}
@@ -19,7 +19,7 @@
 					<span>
 						<i class="fa-solid fa-user"></i>
 						{{ 'Publicada por'|trans }}
-						<strong>{{ tierList.user ? tierList.user.username : 'Anônimo'|trans }}</strong>
+						<strong>{{ tierList.user ? tierList.user.displayName : 'Anônimo'|trans }}</strong>
 					</span>
 					<span class="viewer-separator">&bull;</span>
 					<span>
@@ -75,7 +75,7 @@
 				<div class="export-meta">
 					<h2 class="export-title">{{ tierList.title }}</h2>
 					<span class="export-author">
-						{{ 'Publicada por'|trans }} <strong>{{ tierList.user ? tierList.user.username : 'Anônimo'|trans }}</strong>
+						{{ 'Publicada por'|trans }} <strong>{{ tierList.user ? tierList.user.displayName : 'Anônimo'|trans }}</strong>
 					</span>
 				</div>
 			</div>
@@ -83,7 +83,7 @@
 			<!-- Tier Board Read Only -->
 			<section class="tier-board tier-board-viewonly" id="tierBoard">
 				{% for tier in tierList.state %}
-					<div class="tier-row" style="border-bottom: 2px solid var(--border-color);">
+					<div class="tier-row" style="border-bottom: 1px solid var(--border-color);">
 						<!-- Label (Contrast set via JS on page load) -->
 						<div class="tier-label-col" style="background-color: {{ tier.color }}; cursor: default;">
 							<span class="tier-label-text">{{ tier.label }}</span>
@@ -117,7 +117,7 @@
 
 			<!-- Footer de Exportação (invisível na UI) -->
 			<div id="exportFooter" class="export-only-footer" style="display: none;">
-				<span>pokeflaton-tiers</span>
+				<span>movset-tiers</span>
 			</div>
 		</div>
 	</div>
@@ -193,7 +193,7 @@
 					if (exportFooter) exportFooter.style.display = 'none';
 
 					const link = document.createElement('a');
-					link.download = 'pokeflaton-tier-list.png';
+					link.download = 'movset-tier-list.png';
 					link.href = canvas.toDataURL('image/png');
 					link.click();
 					showToast("{{ 'Download da imagem iniciado!'|trans }}");

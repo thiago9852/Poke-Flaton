@@ -48,10 +48,14 @@ const MESSAGES = {
 
 let MAX_MOVES = 4;
 let selectedMoves = [];
-let currentFilter = 'all';
+let currentFilter = 'lvl';
 let currentTmMode = 'all';
 let searchQuery = '';
 let locale = 'pt_BR';
+
+function isMoveNameSelected(moveNameOnly) {
+    return selectedMoves.some(m => m && m.split('|')[0] === moveNameOnly);
+}
 
     // Resgatar os dados passados pelo Twig e inicializar
     const appData = document.getElementById('moveset-app-data');
@@ -67,6 +71,7 @@ let locale = 'pt_BR';
 
         // Inicializar UI
         updateUI();
+        applyFilters();
         loadAllMoveTypes();
 
         // Verificar sessionStorage para moveset importado
@@ -110,7 +115,7 @@ let locale = 'pt_BR';
                         // Preenche com os novos golpes padrão
                         defaults.forEach((move, idx) => {
                             if (idx < MAX_MOVES) {
-                                selectedMoves[idx] = move.toLowerCase().trim().replace(/\s+/g, '-');
+                                selectedMoves[idx] = move.toLowerCase().trim().replace(/\s+/g, '-') + '|base';
                             }
                         });
                         updateUI();
@@ -139,7 +144,7 @@ let locale = 'pt_BR';
                 if (!moveRaw || moveRaw.trim() === '') return;
                 
                 const moveName = moveRaw.trim().toLowerCase().replace(/\s+/g, '-');
-                if (selectedMoves.includes(moveName)) {
+                if (isMoveNameSelected(moveName)) {
                     alert('Este movimento já está selecionado.');
                     return;
                 }
@@ -155,7 +160,7 @@ let locale = 'pt_BR';
                         if (emptyIndex === -1) {
                             alert(t('maxMovesAlert').replace('{max}', MAX_MOVES));
                         } else {
-                            selectedMoves[emptyIndex] = moveName;
+                            selectedMoves[emptyIndex] = moveName + '|base';
                             updateUI();
                             customMoveInput.value = '';
                         }
@@ -329,21 +334,23 @@ function updateUI() {
     slotsContainer.innerHTML = '';
 
     for (let i = 0; i < MAX_MOVES; i++) {
-        const moveName = selectedMoves[i];
+        const selectedValue = selectedMoves[i];
+        const [moveName, learnMethod] = selectedValue ? selectedValue.split('|') : [null, 'base'];
         const hiddenInput = document.getElementById('hidden-move-' + (i + 1));
         if (hiddenInput) hiddenInput.value = moveName || '';
 
         const card = document.createElement('div');
         card.setAttribute('data-index', i);
-        if (!moveName) {
+        if (!selectedValue) {
             card.className = 'selected-slot-card empty';
             card.innerHTML = `<span class="selected-slot-number">#${i + 1}</span>`;
         } else {
-            const availableCard = document.querySelector(`.available-move-card[data-move-name="${moveName}"]`);
-            const learnMethod = availableCard ? availableCard.dataset.learnMethod : 'base';
+            const availableCard = document.querySelector(`.available-move-card[data-move-name="${moveName}"][data-learn-method="${learnMethod}"]`) 
+                               || document.querySelector(`.available-move-card[data-move-name="${moveName}"]`);
+            const methodVal = availableCard ? availableCard.dataset.learnMethod : learnMethod;
             const type = localStorage.getItem(cacheKeyPrefix + moveName) || 'normal';
-            const learnLabel = learnMethod === 'TM' ? 'TM' : 'Lvl';
-            const learnClass = learnMethod === 'TM' ? 'method-tm' : 'method-base';
+            const learnLabel = methodVal === 'TM' ? 'TM' : 'Lvl';
+            const learnClass = methodVal === 'TM' ? 'method-tm' : 'method-base';
             card.className = `selected-slot-card border-type-${type}`;
             card.draggable = true;
             card.innerHTML = `
@@ -391,21 +398,22 @@ function updateUI() {
 
     document.querySelectorAll('.available-move-card').forEach(card => {
         const moveName = card.dataset.moveName;
-        card.classList.toggle('selected', selectedMoves.includes(moveName));
+        const learnMethod = card.dataset.learnMethod;
+        card.classList.toggle('selected', selectedMoves.includes(moveName + '|' + learnMethod));
     });
     updateCounter();
 }
 
-window.addMoveToFirstEmptySlot = function (moveName) {
-    const card = document.querySelector(`.available-move-card[data-move-name="${moveName}"]`);
+window.addMoveToFirstEmptySlot = function (moveName, learnMethod = 'base') {
+    const card = document.querySelector(`.available-move-card[data-move-name="${moveName}"][data-learn-method="${learnMethod}"]`);
     if (card && card.dataset.locked === 'true') {
         alert(t('needUnlockTmAlert'));
         return;
     }
-    if (selectedMoves.includes(moveName)) return;
+    if (isMoveNameSelected(moveName)) return;
     const emptyIndex = selectedMoves.indexOf(null);
     if (emptyIndex === -1) return alert(t('maxMovesAlert').replace('{max}', MAX_MOVES));
-    selectedMoves[emptyIndex] = moveName;
+    selectedMoves[emptyIndex] = moveName + '|' + learnMethod;
     updateUI();
 };
 
@@ -446,8 +454,8 @@ function applyFilters() {
         const matchesSearch = moveNameClean.includes(query) || displayName.includes(query);
 
         let matchesFilter = true;
-        if (currentFilter === 'lvl') matchesFilter = (learnMethod === 'base' || learnMethod === 'both');
-        else if (currentFilter === 'tm') matchesFilter = (learnMethod === 'tm' || learnMethod === 'both');
+        if (currentFilter === 'lvl') matchesFilter = (learnMethod === 'base' || learnMethod === 'lvl');
+        else if (currentFilter === 'tm') matchesFilter = (learnMethod === 'tm');
 
         let isLocked = false;
         let matchesTmMode = true;
@@ -534,7 +542,8 @@ function applyParsedMoveset(parsed) {
             if (availableCard) {
                 const isLocked = availableCard.dataset.locked === 'true';
                 if (!isLocked) {
-                    selectedMoves[moveCount] = mvNormalized;
+                    const method = availableCard.dataset.learnMethod || 'base';
+                    selectedMoves[moveCount] = mvNormalized + '|' + method;
                     moveCount++;
                 } else {
                     console.warn(`Movimento ${mv} está bloqueado por falta de TM no Trainer Card.`);
