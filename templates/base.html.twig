@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>
-			{% block title %}Mov Set | Os Melhores Movesets de PokÃ©mon
+			{% block title %}Mov Set | Os Melhores Movesets de Pokémon
 			{% endblock %}
 		</title>
 		<link
@@ -96,21 +96,8 @@
 						{% else %}
 							{% if g_client_id %}
 								<script src="https://accounts.google.com/gsi/client" async defer></script>
-								<div id="g_id_onload"
-									 data-client_id="{{ g_client_id }}"
-									 data-context="signin"
-									 data-ux_mode="redirect"
-									 data-login_uri="{{ url('app_google_callback') }}"
-									 data-auto_prompt="false">
-								</div>
-								<div class="g_id_signin nav-g-signin"
-									 data-type="standard"
-									 data-shape="pill"
-									 data-theme="filled_blue"
-									 data-text="signin_with"
-									 data-size="medium"
-									 data-logo_alignment="left">
-								</div>
+								<div id="g_id_onload" data-client_id="{{ g_client_id }}" data-context="signin" data-ux_mode="redirect" data-login_uri="{{ url('app_google_callback') }}" data-auto_prompt="false"></div>
+								<div class="g_id_signin nav-g-signin" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="signin_with" data-size="medium" data-logo_alignment="left"></div>
 							{% else %}
 								<a href="{{ path('app_login') }}" class="nav-google-btn">
 									<i class="fa-brands fa-google"></i>
@@ -125,7 +112,7 @@
 									{% if app.request.locale == 'en' %}
 										<img src="https://flagcdn.com/w20/us.png" alt="English" class="lang-flag-img active">
 									{% else %}
-										<img src="https://flagcdn.com/w20/br.png" alt="PortuguÃªs" class="lang-flag-img active">
+										<img src="https://flagcdn.com/w20/br.png" alt="Português" class="lang-flag-img active">
 									{% endif %}
 								</span>
 								<i class="fa-solid fa-chevron-down nav-dropdown-caret"></i>
@@ -133,8 +120,8 @@
 							<ul class="nav-dropdown-menu" role="menu" style="min-width: 140px;">
 								<li role="menuitem">
 									<a href="{{ path('app_change_locale', { locale: 'pt_BR' }) }}" class="nav-dropdown-item" style="display: flex; align-items: center; gap: 10px; width: 100%;">
-										<img src="https://flagcdn.com/w20/br.png" alt="PortuguÃªs" class="lang-flag-img {% if app.request.locale != 'en' %}active{% else %}inactive{% endif %}">
-										<span>PortuguÃªs</span>
+										<img src="https://flagcdn.com/w20/br.png" alt="Português" class="lang-flag-img {% if app.request.locale != 'en' %}active{% else %}inactive{% endif %}">
+										<span>Português</span>
 									</a>
 								</li>
 								<li role="menuitem">
@@ -173,7 +160,7 @@
 			<div class="container footer-container">
 				<p>&copy;
 					{{ 'now'|date('Y') }}
-					{{ 'Mov Set. PokÃ©mon e todos os nomes relacionados sÃ£o marcas registradas da Nintendo, Game Freak e The PokÃ©mon Company.'|trans }}</p>
+					{{ 'Mov Set. Pokémon e todos os nomes relacionados sÃ£o marcas registradas da Nintendo, Game Freak e The Pokémon Company.'|trans }}</p>
 				<p class="api-attribution">
 					{{ 'Dados fornecidos por'|trans }}
 					<a href="https://pokeapi.co/" target="_blank">PokeAPI</a>
@@ -193,14 +180,13 @@
 			</div>
 		</div>
 
-		<!-- BotÃ£o Flutuante PokÃ©mon do Dia (Desativado) -->
+		<!-- BotÃ£o Flutuante Pokémon do Dia (Desativado) -->
 		{#
-		<a href="{{ path('app_game_daily') }}" class="floating-game-btn" title="{{ 'Jogar PokÃ©mon do Dia'|trans }}" data-turbo="false">
-			<img src="{{ asset('image/Pokeball.png') }}" class="floating-game-pokeball" alt="Pokeball">
-			<span class="floating-game-text">{{ 'PokÃ©mon do Dia'|trans }}</span>
-		</a>
-		#}
+						<a href="{{ path('app_game_daily') }}" class="floating-game-btn" title="{{ 'Jogar Pokémon do Dia'|trans }}" data-turbo="false">
+							<img src="{{ asset('image/Pokeball.png') }}" class="floating-game-pokeball" alt="Pokeball">
+							<span class="floating-game-text">{{ 'Pokémon do Dia'|trans }}</span>
+						</a>
+						#}
 
 	</body>
 </html>
-
