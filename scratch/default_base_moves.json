@@ -422,6 +422,8 @@
     "leech-life"
   ],
 
+
+
 "snivy": [
     "leaf-blade",
     "vine-whip",
@@ -1493,6 +1495,8 @@
     "will-o-wisp"
   ],
 
+
+
   "chespin": [
     "pin-missile",
     "drain-punch",
@@ -2073,5 +2077,10 @@
     "roost",
     "whirlwind",
     "dragon-dance"
+  ],
+
+
+  "": [
+    
   ]
 }

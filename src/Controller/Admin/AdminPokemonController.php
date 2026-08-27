@@ -2,10 +2,13 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Avatar;
+use App\Entity\CardTemplate;
 use App\Entity\EvolutionRule;
 use App\Entity\Moveset;
 use App\Entity\PokemonLocation;
 use App\Entity\PokemonVariation;
+use App\Entity\User;
 use App\Enum\EvolutionStone;
 use App\Form\EvolutionRuleType;
 use App\Form\PokemonVariationType;
@@ -39,7 +42,7 @@ class AdminPokemonController extends AbstractController
         // Garante as colunas no banco
         $this->trainerProfileService->initializeMovesetColumns();
 
-        $activeTab = $request->query->get('tab', 'users');
+        $activeTab = $request->query->get('tab', 'overview');
         $pokemonSearch = trim($request->query->get('pokemon', ''));
 
         $gameEncounters = [];
@@ -71,6 +74,26 @@ class AdminPokemonController extends AbstractController
             $defaultBaseMoves = json_decode(file_get_contents($defaultBaseMovesPath), true) ?: [];
         }
 
+        // Estatísticas para o Dashboard
+        $approvedLocationsCount = $this->entityManager->getRepository(PokemonLocation::class)->count(['isApproved' => true]);
+        $totalMovesetsCount = $this->entityManager->getRepository(Moveset::class)->count([]);
+        $cardTemplates = $this->entityManager->getRepository(CardTemplate::class)->findBy([], ['id' => 'ASC']);
+        $avatarsCount = $this->entityManager->getRepository(Avatar::class)->count([]);
+        $usersCount = $this->entityManager->getRepository(User::class)->count([]);
+
+        $stats = [
+            'pendingLocations' => count($pendingLocations),
+            'approvedLocations' => $approvedLocationsCount,
+            'pendingMovesets' => count($pendingMovesets),
+            'totalMovesets' => $totalMovesetsCount,
+            'variations' => count($variations),
+            'evolutionRules' => count($evolutionRules),
+            'defaultBaseMoves' => count($defaultBaseMoves),
+            'cardTemplates' => count($cardTemplates),
+            'avatars' => $avatarsCount,
+            'users' => $usersCount,
+        ];
+
         return $this->render('admin/pokemon.html.twig', [
             'activeTab' => $activeTab,
             'pokemonSearch' => $pokemonSearch,
@@ -83,6 +106,8 @@ class AdminPokemonController extends AbstractController
             'pokemonByName' => $pokemonByName,
             'stones' => $stones,
             'defaultBaseMoves' => $defaultBaseMoves,
+            'cardTemplates' => $cardTemplates,
+            'stats' => $stats,
         ]);
     }
 
@@ -727,5 +752,127 @@ class AdminPokemonController extends AbstractController
         }
 
         return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'movesets']);
+    }
+
+    #[Route('/admin/location/{id}/approve', name: 'app_location_approve', methods: ['POST'])]
+    public function approveLocation(int $id): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $location = $this->entityManager->getRepository(PokemonLocation::class)->find($id);
+        if (!$location) {
+            $this->addFlash('error', 'Localização não encontrada.');
+
+            return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'locations']);
+        }
+
+        $location->setIsApproved(true);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Localização aprovada com sucesso!');
+
+        return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'locations']);
+    }
+
+    #[Route('/admin/location/{id}/delete', name: 'app_location_delete', methods: ['POST'])]
+    public function deleteLocation(int $id): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $location = $this->entityManager->getRepository(PokemonLocation::class)->find($id);
+        if ($location) {
+            $this->entityManager->remove($location);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Localização removida com sucesso!');
+        } else {
+            $this->addFlash('error', 'Localização não encontrada.');
+        }
+
+        return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'locations']);
+    }
+
+    #[Route('/admin/location/bulk', name: 'app_location_bulk', methods: ['POST'])]
+    public function bulkLocations(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $ids = $request->request->all('ids');
+        $action = $request->request->get('action');
+
+        if ($ids === [] || !is_array($ids)) {
+            $this->addFlash('error', 'Nenhuma localização selecionada.');
+
+            return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'locations']);
+        }
+
+        $repo = $this->entityManager->getRepository(PokemonLocation::class);
+        $count = 0;
+
+        foreach ($ids as $id) {
+            $location = $repo->find((int) $id);
+            if ($location) {
+                if ($action === 'approve') {
+                    $location->setIsApproved(true);
+                } elseif ($action === 'delete') {
+                    $this->entityManager->remove($location);
+                }
+                ++$count;
+            }
+        }
+
+        $this->entityManager->flush();
+
+        if ($action === 'approve') {
+            $this->addFlash('success', sprintf('%d localizações aprovadas com sucesso!', $count));
+        } else {
+            $this->addFlash('success', sprintf('%d localizações rejeitadas e removidas com sucesso.', $count));
+        }
+
+        return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'locations']);
+    }
+
+    #[Route('/admin/location/import-official', name: 'app_location_import_official', methods: ['POST'])]
+    public function importOfficialLocations(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $pokemonName = strtolower(trim($request->request->get('pokemonName', '')));
+        $locations = $request->request->all('locations');
+
+        if (empty($pokemonName) || empty($locations) || !is_array($locations)) {
+            $this->addFlash('error', 'Nenhuma localização selecionada para importação.');
+
+            return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'locations', 'pokemon' => $pokemonName]);
+        }
+
+        $count = 0;
+        $repo = $this->entityManager->getRepository(PokemonLocation::class);
+
+        foreach ($locations as $locName) {
+            $locName = trim($locName);
+            if (empty($locName)) {
+                continue;
+            }
+
+            $existing = $repo->findOneBy([
+                'pokemonName' => $pokemonName,
+                'locationName' => $locName,
+            ]);
+
+            if (!$existing) {
+                $loc = new PokemonLocation();
+                $loc->setPokemonName($pokemonName);
+                $loc->setLocationName($locName);
+                $loc->setIsApproved(true);
+                $this->entityManager->persist($loc);
+                ++$count;
+            }
+        }
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', sprintf('%d localizações oficiais importadas para %s com sucesso!', $count, ucfirst($pokemonName)));
+
+        return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'locations', 'pokemon' => $pokemonName]);
     }
 }
