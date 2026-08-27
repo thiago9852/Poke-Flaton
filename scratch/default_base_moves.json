@@ -1,2086 +1,2761 @@
 {
-  "bulbasaur": [
-    "magical-leaf",
-    "grassy-terrain",
-    "synthesis",
-    "power-whip",
-    "razor-leaf"
-  ],
-  "ivysaur": [
-    "magical-leaf",
-    "grassy-terrain",
-    "synthesis",
-    "power-whip",
-    "razor-leaf",
-    "petal-dance",
-    "solar-beam"
-  ],
-  "venusaur": [
-    "magical-leaf",
-    "grassy-terrain",
-    "leaf-storm",
-    "power-whip",
-    "razor-leaf",
-    "petal-dance",
-    "solar-beam",
-    "poison-gas",
-    "petal-blizzard",
-    "synthesis"
-  ],
-  "charmander": [
-    "flamethrower",
-    "dragon-rush",
-    "heat-wave",
-    "inferno",
-    "flare-blitz"
-  ],
-  "charmeleon": [
-    "flamethrower",
-    "dragon-rush",
-    "heat-wave",
-    "dragon-rage",
-    "flare-blitz",
-    "inferno",
-    "fire-blast"
-  ],
-  "charizard": [
-    "air-slash",
-    "dragon-rush",
-    "heat-wave",
-    "dragon-rage",
-    "dragon-breath",
-    "inferno",
-    "fire-blast",
-    "flare-blitz",
-    "flamethrower",
-    "wing-attack"
-  ],
-  "squirtle": [
-    "life-dew",
-    "water-pulse",
-    "water-gun",
-    "hydro-pump",
-    "bite"
-  ],
-  "blastoise": [
-    "life-dew",
-    "water-pulse",
-    "water-gun",
-    "hydro-pump",
-    "bite",
-    "rain-dance",
-    "muddy-water",
-    "water-sport",
-    "hydro-cannon",
-    "whirlpool"
-  ],
-  "caterpie": [
-    "tackle",
-    "string-shot",
-    "bug-bite"
-  ],
-  "metapod": [
-    "tackle",
-    "string-shot",
-    "bug-bite",
-    "harden",
-    "iron-defense"
-  ],
-  "butterfree": [
-    "bug-bite",
-    "psybeam",
-    "draining-kiss",
-    "confusion",
-    "mega-drain",
-    "bug-buzz",
-    "quiver-dance",
-    "air-slash",
-    "hurricane",
-    "tackle"
-  ],
-  "weedle": [
-    "poison-sting",
-    "string-shot",
-    "bug-bite"
-  ],
-  "kakuna": [
-    "poison-sting",
-    "string-shot",
-    "bug-bite",
-    "harden",
-    "iron-defense"
-  ],
-  "beedrill": [
-    "agility",
-    "assurance",
-    "pin-missile",
-    "mega-drain",
-    "fury-cutter",
-    "ominous-wind",
-    "venoshock",
-    "outrage",
-    "poison-jab",
-    "pursuit"
-  ],
-"pidgey": [
-    "quick-attack",
-    "brave-bird",
-    "gust",
-    "twister",
-    "wing-attack"
-  ],
-  "pidgeotto": [
-    "quick-attack",
-    "brave-bird",
-    "gust",
-    "twister",
-    "wing-attack",
-    "air-slash",
-    "hurricane"
-  ],
-  "pidgeot": [
-    "agility",
-    "air-cutter",
-    "wing-attack",
-    "twister",
-    "air-slash",
-    "hurricane",
-    "whirlwind",
-    "brave-bird",
-    "uproar",
-    "roost"
-  ],
-  "rattata": [
-    "quick-attack",
-    "bite",
-    "tackle",
-    "assurance",
-    "crunch"
-  ],
-  "raticate": [
-    "quick-attack",
-    "bite",
-    "tackle",
-    "assurance",
-    "crunch",
-    "sucker-punch",
-    "super-fang",
-    "swords-dance",
-    "take-down",
-    "scary-face"
-  ],
-  "spearow": [
-    "drill-peck",
-    "leer",
-    "assurance",
-    "fury-attack",
-    "wing-attack"
-  ],
-  "fearow": [
-    "drill-peck",
-    "leer",
-    "assurance",
-    "fury-attack",
-    "wing-attack",
-    "take-down",
-    "agility",
-    "aerial-ace",
-    "peck",
-    "roost"
-  ],
-  "ekans": [
-    "bite",
-    "acid",
-    "mud-bomb",
-    "sludge-bomb",
-    "poison-sting"
-  ],
-  "arbok": [
-    "bite",
-    "acid",
-    "mud-bomb",
-    "sludge-bomb",
-    "poison-sting",
-    "brutal-swing",
-    "crunch",
-    "leech-life",
-    "poison-jab",
-    "toxic"
-  ],
-  "pikachu": [
-    "agility",
-    "iron-tail",
-    "charm",
-    "thunderbolt",
-    "rest",
-    "thunder-shock",
-    "thunder"
-  ],
-  "raichu": [
-    "agility",
-    "iron-tail",
-    "play-rough",
-    "thunderbolt",
-    "thunder-wave",
-    "discharge",
-    "thunder",
-    "electro-ball",
-    "thunder-shock",
-    "rest"
-  ],
-  "sandshrew": [
-    "defense-curl",
-    "poison-sting",
-    "bulldoze",
-    "earthquake",
-    "fury-cutter"
-  ],
-  "sandslash": [
-    "defense-curl",
-    "poison-sting",
-    "bulldoze",
-    "earthquake",
-    "fury-cutter",
-    "earth-power",
-    "sandstorm",
-    "sand-tomb",
-    "swift",
-    "gyro-ball"
-  ],
-  "nidoran-f": [
-    "poison-sting",
-    "toxic-spikes",
-    "toxic",
-    "fury-swipes",
-    "skull-bash"
-  ],
-  "nidorina": [
-    "poison-sting",
-    "toxic-spikes",
-    "toxic",
-    "fury-swipes",
-    "skull-bash",
-    "crunch",
-    "earth-power"
-  ],
-  "nidoran-m": [
-    "toxic",
-    "poison-sting",
-    "toxic-spikes",
-    "poison-jab",
-    "earth-power"
-  ],
-  "nidorino": [
-    "toxic",
-    "poison-sting",
-    "toxic-spikes",
-    "poison-jab",
-    "earth-power",
-    "horn-attack",
-    "earthquake"
-  ],
-  "nidoqueen": [
-    "poison-sting",
-    "toxic-spikes",
-    "toxic",
-    "fury-swipes",
-    "skull-bash",
-    "crunch",
-    "earth-power",
-    "earthquake",
-    "superpower",
-    "sludge-wave"
-  ],
-  "nidoking": [
-    "toxic",
-    "megahorn",
-    "toxic-spikes",
-    "poison-jab",
-    "peck",
-    "earth-power",
-    "poison-sting",
-    "horn-attack",
-    "earthquake",
-    "beat-up"
-  ],
-  "clefairy": [
-    "metronome",
-    "charm",
-    "moonblast",
-    "disarming-voice",
-    "life-dew"
-  ],
-  "clefable": [
-    "metronome",
-    "misty-terrain",
-    "moonblast",
-    "dazzling-gleam",
-    "meteor-mash",
-    "life-dew",
-    "disarming-voice",
-    "heal-pulse",
-    "heal-bell",
-    "uproar"
-  ],
-  "vulpix": [
-    "flare-blitz",
-    "confuse-ray",
-    "heat-wave",
-    "fire-blast",
-    "ember"
-  ],
-  "ninetales": [
-    "flare-blitz",
-    "confuse-ray",
-    "heat-wave",
-    "fire-blast",
-    "incinerate",
-    "inferno",
-    "will-o-wisp",
-    "mystical-fire",
-    "ember",
-    "safeguard"
-  ],
-  "jigglypuff": [
-    "charm",
-    "disarming-voice",
-    "defense-curl",
-    "heal-pulse",
-    "last-resort",
-    "moonblast",
-    "echoed-voice"
-  ],
-  "wigglytuff": [
-    "charm",
-    "disarming-voice",
-    "defense-curl",
-    "heal-pulse",
-    "last-resort",
-    "moonblast",
-    "echoed-voice",
-    "hyper-voice",
-    "wish",
-    "uproar"
-  ],
-  "zubat": [
-    "quick-attack",
-    "bite",
-    "air-slash",
-    "whirlwind",
-    "poison-fang"
-  ],
-  "golbat": [
-    "quick-attack",
-    "bite",
-    "air-slash",
-    "whirlwind",
-    "poison-fang",
-    "hypnosis",
-    "wing-attack",
-    "leech-life"
-  ],
-  "oddish": [
-    "absorb",
-    "mega-drain",
-    "poison-powder",
-    "sleep-powder",
-    "synthesis"
-  ],
-  "gloom": [
-    "absorb",
-    "mega-drain",
-    "poison-powder",
-    "sleep-powder",
-    "grassy-terrain",
-    "moonblast",
-    "synthesis"
-  ],
-  "vileplume": [
-    "absorb",
-    "mega-drain",
-    "poison-powder",
-    "sleep-powder",
-    "grassy-terrain",
-    "moonblast",
-    "petal-blizzard",
-    "toxic",
-    "petal-dance",
-    "synthesis"
-  ],
-  "paras": [
-    "absorb",
-    "bug-bite",
-    "x-scissor",
-    "venoshock",
-    "energy-ball"
-  ],
-  "venonat": [
-    "agility",
-    "bug-bite",
-    "sleep-powder",
-    "tackle",
-    "leech-life"
-  ],
+    "bulbasaur": [
+        "magical-leaf",
+        "grassy-terrain",
+        "synthesis",
+        "power-whip",
+        "razor-leaf"
+    ],
+    "ivysaur": [
+        "magical-leaf",
+        "grassy-terrain",
+        "synthesis",
+        "power-whip",
+        "razor-leaf",
+        "petal-dance",
+        "solar-beam"
+    ],
+    "venusaur": [
+        "magical-leaf",
+        "grassy-terrain",
+        "leaf-storm",
+        "power-whip",
+        "razor-leaf",
+        "petal-dance",
+        "solar-beam",
+        "poison-gas",
+        "petal-blizzard",
+        "synthesis"
+    ],
+    "charmander": [
+        "flamethrower",
+        "dragon-rush",
+        "heat-wave",
+        "inferno",
+        "flare-blitz"
+    ],
+    "charmeleon": [
+        "flamethrower",
+        "dragon-rush",
+        "heat-wave",
+        "dragon-rage",
+        "flare-blitz",
+        "inferno",
+        "fire-blast"
+    ],
+    "charizard": [
+        "air-slash",
+        "dragon-rush",
+        "heat-wave",
+        "dragon-rage",
+        "dragon-breath",
+        "inferno",
+        "fire-blast",
+        "flare-blitz",
+        "flamethrower",
+        "wing-attack"
+    ],
+    "squirtle": [
+        "life-dew",
+        "water-pulse",
+        "water-gun",
+        "hydro-pump",
+        "bite"
+    ],
+    "blastoise": [
+        "life-dew",
+        "water-pulse",
+        "water-gun",
+        "hydro-pump",
+        "bite",
+        "rain-dance",
+        "muddy-water",
+        "water-sport",
+        "hydro-cannon",
+        "whirlpool"
+    ],
+    "caterpie": [
+        "tackle",
+        "string-shot",
+        "bug-bite"
+    ],
+    "metapod": [
+        "tackle",
+        "string-shot",
+        "bug-bite",
+        "harden",
+        "iron-defense"
+    ],
+    "butterfree": [
+        "bug-bite",
+        "psybeam",
+        "draining-kiss",
+        "confusion",
+        "mega-drain",
+        "bug-buzz",
+        "quiver-dance",
+        "air-slash",
+        "hurricane",
+        "tackle"
+    ],
+    "weedle": [
+        "poison-sting",
+        "string-shot",
+        "bug-bite"
+    ],
+    "kakuna": [
+        "poison-sting",
+        "string-shot",
+        "bug-bite",
+        "harden",
+        "iron-defense"
+    ],
+    "beedrill": [
+        "agility",
+        "assurance",
+        "pin-missile",
+        "mega-drain",
+        "fury-cutter",
+        "ominous-wind",
+        "venoshock",
+        "outrage",
+        "poison-jab",
+        "pursuit"
+    ],
+    "pidgey": [
+        "quick-attack",
+        "brave-bird",
+        "gust",
+        "twister",
+        "wing-attack"
+    ],
+    "pidgeotto": [
+        "quick-attack",
+        "brave-bird",
+        "gust",
+        "twister",
+        "wing-attack",
+        "air-slash",
+        "hurricane"
+    ],
+    "pidgeot": [
+        "agility",
+        "air-cutter",
+        "wing-attack",
+        "twister",
+        "air-slash",
+        "hurricane",
+        "whirlwind",
+        "brave-bird",
+        "uproar",
+        "roost"
+    ],
+    "rattata": [
+        "quick-attack",
+        "bite",
+        "tackle",
+        "assurance",
+        "crunch"
+    ],
+    "raticate": [
+        "quick-attack",
+        "bite",
+        "tackle",
+        "assurance",
+        "crunch",
+        "sucker-punch",
+        "super-fang",
+        "swords-dance",
+        "take-down",
+        "scary-face"
+    ],
+    "spearow": [
+        "drill-peck",
+        "leer",
+        "assurance",
+        "fury-attack",
+        "wing-attack"
+    ],
+    "fearow": [
+        "drill-peck",
+        "leer",
+        "assurance",
+        "fury-attack",
+        "wing-attack",
+        "take-down",
+        "agility",
+        "aerial-ace",
+        "peck",
+        "roost"
+    ],
+    "ekans": [
+        "bite",
+        "acid",
+        "mud-bomb",
+        "sludge-bomb",
+        "poison-sting"
+    ],
+    "arbok": [
+        "bite",
+        "acid",
+        "mud-bomb",
+        "sludge-bomb",
+        "poison-sting",
+        "brutal-swing",
+        "crunch",
+        "leech-life",
+        "poison-jab",
+        "toxic"
+    ],
+    "pikachu": [
+        "agility",
+        "iron-tail",
+        "charm",
+        "thunderbolt",
+        "rest",
+        "thunder-shock",
+        "thunder"
+    ],
+    "raichu": [
+        "agility",
+        "iron-tail",
+        "play-rough",
+        "thunderbolt",
+        "thunder-wave",
+        "discharge",
+        "thunder",
+        "electro-ball",
+        "thunder-shock",
+        "rest"
+    ],
+    "sandshrew": [
+        "defense-curl",
+        "poison-sting",
+        "bulldoze",
+        "earthquake",
+        "fury-cutter"
+    ],
+    "sandslash": [
+        "defense-curl",
+        "poison-sting",
+        "bulldoze",
+        "earthquake",
+        "fury-cutter",
+        "earth-power",
+        "sandstorm",
+        "sand-tomb",
+        "swift",
+        "gyro-ball"
+    ],
+    "nidoran-f": [
+        "poison-sting",
+        "toxic-spikes",
+        "toxic",
+        "fury-swipes",
+        "skull-bash"
+    ],
+    "nidorina": [
+        "poison-sting",
+        "toxic-spikes",
+        "toxic",
+        "fury-swipes",
+        "skull-bash",
+        "crunch",
+        "earth-power"
+    ],
+    "nidoran-m": [
+        "toxic",
+        "poison-sting",
+        "toxic-spikes",
+        "poison-jab",
+        "earth-power"
+    ],
+    "nidorino": [
+        "toxic",
+        "poison-sting",
+        "toxic-spikes",
+        "poison-jab",
+        "earth-power",
+        "horn-attack",
+        "earthquake"
+    ],
+    "nidoqueen": [
+        "poison-sting",
+        "toxic-spikes",
+        "toxic",
+        "fury-swipes",
+        "skull-bash",
+        "crunch",
+        "earth-power",
+        "earthquake",
+        "superpower",
+        "sludge-wave"
+    ],
+    "nidoking": [
+        "toxic",
+        "megahorn",
+        "toxic-spikes",
+        "poison-jab",
+        "peck",
+        "earth-power",
+        "poison-sting",
+        "horn-attack",
+        "earthquake",
+        "beat-up"
+    ],
+    "clefairy": [
+        "metronome",
+        "charm",
+        "moonblast",
+        "disarming-voice",
+        "life-dew"
+    ],
+    "clefable": [
+        "metronome",
+        "misty-terrain",
+        "moonblast",
+        "dazzling-gleam",
+        "meteor-mash",
+        "life-dew",
+        "disarming-voice",
+        "heal-pulse",
+        "heal-bell",
+        "uproar"
+    ],
+    "vulpix": [
+        "flare-blitz",
+        "confuse-ray",
+        "heat-wave",
+        "fire-blast",
+        "ember"
+    ],
+    "ninetales": [
+        "flare-blitz",
+        "confuse-ray",
+        "heat-wave",
+        "fire-blast",
+        "incinerate",
+        "inferno",
+        "will-o-wisp",
+        "mystical-fire",
+        "ember",
+        "safeguard"
+    ],
+    "jigglypuff": [
+        "charm",
+        "disarming-voice",
+        "defense-curl",
+        "heal-pulse",
+        "last-resort",
+        "moonblast",
+        "echoed-voice"
+    ],
+    "wigglytuff": [
+        "charm",
+        "disarming-voice",
+        "defense-curl",
+        "heal-pulse",
+        "last-resort",
+        "moonblast",
+        "echoed-voice",
+        "hyper-voice",
+        "wish",
+        "uproar"
+    ],
+    "zubat": [
+        "quick-attack",
+        "bite",
+        "air-slash",
+        "whirlwind",
+        "poison-fang"
+    ],
+    "golbat": [
+        "quick-attack",
+        "bite",
+        "air-slash",
+        "whirlwind",
+        "poison-fang",
+        "hypnosis",
+        "wing-attack",
+        "leech-life"
+    ],
+    "oddish": [
+        "absorb",
+        "mega-drain",
+        "poison-powder",
+        "sleep-powder",
+        "synthesis"
+    ],
+    "gloom": [
+        "absorb",
+        "mega-drain",
+        "poison-powder",
+        "sleep-powder",
+        "grassy-terrain",
+        "moonblast",
+        "synthesis"
+    ],
+    "vileplume": [
+        "absorb",
+        "mega-drain",
+        "poison-powder",
+        "sleep-powder",
+        "grassy-terrain",
+        "moonblast",
+        "petal-blizzard",
+        "toxic",
+        "petal-dance",
+        "synthesis"
+    ],
+    "paras": [
+        "absorb",
+        "bug-bite",
+        "x-scissor",
+        "venoshock",
+        "energy-ball"
+    ],
+    "venonat": [
+        "agility",
+        "bug-bite",
+        "sleep-powder",
+        "tackle",
+        "leech-life"
+    ],
+    "snivy": [
+        "leaf-blade",
+        "vine-whip",
+        "giga-drain",
+        "magical-leaf",
+        "synthesis"
+    ],
+    "servine": [
+        "leaf-blade",
+        "vine-whip",
+        "leech-seed",
+        "magical-leaf",
+        "synthesis",
+        "leaf-storm",
+        "giga-drain"
+    ],
+    "serperior": [
+        "giga-drain",
+        "vine-whip",
+        "pursuit",
+        "mega-drain",
+        "outrage",
+        "magical-leaf",
+        "dragon-pulse",
+        "leaf-blade",
+        "leaf-storm",
+        "synthesis"
+    ],
+    "tepig": [
+        "flare-blitz",
+        "ember",
+        "fire-blast",
+        "flamethrower",
+        "assurance"
+    ],
+    "pignite": [
+        "flare-blitz",
+        "ember",
+        "fire-blast",
+        "flamethrower",
+        "assurance",
+        "fire-pledge",
+        "flame-charge"
+    ],
+    "emboar": [
+        "hammer-arm",
+        "head-smash",
+        "assurance",
+        "flare-blitz",
+        "focus-blast",
+        "fire-pledge",
+        "flame-charge",
+        "facade",
+        "fire-blast",
+        "flamethrower"
+    ],
+    "oshawott": [
+        "hydro-pump",
+        "water-pulse",
+        "water-pledge",
+        "aqua-jet",
+        "hydro-pump"
+    ],
+    "dewott": [
+        "water-gun",
+        "aqua-tail",
+        "waterfall",
+        "night-slash",
+        "water-sport",
+        "water-pledge",
+        "rain-dance"
+    ],
+    "samurott": [
+        "water-gun",
+        "aqua-tail",
+        "waterfall",
+        "night-slash",
+        "water-sport",
+        "water-pledge",
+        "rain-dance",
+        "hydro-cannon",
+        "hydro-pump",
+        "water-pulse"
+    ],
+    "ducklett": [
+        "wing-attack",
+        "water-gun",
+        "icy-wind",
+        "aerial-ace",
+        "roost"
+    ],
+    "swanna": [
+        "wing-attack",
+        "water-gun",
+        "icy-wind",
+        "aerial-ace",
+        "feather-dance",
+        "air-slash",
+        "hurricane",
+        "uproar",
+        "roost"
+    ],
+    "mandibuzz": [
+        "gust",
+        "leer",
+        "knock-off",
+        "whirlwind",
+        "feint-attack",
+        "dark-pulse",
+        "bone-rush",
+        "air-slash",
+        "mean-look",
+        "roost"
+    ],
+    "patrat": [
+        "tackle",
+        "leer",
+        "bite",
+        "crunch",
+        "super-fang"
+    ],
+    "watchog": [
+        "tackle",
+        "leer",
+        "bite",
+        "future-sight",
+        "crunch",
+        "super-fang",
+        "mean-look",
+        "low-kick",
+        "confuse-ray"
+    ],
+    "sawk": [
+        "rock-slide",
+        "leer",
+        "bite",
+        "body-slam",
+        "uproar",
+        "blaze-kick",
+        "brick-break",
+        "bulk-up",
+        "focus-blast",
+        "dynamic-punch"
+    ],
+    "throh": [
+        "bite",
+        "leer",
+        "focus-blast",
+        "revenge",
+        "superpower",
+        "agility",
+        "body-slam",
+        "bulk-up",
+        "blaze-kick",
+        "dynamic-punch"
+    ],
+    "audino": [
+        "dazzling-gleam",
+        "psyshock",
+        "heal-pulse",
+        "disarming-voice",
+        "last-resort",
+        "misty-terrain",
+        "heal-bell",
+        "wish",
+        "hyper-voice",
+        "uproar"
+    ],
+    "lillipup": [
+        "tackle",
+        "leer",
+        "bite",
+        "take-down",
+        "crunch"
+    ],
+    "herdier": [
+        "tackle",
+        "leer",
+        "bite",
+        "take-down",
+        "reversal",
+        "crunch",
+        "thunder-fang"
+    ],
+    "scraggy": [
+        "leer",
+        "low-kick",
+        "facade",
+        "headbutt",
+        "feint-attack"
+    ],
+    "scrafty": [
+        "dynamic-punch",
+        "low-kick",
+        "facade",
+        "headbutt",
+        "feint-attack",
+        "focus-blast",
+        "brick-break",
+        "crunch",
+        "agility",
+        "payback"
+    ],
+    "deerling": [
+        "tackle",
+        "leer",
+        "zen-headbutt",
+        "leech-seed",
+        "feint-attack"
+    ],
+    "sawsbuck": [
+        "tackle",
+        "future-sight",
+        "leer",
+        "zen-headbutt",
+        "earthquake",
+        "leech-seed",
+        "feint-attack",
+        "take-down",
+        "energy-ball",
+        "solar-beam"
+    ],
+    "durant": [
+        "iron-head",
+        "bug-bite",
+        "metal-sound",
+        "fury-cutter",
+        "struggle-bug",
+        "metal-claw",
+        "x-scissor",
+        "crunch",
+        "iron-defense",
+        "guillotine"
+    ],
+    "ferroseed": [
+        "tackle",
+        "iron-defense",
+        "metal-claw",
+        "pin-missile",
+        "gyro-ball"
+    ],
+    "ferrothorn": [
+        "tackle",
+        "iron-defense",
+        "metal-claw",
+        "pin-missile",
+        "gyro-ball",
+        "leech-seed",
+        "flash-cannon",
+        "iron-head",
+        "power-whip",
+        "toxic"
+    ],
+    "venipede": [
+        "pursuit",
+        "megahorn",
+        "take-down",
+        "poison-jab",
+        "toxic"
+    ],
+    "whirlipede": [
+        "pursuit",
+        "megahorn",
+        "take-down",
+        "poison-jab",
+        "toxic",
+        "fury-cutter",
+        "struggle-bug"
+    ],
+    "scolipede": [
+        "pursuit",
+        "megahorn",
+        "take-down",
+        "poison-jab",
+        "pin-missile",
+        "venoshock",
+        "struggle-bug",
+        "iron-defense",
+        "agility",
+        "x-scissor"
+    ],
+    "heatmor": [
+        "sucker-punch",
+        "tackle",
+        "fire-spin",
+        "inferno",
+        "feint-attack",
+        "heat-wave",
+        "night-slash",
+        "incinerate",
+        "bug-bite",
+        "flare-blitz"
+    ],
+    "karrablast": [
+        "peck",
+        "leer",
+        "harden",
+        "fury-cutter",
+        "headbutt"
+    ],
+    "escavalier": [
+        "peck",
+        "leer",
+        "harden",
+        "fury-cutter",
+        "headbutt",
+        "meteor-mash",
+        "bug-buzz",
+        "iron-head",
+        "x-scissor",
+        "swords-dance"
+    ],
+    "shelmet": [
+        "absorb",
+        "struggle-bug",
+        "bug-buzz",
+        "giga-drain",
+        "recover"
+    ],
+    "accelgor": [
+        "absorb",
+        "struggle-bug",
+        "bug-buzz",
+        "giga-drain",
+        "agility",
+        "toxic",
+        "swift",
+        "body-slam",
+        "water-shuriken",
+        "recover"
+    ],
+    "rufflet": [
+        "peck",
+        "leer",
+        "wing-attack",
+        "uproar",
+        "scary-face"
+    ],
+    "braviary": [
+        "peck",
+        "leer",
+        "wing-attack",
+        "superpower",
+        "scary-face",
+        "aerial-ace",
+        "slash",
+        "hurricane",
+        "whirlwind",
+        "roost"
+    ],
+    "pawniard": [
+        "leer",
+        "pursuit",
+        "metal-sound",
+        "torment",
+        "assurance"
+    ],
+    "bisharp": [
+        "leer",
+        "pursuit",
+        "metal-sound",
+        "torment",
+        "night-slash",
+        "dark-pulse",
+        "fury-cutter",
+        "mean-look",
+        "assurance",
+        "iron-head"
+    ],
+    "trubbish": [
+        "amnesia",
+        "toxic-spikes",
+        "poison-gas",
+        "sludge-bomb",
+        "sludge"
+    ],
+    "garbodor": [
+        "sludge-bomb",
+        "toxic-spikes",
+        "drain-punch",
+        "giga-drain",
+        "metal-claw",
+        "toxic",
+        "poison-gas",
+        "seed-bomb",
+        "focus-blast",
+        "dark-pulse"
+    ],
+    "deino": [
+        "tackle",
+        "dragon-breath",
+        "hyper-voice",
+        "crunch",
+        "dragon-rush"
+    ],
+    "hydreigon": [
+        "tri-attack",
+        "dragon-breath",
+        "hyper-voice",
+        "dragon-rush",
+        "draco-meteor",
+        "heat-wave",
+        "uproar",
+        "outrage",
+        "incinerate",
+        "dragon-dance"
+    ],
+    "mienfoo": [
+        "agility",
+        "aura-sphere",
+        "drain-punch",
+        "revenge",
+        "reversal"
+    ],
+    "mienshao": [
+        "agility",
+        "aura-sphere",
+        "drain-punch",
+        "revenge",
+        "reversal",
+        "hone-claws",
+        "low-kick",
+        "fury-swipes",
+        "brick-break",
+        "poison-jab"
+    ],
+    "druddigon": [
+        "leer",
+        "iron-head",
+        "dragon-claw",
+        "revenge",
+        "night-slash",
+        "heat-wave",
+        "draco-meteor",
+        "outrage",
+        "earthquake",
+        "hone-claws"
+    ],
+    "bouffalant": [
+        "tackle",
+        "pursuit",
+        "leer",
+        "fury-attack",
+        "earthquake",
+        "revenge",
+        "scary-face",
+        "lash-out",
+        "megahorn",
+        "swords-dance"
+    ],
+    "elgyem": [
+        "confusion",
+        "headbutt",
+        "recover",
+        "future-sight",
+        "psybeam"
+    ],
+    "beheeyem": [
+        "confusion",
+        "headbutt",
+        "recover",
+        "future-sight",
+        "psybeam",
+        "calm-mind",
+        "zen-headbutt",
+        "astonish",
+        "psychic",
+        "destiny-bond"
+    ],
+    "drilbur": [
+        "scratch",
+        "metal-claw",
+        "meteor-mash",
+        "sand-tomb",
+        "uproar"
+    ],
+    "excadrill": [
+        "scratch",
+        "metal-claw",
+        "meteor-mash",
+        "sandstorm",
+        "bulldoze",
+        "rock-polish",
+        "uproar",
+        "earthquake",
+        "iron-head",
+        "rock-slide"
+    ],
+    "sandile": [
+        "bite",
+        "leer",
+        "hone-claws",
+        "torment",
+        "assurance"
+    ],
+    "krokorok": [
+        "bite",
+        "leer",
+        "hone-claws",
+        "torment",
+        "assurance",
+        "sand-tomb",
+        "rock-polish"
+    ],
+    "krookodile": [
+        "bite",
+        "hone-claws",
+        "bulldoze",
+        "sand-tomb",
+        "rock-polish",
+        "crunch",
+        "earthquake",
+        "dragon-rush",
+        "outrage",
+        "sandstorm"
+    ],
+    "timburr": [
+        "leer",
+        "drain-punch",
+        "stone-edge",
+        "revenge",
+        "bulk-up"
+    ],
+    "gurdurr": [
+        "leer",
+        "drain-punch",
+        "stone-edge",
+        "revenge",
+        "bulk-up",
+        "superpower",
+        "rock-slide"
+    ],
+    "conkeldurr": [
+        "dynamic-punch",
+        "drain-punch",
+        "stone-edge",
+        "revenge",
+        "bulk-up",
+        "superpower",
+        "rock-slide",
+        "earthquake",
+        "focus-blast",
+        "focus-punch"
+    ],
+    "dwebble": [
+        "earthquake",
+        "rock-blast",
+        "harden",
+        "fury-cutter",
+        "night-slash"
+    ],
+    "crustle": [
+        "earthquake",
+        "rock-blast",
+        "harden",
+        "fury-cutter",
+        "night-slash",
+        "stealth-rock",
+        "rock-slide",
+        "rock-polish",
+        "x-scissor",
+        "counter"
+    ],
+    "stunfisk": [
+        "sand-tomb",
+        "water-gun",
+        "thunder-shock",
+        "mud-shot",
+        "revenge",
+        "electric-terrain",
+        "discharge",
+        "muddy-water",
+        "spark",
+        "sucker-punch"
+    ],
+    "woobat": [
+        "confusion",
+        "calm-mind",
+        "gust",
+        "assurance",
+        "air-cutter"
+    ],
+    "swoobat": [
+        "confusion",
+        "calm-mind",
+        "future-sight",
+        "assurance",
+        "air-cutter",
+        "air-slash",
+        "dazzling-gleam",
+        "psychic",
+        "knock-off",
+        "roost"
+    ],
+    "roggenrola": [
+        "iron-head",
+        "smack-down",
+        "stone-edge",
+        "take-down",
+        "sandstorm"
+    ],
+    "boldore": [
+        "iron-head",
+        "smack-down",
+        "stone-edge",
+        "take-down",
+        "rock-slide",
+        "stealth-rock",
+        "sandstorm"
+    ],
+    "gigalith": [
+        "iron-head",
+        "smack-down",
+        "stone-edge",
+        "take-down",
+        "rock-slide",
+        "stealth-rock",
+        "rock-blast",
+        "sandstorm",
+        "harden",
+        "rock-polish"
+    ],
+    "foongus": [
+        "absorb",
+        "sleep-powder",
+        "mega-drain",
+        "astonish",
+        "synthesis"
+    ],
+    "amoonguss": [
+        "absorb",
+        "solar-beam",
+        "sleep-powder",
+        "mega-drain",
+        "synthesis",
+        "feint-attack",
+        "giga-drain",
+        "defense-curl",
+        "leaf-storm",
+        "toxic"
+    ],
+    "cubchoo": [
+        "charm",
+        "powder-snow",
+        "night-slash",
+        "icy-wind",
+        "frost-breath"
+    ],
+    "beartic": [
+        "charm",
+        "powder-snow",
+        "night-slash",
+        "icy-wind",
+        "avalanche",
+        "superpower",
+        "focus-punch",
+        "frost-breath",
+        "blizzard",
+        "rest"
+    ],
+    "cryogonal": [
+        "ice-beam",
+        "water-pulse",
+        "frost-breath",
+        "ancient-power",
+        "icy-wind",
+        "ice-shard",
+        "night-slash",
+        "blizzard",
+        "avalanche",
+        "recover"
+    ],
+    "vanillish": [
+        "astonish",
+        "avalanche",
+        "ice-beam",
+        "uproar",
+        "icy-wind",
+        "hail",
+        "blizzard"
+    ],
+    "vanilluxe": [
+        "giga-impact",
+        "water-pulse",
+        "icy-wind",
+        "frost-breath",
+        "avalanche",
+        "uproar",
+        "powder-snow",
+        "blizzard",
+        "harden",
+        "ice-beam"
+    ],
+    "musharna": [
+        "psywave",
+        "defense-curl",
+        "reflect",
+        "calm-mind",
+        "psybeam",
+        "moonblast",
+        "hypnosis",
+        "dream-eater",
+        "psychic",
+        "future-sight"
+    ],
+    "gothita": [
+        "confusion",
+        "psybeam",
+        "charm",
+        "psyshock",
+        "hypnosis"
+    ],
+    "gothorita": [
+        "confusion",
+        "psybeam",
+        "charm",
+        "psyshock",
+        "hypnosis",
+        "heal-pulse",
+        "mean-look"
+    ],
+    "gothitelle": [
+        "confusion",
+        "psybeam",
+        "charm",
+        "psyshock",
+        "hypnosis",
+        "heal-pulse",
+        "mean-look",
+        "psychic",
+        "future-sight",
+        "reflect"
+    ],
+    "sigilyph": [
+        "gust",
+        "confusion",
+        "hypnosis",
+        "psybeam",
+        "tailwind",
+        "whirlwind",
+        "air-cutter",
+        "future-sight",
+        "psychic",
+        "roost"
+    ],
+    "solosis": [
+        "confusion",
+        "light-screen",
+        "psybeam",
+        "psychic",
+        "recover"
+    ],
+    "duosion": [
+        "confusion",
+        "light-screen",
+        "psybeam",
+        "psychic",
+        "recover",
+        "psyshock",
+        "psywave"
+    ],
+    "reuniclus": [
+        "hammer-arm",
+        "future-sight",
+        "night-shade",
+        "psychic",
+        "shock-wave",
+        "psyshock",
+        "psywave",
+        "misty-terrain",
+        "confusion",
+        "recover"
+    ],
+    "maractus": [
+        "absorb",
+        "pin-missile",
+        "mega-drain",
+        "grass-knot",
+        "sucker-punch",
+        "seed-bomb",
+        "petal-dance",
+        "petal-blizzard",
+        "leaf-storm",
+        "synthesis"
+    ],
+    "purrloin": [
+        "scratch",
+        "leer",
+        "pursuit",
+        "night-slash",
+        "sucker-punch"
+    ],
+    "liepard": [
+        "scratch",
+        "leer",
+        "pursuit",
+        "night-slash",
+        "sucker-punch",
+        "hone-claws",
+        "assurance",
+        "torment",
+        "nasty-plot",
+        "play-rough"
+    ],
+    "pansear": [
+        "scratch",
+        "leer",
+        "lick",
+        "ember",
+        "fury-swipes"
+    ],
+    "panpour": [
+        "scratch",
+        "leer",
+        "lick",
+        "water-gun",
+        "fury-swipes"
+    ],
+    "pansage": [
+        "leech-seed",
+        "leer",
+        "tackle",
+        "vine-whip",
+        "leaf-storm"
+    ],
+    "simisear": [
+        "scratch",
+        "leer",
+        "lick",
+        "ember",
+        "fury-swipes",
+        "bite",
+        "flame-burst",
+        "crunch",
+        "flamethrower",
+        "flame-wheel"
+    ],
+    "simipour": [
+        "scratch",
+        "leer",
+        "lick",
+        "water-gun",
+        "fury-swipes",
+        "bite",
+        "scald",
+        "crunch",
+        "hydro-pump",
+        "focus-punch"
+    ],
+    "pidove": [
+        "gust",
+        "leer",
+        "night-slash",
+        "quick-attack",
+        "air-cutter"
+    ],
+    "tranquill": [
+        "gust",
+        "leer",
+        "night-slash",
+        "quick-attack",
+        "air-cutter",
+        "roost",
+        "air-slash"
+    ],
+    "unfezant": [
+        "gust",
+        "leer",
+        "night-slash",
+        "quick-attack",
+        "air-cutter",
+        "roost",
+        "air-slash",
+        "future-sight",
+        "facade",
+        "whirlwind"
+    ],
+    "blitzle": [
+        "quick-attack",
+        "pursuit",
+        "stomp",
+        "shock-wave",
+        "rest"
+    ],
+    "zebstrika": [
+        "wild-charge",
+        "pursuit",
+        "agility",
+        "spark",
+        "flame-charge",
+        "thrash",
+        "discharge",
+        "overheat",
+        "feint-attack",
+        "rest"
+    ],
+    "swadloon": [
+        "tackle",
+        "string-shot",
+        "bug-bite",
+        "razor-leaf",
+        "struggle-bug",
+        "harden",
+        "energy-ball"
+    ],
+    "leavanny": [
+        "slash",
+        "string-shot",
+        "leaf-blade",
+        "razor-leaf",
+        "struggle-bug",
+        "x-scissor",
+        "energy-ball",
+        "leaf-storm",
+        "bug-buzz",
+        "synthesis"
+    ],
+    "cottonee": [
+        "absorb",
+        "leech-seed",
+        "fairy-wind",
+        "moonblast",
+        "razor-leaf"
+    ],
+    "whimsicott": [
+        "absorb",
+        "leech-seed",
+        "fairy-wind",
+        "moonblast",
+        "razor-leaf",
+        "mega-drain",
+        "hurricane",
+        "grassy-terrain",
+        "solar-beam",
+        "giga-drain"
+    ],
+    "petilil": [
+        "charm",
+        "magical-leaf",
+        "aromatherapy",
+        "petal-dance",
+        "petal-blizzard"
+    ],
+    "lilligant": [
+        "charm",
+        "magical-leaf",
+        "aromatherapy",
+        "petal-dance",
+        "petal-blizzard",
+        "quiver-dance",
+        "grassy-terrain",
+        "leaf-storm",
+        "energy-ball",
+        "synthesis"
+    ],
+    "emolga": [
+        "thunderbolt",
+        "quick-attack",
+        "discharge",
+        "air-slash",
+        "spark",
+        "pursuit",
+        "shock-wave",
+        "thunder-shock",
+        "wing-attack",
+        "volt-switch"
+    ],
+    "darumaka": [
+        "flare-blitz",
+        "ember",
+        "fire-punch",
+        "incinerate",
+        "uproar"
+    ],
+    "darmanitan": [
+        "flare-blitz",
+        "ember",
+        "fire-punch",
+        "incinerate",
+        "uproar",
+        "superpower",
+        "fire-fang",
+        "flame-wheel",
+        "hammer-arm",
+        "extrasensory"
+    ],
+    "minccino": [
+        "echoed-voice",
+        "charm",
+        "swift",
+        "hyper-voice",
+        "last-resort"
+    ],
+    "eelektross": [
+        "wild-charge",
+        "thunder-wave",
+        "spark",
+        "charge-beam",
+        "headbutt",
+        "crunch",
+        "discharge",
+        "thunderbolt",
+        "thunder",
+        "zap-cannon"
+    ],
+    "axew": [
+        "scratch",
+        "leer",
+        "bite",
+        "dragon-rage",
+        "dragon-claw"
+    ],
+    "fraxure": [
+        "scratch",
+        "leer",
+        "bite",
+        "dragon-rage",
+        "dual-chop",
+        "scary-face",
+        "dragon-claw"
+    ],
+    "haxorus": [
+        "scratch",
+        "leer",
+        "bite",
+        "dragon-rage",
+        "dual-chop",
+        "earthquake",
+        "dragon-claw",
+        "meteor-mash",
+        "dragon-dance",
+        "outrage"
+    ],
+    "zweilous": [
+        "tri-attack",
+        "dragon-breath",
+        "hyper-voice",
+        "dragon-rush",
+        "draco-meteor",
+        "heat-wave",
+        "uproar"
+    ],
+    "litwick": [
+        "shadow-ball",
+        "hex",
+        "flame-wheel",
+        "ember",
+        "fire-spin"
+    ],
+    "lampent": [
+        "shadow-ball",
+        "hex",
+        "flame-burst",
+        "shock-wave",
+        "inferno",
+        "night-shade",
+        "mystical-fire"
+    ],
+    "chandelure": [
+        "shadow-ball",
+        "hex",
+        "flame-burst",
+        "shock-wave",
+        "inferno",
+        "night-shade",
+        "mystical-fire",
+        "incinerate",
+        "heat-wave",
+        "will-o-wisp"
+    ],
+    "chespin": [
+        "pin-missile",
+        "drain-punch",
+        "grass-pledge",
+        "vine-whip",
+        "synthesis"
+    ],
+    "Quiladin": [
+        "take-down",
+        "pin-missile",
+        "drain-punch",
+        "grass-pledge",
+        "vine-whip",
+        "bulk-up",
+        "synthesis"
+    ],
+    "chesnaught": [
+        "giga-impact",
+        "hammer-arm",
+        "pin-missile",
+        "drain-punch",
+        "focus-punch",
+        "grass-pledge",
+        "superpower",
+        "thunder-punch",
+        "synthesis",
+        "spiky-shield"
+    ],
+    "fenneken": [
+        "ember",
+        "incinerate",
+        "fire-spin",
+        "fire-blast",
+        "heat-wave"
+    ],
+    "braixen": [
+        "ember",
+        "incinerate",
+        "fire-spin",
+        "fire-blast",
+        "heat-wave",
+        "charm",
+        "will-o-wisp"
+    ],
+    "delphox": [
+        "heat-wave",
+        "future-sight",
+        "flame-charge",
+        "incinerate",
+        "fire-spin",
+        "psyshock",
+        "psychic",
+        "shadow-ball",
+        "fire-blast",
+        "mystical-fire"
+    ],
+    "frokie": [
+        "bubble",
+        "water-pulse",
+        "quick-attack",
+        "hydro-pump",
+        "smack-down",
+        ""
+    ],
+    "frogadier": [
+        "bubble",
+        "night-slash",
+        "dive",
+        "aerial-ace",
+        "extrasensory",
+        "hydro-pump",
+        "feint-attack"
+    ],
+    "greninja": [
+        "bubble",
+        "night-slash",
+        "dive",
+        "aerial-ace",
+        "extrasensory",
+        "hydro-pump",
+        "feint-attack",
+        "water-pulse",
+        "water-sport",
+        "water-shuriken"
+    ],
+    "bunnelby": [
+        "agility",
+        "focus-punch",
+        "earth-power",
+        "uproar",
+        "earthquake"
+    ],
+    "diggersby": [
+        "agility",
+        "focus-punch",
+        "earth-power",
+        "uproar",
+        "earthquake",
+        "bulldoze",
+        "superpower",
+        "last-resort",
+        "facade",
+        "brutal-swing"
+    ],
+    "fletchling": [
+        "flame-charge",
+        "flare-blitz",
+        "flare-blitz",
+        "acrobatics",
+        "aerial-ace"
+    ],
+    "fletchinder": [
+        "flame-charge",
+        "flare-blitz",
+        "flare-blitz",
+        "acrobatics",
+        "aerial-ace",
+        "tailwind",
+        "steel-wing",
+        "roost"
+    ],
+    "talonflame": [
+        "flame-charge",
+        "flare-blitz",
+        "acrobatics",
+        "aerial-ace",
+        "tailwind",
+        "steel-wing",
+        "roost",
+        "brave-bird",
+        "hurricane",
+        "fire-blast"
+    ],
+    "scatterbug": [
+        "string-shot",
+        "tackle",
+        "protect",
+        "poison-powder",
+        "harden"
+    ],
+    "spewpa": [
+        "string-shot",
+        "tackle",
+        "protect",
+        "poison-powder",
+        "harden",
+        "infestation",
+        "iron-defense"
+    ],
+    "vivillon": [
+        "poison-powder",
+        "sleep-powder",
+        "infestation",
+        "light-screen",
+        "draining-kiss",
+        "quiver-dance",
+        "psybeam",
+        "air-slash",
+        "hurricane",
+        "whirlwind"
+    ],
+    "litleo": [
+        "fire-spin",
+        "fire-fang",
+        "echoed-voice",
+        "flamethrower",
+        "crunch"
+    ],
+    "pyroar": [
+        "fire-spin",
+        "leer",
+        "fire-fang",
+        "echoed-voice",
+        "flamethrower",
+        "crunch",
+        "hyper-voice",
+        "incinerate",
+        "overheat",
+        "flare-blitz"
+    ],
+    "skiddo": [
+        "earthquake",
+        "vine-whip",
+        "bulldoze",
+        "seed-bomb",
+        "razor-leaf"
+    ],
+    "gogoat": [
+        "earthquake",
+        "vine-whip",
+        "bulldoze",
+        "seed-bomb",
+        "razor-leaf",
+        "grassy-terrain",
+        "aerial-ace",
+        "leaf-blade",
+        "synthesis",
+        "milk-drink"
+    ],
+    "pancham": [
+        "bullet-punch",
+        "crunch",
+        "karate-chop",
+        "focus-punch",
+        "drain-punch"
+    ],
+    "pangoro": [
+        "bullet-punch",
+        "crunch",
+        "karate-chop",
+        "focus-punch",
+        "drain-punch",
+        "superpower",
+        "body-slam",
+        "brick-break",
+        "night-slash",
+        "brutal-swing"
+    ],
+    "honedge": [
+        "pursuit",
+        "aerial-ace",
+        "fury-cutter",
+        "head-smash",
+        "iron-defense"
+    ],
+    "doublade": [
+        "pursuit",
+        "aerial-ace",
+        "fury-cutter",
+        "head-smash",
+        "iron-defense",
+        "shock-wave",
+        "night-slash"
+    ],
+    "aegislash": [
+        "pursuit",
+        "aerial-ace",
+        "fury-cutter",
+        "head-smash",
+        "iron-defense",
+        "shock-wave",
+        "night-slash",
+        "destiny-bond",
+        "swords-dance",
+        "kings-shield"
+    ],
+    "spritee": [
+        "echoed-voice",
+        "disarming-voice",
+        "heal bell",
+        "fairy-wind",
+        "moon-blast"
+    ],
+    "aromatisse": [
+        "echoed-voice",
+        "disarming-voice",
+        "heal bell",
+        "fairy-wind",
+        "moon-blast",
+        "draining-kiss",
+        "misty-terrain",
+        "charm",
+        "aromatherapy",
+        "heal-pulse"
+    ],
+    "swirlix": [
+        "fairy-wind",
+        "aromatherapy",
+        "wish",
+        "draining-kiss",
+        "energy-ball"
+    ],
+    "slurpuff": [
+        "fairy-wind",
+        "aromatherapy",
+        "wish",
+        "draining-kiss",
+        "energy-ball",
+        "heal-bell",
+        "play-rough",
+        "light-screen",
+        "drain-punch",
+        "safeguard"
+    ],
+    "flabebe": [
+        "disarming-voice",
+        "misty-terrain",
+        "moonblast",
+        "magical-leaf",
+        "giga-drain"
+    ],
+    "floette": [
+        "disarming-voice",
+        "misty-terrain",
+        "moonblast",
+        "magical-leaf",
+        "giga-drain",
+        "petal-dance",
+        "aromatherapy"
+    ],
+    "florges": [
+        "disarming-voice",
+        "misty-terrain",
+        "moonblast",
+        "magical-leaf",
+        "giga-drain",
+        "petal-dance",
+        "aromatherapy",
+        "petal-blizzard",
+        "wish",
+        "synthesis"
+    ],
+    "inkay": [
+        "hypnosis",
+        "reversal",
+        "superpower",
+        "destiny-bond",
+        "payback"
+    ],
+    "malamar": [
+        "hypnosis",
+        "reversal",
+        "superpower",
+        "destiny-bond",
+        "payback",
+        "psybeam",
+        "night-slash",
+        "lash-out",
+        "psyshock",
+        "knock-off"
+    ],
+    "binacle": [
+        "mud-slap",
+        "skull-bash",
+        "fury-cutter",
+        "ancient-power",
+        "razor-shell"
+    ],
+    "barbaracle": [
+        "liquidation",
+        "skull-bash",
+        "hone-claws",
+        "ancient-power",
+        "razor-shell",
+        "cross-chop",
+        "stone-edge",
+        "brick-break",
+        "night-slash",
+        "rock-polish"
+    ],
+    "skrelp": [
+        "acid",
+        "water-pulse",
+        "toxic",
+        "dragon-pulse",
+        "aqua-tail"
+    ],
+    "dragalge": [
+        "acid",
+        "water-pulse",
+        "toxic",
+        "dragon-pulse",
+        "aqua-tail",
+        "sludge-bomb",
+        "hydro-pump",
+        "outrage",
+        "twister",
+        "acid-armor"
+    ],
+    "clauncher": [
+        "dark-pulse",
+        "dragon-pulse",
+        "heal-pulse",
+        "aqua-jet",
+        "water-pulse"
+    ],
+    "clawitzer": [
+        "dark-pulse",
+        "dragon-pulse",
+        "heal-pulse",
+        "aqua-jet",
+        "water-pulse",
+        "swords-dance",
+        "aura-sphere",
+        "muddy-water",
+        "crabhammer",
+        "aqua-tail"
+    ],
+    "furfrou": [
+        "tackle",
+        "last-resort",
+        "uproar",
+        "hyper-voice",
+        "charm",
+        "work-up",
+        "iron-tail",
+        "sucker-punch",
+        "bite",
+        "refresh"
+    ],
+    "espurr": [
+        "disarming-voice",
+        "mean-look",
+        "confusion",
+        "future-sight",
+        "psybeam"
+    ],
+    "meowstic": [
+        "disarming-voice",
+        "mean-look",
+        "confusion",
+        "future-sight",
+        "psybeam",
+        "sucker-punch",
+        "psyshock",
+        "psychic",
+        "misty-terrain",
+        "reflect"
+    ],
+    "helioptile": [
+        "bulldoze",
+        "discharge",
+        "thunder",
+        "thunderbolt",
+        "parabolic-charge"
+    ],
+    "heliolisk": [
+        "bulldoze",
+        "discharge",
+        "thunder",
+        "thunderbolt",
+        "parabolic-charge",
+        "dragon-rush",
+        "thunder-wave",
+        "thunder-shock",
+        "quick-attack",
+        "volt-switch"
+    ],
+    "tyrunt": [],
+    "tyrantrum": [],
+    "amaura": [],
+    "aurorus": [],
+    "sylveon": [
+        "charm",
+        "misty-terrain",
+        "moonblast",
+        "last-resort",
+        "disarming-voice",
+        "fairy-wind",
+        "play-rough",
+        "magical-leaf",
+        "draining-kiss",
+        "heal-bell"
+    ],
+    "hawlucha": [
+        "assurance",
+        "brick-break",
+        "cross-chop",
+        "feather-dance",
+        "aerial-ace",
+        "wing-attack",
+        "sky-attack",
+        "acrobatics",
+        "swords-dance",
+        "roost"
+    ],
+    "dedenne": [
+        "agility",
+        "charm",
+        "parabolic-charge",
+        "volt-switch",
+        "discharge",
+        "thunder-shock",
+        "thunder",
+        "tackle",
+        "play-rough",
+        "rest"
+    ],
+    "carbink": [
+        "tackle",
+        "smack-down",
+        "ancient-power",
+        "rock-polish",
+        "light-screen",
+        "rock-slide",
+        "stealth-rock",
+        "moonblast",
+        "stone-edge",
+        "harden"
+    ],
+    "goomy": [],
+    "sliggoo": [],
+    "goodra": [],
+    "klefki": [
+        "astonish",
+        "fairy-wind",
+        "draining-kiss",
+        "metal-sound",
+        "flash-cannon",
+        "play-rough",
+        "tackle",
+        "torment",
+        "metal-claw",
+        "last-resort"
+    ],
+    "phantump": [
+        "astonish",
+        "leech-seed",
+        "skitter-smack",
+        "sucker-punch",
+        "shadow-claw"
+    ],
+    "trevenant": [
+        "astonish",
+        "leech-seed",
+        "skitter-smack",
+        "sucker-punch",
+        "shadow-claw",
+        "hex",
+        "will-o-wisp",
+        "phantom-force",
+        "destiny-bond",
+        "magical-leaf"
+    ],
+    "pumpkaboo": [
+        "astonish",
+        "confuse-ray",
+        "moonblast",
+        "razor-leaf",
+        "scary-face"
+    ],
+    "gourgeist": [
+        "astonish",
+        "confuse-ray",
+        "moonblast",
+        "razor-leaf",
+        "scary-face",
+        "shadow-ball",
+        "phantom-force",
+        "destiny-bond",
+        "skitter-smack",
+        "synthesis"
+    ],
+    "bergmite": [
+        "body-slam",
+        "ice-shard",
+        "icy-wind",
+        "avalanche",
+        "ice-fang"
+    ],
+    "avalugg": [
+        "body-slam",
+        "ice-shard",
+        "mountain-gale",
+        "rock-slide",
+        "icy-wind",
+        "avalanche",
+        "ice-fang",
+        "blizzard",
+        "powder-snow",
+        "recover"
+    ],
+    "noibat": [
+        "absorb",
+        "tackle",
+        "gust",
+        "wing-attack",
+        "whirlwind"
+    ],
+    "noivern": [
+        "hurricane",
+        "dragon-pulse",
+        "dragon-rush",
+        "tailwind",
+        "aerial-ace",
+        "agility",
+        "wing-attack",
+        "roost",
+        "whirlwind",
+        "dragon-dance"
+    ],
 
-
-
-"snivy": [
-    "leaf-blade",
-    "vine-whip",
-    "giga-drain",
-    "magical-leaf",
-    "synthesis"
-  ],
-  "servine": [
-    "leaf-blade",
-    "vine-whip",
-    "leech-seed",
-    "magical-leaf",
-    "synthesis",
-    "leaf-storm",
-    "giga-drain"
-  ],
-  "serperior": [
-    "giga-drain",
-    "vine-whip",
-    "pursuit",
-    "mega-drain",
-    "outrage",
-    "magical-leaf",
-    "dragon-pulse",
-    "leaf-blade",
-    "leaf-storm",
-    "synthesis"
-  ],
-  "tepig": [
-    "flare-blitz",
-    "ember",
-    "fire-blast",
-    "flamethrower",
-    "assurance"
-  ],
-  "pignite": [
-    "flare-blitz",
-    "ember",
-    "fire-blast",
-    "flamethrower",
-    "assurance",
-    "fire-pledge",
-    "flame-charge"
-  ],
-  "emboar": [
-    "hammer-arm",
-    "head-smash",
-    "assurance",
-    "flare-blitz",
-    "focus-blast",
-    "fire-pledge",
-    "flame-charge",
-    "facade",
-    "fire-blast",
-    "flamethrower"
-  ],
-  "oshawott": [
-    "hydro-pump",
-    "water-pulse",
-    "water-pledge",
-    "aqua-jet",
-    "hydro-pump"
-  ],
-  "dewott": [
-    "water-gun",
-    "aqua-tail",
-    "waterfall",
-    "night-slash",
-    "water-sport",
-    "water-pledge",
-    "rain-dance"
-  ],
-  "samurott": [
-    "water-gun",
-    "aqua-tail",
-    "waterfall",
-    "night-slash",
-    "water-sport",
-    "water-pledge",
-    "rain-dance",
-    "hydro-cannon",
-    "hydro-pump",
-    "water-pulse"
-  ],
-  "ducklett": [
-    "wing-attack",
-    "water-gun",
-    "icy-wind",
-    "aerial-ace",
-    "roost"
-  ],
-  "swanna": [
-    "wing-attack",
-    "water-gun",
-    "icy-wind",
-    "aerial-ace",
-    "feather-dance",
-    "air-slash",
-    "hurricane",
-    "uproar",
-    "roost"
-  ],
-  "mandibuzz": [
-    "gust",
-    "leer",
-    "knock-off",
-    "whirlwind",
-    "feint-attack",
-    "dark-pulse",
-    "bone-rush",
-    "air-slash",
-    "mean-look",
-    "roost"
-  ],
-  "patrat": [
-    "tackle",
-    "leer",
-    "bite",
-    "crunch",
-    "super-fang"
-  ],
-  "watchog": [
-    "tackle",
-    "leer",
-    "bite",
-    "future-sight",
-    "crunch",
-    "super-fang",
-    "mean-look",
-    "low-kick",
-    "confuse-ray"
-  ],
-  "sawk": [
-    "rock-slide",
-    "leer",
-    "bite",
-    "body-slam",
-    "uproar",
-    "blaze-kick",
-    "brick-break",
-    "bulk-up",
-    "focus-blast",
-    "dynamic-punch"
-  ],
-  "throh": [
-    "bite",
-    "leer",
-    "focus-blast",
-    "revenge",
-    "superpower",
-    "agility",
-    "body-slam",
-    "bulk-up",
-    "blaze-kick",
-    "dynamic-punch"
-  ],
-  "audino": [
-    "dazzling-gleam",
-    "psyshock",
-    "heal-pulse",
-    "disarming-voice",
-    "last-resort",
-    "misty-terrain",
-    "heal-bell",
-    "wish",
-    "hyper-voice",
-    "uproar"
-  ],
-  "lillipup": [
-    "tackle",
-    "leer",
-    "bite",
-    "take-down",
-    "crunch"
-  ],
-  "herdier": [
-    "tackle",
-    "leer",
-    "bite",
-    "take-down",
-    "reversal",
-    "crunch",
-    "thunder-fang"
-  ],
-  "scraggy": [
-    "leer",
-    "low-kick",
-    "facade",
-    "headbutt",
-    "feint-attack"
-  ],
-  "scrafty": [
-    "dynamic-punch",
-    "low-kick",
-    "facade",
-    "headbutt",
-    "feint-attack",
-    "focus-blast",
-    "brick-break",
-    "crunch",
-    "agility",
-    "payback"
-  ],
-  "deerling": [
-    "tackle",
-    "leer",
-    "zen-headbutt",
-    "leech-seed",
-    "feint-attack"
-  ],
-  "sawsbuck": [
-    "tackle",
-    "future-sight",
-    "leer",
-    "zen-headbutt",
-    "earthquake",
-    "leech-seed",
-    "feint-attack",
-    "take-down",
-    "energy-ball",
-    "solar-beam"
-  ],
-  "durant": [
-    "iron-head",
-    "bug-bite",
-    "metal-sound",
-    "fury-cutter",
-    "struggle-bug",
-    "metal-claw",
-    "x-scissor",
-    "crunch",
-    "iron-defense",
-    "guillotine"
-  ],
-  "ferroseed": [
-    "tackle",
-    "iron-defense",
-    "metal-claw",
-    "pin-missile",
-    "gyro-ball"
-  ],
-  "ferrothorn": [
-    "tackle",
-    "iron-defense",
-    "metal-claw",
-    "pin-missile",
-    "gyro-ball",
-    "leech-seed",
-    "flash-cannon",
-    "iron-head",
-    "power-whip",
-    "toxic"
-  ],
-  "venipede": [
-    "pursuit",
-    "megahorn",
-    "take-down",
-    "poison-jab",
-    "toxic"
-  ],
-  "whirlipede": [
-    "pursuit",
-    "megahorn",
-    "take-down",
-    "poison-jab",
-    "toxic",
-    "fury-cutter",
-    "struggle-bug"
-  ],
-  "scolipede": [
-    "pursuit",
-    "megahorn",
-    "take-down",
-    "poison-jab",
-    "pin-missile",
-    "venoshock",
-    "struggle-bug",
-    "iron-defense",
-    "agility",
-    "x-scissor"
-  ],
-  "heatmor": [
-    "sucker-punch",
-    "tackle",
-    "fire-spin",
-    "inferno",
-    "feint-attack",
-    "heat-wave",
-    "night-slash",
-    "incinerate",
-    "bug-bite",
-    "flare-blitz"
-  ],
-  "karrablast": [
-    "peck",
-    "leer",
-    "harden",
-    "fury-cutter",
-    "headbutt"
-  ],
-  "escavalier": [
-    "peck",
-    "leer",
-    "harden",
-    "fury-cutter",
-    "headbutt",
-    "meteor-mash",
-    "bug-buzz",
-    "iron-head",
-    "x-scissor",
-    "swords-dance"
-  ],
-  "shelmet": [
-    "absorb",
-    "struggle-bug",
-    "bug-buzz",
-    "giga-drain",
-    "recover"
-  ],
-  "accelgor": [
-    "absorb",
-    "struggle-bug",
-    "bug-buzz",
-    "giga-drain",
-    "agility",
-    "toxic",
-    "swift",
-    "body-slam",
-    "water-shuriken",
-    "recover"
-  ],
-  "rufflet": [
-    "peck",
-    "leer",
-    "wing-attack",
-    "uproar",
-    "scary-face"
-  ],
-  "braviary": [
-    "peck",
-    "leer",
-    "wing-attack",
-    "superpower",
-    "scary-face",
-    "aerial-ace",
-    "slash",
-    "hurricane",
-    "whirlwind",
-    "roost"
-  ],
-  "pawniard": [
-    "leer",
-    "pursuit",
-    "metal-sound",
-    "torment",
-    "assurance"
-  ],
-  "bisharp": [
-    "leer",
-    "pursuit",
-    "metal-sound",
-    "torment",
-    "night-slash",
-    "dark-pulse",
-    "fury-cutter",
-    "mean-look",
-    "assurance",
-    "iron-head"
-  ],
-  "trubbish": [
-    "amnesia",
-    "toxic-spikes",
-    "poison-gas",
-    "sludge-bomb",
-    "sludge"
-  ],
-  "garbodor": [
-    "sludge-bomb",
-    "toxic-spikes",
-    "drain-punch",
-    "giga-drain",
-    "metal-claw",
-    "toxic",
-    "poison-gas",
-    "seed-bomb",
-    "focus-blast",
-    "dark-pulse"
-  ],
-  "deino": [
-    "tackle",
-    "dragon-breath",
-    "hyper-voice",
-    "crunch",
-    "dragon-rush"
-  ],
-  "hydreigon": [
-    "tri-attack",
-    "dragon-breath",
-    "hyper-voice",
-    "dragon-rush",
-    "draco-meteor",
-    "heat-wave",
-    "uproar",
-    "outrage",
-    "incinerate",
-    "dragon-dance"
-  ],
-  "mienfoo": [
-    "agility",
-    "aura-sphere",
-    "drain-punch",
-    "revenge",
-    "reversal"
-  ],
-  "mienshao": [
-    "agility",
-    "aura-sphere",
-    "drain-punch",
-    "revenge",
-    "reversal",
-    "hone-claws",
-    "low-kick",
-    "fury-swipes",
-    "brick-break",
-    "poison-jab"
-  ],
-  "druddigon": [
-    "leer",
-    "iron-head",
-    "dragon-claw",
-    "revenge",
-    "night-slash",
-    "heat-wave",
-    "draco-meteor",
-    "outrage",
-    "earthquake",
-    "hone-claws"
-  ],
-  "bouffalant": [
-    "tackle",
-    "pursuit",
-    "leer",
-    "fury-attack",
-    "earthquake",
-    "revenge",
-    "scary-face",
-    "lash-out",
-    "megahorn",
-    "swords-dance"
-  ],
-  "elgyem": [
-    "confusion",
-    "headbutt",
-    "recover",
-    "future-sight",
-    "psybeam"
-  ],
-  "beheeyem": [
-    "confusion",
-    "headbutt",
-    "recover",
-    "future-sight",
-    "psybeam",
-    "calm-mind",
-    "zen-headbutt",
-    "astonish",
-    "psychic",
-    "destiny-bond"
-  ],
-  "drilbur": [
-    "scratch",
-    "metal-claw",
-    "meteor-mash",
-    "sand-tomb",
-    "uproar"
-  ],
-  "excadrill": [
-    "scratch",
-    "metal-claw",
-    "meteor-mash",
-    "sandstorm",
-    "bulldoze",
-    "rock-polish",
-    "uproar",
-    "earthquake",
-    "iron-head",
-    "rock-slide"
-  ],
-  "sandile": [
-    "bite",
-    "leer",
-    "hone-claws",
-    "torment",
-    "assurance"
-  ],
-  "krokorok": [
-    "bite",
-    "leer",
-    "hone-claws",
-    "torment",
-    "assurance",
-    "sand-tomb",
-    "rock-polish"
-  ],
-  "krookodile": [
-    "bite",
-    "hone-claws",
-    "bulldoze",
-    "sand-tomb",
-    "rock-polish",
-    "crunch",
-    "earthquake",
-    "dragon-rush",
-    "outrage",
-    "sandstorm"
-  ],
-  "timburr": [
-    "leer",
-    "drain-punch",
-    "stone-edge",
-    "revenge",
-    "bulk-up"
-  ],
-  "gurdurr": [
-    "leer",
-    "drain-punch",
-    "stone-edge",
-    "revenge",
-    "bulk-up",
-    "superpower",
-    "rock-slide"
-  ],
-  "conkeldurr": [
-    "dynamic-punch",
-    "drain-punch",
-    "stone-edge",
-    "revenge",
-    "bulk-up",
-    "superpower",
-    "rock-slide",
-    "earthquake",
-    "focus-blast",
-    "focus-punch"
-  ],
-  "dwebble": [
-    "earthquake",
-    "rock-blast",
-    "harden",
-    "fury-cutter",
-    "night-slash"
-  ],
-  "crustle": [
-    "earthquake",
-    "rock-blast",
-    "harden",
-    "fury-cutter",
-    "night-slash",
-    "stealth-rock",
-    "rock-slide",
-    "rock-polish",
-    "x-scissor",
-    "counter"
-  ],
-  "stunfisk": [
-    "sand-tomb",
-    "water-gun",
-    "thunder-shock",
-    "mud-shot",
-    "revenge",
-    "electric-terrain",
-    "discharge",
-    "muddy-water",
-    "spark",
-    "sucker-punch"
-  ],
-  "woobat": [
-    "confusion",
-    "calm-mind",
-    "gust",
-    "assurance",
-    "air-cutter"
-  ],
-  "swoobat": [
-    "confusion",
-    "calm-mind",
-    "future-sight",
-    "assurance",
-    "air-cutter",
-    "air-slash",
-    "dazzling-gleam",
-    "psychic",
-    "knock-off",
-    "roost"
-  ],
-  "roggenrola": [
-    "iron-head",
-    "smack-down",
-    "stone-edge",
-    "take-down",
-    "sandstorm"
-  ],
-  "boldore": [
-    "iron-head",
-    "smack-down",
-    "stone-edge",
-    "take-down",
-    "rock-slide",
-    "stealth-rock",
-    "sandstorm"
-  ],
-  "gigalith": [
-    "iron-head",
-    "smack-down",
-    "stone-edge",
-    "take-down",
-    "rock-slide",
-    "stealth-rock",
-    "rock-blast",
-    "sandstorm",
-    "harden",
-    "rock-polish"
-  ],
-  "foongus": [
-    "absorb",
-    "sleep-powder",
-    "mega-drain",
-    "astonish",
-    "synthesis"
-  ],
-  "amoonguss": [
-    "absorb",
-    "solar-beam",
-    "sleep-powder",
-    "mega-drain",
-    "synthesis",
-    "feint-attack",
-    "giga-drain",
-    "defense-curl",
-    "leaf-storm",
-    "toxic"
-  ],
-  "cubchoo": [
-    "charm",
-    "powder-snow",
-    "night-slash",
-    "icy-wind",
-    "frost-breath"
-  ],
-  "beartic": [
-    "charm",
-    "powder-snow",
-    "night-slash",
-    "icy-wind",
-    "avalanche",
-    "superpower",
-    "focus-punch",
-    "frost-breath",
-    "blizzard",
-    "rest"
-  ],
-  "cryogonal": [
-    "ice-beam",
-    "water-pulse",
-    "frost-breath",
-    "ancient-power",
-    "icy-wind",
-    "ice-shard",
-    "night-slash",
-    "blizzard",
-    "avalanche",
-    "recover"
-  ],
-  "vanillish": [
-    "astonish",
-    "avalanche",
-    "ice-beam",
-    "uproar",
-    "icy-wind",
-    "hail",
-    "blizzard"
-  ],
-  "vanilluxe": [
-    "giga-impact",
-    "water-pulse",
-    "icy-wind",
-    "frost-breath",
-    "avalanche",
-    "uproar",
-    "powder-snow",
-    "blizzard",
-    "harden",
-    "ice-beam"
-  ],
-  "musharna": [
-    "psywave",
-    "defense-curl",
-    "reflect",
-    "calm-mind",
-    "psybeam",
-    "moonblast",
-    "hypnosis",
-    "dream-eater",
-    "psychic",
-    "future-sight"
-  ],
-  "gothita": [
-    "confusion",
-    "psybeam",
-    "charm",
-    "psyshock",
-    "hypnosis"
-  ],
-  "gothorita": [
-    "confusion",
-    "psybeam",
-    "charm",
-    "psyshock",
-    "hypnosis",
-    "heal-pulse",
-    "mean-look"
-  ],
-  "gothitelle": [
-    "confusion",
-    "psybeam",
-    "charm",
-    "psyshock",
-    "hypnosis",
-    "heal-pulse",
-    "mean-look",
-    "psychic",
-    "future-sight",
-    "reflect"
-  ],
-  "sigilyph": [
-    "gust",
-    "confusion",
-    "hypnosis",
-    "psybeam",
-    "tailwind",
-    "whirlwind",
-    "air-cutter",
-    "future-sight",
-    "psychic",
-    "roost"
-  ],
-  "solosis": [
-    "confusion",
-    "light-screen",
-    "psybeam",
-    "psychic",
-    "recover"
-  ],
-  "duosion": [
-    "confusion",
-    "light-screen",
-    "psybeam",
-    "psychic",
-    "recover",
-    "psyshock",
-    "psywave"
-  ],
-  "reuniclus": [
-    "hammer-arm",
-    "future-sight",
-    "night-shade",
-    "psychic",
-    "shock-wave",
-    "psyshock",
-    "psywave",
-    "misty-terrain",
-    "confusion",
-    "recover"
-  ],
-  "maractus": [
-    "absorb",
-    "pin-missile",
-    "mega-drain",
-    "grass-knot",
-    "sucker-punch",
-    "seed-bomb",
-    "petal-dance",
-    "petal-blizzard",
-    "leaf-storm",
-    "synthesis"
-  ],
-  "purrloin": [
-    "scratch",
-    "leer",
-    "pursuit",
-    "night-slash",
-    "sucker-punch"
-  ],
-  "liepard": [
-    "scratch",
-    "leer",
-    "pursuit",
-    "night-slash",
-    "sucker-punch",
-    "hone-claws",
-    "assurance",
-    "torment",
-    "nasty-plot",
-    "play-rough"
-  ],
-  "pansear": [
-    "scratch",
-    "leer",
-    "lick",
-    "ember",
-    "fury-swipes"
-  ],
-  "panpour": [
-    "scratch",
-    "leer",
-    "lick",
-    "water-gun",
-    "fury-swipes"
-  ],
-  "pansage": [
-    "leech-seed",
-    "leer",
-    "tackle",
-    "vine-whip",
-    "leaf-storm"
-  ],
-  "simisear": [
-    "scratch",
-    "leer",
-    "lick",
-    "ember",
-    "fury-swipes",
-    "bite",
-    "flame-burst",
-    "crunch",
-    "flamethrower",
-    "flame-wheel"
-  ],
-  "simipour": [
-    "scratch",
-    "leer",
-    "lick",
-    "water-gun",
-    "fury-swipes",
-    "bite",
-    "scald",
-    "crunch",
-    "hydro-pump",
-    "focus-punch"
-  ],
-  "pidove": [
-    "gust",
-    "leer",
-    "night-slash",
-    "quick-attack",
-    "air-cutter"
-  ],
-  "tranquill": [
-    "gust",
-    "leer",
-    "night-slash",
-    "quick-attack",
-    "air-cutter",
-    "roost",
-    "air-slash"
-  ],
-  "unfezant": [
-    "gust",
-    "leer",
-    "night-slash",
-    "quick-attack",
-    "air-cutter",
-    "roost",
-    "air-slash",
-    "future-sight",
-    "facade",
-    "whirlwind"
-  ],
-  "blitzle": [
-    "quick-attack",
-    "pursuit",
-    "stomp",
-    "shock-wave",
-    "rest"
-  ],
-  "zebstrika": [
-    "wild-charge",
-    "pursuit",
-    "agility",
-    "spark",
-    "flame-charge",
-    "thrash",
-    "discharge",
-    "overheat",
-    "feint-attack",
-    "rest"
-  ],
-  "swadloon": [
-    "tackle",
-    "string-shot",
-    "bug-bite",
-    "razor-leaf",
-    "struggle-bug",
-    "harden",
-    "energy-ball"
-  ],
-  "leavanny": [
-    "slash",
-    "string-shot",
-    "leaf-blade",
-    "razor-leaf",
-    "struggle-bug",
-    "x-scissor",
-    "energy-ball",
-    "leaf-storm",
-    "bug-buzz",
-    "synthesis"
-  ],
-  "cottonee": [
-    "absorb",
-    "leech-seed",
-    "fairy-wind",
-    "moonblast",
-    "razor-leaf"
-  ],
-  "whimsicott": [
-    "absorb",
-    "leech-seed",
-    "fairy-wind",
-    "moonblast",
-    "razor-leaf",
-    "mega-drain",
-    "hurricane",
-    "grassy-terrain",
-    "solar-beam",
-    "giga-drain"
-  ],
-  "petilil": [
-    "charm",
-    "magical-leaf",
-    "aromatherapy",
-    "petal-dance",
-    "petal-blizzard"
-  ],
-  "lilligant": [
-    "charm",
-    "magical-leaf",
-    "aromatherapy",
-    "petal-dance",
-    "petal-blizzard",
-    "quiver-dance",
-    "grassy-terrain",
-    "leaf-storm",
-    "energy-ball",
-    "synthesis"
-  ],
-  "emolga": [
-    "thunderbolt",
-    "quick-attack",
-    "discharge",
-    "air-slash",
-    "spark",
-    "pursuit",
-    "shock-wave",
-    "thunder-shock",
-    "wing-attack",
-    "volt-switch"
-  ],
-  "darumaka": [
-    "flare-blitz",
-    "ember",
-    "fire-punch",
-    "incinerate",
-    "uproar"
-  ],
-  "darmanitan": [
-    "flare-blitz",
-    "ember",
-    "fire-punch",
-    "incinerate",
-    "uproar",
-    "superpower",
-    "fire-fang",
-    "flame-wheel",
-    "hammer-arm",
-    "extrasensory"
-  ],
-  "minccino": [
-    "echoed-voice",
-    "charm",
-    "swift",
-    "hyper-voice",
-    "last-resort"
-  ],
-  "eelektross": [
-    "wild-charge",
-    "thunder-wave",
-    "spark",
-    "charge-beam",
-    "headbutt",
-    "crunch",
-    "discharge",
-    "thunderbolt",
-    "thunder",
-    "zap-cannon"
-  ],
-  "axew": [
-    "scratch",
-    "leer",
-    "bite",
-    "dragon-rage",
-    "dragon-claw"
-  ],
-  "fraxure": [
-    "scratch",
-    "leer",
-    "bite",
-    "dragon-rage",
-    "dual-chop",
-    "scary-face",
-    "dragon-claw"
-  ],
-  "haxorus": [
-    "scratch",
-    "leer",
-    "bite",
-    "dragon-rage",
-    "dual-chop",
-    "earthquake",
-    "dragon-claw",
-    "meteor-mash",
-    "dragon-dance",
-    "outrage"
-  ],
-  "zweilous": [
-    "tri-attack",
-    "dragon-breath",
-    "hyper-voice",
-    "dragon-rush",
-    "draco-meteor",
-    "heat-wave",
-    "uproar"
-  ],
-  "litwick": [
-    "shadow-ball",
-    "hex",
-    "flame-wheel",
-    "ember",
-    "fire-spin"
-  ],
-  "lampent": [
-    "shadow-ball",
-    "hex",
-    "flame-burst",
-    "shock-wave",
-    "inferno",
-    "night-shade",
-    "mystical-fire"
-  ],
-  "chandelure": [
-    "shadow-ball",
-    "hex",
-    "flame-burst",
-    "shock-wave",
-    "inferno",
-    "night-shade",
-    "mystical-fire",
-    "incinerate",
-    "heat-wave",
-    "will-o-wisp"
-  ],
-
-
-
-  "chespin": [
-    "pin-missile",
-    "drain-punch",
-    "grass-pledge",
-    "vine-whip",
-    "synthesis"
-  ],
-  "Quiladin": [
-    "take-down",
-    "pin-missile",
-    "drain-punch",
-    "grass-pledge",
-    "vine-whip",
-    "bulk-up",
-    "synthesis"
-  ],
-  "chesnaught": [
-    "giga-impact",
-    "hammer-arm",
-    "pin-missile",
-    "drain-punch",
-    "focus-punch",
-    "grass-pledge",
-    "superpower",
-    "thunder-punch",
-    "synthesis",
-    "spiky-shield"
-  ],
-  "fenneken": [
-    "ember",
-    "incinerate",
-    "fire-spin",
-    "fire-blast",
-    "heat-wave"
-  ],
-  "braixen": [
-    "ember",
-    "incinerate",
-    "fire-spin",
-    "fire-blast",
-    "heat-wave",
-    "charm",
-    "will-o-wisp"
-  ],
-  "delphox": [
-    "heat-wave",
-    "future-sight",
-    "flame-charge",
-    "incinerate",
-    "fire-spin",
-    "psyshock",
-    "psychic",
-    "shadow-ball",
-    "fire-blast",
-    "mystical-fire"
-  ],
-  "frokie": [
-    "bubble",
-    "water-pulse",
-    "quick-attack",
-    "hydro-pump",
-    "smack-down",
-    ""
-  ],
-  "frogadier": [
-    "bubble",
-    "night-slash",
-    "dive",
-    "aerial-ace",
-    "extrasensory",
-    "hydro-pump",
-    "feint-attack"
-  ],
-  "greninja": [
-    "bubble",
-    "night-slash",
-    "dive",
-    "aerial-ace",
-    "extrasensory",
-    "hydro-pump",
-    "feint-attack",
-    "water-pulse",
-    "water-sport",
-    "water-shuriken"
-  ],
-  "bunnelby": [
-    "agility",
-    "focus-punch",
-    "earth-power",
-    "uproar",
-    "earthquake"
-  ],
-  "diggersby": [
-    "agility",
-    "focus-punch",
-    "earth-power",
-    "uproar",
-    "earthquake",
-    "bulldoze",
-    "superpower",
-    "last-resort",
-    "facade",
-    "brutal-swing"
-  ],
-  "fletchling": [
-    "flame-charge",
-    "flare-blitz",
-    "flare-blitz",
-    "acrobatics",
-    "aerial-ace"
-  ],
-  "fletchinder": [
-    "flame-charge",
-    "flare-blitz",
-    "flare-blitz",
-    "acrobatics",
-    "aerial-ace",
-    "tailwind",
-    "steel-wing",
-    "roost"
-  ],
-  "talonflame": [
-    "flame-charge",
-    "flare-blitz",
-    "acrobatics",
-    "aerial-ace",
-    "tailwind",
-    "steel-wing",
-    "roost",
-    "brave-bird",
-    "hurricane",
-    "fire-blast"
-  ],
-  "scatterbug": [
-    "string-shot",
-    "tackle",
-    "protect",
-    "poison-powder",
-    "harden"
-  ],
-  "spewpa": [
-    "string-shot",
-    "tackle",
-    "protect",
-    "poison-powder",
-    "harden",
-    "infestation",
-    "iron-defense"
-  ],
-  "vivillon": [
-    "poison-powder",
-    "sleep-powder",
-    "infestation",
-    "light-screen",
-    "draining-kiss",
-    "quiver-dance",
-    "psybeam",
-    "air-slash",
-    "hurricane",
-    "whirlwind"
-  ],
-  "litleo": [
-    "fire-spin",
-    "fire-fang",
-    "echoed-voice",
-    "flamethrower",
-    "crunch"
-  ],
-  "pyroar": [
-    "fire-spin",
-    "leer",
-    "fire-fang",
-    "echoed-voice",
-    "flamethrower",
-    "crunch",
-    "hyper-voice",
-    "incinerate",
-    "overheat",
-    "flare-blitz"
-  ],
-  "skiddo": [
-    "earthquake",
-    "vine-whip",
-    "bulldoze",
-    "seed-bomb",
-    "razor-leaf"
-  ],
-  "gogoat": [
-    "earthquake",
-    "vine-whip",
-    "bulldoze",
-    "seed-bomb",
-    "razor-leaf",
-    "grassy-terrain",
-    "aerial-ace",
-    "leaf-blade",
-    "synthesis",
-    "milk-drink"
-  ],
-  "pancham": [
-    "bullet-punch",
-    "crunch",
-    "karate-chop",
-    "focus-punch",
-    "drain-punch"
-  ],
-  "pangoro": [
-    "bullet-punch",
-    "crunch",
-    "karate-chop",
-    "focus-punch",
-    "drain-punch",
-    "superpower",
-    "body-slam",
-    "brick-break",
-    "night-slash",
-    "brutal-swing"
-  ],
-  "honedge": [
-    "pursuit",
-    "aerial-ace",
-    "fury-cutter",
-    "head-smash",
-    "iron-defense"
-  ],
-  "doublade": [
-    "pursuit",
-    "aerial-ace",
-    "fury-cutter",
-    "head-smash",
-    "iron-defense",
-    "shock-wave",
-    "night-slash"
-  ],
-  "aegislash": [
-    "pursuit",
-    "aerial-ace",
-    "fury-cutter",
-    "head-smash",
-    "iron-defense",
-    "shock-wave",
-    "night-slash",
-    "destiny-bond",
-    "swords-dance",
-    "kings-shield"
-  ],
-  "spritee": [
-    "echoed-voice",
-    "disarming-voice",
-    "heal bell",
-    "fairy-wind",
-    "moon-blast"
-  ],
-  "aromatisse": [
-    "echoed-voice",
-    "disarming-voice",
-    "heal bell",
-    "fairy-wind",
-    "moon-blast",
-    "draining-kiss",
-    "misty-terrain",
-    "charm",
-    "aromatherapy",
-    "heal-pulse"
-  ],
-  "swirlix": [
-    "fairy-wind",
-    "aromatherapy",
-    "wish",
-    "draining-kiss",
-    "energy-ball"
-  ],
-  "slurpuff": [
-    "fairy-wind",
-    "aromatherapy",
-    "wish",
-    "draining-kiss",
-    "energy-ball",
-    "heal-bell",
-    "play-rough",
-    "light-screen",
-    "drain-punch",
-    "safeguard"
-  ],
-  "flabebe": [
-    "disarming-voice",
-    "misty-terrain",
-    "moonblast",
-    "magical-leaf",
-    "giga-drain"
-  ],
-  "floette": [
-    "disarming-voice",
-    "misty-terrain",
-    "moonblast",
-    "magical-leaf",
-    "giga-drain",
-    "petal-dance",
-    "aromatherapy"
-  ],
-  "florges": [
-    "disarming-voice",
-    "misty-terrain",
-    "moonblast",
-    "magical-leaf",
-    "giga-drain",
-    "petal-dance",
-    "aromatherapy",
-    "petal-blizzard",
-    "wish",
-    "synthesis"
-  ],
-  "inkay": [
-    "hypnosis",
-    "reversal",
-    "superpower",
-    "destiny-bond",
-    "payback"
-  ],
-  "malamar": [
-    "hypnosis",
-    "reversal",
-    "superpower",
-    "destiny-bond",
-    "payback",
-    "psybeam",
-    "night-slash",
-    "lash-out",
-    "psyshock",
-    "knock-off"
-  ],
-  "binacle": [
-    "mud-slap",
-    "skull-bash",
-    "fury-cutter",
-    "ancient-power",
-    "razor-shell"
-  ],
-  "barbaracle": [
-    "liquidation",
-    "skull-bash",
-    "hone-claws",
-    "ancient-power",
-    "razor-shell",
-    "cross-chop",
-    "stone-edge",
-    "brick-break",
-    "night-slash",
-    "rock-polish"
-  ],
-  "skrelp": [
-    "acid",
-    "water-pulse",
-    "toxic",
-    "dragon-pulse",
-    "aqua-tail"
-  ],
-  "dragalge": [
-    "acid",
-    "water-pulse",
-    "toxic",
-    "dragon-pulse",
-    "aqua-tail",
-    "sludge-bomb",
-    "hydro-pump",
-    "outrage",
-    "twister",
-    "acid-armor"
-  ],
-  "clauncher": [
-    "dark-pulse",
-    "dragon-pulse",
-    "heal-pulse",
-    "aqua-jet",
-    "water-pulse"
-  ],
-  "clawitzer": [
-    "dark-pulse",
-    "dragon-pulse",
-    "heal-pulse",
-    "aqua-jet",
-    "water-pulse",
-    "swords-dance",
-    "aura-sphere",
-    "muddy-water",
-    "crabhammer",
-    "aqua-tail"
-  ],
-  "furfrou": [
-    "tackle",
-    "last-resort",
-    "uproar",
-    "hyper-voice",
-    "charm",
-    "work-up",
-    "iron-tail",
-    "sucker-punch",
-    "bite",
-    "refresh"
-  ],
-  "espurr": [
-    "disarming-voice",
-    "mean-look",
-    "confusion",
-    "future-sight",
-    "psybeam"
-  ],
-  "meowstic": [
-    "disarming-voice",
-    "mean-look",
-    "confusion",
-    "future-sight",
-    "psybeam",
-    "sucker-punch",
-    "psyshock",
-    "psychic",
-    "misty-terrain",
-    "reflect"
-  ],
-  "helioptile": [
-    "bulldoze",
-    "discharge",
-    "thunder",
-    "thunderbolt",
-    "parabolic-charge"
-  ],
-  "heliolisk": [
-    "bulldoze",
-    "discharge",
-    "thunder",
-    "thunderbolt",
-    "parabolic-charge",
-    "dragon-rush",
-    "thunder-wave",
-    "thunder-shock",
-    "quick-attack",
-    "volt-switch"
-  ],
-  "tyrunt": [],
-  "tyrantrum": [],
-  "amaura": [],
-  "aurorus": [],
-  "sylveon": [
-    "charm",
-    "misty-terrain",
-    "moonblast",
-    "last-resort",
-    "disarming-voice",
-    "fairy-wind",
-    "play-rough",
-    "magical-leaf",
-    "draining-kiss",
-    "heal-bell"
-  ],
-  "hawlucha": [
-    "assurance",
-    "brick-break",
-    "cross-chop",
-    "feather-dance",
-    "aerial-ace",
-    "wing-attack",
-    "sky-attack",
-    "acrobatics",
-    "swords-dance",
-    "roost"
-  ],
-  "dedenne": [
-    "agility",
-    "charm",
-    "parabolic-charge",
-    "volt-switch",
-    "discharge",
-    "thunder-shock",
-    "thunder",
-    "tackle",
-    "play-rough",
-    "rest"
-  ],
-  "carbink": [
-    "tackle",
-    "smack-down",
-    "ancient-power",
-    "rock-polish",
-    "light-screen",
-    "rock-slide",
-    "stealth-rock",
-    "moonblast",
-    "stone-edge",
-    "harden"
-  ],
-  "goomy": [],
-  "sliggoo": [],
-  "goodra": [],
-  "klefki": [
-    "astonish",
-    "fairy-wind",
-    "draining-kiss",
-    "metal-sound",
-    "flash-cannon",
-    "play-rough",
-    "tackle",
-    "torment",
-    "metal-claw",
-    "last-resort"
-  ],
-  "phantump": [
-    "astonish",
-    "leech-seed",
-    "skitter-smack",
-    "sucker-punch",
-    "shadow-claw"
-  ],
-  "trevenant": [
-    "astonish",
-    "leech-seed",
-    "skitter-smack",
-    "sucker-punch",
-    "shadow-claw",
-    "hex",
-    "will-o-wisp",
-    "phantom-force",
-    "destiny-bond",
-    "magical-leaf"
-  ],
-  "pumpkaboo": [
-    "astonish",
-    "confuse-ray",
-    "moonblast",
-    "razor-leaf",
-    "scary-face"
-  ],
-  "gourgeist": [
-    "astonish",
-    "confuse-ray",
-    "moonblast",
-    "razor-leaf",
-    "scary-face",
-    "shadow-ball",
-    "phantom-force",
-    "destiny-bond",
-    "skitter-smack",
-    "synthesis"
-  ],
-  "bergmite": [
-    "body-slam",
-    "ice-shard",
-    "icy-wind",
-    "avalanche",
-    "ice-fang"
-  ],
-  "avalugg": [
-    "body-slam",
-    "ice-shard",
-    "mountain-gale",
-    "rock-slide",
-    "icy-wind",
-    "avalanche",
-    "ice-fang",
-    "blizzard",
-    "powder-snow",
-    "recover"
-  ],
-  "noibat": [
-    "absorb",
-    "tackle",
-    "gust",
-    "wing-attack",
-    "whirlwind"
-  ],
-  "noivern": [
-    "hurricane",
-    "dragon-pulse",
-    "dragon-rush",
-    "tailwind",
-    "aerial-ace",
-    "agility",
-    "wing-attack",
-    "roost",
-    "whirlwind",
-    "dragon-dance"
-  ],
-
-
-  "": [
     
-  ]
+    "turtwig": [
+        "earthquake",
+        "razor-leaf",
+        "leech-seed",
+        "absorb",
+        "synthesis"
+    ],
+    "grotle": [
+        "earthquake",
+        "razor-leaf",
+        "leech-seed",
+        "absorb",
+        "outrage",
+        "crunch",
+        "synthesis"
+    ],
+    "torterra": [
+        "bite",
+        "razor-leaf",
+        "leech-seed",
+        "iron-head",
+        "outrage",
+        "seed-bomb",
+        "leaf-storm",
+        "earthquake",
+        "synthesis",
+        "mega-drain"
+    ],
+    "simisage": [
+        "leech-seed",
+        "leer",
+        "tackle",
+        "vine-whip",
+        "leaf-storm",
+        "seed-bomb",
+        "superpower",
+        "crunch",
+        "energy-ball",
+        "focus-blast"
+    ],
+    "chimchar": [
+        "flare-blitz",
+        "ember",
+        "flamethrower",
+        "fire-pledge",
+        "slack-off"
+    ],
+    "monferno": [
+        "flare-blitz",
+        "ember",
+        "flamethrower",
+        "flame-wheel",
+        "close-combat",
+        "fire-pledge",
+        "slack-off"
+    ],
+    "infernape": [
+        "flare-blitz",
+        "close-combat",
+        "flamethrower",
+        "fire-punch",
+        "flame-wheel",
+        "fire-pledge",
+        "vacuum-wave",
+        "fire-spin",
+        "heat-wave",
+        "slack-off"
+    ],
+    "starly": [
+        "quick-attack",
+        "wing-attack",
+        "whirlwind",
+        "aerial-ace",
+        "roost"
+    ],
+    "staravia": [
+        "quick-attack",
+        "wing-attack",
+        "whirlwind",
+        "aerial-ace",
+        "agility",
+        "take-down",
+        "roost"
+    ],
+    "staraptor": [
+        "quick-attack",
+        "whirlwind",
+        "revenge",
+        "take-down",
+        "twister",
+        "uproar",
+        "feather-dance",
+        "aerial-ace",
+        "close-combat",
+        "roost"
+    ],
+    "bidoof": [
+        "quick-attack",
+        "headbutt",
+        "take-down",
+        "water-gun",
+        "rest"
+    ],
+    "bibarel": [
+        "quick-attack",
+        "headbutt",
+        "take-down",
+        "hyper-voice",
+        "water-gun",
+        "superpower",
+        "crunch",
+        "defense-curl",
+        "aqua-jet",
+        "rest"
+    ],
+    "kricketot": [
+        "bug-bite",
+        "absorb",
+        "tackle",
+        "struggle-bug",
+        "uproar"
+    ],
+    "kricketune": [
+        "bug-bite",
+        "absorb",
+        "tackle",
+        "struggle-bug",
+        "uproar",
+        "x-scissor",
+        "fury-cutter",
+        "night-slash",
+        "bug-buzz",
+        "leech-life"
+    ],
+    "shinx": [
+        "charge",
+        "tackle",
+        "thunder-shock",
+        "thunder-wave",
+        "volt-switch"
+    ],
+    "luxio": [
+        "charge",
+        "tackle",
+        "thunder-shock",
+        "thunder-wave",
+        "volt-switch",
+        "wild-charge",
+        "thunder"
+    ],
+    "luxray": [
+        "electric-terrain",
+        "swift",
+        "charge",
+        "night-slash",
+        "thunder-wave",
+        "discharge",
+        "thunder",
+        "volt-switch",
+        "thunderbolt",
+        "crunch"
+    ],
+    "budew": [
+        "absorb",
+        "charm",
+        "stun-spore",
+        "venoshock",
+        "petal-dance"
+    ],
+    "roserade": [
+        "absorb",
+        "charm",
+        "pin-missile",
+        "magical-leaf",
+        "leech-seed",
+        "poison-jab",
+        "leaf-storm",
+        "razor-leaf",
+        "energy-ball",
+        "synthesis"
+    ],
+    "rampardos": [
+        "iron-head",
+        "focus-blast",
+        "stone-edge",
+        "zen-headbutt",
+        "rock-slide",
+        "fire-blast",
+        "earthquake",
+        "sandstorm",
+        "assurance",
+        "giga-impact"
+    ],
+    "mothim": [
+        "quiver-dance",
+        "tackle",
+        "protect",
+        "bug-bite",
+        "string-shot",
+        "bug-buzz",
+        "confusion",
+        "struggle-bug",
+        "air-slash",
+        "roost"
+    ],
+    "pachirisu": [
+        "quick-attack",
+        "thunder-shock",
+        "charm",
+        "spark",
+        "thunder-wave",
+        "discharge",
+        "super-fang",
+        "last-resort",
+        "thunder",
+        "agility"
+    ],
+    "gastrodon": [
+        "mud-bomb",
+        "water-gun",
+        "water-pulse",
+        "earth-power",
+        "surf",
+        "counter",
+        "rain-dance",
+        "harden",
+        "bulldoze",
+        "recover"
+    ],
+    "combee": [
+        "gust",
+        "bug-bite",
+        "bug-buzz"
+    ],
+    "vespiquen": [
+        "bug-bite",
+        "confuse-ray",
+        "gust",
+        "poison-sting",
+        "struggle-bug",
+        "fury-cutter",
+        "air-slash",
+        "toxic",
+        "heal-order",
+        "roost"
+    ],
+    "buizel": [
+        "bite",
+        "aqua-jet",
+        "whirlpool",
+        "water-gun",
+        "aqua-tail"
+    ],
+    "floatzel": [
+        "whirlpool",
+        "hydro-pump",
+        "bubble",
+        "water-gun",
+        "aqua-tail",
+        "hydro-cannon",
+        "crunch",
+        "agility",
+        "bite",
+        "mud-slap"
+    ],
+    "honchkrow": [
+        "assurance",
+        "pursuit",
+        "night-slash",
+        "feint-attack",
+        "dark-pulse",
+        "uproar",
+        "feather-dance",
+        "mean-look",
+        "roost",
+        "whirlwind"
+    ],
+    "drifloon": [
+        "hypnosis",
+        "shadow-ball",
+        "hex",
+        "phantom-force",
+        "ominous-wind"
+    ],
+    "drifblim": [
+        "hypnosis",
+        "shadow-ball",
+        "hex",
+        "phantom-force",
+        "ominous-wind",
+        "psychic",
+        "thunder",
+        "knock-off",
+        "brutal-swing",
+        "extrasensory"
+    ],
+    "skuntank": [
+        "poison-gas",
+        "bite",
+        "pursuit",
+        "night-slash",
+        "venoshock",
+        "fury-swipes",
+        "flamethrower",
+        "sucker-punch",
+        "toxic",
+        "scary-face"
+    ],
+    "stunky": [
+        "poison-gas",
+        "bite",
+        "pursuit",
+        "night-slash",
+        "venoshock"
+    ],
+    "buneary": [
+        "quick-attack",
+        "tackle",
+        "draining-kiss",
+        "charm",
+        "agility"
+    ],
+    "lopunny": [
+        "agility",
+        "play-rough",
+        "draining-kiss",
+        "hyper-voice",
+        "sucker-punch",
+        "fire-punch",
+        "ice-punch",
+        "thunder-punch",
+        "close-combat",
+        "rest"
+    ],
+    "chingling": [
+        "tackle",
+        "confusion",
+        "disarming-voice",
+        "wish",
+        "recover"
+    ],
+    "chatot": [
+        "peck",
+        "hyper-voice",
+        "night-shade",
+        "feather-dance",
+        "ominous-wind",
+        "uproar",
+        "fury-attack",
+        "echoed-voice",
+        "feather-dance",
+        "roost"
+    ],
+    "glameow": [
+        "tackle",
+        "night-slash",
+        "slash",
+        "hypnosis",
+        "play-rough"
+    ],
+    "purugly": [
+        "tackle",
+        "night-slash",
+        "slash",
+        "hypnosis",
+        "feint-attack",
+        "play-rough",
+        "last-resort",
+        "charm",
+        "iron-tail",
+        "hyper-beam"
+    ],
+    "bonsly": [
+        "rock-throw",
+        "rock-slide",
+        "stone-edge",
+        "low-kick",
+        "sucker-punch"
+    ],
+    "hippowdon": [
+        "bite",
+        "fire-fang",
+        "ice-fang",
+        "thunder-fang",
+        "take-down",
+        "whirlwind",
+        "earthquake",
+        "rock-slide",
+        "sandstorm",
+        "slack-off"
+    ],
+    "hippopotas": [
+        "bite",
+        "tackle",
+        "mud-shot",
+        "crunch",
+        "earthquake"
+    ],
+    "bronzor": [
+        "confuse-ray",
+        "psywave",
+        "confusion",
+        "gyro-ball",
+        "rock-polish"
+    ],
+    "bronzong": [
+        "future-sight",
+        "psywave",
+        "confusion",
+        "feint-attack",
+        "iron-head",
+        "psyshock",
+        "rain-dance",
+        "safeguard",
+        "gyro-ball",
+        "rock-polish"
+    ],
+    "gible": [
+        "dragon-claw",
+        "bulldoze",
+        "dragon-rush",
+        "sandstorm",
+        "metal-claw"
+    ],
+    "garchomp": [
+        "iron-head",
+        "stone-edge",
+        "dragon-rush",
+        "sandstorm",
+        "outrage",
+        "dragon-claw",
+        "dragon-dance",
+        "earthquake",
+        "draco-meteor",
+        "bulldoze"
+    ],
+    "yanmega": [
+        "pursuit",
+        "slash",
+        "night-slash",
+        "tackle",
+        "bug-bite",
+        "air-slash",
+        "bug-buzz",
+        "uproar",
+        "quick-attack",
+        "ancient-power"
+    ],
+    "gabite": [
+        "dragon-claw",
+        "bulldoze",
+        "dragon-rush",
+        "sandstorm",
+        "metal-claw",
+        "dragon-breath",
+        "dragon-dance"
+    ],
+    "leafeon": [
+        "quick-attack",
+        "razor-leaf",
+        "vine-whip",
+        "headbutt",
+        "leech-seed",
+        "bullet-seed",
+        "solar-beam",
+        "sleep-powder",
+        "stun-spore",
+        "poison-powder"
+    ],
+    "glaceon": [
+        "freeze-dry",
+        "ice-fang",
+        "charm",
+        "ice-punch",
+        "ice-beam",
+        "icy-wind",
+        "aurora-beam",
+        "blizzard",
+        "wish",
+        "last-resort"
+    ],
+    "porygon-z": [
+        "agility",
+        "zap-cannon",
+        "tri-attack",
+        "discharge",
+        "psybeam",
+        "hyper-beam",
+        "uproar",
+        "thunder-shock",
+        "nasty-plot",
+        "recover"
+    ],
+    "weavile": [
+        "agility",
+        "revenge",
+        "ice-shard",
+        "frost-breath",
+        "night-slash",
+        "icy-wind",
+        "dark-pulse",
+        "avalanche",
+        "assurance",
+        "rest"
+    ],
+    "shiny-lucario": [
+        "giga-impact",
+        "focus-blast",
+        "drain-punch",
+        "brick-break",
+        "meteor-mash",
+        "dark-pulse",
+        "earthquake",
+        "aura-sphere",
+        "bone-rush",
+        "heal-pulse"
+    ],
+    "shiny lucario": [
+        "giga-impact",
+        "focus-blast",
+        "drain-punch",
+        "brick-break",
+        "meteor-mash",
+        "dark-pulse",
+        "earthquake",
+        "aura-sphere",
+        "bone-rush",
+        "heal-pulse"
+    ],
+    "shiny-drapion": [
+        "pursuit",
+        "ice-fang",
+        "thunder-fang",
+        "feint-attack",
+        "toxic-spikes",
+        "dark-pulse",
+        "x-scissor",
+        "night-slash",
+        "toxic",
+        "crunch"
+    ],
+    "shiny drapion": [
+        "pursuit",
+        "ice-fang",
+        "thunder-fang",
+        "feint-attack",
+        "toxic-spikes",
+        "dark-pulse",
+        "x-scissor",
+        "night-slash",
+        "toxic",
+        "crunch"
+    ],
+    "happiny": [
+        "disarming-voice",
+        "light-screen",
+        "charm",
+        "defense-curl",
+        "heal-bell"
+    ],
+    "froslass": [
+        "shadow-ball",
+        "ice-punch",
+        "draining-kiss",
+        "icy-wind",
+        "avalanche",
+        "ominous-wind",
+        "powder-snow",
+        "frost-breath",
+        "blizzard",
+        "destiny-bond"
+    ],
+    "croagunk": [
+        "pursuit",
+        "poison-sting",
+        "poison-jab",
+        "sucker-punch",
+        "sludge-bomb"
+    ],
+    "skorupi": [
+        "pursuit",
+        "poison-sting",
+        "bite",
+        "feint-attack",
+        "venoshock"
+    ],
+    "toxicroak": [
+        "pursuit",
+        "poison-sting",
+        "poison-jab",
+        "sucker-punch",
+        "sludge-bomb",
+        "venoshock",
+        "cross-chop",
+        "vacuum-wave",
+        "dynamic-punch",
+        "bulk-up"
+    ],
+    "carnivine": [
+        "bite",
+        "leech-seed",
+        "vine-whip",
+        "grass-knot",
+        "feint-attack",
+        "seed-bomb",
+        "knock-off",
+        "absorb",
+        "power-whip",
+        "sleep-powder"
+    ],
+    "abomasnow": [
+        "ice-punch",
+        "icy-wind",
+        "water-pulse",
+        "magical-leaf",
+        "avalanche",
+        "seed-bomb",
+        "leaf-storm",
+        "blizzard",
+        "powder-snow",
+        "synthesis"
+    ],
+    "snover": [
+        "ice-shard",
+        "powder-snow",
+        "razor-leaf",
+        "icy-wind",
+        "leech-seed"
+    ],
+    "gliscor": [
+        "acrobatics",
+        "ice-fang",
+        "night-slash",
+        "aerial-ace",
+        "feint-attack",
+        "swords-dance",
+        "earthquake",
+        "x-scissor",
+        "roost",
+        "crabhammer"
+    ],
+    "dusknoir": [
+        "pursuit",
+        "ice-punch",
+        "dark-pulse",
+        "feint-attack",
+        "fire-punch",
+        "psychic",
+        "ominous-wind",
+        "mean-look",
+        "shadow-punch",
+        "thunder-punch"
+    ],
+    "gallade": [
+        "brick-break",
+        "mega-punch",
+        "night-slash",
+        "reversal",
+        "knock-off",
+        "close-combat",
+        "leaf-blade",
+        "focus-punch",
+        "drain-punch",
+        "heal-pulse"
+    ],
+    "piplup": [
+        "tackle",
+        "bubble",
+        "whirlpool",
+        "drill-peck",
+        "water-sport"
+    ],
+    "empoleon": [
+        "drill-peck",
+        "bubble",
+        "metal-claw",
+        "water-sport",
+        "whirlpool",
+        "wave-crash",
+        "hydro-cannon",
+        "knock-off",
+        "hydro-pump",
+        "roost"
+    ]
 }
