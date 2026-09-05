@@ -3314,42 +3314,6 @@
         "power-whip",
         "synthesis"
     ],
-    "ursaluna": [
-        "hammer-arm",
-        "high-horsepower",
-        "thrash",
-        "play-rough",
-        "close-combat",
-        "cross-chop",
-        "earth-power",
-        "hyper-beam",
-        "headlong-rush",
-        "rest"
-    ],
-    "shiny-decidueye": [
-        "brave-bird",
-        "air-slash",
-        "feather-dance",
-        "aerial-ace",
-        "aura-sphere",
-        "magical-leaf",
-        "leaf-blade",
-        "leaf-storm",
-        "phantom-force",
-        "synthesis"
-    ],
-    "shiny decidueye": [
-        "brave-bird",
-        "air-slash",
-        "feather-dance",
-        "aerial-ace",
-        "aura-sphere",
-        "magical-leaf",
-        "leaf-blade",
-        "leaf-storm",
-        "phantom-force",
-        "synthesis"
-    ],
     "victreebel": [
         "acid",
         "leech-life",
@@ -3507,42 +3471,6 @@
         "discharge",
         "light-screen",
         "electro-ball"
-    ],
-    "sandslash-alola": [
-        "metal-burst",
-        "slash",
-        "defense-curl",
-        "frost-breath",
-        "fury-cutter",
-        "iron-head",
-        "gyro-ball",
-        "hail",
-        "blizzard",
-        "icicle-spear"
-    ],
-    "alolan-sandslash": [
-        "metal-burst",
-        "slash",
-        "defense-curl",
-        "frost-breath",
-        "fury-cutter",
-        "iron-head",
-        "gyro-ball",
-        "hail",
-        "blizzard",
-        "icicle-spear"
-    ],
-    "alolan sandslash": [
-        "metal-burst",
-        "slash",
-        "defense-curl",
-        "frost-breath",
-        "fury-cutter",
-        "iron-head",
-        "gyro-ball",
-        "hail",
-        "blizzard",
-        "icicle-spear"
     ],
     "goldeen": [
         "horn-attack",
@@ -3986,5 +3914,136 @@
         "dragon-rage",
         "hydro-pump",
         "rain-dance"
+    ],
+    "ursaluna": [
+        "hammer-arm",
+        "high-horsepower",
+        "thrash",
+        "play-rough",
+        "close-combat",
+        "cross-chop",
+        "earth-power",
+        "hyper-beam",
+        "headlong-rush",
+        "rest"
+    ],
+    "decidueye": [
+        "brave-bird",
+        "air-slash",
+        "feather-dance",
+        "aerial-ace",
+        "aura-sphere",
+        "magical-leaf",
+        "leaf-blade",
+        "leaf-storm",
+        "phantom-force",
+        "synthesis"
+    ],
+    "sandslash-alola": [
+        "metal-burst",
+        "slash",
+        "defense-curl",
+        "frost-breath",
+        "fury-cutter",
+        "iron-head",
+        "gyro-ball",
+        "hail",
+        "blizzard",
+        "icicle-spear"
+    ],
+    "alolan-sandslash": [
+        "metal-burst",
+        "slash",
+        "defense-curl",
+        "frost-breath",
+        "fury-cutter",
+        "iron-head",
+        "gyro-ball",
+        "hail",
+        "blizzard",
+        "icicle-spear"
+    ],
+    "alolan sandslash": [
+        "metal-burst",
+        "slash",
+        "defense-curl",
+        "frost-breath",
+        "fury-cutter",
+        "iron-head",
+        "gyro-ball",
+        "hail",
+        "blizzard",
+        "icicle-spear"
+    ],
+    "eevee": [
+        "tackle",
+        "quick-attack",
+        "bite",
+        "headbutt",
+        "last-resort"
+    ],
+    "kabutops": [
+        "absorb",
+        "mega-drain",
+        "aqua-jet",
+        "liquidation",
+        "night-slash",
+        "razor-shell",
+        "stone-edge",
+        "hydro-pump",
+        "metal-sound",
+        "ancient-power"
+    ],
+    "aerodactyl": [
+        "giga-impact",
+        "ancient-power",
+        "rock-slide",
+        "dragon-breath",
+        "assurance",
+        "heat-wave",
+        "dragon-rush",
+        "incinerate",
+        "sandstorm",
+        "roost"
+    ],
+    "dratini": [
+        "dragon-claw",
+        "dragon-tail",
+        "twister",
+        "dragon-rush",
+        "outrage"
+    ],
+    "dragonair": [
+        "dragon-claw",
+        "dragon-tail",
+        "twister",
+        "dragon-rush",
+        "outrage",
+        "aqua-tail",
+        "dragon-dance"
+    ],
+    "dragonite": [
+        "dragon-dance",
+        "thunder-punch",
+        "ice-punch",
+        "fire-punch",
+        "extremespeed",
+        "draco-meteor",
+        "dragon-rush",
+        "outrage",
+        "hurricane",
+        "roost"
+    ],
+    "kangaskhan": [
+        "reversal",
+        "sand-tomb",
+        "rock-slide",
+        "sandstorm",
+        "vacuum-wave",
+        "outrage",
+        "earthquake",
+        "uproar",
+        "last-resort",
+        "rock-polish"
     ]
 }
