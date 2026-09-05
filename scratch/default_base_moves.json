@@ -1395,7 +1395,7 @@
         "incinerate",
         "uproar"
     ],
-    "darmanitan": [
+    "Darmanitan": [
         "flare-blitz",
         "ember",
         "fire-punch",
@@ -1519,7 +1519,7 @@
         "synthesis",
         "spiky-shield"
     ],
-    "fenneken": [
+    "fennekin": [
         "ember",
         "incinerate",
         "fire-spin",
@@ -1547,7 +1547,7 @@
         "fire-blast",
         "mystical-fire"
     ],
-    "frokie": [
+    "froakie": [
         "bubble",
         "water-pulse",
         "quick-attack",
@@ -1659,7 +1659,7 @@
         "flamethrower",
         "crunch"
     ],
-    "pyroar": [
+    "pyroar-male": [
         "fire-spin",
         "leer",
         "fire-fang",
@@ -1725,7 +1725,7 @@
         "shock-wave",
         "night-slash"
     ],
-    "aegislash": [
+    "aegislash-shield": [
         "pursuit",
         "aerial-ace",
         "fury-cutter",
@@ -1737,7 +1737,7 @@
         "swords-dance",
         "kings-shield"
     ],
-    "spritee": [
+    "spritzee": [
         "echoed-voice",
         "disarming-voice",
         "heal bell",
@@ -1898,7 +1898,7 @@
         "future-sight",
         "psybeam"
     ],
-    "meowstic": [
+    "meowstic-male": [
         "disarming-voice",
         "mean-look",
         "confusion",
@@ -2015,14 +2015,14 @@
         "destiny-bond",
         "magical-leaf"
     ],
-    "pumpkaboo": [
+    "pumpkaboo-average": [
         "astonish",
         "confuse-ray",
         "moonblast",
         "razor-leaf",
         "scary-face"
     ],
-    "gourgeist": [
+    "gourgeist-average": [
         "astonish",
         "confuse-ray",
         "moonblast",
