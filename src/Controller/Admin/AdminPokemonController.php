@@ -13,7 +13,7 @@ use App\Enum\EvolutionStone;
 use App\Form\EvolutionRuleType;
 use App\Form\PokemonVariationType;
 use App\Repository\PokemonVariationRepository;
-use App\Service\PokeApi\PokeApiService;
+use App\Service\PokeApiService;
 use App\Service\PokeApi\PokeApiValidator;
 use App\Service\TrainerProfileService;
 use Doctrine\ORM\EntityManagerInterface;
