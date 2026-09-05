@@ -481,8 +481,7 @@
         "hydro-pump",
         "water-pulse",
         "water-pledge",
-        "aqua-jet",
-        "hydro-pump"
+        "aqua-jet"
     ],
     "dewott": [
         "water-gun",
@@ -528,7 +527,7 @@
         "leer",
         "knock-off",
         "whirlwind",
-        "feint-attack",
+        "faint-attack",
         "dark-pulse",
         "bone-rush",
         "air-slash",
@@ -610,14 +609,14 @@
         "low-kick",
         "facade",
         "headbutt",
-        "feint-attack"
+        "faint-attack"
     ],
     "scrafty": [
         "dynamic-punch",
         "low-kick",
         "facade",
         "headbutt",
-        "feint-attack",
+        "faint-attack",
         "focus-blast",
         "brick-break",
         "crunch",
@@ -629,7 +628,7 @@
         "leer",
         "zen-headbutt",
         "leech-seed",
-        "feint-attack"
+        "faint-attack"
     ],
     "sawsbuck": [
         "tackle",
@@ -638,7 +637,7 @@
         "zen-headbutt",
         "earthquake",
         "leech-seed",
-        "feint-attack",
+        "faint-attack",
         "take-down",
         "energy-ball",
         "solar-beam"
@@ -707,7 +706,7 @@
         "tackle",
         "fire-spin",
         "inferno",
-        "feint-attack",
+        "faint-attack",
         "heat-wave",
         "night-slash",
         "incinerate",
@@ -1056,7 +1055,7 @@
         "sleep-powder",
         "mega-drain",
         "synthesis",
-        "feint-attack",
+        "faint-attack",
         "giga-drain",
         "defense-curl",
         "leaf-storm",
@@ -1314,7 +1313,7 @@
         "thrash",
         "discharge",
         "overheat",
-        "feint-attack",
+        "faint-attack",
         "rest"
     ],
     "swadloon": [
@@ -1562,7 +1561,7 @@
         "aerial-ace",
         "extrasensory",
         "hydro-pump",
-        "feint-attack"
+        "faint-attack"
     ],
     "greninja": [
         "bubble",
@@ -1571,7 +1570,7 @@
         "aerial-ace",
         "extrasensory",
         "hydro-pump",
-        "feint-attack",
+        "faint-attack",
         "water-pulse",
         "water-sport",
         "water-shuriken"
@@ -1598,13 +1597,11 @@
     "fletchling": [
         "flame-charge",
         "flare-blitz",
-        "flare-blitz",
         "acrobatics",
         "aerial-ace"
     ],
     "fletchinder": [
         "flame-charge",
-        "flare-blitz",
         "flare-blitz",
         "acrobatics",
         "aerial-ace",
@@ -1742,14 +1739,14 @@
         "disarming-voice",
         "heal bell",
         "fairy-wind",
-        "moon-blast"
+        "moonblast"
     ],
     "aromatisse": [
         "echoed-voice",
         "disarming-voice",
         "heal bell",
         "fairy-wind",
-        "moon-blast",
+        "moonblast",
         "draining-kiss",
         "misty-terrain",
         "charm",
@@ -2341,7 +2338,7 @@
         "assurance",
         "pursuit",
         "night-slash",
-        "feint-attack",
+        "faint-attack",
         "dark-pulse",
         "uproar",
         "feather-dance",
@@ -2422,7 +2419,6 @@
         "uproar",
         "fury-attack",
         "echoed-voice",
-        "feather-dance",
         "roost"
     ],
     "glameow": [
@@ -2437,7 +2433,7 @@
         "night-slash",
         "slash",
         "hypnosis",
-        "feint-attack",
+        "faint-attack",
         "play-rough",
         "last-resort",
         "charm",
@@ -2481,7 +2477,7 @@
         "future-sight",
         "psywave",
         "confusion",
-        "feint-attack",
+        "faint-attack",
         "iron-head",
         "psyshock",
         "rain-dance",
@@ -2593,7 +2589,7 @@
         "pursuit",
         "ice-fang",
         "thunder-fang",
-        "feint-attack",
+        "faint-attack",
         "toxic-spikes",
         "dark-pulse",
         "x-scissor",
@@ -2631,7 +2627,7 @@
         "pursuit",
         "poison-sting",
         "bite",
-        "feint-attack",
+        "faint-attack",
         "venoshock"
     ],
     "toxicroak": [
@@ -2651,7 +2647,7 @@
         "leech-seed",
         "vine-whip",
         "grass-knot",
-        "feint-attack",
+        "faint-attack",
         "seed-bomb",
         "knock-off",
         "absorb",
@@ -2682,7 +2678,7 @@
         "ice-fang",
         "night-slash",
         "aerial-ace",
-        "feint-attack",
+        "faint-attack",
         "swords-dance",
         "earthquake",
         "x-scissor",
@@ -2693,7 +2689,7 @@
         "pursuit",
         "ice-punch",
         "dark-pulse",
-        "feint-attack",
+        "faint-attack",
         "fire-punch",
         "psychic",
         "ominous-wind",
@@ -2927,7 +2923,7 @@
         "dark-pulse",
         "destiny-bond",
         "leech-life",
-        "feint-attack",
+        "faint-attack",
         "shadow-ball",
         "psychic"
     ],
@@ -2939,7 +2935,7 @@
         "dark-pulse",
         "destiny-bond",
         "leech-life",
-        "feint-attack",
+        "faint-attack",
         "shadow-ball",
         "psychic"
     ],
@@ -3019,30 +3015,6 @@
         "power-whip"
     ],
     "wormadam-trash": [
-        "quiver-dance",
-        "metal-burst",
-        "sucker-punch",
-        "tackle",
-        "protect",
-        "bug-bite",
-        "string-shot",
-        "confusion",
-        "metal-sound",
-        "iron-head"
-    ],
-    "wormadam-steel": [
-        "quiver-dance",
-        "metal-burst",
-        "sucker-punch",
-        "tackle",
-        "protect",
-        "bug-bite",
-        "string-shot",
-        "confusion",
-        "metal-sound",
-        "iron-head"
-    ],
-    "wormadam steel": [
         "quiver-dance",
         "metal-burst",
         "sucker-punch",
@@ -3439,7 +3411,6 @@
         "thunder-shock",
         "spark",
         "thunder-wave",
-        "thunder-shock",
         "selfdestruct"
     ],
     "magnemite": [
@@ -3579,7 +3550,7 @@
         "thrash",
         "quick-attack",
         "fury-attack",
-        "feint-attack",
+        "faint-attack",
         "whirlwind",
         "drill-peck",
         "uproar",
@@ -3811,7 +3782,7 @@
         "close-combat",
         "brick-break",
         "superpower",
-        "feint-attack",
+        "faint-attack",
         "guillotine",
         "knock-off",
         "x-scissor",
@@ -3823,7 +3794,7 @@
         "flare-blitz",
         "ember",
         "fire-punch",
-        "feint-attack",
+        "faint-attack",
         "flame-burst",
         "heat-wave",
         "fire-blast",
@@ -3940,30 +3911,6 @@
         "synthesis"
     ],
     "sandslash-alola": [
-        "metal-burst",
-        "slash",
-        "defense-curl",
-        "frost-breath",
-        "fury-cutter",
-        "iron-head",
-        "gyro-ball",
-        "hail",
-        "blizzard",
-        "icicle-spear"
-    ],
-    "alolan-sandslash": [
-        "metal-burst",
-        "slash",
-        "defense-curl",
-        "frost-breath",
-        "fury-cutter",
-        "iron-head",
-        "gyro-ball",
-        "hail",
-        "blizzard",
-        "icicle-spear"
-    ],
-    "alolan sandslash": [
         "metal-burst",
         "slash",
         "defense-curl",

@@ -483,7 +483,7 @@ class PokemonController extends AbstractController
             if (isset($defaultBaseMovesData[$pokemonNameLower])) {
                 $defaultBaseMoves = $defaultBaseMovesData[$pokemonNameLower];
                 foreach ($defaultBaseMoves as $moveName) {
-                    $moveNameLower = strtolower(trim($moveName));
+                    $moveNameLower = self::resolveMoveAlias($moveName);
                     if (!empty($moveNameLower) && !isset($moveDetails[$moveNameLower])) {
                         $moveDetails[$moveNameLower] = $this->pokeApiService->getMoveDetails($moveNameLower);
                     }
@@ -569,10 +569,14 @@ class PokemonController extends AbstractController
     #[Route('/api/move/search', name: 'api_move_search', methods: ['GET'])]
     public function searchMoveAjax(Request $request): JsonResponse
     {
-        $query = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($request->query->get('q', '')))));
-        if (strlen($query) < 2) {
+        $rawQuery = trim($request->query->get('q', ''));
+        if (strlen($rawQuery) < 2) {
             return new JsonResponse([]);
         }
+
+        $query = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower($rawQuery)));
+        $queryResolved = self::resolveMoveAlias($query);
+        $queryClean = str_replace('-', '', $query);
 
         $allMovesMap = [];
 
@@ -581,7 +585,7 @@ class PokemonController extends AbstractController
         if (file_exists($tmsJsonPath)) {
             $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?: [];
             foreach ($allTms as $tm) {
-                $slug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($tm['move']))));
+                $slug = self::resolveMoveAlias($tm['move']);
                 $allMovesMap[$slug] = [
                     'slug' => $slug,
                     'name' => ucwords(str_replace('-', ' ', $slug)),
@@ -598,10 +602,10 @@ class PokemonController extends AbstractController
             foreach ($rawBaseMoves as $pkName => $moves) {
                 if (is_array($moves)) {
                     $pkKey = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($pkName))));
-                    $defaultBaseMoves[$pkKey] = array_map(fn ($m) => preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m)))), $moves);
+                    $defaultBaseMoves[$pkKey] = array_map(fn ($m) => self::resolveMoveAlias($m), $moves);
 
                     foreach ($moves as $m) {
-                        $slug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m))));
+                        $slug = self::resolveMoveAlias($m);
                         if (!isset($allMovesMap[$slug])) {
                             $allMovesMap[$slug] = [
                                 'slug' => $slug,
@@ -617,11 +621,25 @@ class PokemonController extends AbstractController
         // Filtra resultados por termo de busca
         $results = [];
         foreach ($allMovesMap as $slug => $data) {
-            if (str_contains($slug, $query) || str_contains(strtolower($data['name']), strtolower($query))) {
+            $slugClean = str_replace('-', '', $slug);
+            if (
+                str_contains($slug, $query) ||
+                str_contains($slug, $queryResolved) ||
+                str_contains($slugClean, $queryClean) ||
+                str_contains(strtolower($data['name']), strtolower($rawQuery))
+            ) {
                 // Encontrar quais Pokémon aprendem este golpe como Base Move (deduplicando formas e alias)
                 $basePokemonMap = [];
                 foreach ($defaultBaseMoves as $pkSlug => $moves) {
                     $idx = array_search($slug, $moves, true);
+                    if ($idx === false) {
+                        foreach ($moves as $i => $m) {
+                            if (str_replace('-', '', $m) === $slugClean) {
+                                $idx = $i;
+                                break;
+                            }
+                        }
+                    }
                     if ($idx !== false) {
                         $canonicalSlug = PokeApiPokemonFetcher::resolveNameAlias($pkSlug);
                         if (!isset($basePokemonMap[$canonicalSlug])) {
@@ -673,7 +691,7 @@ class PokemonController extends AbstractController
         if (file_exists($tmsJsonPath)) {
             $allTms = json_decode(file_get_contents($tmsJsonPath), true) ?: [];
             foreach ($allTms as $tm) {
-                $moveNormalized = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($tm['move']))));
+                $moveNormalized = self::resolveMoveAlias($tm['move']);
                 $tmsMap[$moveNormalized] = $tm['item'];
             }
         }
@@ -686,13 +704,13 @@ class PokemonController extends AbstractController
             foreach ($rawBaseMoves as $pkName => $moves) {
                 if (is_array($moves)) {
                     $pkKey = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($pkName))));
-                    $defaultBaseMoves[$pkKey] = array_map(fn ($m) => preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($m)))), $moves);
+                    $defaultBaseMoves[$pkKey] = array_map(fn ($m) => self::resolveMoveAlias($m), $moves);
                 }
             }
         }
 
         if (!empty($search)) {
-            $moveSlug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($search))));
+            $moveSlug = self::resolveMoveAlias($search);
             try {
                 $moveDetails = $this->pokeApiService->getMoveDetailsWithLearnedBy($moveSlug);
             } catch (\Exception) {
@@ -700,7 +718,7 @@ class PokemonController extends AbstractController
             }
 
             if ($moveDetails) {
-                $moveNameNorm = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($moveDetails['name']))));
+                $moveNameNorm = self::resolveMoveAlias($moveDetails['name']);
                 $tmCode = $tmsMap[$moveNameNorm] ?? null;
 
                 // Indexa os Pokémon permitidos para lookup rápido
@@ -721,6 +739,15 @@ class PokemonController extends AbstractController
                 // 1. Inclui TODOS os Pokémon de default_base_moves.json que possuem este golpe como Base Move
                 foreach ($defaultBaseMoves as $pkSlug => $moves) {
                     $idx = array_search($moveNameNorm, $moves, true);
+                    if ($idx === false) {
+                        $normNoHyphen = str_replace('-', '', $moveNameNorm);
+                        foreach ($moves as $i => $m) {
+                            if (str_replace('-', '', $m) === $normNoHyphen) {
+                                $idx = $i;
+                                break;
+                            }
+                        }
+                    }
                     if ($idx !== false) {
                         $canonicalSlug = PokeApiPokemonFetcher::resolveNameAlias($pkSlug);
                         $pData = $basicMapByName[$canonicalSlug] ?? $basicMapByName[$pkSlug] ?? null;
@@ -784,6 +811,15 @@ class PokemonController extends AbstractController
 
                             if ($matchedMoves !== null) {
                                 $idx = array_search($moveNameNorm, $matchedMoves, true);
+                                if ($idx === false) {
+                                    $normNoHyphen = str_replace('-', '', $moveNameNorm);
+                                    foreach ($matchedMoves as $i => $m) {
+                                        if (str_replace('-', '', $m) === $normNoHyphen) {
+                                            $idx = $i;
+                                            break;
+                                        }
+                                    }
+                                }
                                 if ($idx !== false) {
                                     $isBaseMove = true;
                                     $baseSlotLabel = 'm'.($idx + 1).' (move nº '.($idx + 1).')';
@@ -828,5 +864,68 @@ class PokemonController extends AbstractController
             'results' => $results,
             'filter' => $filter,
         ]);
+    }
+
+    public static function resolveMoveAlias(string $move): string
+    {
+        $slug = preg_replace('/-+/', '-', str_replace([' ', '_'], '-', strtolower(trim($move))));
+        $noHyphen = str_replace('-', '', $slug);
+
+        $aliasMap = [
+            'moon-blast' => 'moonblast',
+            'extreme-speed' => 'extremespeed',
+            'super-power' => 'superpower',
+            'flame-thrower' => 'flamethrower',
+            'thunder-bolt' => 'thunderbolt',
+            'bubble-beam' => 'bubblebeam',
+            'self-destruct' => 'selfdestruct',
+            'soft-boiled' => 'softboiled',
+            'solar-beam' => 'solarbeam',
+            'poison-powder' => 'poisonpowder',
+            'dragon-breath' => 'dragonbreath',
+            'hi-jump-kick' => 'high-jump-kick',
+            'highjumpkick' => 'high-jump-kick',
+            'feint-attack' => 'faint-attack',
+            'heal-bell' => 'heal-bell',
+        ];
+
+        if (isset($aliasMap[$slug])) {
+            return $aliasMap[$slug];
+        }
+        if (isset($aliasMap[$noHyphen])) {
+            return $aliasMap[$noHyphen];
+        }
+
+        $reverseMap = [
+            'metalburst' => 'metal-burst',
+            'ironhead' => 'iron-head',
+            'zenheadbutt' => 'zen-headbutt',
+            'flamecharge' => 'flame-charge',
+            'airslash' => 'air-slash',
+            'energyball' => 'energy-ball',
+            'focusblast' => 'focus-blast',
+            'earthpower' => 'earth-power',
+            'brickbreak' => 'brick-break',
+            'rockslide' => 'rock-slide',
+            'swordsdance' => 'swords-dance',
+            'nastyplot' => 'nasty-plot',
+            'calmmind' => 'calm-mind',
+            'dragonclaw' => 'dragon-claw',
+            'icebeam' => 'ice-beam',
+            'hyperbeam' => 'hyper-beam',
+            'shadowball' => 'shadow-ball',
+            'mudslap' => 'mud-slap',
+            'xscissor' => 'x-scissor',
+            'uturn' => 'u-turn',
+            'vcreate' => 'v-create',
+            'willowisp' => 'will-o-wisp',
+            'lockon' => 'lock-on',
+        ];
+
+        if (isset($reverseMap[$noHyphen])) {
+            return $reverseMap[$noHyphen];
+        }
+
+        return $slug;
     }
 }
