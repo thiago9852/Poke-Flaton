@@ -53,23 +53,20 @@ class PokeApiValidator
         try {
             $connection = $this->entityManager->getConnection();
 
-            if (!$force) {
-                // Só inicializa se a tabela estiver completamente vazia
-                $count = (int) $connection->fetchOne('SELECT COUNT(*) FROM pokemon_variation');
-                if ($count > 0) {
-                    return;
-                }
-            } else {
+            if ($force) {
                 // Limpa a tabela para forçar sincronização total
                 $connection->executeStatement('DELETE FROM pokemon_variation');
             }
 
             foreach (PokemonConfig::DEFAULT_VARIATIONS as $id => $data) {
-                $connection->insert('pokemon_variation', [
-                    'id' => $id,
-                    'base_id' => $data['base_id'],
-                    'name' => $data['name'],
-                ]);
+                $exists = (int) $connection->fetchOne('SELECT COUNT(*) FROM pokemon_variation WHERE id = ?', [$id]);
+                if (!$exists) {
+                    $connection->insert('pokemon_variation', [
+                        'id' => $id,
+                        'base_id' => $data['base_id'],
+                        'name' => $data['name'],
+                    ]);
+                }
             }
         } catch (\Exception) {
             // Silencioso se der erro (ex: tabela ainda não criada)

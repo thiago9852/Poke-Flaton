@@ -529,9 +529,16 @@
 			     =================================================================== -->
 			<div class="dash-panel" id="panel-variations">
 				<div class="admin-card-container padded">
-					<h3 class="admin-section-title mb-15">
-						Adicionar Nova Variação
-					</h3>
+					<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+						<h3 class="admin-section-title" style="margin: 0;">
+							Adicionar Nova Variação
+						</h3>
+						<form method="post" action="{{ path('app_admin_variations_sync_defaults') }}" onsubmit="return confirm('Deseja restaurar todas as variações padrão configuradas no sistema?')">
+							<button type="submit" class="btn btn-secondary" style="font-size: 0.85rem; padding: 6px 12px;">
+								<i class="fa-solid fa-rotate"></i> Restaurar Variações Padrão
+							</button>
+						</form>
+					</div>
 					<form method="post" action="{{ path('app_admin_variation_add') }}">
 						<div class="title-form-grid admin-grid-3">
 							<div>

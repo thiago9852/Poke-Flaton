@@ -13,7 +13,8 @@ use App\Enum\EvolutionStone;
 use App\Form\EvolutionRuleType;
 use App\Form\PokemonVariationType;
 use App\Repository\PokemonVariationRepository;
-use App\Service\PokeApiService;
+use App\Service\PokeApi\PokeApiService;
+use App\Service\PokeApi\PokeApiValidator;
 use App\Service\TrainerProfileService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,6 +32,7 @@ class AdminPokemonController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly TrainerProfileService $trainerProfileService,
         private readonly PokeApiService $pokeApiService,
+        private readonly PokeApiValidator $pokeApiValidator,
     ) {
     }
 
@@ -271,6 +273,19 @@ class AdminPokemonController extends AbstractController
         $this->pokeApiService->clearBasicListCache();
 
         $this->addFlash('success', "Variação \"$name\" removida com sucesso!");
+
+        return $this->redirectToRoute('app_admin_pokemon', ['_fragment' => 'variations-section']);
+    }
+
+    #[Route('/admin/variations/sync-defaults', name: 'app_admin_variations_sync_defaults', methods: ['POST'])]
+    public function syncDefaultVariations(): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $this->pokeApiValidator->initializeDatabaseAndVariations(true);
+        $this->pokeApiService->clearBasicListCache();
+
+        $this->addFlash('success', 'Variações padrão restauradas e sincronizadas com sucesso no banco de dados!');
 
         return $this->redirectToRoute('app_admin_pokemon', ['_fragment' => 'variations-section']);
     }

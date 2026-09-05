@@ -67,7 +67,7 @@ class PokemonConfig
         10242 => ['base_id' => 706, 'name' => 'goodra-hisui'],
         // 10243 => ['base_id' => 713, 'name' => 'avalugg-hisui'],
 
-        // Palde
+        // Paldea
         10250 => ['base_id' => 128, 'name' => 'tauros-paldea-combat-breed'],
         10251 => ['base_id' => 128, 'name' => 'tauros-paldea-blaze-breed'],
         10252 => ['base_id' => 128, 'name' => 'tauros-paldea-aqua-breed'],
