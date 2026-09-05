@@ -28,7 +28,7 @@ class AppDbSeedCommand extends Command
         $io->title('Iniciando Seeding e Inicialização do Banco de Dados');
 
         $io->section('Inicializando Variações de Pokémon padrão...');
-        $this->pokeApiValidator->initializeDatabaseAndVariations();
+        $this->pokeApiValidator->initializeDatabaseAndVariations(true);
         $io->success('Variações de Pokémon inicializadas com sucesso!');
 
         $io->section('Inicializando Avatares padrão...');

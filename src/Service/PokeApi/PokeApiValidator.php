@@ -22,6 +22,16 @@ class PokeApiValidator
         if ($this->variations === null) {
             $this->initializeDatabaseAndVariations();
             $this->variations = [];
+
+            // 1. Inicia com as variações padrão da configuração (garante suporte automático aos padrões do PokemonConfig)
+            foreach (PokemonConfig::DEFAULT_VARIATIONS as $id => $data) {
+                $this->variations[$id] = [
+                    'base_id' => $data['base_id'],
+                    'name' => $data['name'],
+                ];
+            }
+
+            // 2. Mescla com as variações salvas no Banco de Dados (DB se sobrepõe se houver alteração)
             try {
                 $dbVariations = $this->variationRepository->findAll();
                 foreach ($dbVariations as $var) {
@@ -31,13 +41,7 @@ class PokeApiValidator
                     ];
                 }
             } catch (\Exception) {
-                // Fallback para a configuração padrão em caso de tabela inexistente ou erro de conexão
-                foreach (PokemonConfig::DEFAULT_VARIATIONS as $id => $data) {
-                    $this->variations[$id] = [
-                        'base_id' => $data['base_id'],
-                        'name' => $data['name'],
-                    ];
-                }
+                // Silencioso se houver erro de conexão com o banco
             }
         }
 
