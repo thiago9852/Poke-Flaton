@@ -2072,8 +2072,6 @@
         "whirlwind",
         "dragon-dance"
     ],
-
-    
     "turtwig": [
         "earthquake",
         "razor-leaf",
@@ -2579,7 +2577,7 @@
         "assurance",
         "rest"
     ],
-    "shiny-lucario": [
+    "lucario": [
         "giga-impact",
         "focus-blast",
         "drain-punch",
@@ -2591,31 +2589,7 @@
         "bone-rush",
         "heal-pulse"
     ],
-    "shiny lucario": [
-        "giga-impact",
-        "focus-blast",
-        "drain-punch",
-        "brick-break",
-        "meteor-mash",
-        "dark-pulse",
-        "earthquake",
-        "aura-sphere",
-        "bone-rush",
-        "heal-pulse"
-    ],
-    "shiny-drapion": [
-        "pursuit",
-        "ice-fang",
-        "thunder-fang",
-        "feint-attack",
-        "toxic-spikes",
-        "dark-pulse",
-        "x-scissor",
-        "night-slash",
-        "toxic",
-        "crunch"
-    ],
-    "shiny drapion": [
+    "drapion": [
         "pursuit",
         "ice-fang",
         "thunder-fang",
@@ -2757,5 +2731,291 @@
         "knock-off",
         "hydro-pump",
         "roost"
+    ],
+    "tauros-paldea-blaze-breed": [
+        "zen-headbutt",
+        "flame-charge",
+        "iron-head",
+        "earthquake",
+        "thrash",
+        "flare-blitz",
+        "wild-charge",
+        "close-combat",
+        "fire-spin",
+        "rest"
+    ],
+    "paldean-tauros-blaze": [
+        "zen-headbutt",
+        "flame-charge",
+        "iron-head",
+        "earthquake",
+        "thrash",
+        "flare-blitz",
+        "wild-charge",
+        "close-combat",
+        "fire-spin",
+        "rest"
+    ],
+    "paldean tauros blaze": [
+        "zen-headbutt",
+        "flame-charge",
+        "iron-head",
+        "earthquake",
+        "thrash",
+        "flare-blitz",
+        "wild-charge",
+        "close-combat",
+        "fire-spin",
+        "rest"
+    ],
+    "tauros-paldea-aqua-breed": [
+        "zen-headbutt",
+        "wave-crash",
+        "iron-head",
+        "earthquake",
+        "thrash",
+        "aqua-jet",
+        "wild-charge",
+        "close-combat",
+        "water-pulse",
+        "rest"
+    ],
+    "paldean-tauros-aqua": [
+        "zen-headbutt",
+        "wave-crash",
+        "iron-head",
+        "earthquake",
+        "thrash",
+        "aqua-jet",
+        "wild-charge",
+        "close-combat",
+        "water-pulse",
+        "rest"
+    ],
+    "paldean tauros aqua": [
+        "zen-headbutt",
+        "wave-crash",
+        "iron-head",
+        "earthquake",
+        "thrash",
+        "aqua-jet",
+        "wild-charge",
+        "close-combat",
+        "water-pulse",
+        "rest"
+    ],
+    "tauros-paldea-combat-breed": [
+        "zen-headbutt",
+        "assurance",
+        "iron-head",
+        "earthquake",
+        "thrash",
+        "mega-kick",
+        "wild-charge",
+        "close-combat",
+        "throat-chop",
+        "rest"
+    ],
+    "paldean-tauros-combat": [
+        "zen-headbutt",
+        "assurance",
+        "iron-head",
+        "earthquake",
+        "thrash",
+        "mega-kick",
+        "wild-charge",
+        "close-combat",
+        "throat-chop",
+        "rest"
+    ],
+    "paldean tauros combat": [
+        "zen-headbutt",
+        "assurance",
+        "iron-head",
+        "earthquake",
+        "thrash",
+        "mega-kick",
+        "wild-charge",
+        "close-combat",
+        "throat-chop",
+        "rest"
+    ],
+    "annihilape": [
+        "close-combat",
+        "cross-chop",
+        "assurance",
+        "thrash",
+        "outrage",
+        "shadow-punch",
+        "rage-fist",
+        "night-slash",
+        "reversal",
+        "phantom-force"
+    ],
+    "charcadet": [
+        "ember",
+        "leer",
+        "astonish",
+        "take-down",
+        "lava-plume"
+    ],
+    "armarouge": [
+        "flare-blitz",
+        "ember",
+        "leer",
+        "astonish",
+        "psyshock",
+        "take-down",
+        "incinerate",
+        "future-sight",
+        "flame-charge",
+        "armor-cannon"
+    ],
+    "goodra-hisui": [
+        "iron-head",
+        "dragon-breath",
+        "water-pulse",
+        "rain-dance",
+        "flash-cannon",
+        "muddy-water",
+        "power-whip",
+        "iron-tail",
+        "life-dew",
+        "hydro-pump"
+    ],
+    "hisuian-goodra": [
+        "iron-head",
+        "dragon-breath",
+        "water-pulse",
+        "rain-dance",
+        "flash-cannon",
+        "muddy-water",
+        "power-whip",
+        "iron-tail",
+        "life-dew",
+        "hydro-pump"
+    ],
+    "hisuian goodra": [
+        "iron-head",
+        "dragon-breath",
+        "water-pulse",
+        "rain-dance",
+        "flash-cannon",
+        "muddy-water",
+        "power-whip",
+        "iron-tail",
+        "life-dew",
+        "hydro-pump"
+    ],
+    "dragapult": [
+        "agility",
+        "dragon-breath",
+        "assurance",
+        "dragon-dance",
+        "phantom-force",
+        "dragon-rush",
+        "last-resort",
+        "hex",
+        "breaking-swipe",
+        "dragon-darts"
+    ],
+    "mimikyu": [
+        "metronome",
+        "shadow-claw",
+        "thunder",
+        "charm",
+        "dark-pulse",
+        "destiny-bond",
+        "leech-life",
+        "feint-attack",
+        "shadow-ball",
+        "psychic"
+    ],
+    "mimikyu-disguised": [
+        "metronome",
+        "shadow-claw",
+        "thunder",
+        "charm",
+        "dark-pulse",
+        "destiny-bond",
+        "leech-life",
+        "feint-attack",
+        "shadow-ball",
+        "psychic"
+    ],
+    "sneasler": [
+        "dire-claw",
+        "sludge-wave",
+        "poison-jab",
+        "venoshock",
+        "toxic-spikes",
+        "sludge-bomb",
+        "toxic",
+        "close-combat",
+        "focus-blast",
+        "vacuum-wave"
+    ],
+    "marowak-alola": [
+        "uproar",
+        "flame-wheel",
+        "bonemerang",
+        "will-o-wisp",
+        "fire-punch",
+        "knock-off",
+        "thrash",
+        "bone-rush",
+        "flare-blitz",
+        "earthquake"
+    ],
+    "alolan-marowak": [
+        "uproar",
+        "flame-wheel",
+        "bonemerang",
+        "will-o-wisp",
+        "fire-punch",
+        "knock-off",
+        "thrash",
+        "bone-rush",
+        "flare-blitz",
+        "earthquake"
+    ],
+    "alolan marowak": [
+        "uproar",
+        "flame-wheel",
+        "bonemerang",
+        "will-o-wisp",
+        "fire-punch",
+        "knock-off",
+        "thrash",
+        "bone-rush",
+        "flare-blitz",
+        "earthquake"
+    ],
+    "sliggoo-hisui": [
+        "iron-head",
+        "dragon-breath",
+        "water-pulse",
+        "rain-dance",
+        "flash-cannon",
+        "muddy-water",
+        "power-whip"
+    ],
+    "hisuian-sliggoo": [
+        "iron-head",
+        "dragon-breath",
+        "water-pulse",
+        "rain-dance",
+        "flash-cannon",
+        "muddy-water",
+        "power-whip"
+    ],
+    "hisuian sliggoo": [
+        "iron-head",
+        "dragon-breath",
+        "water-pulse",
+        "rain-dance",
+        "flash-cannon",
+        "muddy-water",
+        "power-whip"
     ]
 }
