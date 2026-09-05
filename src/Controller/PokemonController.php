@@ -7,6 +7,7 @@ use App\Entity\PokemonLocation;
 use App\Enum\TypeEnum;
 use App\Repository\MovesetRepository;
 use App\Repository\PokemonAccessRepository;
+use App\Service\PokeApi\PokeApiPokemonFetcher;
 use App\Service\PokeApiService;
 use App\Service\TrainerProfileService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -617,18 +618,22 @@ class PokemonController extends AbstractController
         $results = [];
         foreach ($allMovesMap as $slug => $data) {
             if (str_contains($slug, $query) || str_contains(strtolower($data['name']), strtolower($query))) {
-                // Encontrar quais Pokémon aprendem este golpe como Base Move
-                $basePokemon = [];
+                // Encontrar quais Pokémon aprendem este golpe como Base Move (deduplicando formas e alias)
+                $basePokemonMap = [];
                 foreach ($defaultBaseMoves as $pkSlug => $moves) {
-                    $idx = array_search($slug, $moves);
+                    $idx = array_search($slug, $moves, true);
                     if ($idx !== false) {
-                        $basePokemon[] = [
-                            'name' => $pkSlug,
-                            'display_name' => ucfirst(str_replace('-', ' ', $pkSlug)),
-                            'base_slot' => 'm'.($idx + 1),
-                        ];
+                        $canonicalSlug = PokeApiPokemonFetcher::resolveNameAlias($pkSlug);
+                        if (!isset($basePokemonMap[$canonicalSlug])) {
+                            $basePokemonMap[$canonicalSlug] = [
+                                'name' => $canonicalSlug,
+                                'display_name' => ucwords(str_replace('-', ' ', $canonicalSlug)),
+                                'base_slot' => 'm'.($idx + 1),
+                            ];
+                        }
                     }
                 }
+                $basePokemon = array_values($basePokemonMap);
 
                 $results[] = [
                     'slug' => $data['slug'],
@@ -690,10 +695,69 @@ class PokemonController extends AbstractController
             $moveSlug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($search))));
             try {
                 $moveDetails = $this->pokeApiService->getMoveDetailsWithLearnedBy($moveSlug);
-                if ($moveDetails && !empty($moveDetails['learned_by_pokemon'])) {
-                    $moveNameNorm = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($moveDetails['name']))));
-                    $tmCode = $tmsMap[$moveNameNorm] ?? null;
+            } catch (\Exception) {
+                $moveDetails = null;
+            }
 
+            if ($moveDetails) {
+                $moveNameNorm = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($moveDetails['name']))));
+                $tmCode = $tmsMap[$moveNameNorm] ?? null;
+
+                // Indexa os Pokémon permitidos para lookup rápido
+                $allBasicList = $this->pokeApiService->getPokemonBasicList();
+                $basicMapByName = [];
+                $basicMapById = [];
+                foreach ($allBasicList as $pItem) {
+                    $basicMapByName[$pItem['name']] = $pItem;
+                    $basicMapById[(int) $pItem['id']] = $pItem;
+                    $alias = PokeApiPokemonFetcher::resolveNameAlias($pItem['name']);
+                    if ($alias !== $pItem['name']) {
+                        $basicMapByName[$alias] = $pItem;
+                    }
+                }
+
+                $resultsMap = [];
+
+                // 1. Inclui TODOS os Pokémon de default_base_moves.json que possuem este golpe como Base Move
+                foreach ($defaultBaseMoves as $pkSlug => $moves) {
+                    $idx = array_search($moveNameNorm, $moves, true);
+                    if ($idx !== false) {
+                        $canonicalSlug = PokeApiPokemonFetcher::resolveNameAlias($pkSlug);
+                        $pData = $basicMapByName[$canonicalSlug] ?? $basicMapByName[$pkSlug] ?? null;
+
+                        if (!$pData) {
+                            try {
+                                $dt = $this->pokeApiService->getPokemonDetails($pkSlug);
+                                if ($dt && isset($dt['id']) && $this->pokeApiService->isPokemonAllowed((int) $dt['id'])) {
+                                    $pData = [
+                                        'id' => (int) $dt['id'],
+                                        'name' => $dt['name'],
+                                        'sprite' => $dt['sprite_official'] ?? $dt['sprite'] ?? sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', (int) $dt['id']),
+                                    ];
+                                }
+                            } catch (\Exception) {
+                                $pData = null;
+                            }
+                        }
+
+                        if ($pData && $this->pokeApiService->isPokemonAllowed((int) $pData['id'])) {
+                            $pId = (int) $pData['id'];
+                            if (!isset($resultsMap[$pId])) {
+                                $resultsMap[$pId] = [
+                                    'id' => $pId,
+                                    'name' => $pData['name'],
+                                    'sprite' => $pData['sprite'],
+                                    'is_base' => true,
+                                    'base_slot' => 'm'.($idx + 1).' (move nº '.($idx + 1).')',
+                                    'tm_code' => $tmCode,
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                // 2. Inclui Pokémon trazidos pela PokéAPI (por TM ou aprendizado geral de jogo)
+                if (!empty($moveDetails['learned_by_pokemon'])) {
                     foreach ($moveDetails['learned_by_pokemon'] as $p) {
                         $pId = (int) $p['id'];
                         if (!$this->pokeApiService->isPokemonAllowed($pId)) {
@@ -706,44 +770,55 @@ class PokemonController extends AbstractController
                         }
 
                         $pSlug = preg_replace('/-+/', '-', str_replace(' ', '-', strtolower(trim($p['name']))));
+                        $canonicalSlug = PokeApiPokemonFetcher::resolveNameAlias($pSlug);
                         $baseName = explode('-', $pSlug)[0];
 
-                        $isBaseMove = false;
-                        $baseSlotLabel = null;
-
-                        $matchedMoves = $defaultBaseMoves[$pSlug] ?? $defaultBaseMoves[$baseName] ?? null;
-                        if ($matchedMoves !== null) {
-                            $idx = array_search($moveNameNorm, $matchedMoves);
-                            if ($idx !== false) {
-                                $isBaseMove = true;
-                                $baseSlotLabel = 'm'.($idx + 1).' (move nº '.($idx + 1).')';
+                        if (isset($resultsMap[$pId])) {
+                            if ($tmCode) {
+                                $resultsMap[$pId]['tm_code'] = $tmCode;
                             }
-                        }
+                        } else {
+                            $matchedMoves = $defaultBaseMoves[$canonicalSlug] ?? $defaultBaseMoves[$pSlug] ?? $defaultBaseMoves[$baseName] ?? null;
+                            $isBaseMove = false;
+                            $baseSlotLabel = null;
 
-                        // Filtragem server-side baseada na aba ativa
-                        if ($filter === 'base' && !$isBaseMove) {
-                            continue;
-                        }
+                            if ($matchedMoves !== null) {
+                                $idx = array_search($moveNameNorm, $matchedMoves, true);
+                                if ($idx !== false) {
+                                    $isBaseMove = true;
+                                    $baseSlotLabel = 'm'.($idx + 1).' (move nº '.($idx + 1).')';
+                                }
+                            }
 
-                        if ($filter === 'tm' && !$tmCode) {
-                            continue;
-                        }
+                            $pData = $basicMapById[$pId] ?? null;
+                            $sprite = $pData['sprite'] ?? sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $pId);
+                            $displayName = $pData['name'] ?? $p['name'];
 
-                        $results[] = [
-                            'id' => $pId,
-                            'name' => $p['name'],
-                            'sprite' => sprintf('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/%d.png', $pId),
-                            'is_base' => $isBaseMove,
-                            'base_slot' => $baseSlotLabel,
-                            'tm_code' => $tmCode,
-                        ];
+                            $resultsMap[$pId] = [
+                                'id' => $pId,
+                                'name' => $displayName,
+                                'sprite' => $sprite,
+                                'is_base' => $isBaseMove,
+                                'base_slot' => $baseSlotLabel,
+                                'tm_code' => $tmCode,
+                            ];
+                        }
                     }
-
-                    // Ordena por ID do Pokémon
-                    usort($results, fn ($a, $b) => $a['id'] <=> $b['id']);
                 }
-            } catch (\Exception) {
-                $moveDetails = null;
+
+                // 3. Aplica o filtro selecionado (base vs tm)
+                foreach ($resultsMap as $pId => $item) {
+                    if ($filter === 'base' && !$item['is_base']) {
+                        continue;
+                    }
+                    if ($filter === 'tm' && !$item['tm_code']) {
+                        continue;
+                    }
+                    $results[] = $item;
+                }
+
+                // Ordena por ID do Pokémon
+                usort($results, fn ($a, $b) => $a['id'] <=> $b['id']);
             }
         }
 
