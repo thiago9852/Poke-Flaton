@@ -5,7 +5,7 @@
 **Portal estratégico para treinadores Pokémon: monte movesets, times, tier lists e acompanhe sua evolução como treinador.**
 
 [![CI](https://github.com/thiago9852/Poke-Flaton/actions/workflows/ci.yml/badge.svg)](https://github.com/thiago9852/Poke-Flaton/actions/workflows/ci.yml)
-![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb4?logo=php&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.4%2B-777bb4?logo=php&logoColor=white)
 ![Symfony](https://img.shields.io/badge/Symfony-7.2-000000?logo=symfony&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)
 
@@ -94,7 +94,7 @@ Documentação técnica mais detalhada (módulos, modelo de dados, decisões e d
 
 | Camada | Tecnologia |
 |---|---|
-| Backend | PHP 8.2+, Symfony 7.2 (Doctrine ORM, Security, Forms, Serializer) |
+| Backend | PHP 8.4+, Symfony 7.2 (Doctrine ORM, Security, Forms, Serializer) |
 | Frontend | Stimulus + Turbo (Symfony UX), AssetMapper (sem bundler externo) |
 | Banco de dados | MySQL 8 |
 | Dados externos | [PokeAPI](https://pokeapi.co/) via `HttpClient` + cache |

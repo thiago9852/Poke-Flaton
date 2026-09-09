@@ -2871,7 +2871,13 @@
     ],
     "tyrunt": [],
     "tyrantrum": [],
-    "amaura": [],
+    "amaura": [
+        "freeze-dry",
+        "powder-snow",
+        "rock-throw",
+        "icy-wind",
+        "avalanche"
+    ],
     "aurorus": [
         "freeze-dry",
         "powder-snow",
@@ -4818,6 +4824,15 @@
         "brick-break",
         "meteor-mash"
     ],
+    "Cyndaquil": [
+        "gyro-ball",
+        "agility",
+        "eruption",
+        "flamethrower",
+        "flame-wheel"
+    ],
+    "quilava": [
+    ],
     "typhlosion": [
         "gyro-ball",
         "agility",
@@ -4829,5 +4844,38 @@
         "lava-plume",
         "inferno",
         "overheat"
+    ],
+    "archen": [
+        "leer",
+        "rock-throw",
+        "wing-attack",
+        "dragonbreath",
+        "ancient-power"
+    ],
+    "igglybuff": [
+        "charm",
+        "disarming-voice",
+        "defense-curl",
+        "heal-pulse",
+        "last-resort"
+    ],
+    "archeops": [
+        "agility",
+        "sandstorm",
+        "dragon-claw",
+        "dragonbreath",
+        "rock-slide",
+        "heat-wave",
+        "uproar",
+        "outrage",
+        "crunch",
+        "assurance"
+    ],
+    "mantyke": [
+        "psybeam",
+        "agility",
+        "water-pulse",
+        "twister",
+        "air-slash"
     ]
 }

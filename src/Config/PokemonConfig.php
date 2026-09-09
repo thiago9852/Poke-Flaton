@@ -71,7 +71,7 @@ class PokemonConfig
         10250 => ['base_id' => 128, 'name' => 'tauros-paldea-combat-breed'],
         10251 => ['base_id' => 128, 'name' => 'tauros-paldea-blaze-breed'],
         10252 => ['base_id' => 128, 'name' => 'tauros-paldea-aqua-breed'],
-        10253 => ['base_id' => 194, 'name' => 'wooper-paldea'],
+        //10253 => ['base_id' => 194, 'name' => 'wooper-paldea'],
 
         // Wormadam & Basculin
         10004 => ['base_id' => 413, 'name' => 'wormadam-sandy'],
