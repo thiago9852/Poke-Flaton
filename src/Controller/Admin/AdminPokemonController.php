@@ -724,7 +724,7 @@ class AdminPokemonController extends AbstractController
         $ids = $request->request->all('ids');
         $action = $request->request->get('action');
 
-        if ($ids === [] || !is_array($ids)) {
+        if ($ids === []) {
             $this->addFlash('error', 'Nenhum moveset selecionado.');
 
             return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'movesets']);
@@ -814,7 +814,7 @@ class AdminPokemonController extends AbstractController
         $ids = $request->request->all('ids');
         $action = $request->request->get('action');
 
-        if ($ids === [] || !is_array($ids)) {
+        if ($ids === []) {
             $this->addFlash('error', 'Nenhuma localização selecionada.');
 
             return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'locations']);
@@ -854,7 +854,7 @@ class AdminPokemonController extends AbstractController
         $pokemonName = strtolower(trim($request->request->get('pokemonName', '')));
         $locations = $request->request->all('locations');
 
-        if (empty($pokemonName) || empty($locations) || !is_array($locations)) {
+        if (empty($pokemonName) || empty($locations)) {
             $this->addFlash('error', 'Nenhuma localização selecionada para importação.');
 
             return $this->redirectToRoute('app_admin_pokemon', ['tab' => 'locations', 'pokemon' => $pokemonName]);
