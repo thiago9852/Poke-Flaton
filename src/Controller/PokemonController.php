@@ -623,10 +623,10 @@ class PokemonController extends AbstractController
         foreach ($allMovesMap as $slug => $data) {
             $slugClean = str_replace('-', '', $slug);
             if (
-                str_contains($slug, $query) ||
-                str_contains($slug, $queryResolved) ||
-                str_contains($slugClean, $queryClean) ||
-                str_contains(strtolower($data['name']), strtolower($rawQuery))
+                str_contains($slug, $query)
+                || str_contains($slug, $queryResolved)
+                || str_contains($slugClean, $queryClean)
+                || str_contains(strtolower($data['name']), strtolower($rawQuery))
             ) {
                 // Encontrar quais Pokémon aprendem este golpe como Base Move (deduplicando formas e alias)
                 $basePokemonMap = [];

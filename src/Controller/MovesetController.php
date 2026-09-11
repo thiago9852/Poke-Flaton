@@ -83,7 +83,7 @@ class MovesetController extends AbstractController
                 $moveset->setNature($nature);
 
                 if ($this->getUser()) {
-                    /** @var \App\Entity\User $currentUser */
+                    /** @var User $currentUser */
                     $currentUser = $this->getUser();
                     $moveset->setAuthor($currentUser->getDisplayName());
                 } else {

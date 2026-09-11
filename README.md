@@ -1,17 +1,26 @@
 <div align="center">
 
-# Mov Set
+# Mov Set — Portal & API de Movesets Pokémon
 
-**Portal estratégico para treinadores Pokémon: monte movesets, times, tier lists e acompanhe sua evolução como treinador.**
+**Plataforma Web em PHP 8.4 e Symfony 7.2 com consumo otimizado de API externa, estratégia de caching sob demanda e arquitetura de persistência híbrida.**
 
 [![CI](https://github.com/thiago9852/Poke-Flaton/actions/workflows/ci.yml/badge.svg)](https://github.com/thiago9852/Poke-Flaton/actions/workflows/ci.yml)
 ![PHP](https://img.shields.io/badge/PHP-8.4%2B-777bb4?logo=php&logoColor=white)
 ![Symfony](https://img.shields.io/badge/Symfony-7.2-000000?logo=symfony&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
 
 </div>
 
-Projeto pessoal construído com Symfony consumindo dados em tempo real da [PokeAPI](https://pokeapi.co/) — sem duplicar o dex inteiro no banco, o app cacheia e enriquece os dados sob demanda, guardando localmente apenas o que é específico da comunidade (movesets, times, tier lists, perfis de treinador).
+---
+
+### 💡 Desafio de Engenharia & Solução
+
+* **Desafio de Engenharia:** Consumir uma base massiva de dados estáticos externos ([PokeAPI](https://pokeapi.co/)) sem provocar requisições redundantes, estouro de rate limits, gargalos de rede ou duplicação desnecessária de dados em banco relacional.
+* **Solução Técnica:** Arquitetura de persistência híbrida. A aplicação utiliza o `Symfony Cache` com TTL customizável para enriquecer e prover dados em memória sob demanda, reservando o banco de dados relacional (`MySQL 8` + `Doctrine ORM`) estritamente para os dados gerados pela comunidade (movesets, perfis de treinadores, tier lists e moderação).
+* **Qualidade & CI/CD:** Este repositório mantém padrões rigorosos de qualidade de código validados automaticamente no GitHub Actions através de **PHPStan (Level 5)**, **Rector** (refatoração automática), **PHP-CS-Fixer** (estilo de código) e **PHPUnit** (testes automatizados).
+
+---
 
 ## Índice
 
@@ -22,7 +31,6 @@ Projeto pessoal construído com Symfony consumindo dados em tempo real da [PokeA
 - [Como rodar](#como-rodar)
 - [Qualidade de código](#qualidade-de-código)
 - [Estrutura de pastas](#estrutura-de-pastas)
-- [Roadmap](#roadmap--débito-técnico-conhecido)
 
 ## Screenshots
 
